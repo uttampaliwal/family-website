@@ -24,6 +24,7 @@ The primary goal of the frontend is to provide a clean, modern, and intuitive us
 The project follows a standard Vite project structure with some additions for better organization:
 
 ```
+```
 apps/web/
 ├── public/
 │   └── vite.svg
@@ -37,7 +38,7 @@ apps/web/
 │   ├── pages/
 │   │   ├── HomePage.tsx
 │   │   ├── SignInPage.tsx
-│   │   └── SignUpPage.tsx
+│   │   ├── SignUpPage.tsx
 │   ├── routes/           # Route definitions
 │   ├── services/         # API services
 │   ├── styles/           # Global styles and Tailwind CSS configuration
@@ -53,6 +54,7 @@ apps/web/
 ├── postcss.config.js
 ├── tailwind.config.js
 └── tsconfig.json
+```
 ```
 
 ## 4. Styling and Design System
@@ -96,8 +98,9 @@ Components are organized into logical directories:
     *   `Button.css`: Stylesheet for the `Button` component.
 *   `src/pages`: Top-level components representing different views/pages of the application (e.g., HomePage, LoginPage, DashboardPage).
     *   `HomePage.tsx`: The main landing page, now revamped to integrate with backend data.
-    *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration.
-    *   `SignUpPage.tsx`: Handles user registration with form for email/password and API integration.
+    *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration. Includes client-side email format validation, loading states, improved messages, and redirection after successful sign-in.
+    *   `SignUpPage.tsx`: Handles user registration with form for name, email, password, and confirm password. Includes robust client-side validation for email format and password strength (minimum 8 characters, at least one uppercase, lowercase, number, and special character), password matching, loading states, improved messages, and redirection after successful sign-up.
+    *   `VerifyEmailPage.tsx`: Handles email verification by processing the token from the URL, communicating with the backend, and providing user feedback.
 *   `src/features`: (Future) Components and logic related to specific features (e.g., authentication, user profiles, blog posts).
 
 ## 8. Development Process
