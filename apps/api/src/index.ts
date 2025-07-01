@@ -7,7 +7,7 @@ import authMiddleware from './middleware/authMiddleware';
 
 const app = express();
 const port = process.env.PORT || 3001;
-const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/family-website';
+const mongoUri = process.env.MONGO_URI || 'mongodb://uttam:uttam@123@localhost:27017/family-website?authSource=admin';
 const jwtSecret = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use a strong secret in production
 
 // Middleware
