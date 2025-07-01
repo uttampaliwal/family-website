@@ -9,10 +9,21 @@ const SignInPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  const validateEmail = (email: string) => {
+    // Basic email regex validation
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
     setLoading(true);
+
+    if (!validateEmail(email)) {
+      setMessage('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:3001/api/auth/signin', {

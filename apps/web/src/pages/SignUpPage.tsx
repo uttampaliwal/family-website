@@ -11,19 +11,59 @@ const SignUpPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  const validateEmail = (email: string) => {
+    // Basic email regex validation
+    return /^[^
+@]+@[^
+@]+\.[^
+@]+$/.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    // Password must be at least 8 characters long
+    // Contain at least one uppercase letter
+    // Contain at least one lowercase letter
+    // Contain at least one number
+    // Contain at least one special character
+    const errors: string[] = [];
+    if (password.length < 8) {
+      errors.push('at least 8 characters long');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('at least one uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('at least one lowercase letter');
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.push('at least one number');
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      errors.push('at least one special character');
+    }
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
     setLoading(true);
 
-    if (password !== confirmPassword) {
-      setMessage('Passwords do not match.');
+    if (!validateEmail(email)) {
+      setMessage('Please enter a valid email address.');
       setLoading(false);
       return;
     }
 
-    if (password.length < 6) {
-      setMessage('Password must be at least 6 characters.');
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setMessage('Passwords do not match.');
       setLoading(false);
       return;
     }
@@ -44,8 +84,8 @@ const SignUpPage: React.FC = () => {
       if (response.ok) {
         setMessage(data.message || 'Sign up successful! Redirecting to sign-in...');
         setTimeout(() => {
-          navigate('/signin'); // Redirect to sign-in page after successful sign-up
-        }, 1500); // Give user time to read success message
+          navigate('/signin');
+        }, 1500);
       } else {
         setMessage(data.message || 'Sign up failed.');
       }
