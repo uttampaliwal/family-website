@@ -2,22 +2,35 @@ import React, { useState } from 'react';
 import Button from '../components/Button';
 
 const SignUpPage: React.FC = () => {
+  const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage('');
+
+    if (password !== confirmPassword) {
+      setMessage('Passwords do not match.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage('Password must be at least 6 characters.');
+      return;
+    }
+
     setMessage('Attempting to sign up...');
 
     try {
-      // Replace with your actual backend API endpoint for sign-up
       const response = await fetch('http://localhost:3001/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
@@ -39,6 +52,17 @@ const SignUpPage: React.FC = () => {
       <h1>Sign Up</h1>
       <form onSubmit={handleSubmit} style={{ display: 'inline-block', textAlign: 'left' }}>
         <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="name" style={{ display: 'block', marginBottom: '5px' }}>Name:</label>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
           <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>Email:</label>
           <input
             type="email"
@@ -56,6 +80,17 @@ const SignUpPage: React.FC = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
+        </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="confirmPassword" style={{ display: 'block', marginBottom: '5px' }}>Confirm Password:</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
             style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
           />

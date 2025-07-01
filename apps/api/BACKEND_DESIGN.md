@@ -42,14 +42,15 @@ The backend follows a layered architecture:
 MongoDB is used as the primary data store. Mongoose is used as an Object Data Modeling (ODM) library to interact with MongoDB, providing schema-based solutions to model application data.
 
 *   **Connection:** Established using `mongoose.connect` with URI from environment variables.
-*   **User Schema:** A basic `User` schema is defined for storing user email and hashed passwords.
+*   **User Schema:** A `User` schema is defined for storing user `name`, `email`, and hashed `password`.
 
 ## 5. Authentication
 
 User authentication is implemented using JWTs and `bcryptjs` for secure password handling.
 
 *   **Sign Up (`POST /api/auth/signup`):**
-    *   Accepts `email` and `password`.
+    *   Accepts `name`, `email`, and `password`.
+    *   Includes basic server-side validation for all fields and password length (minimum 6 characters).
     *   Hashes the password using `bcryptjs`.
     *   Saves the new user to MongoDB.
     *   Generates a JWT and returns it upon successful registration.
