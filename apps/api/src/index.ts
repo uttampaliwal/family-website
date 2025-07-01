@@ -1,8 +1,11 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import dotenv from 'dotenv'; // Import dotenv
 import authMiddleware from './middleware/authMiddleware';
 import authRoutes from './routes/auth'; // Import authentication routes
+
+dotenv.config(); // Load environment variables from .env file
 
 const app = express();
 const port = process.env.PORT || 3001;
