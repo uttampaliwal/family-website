@@ -118,6 +118,7 @@ While Next.js is a powerful and popular React framework offering comprehensive f
 
 *   **Increased Complexity:** Next.js introduces a steeper learning curve with its various rendering strategies and opinionated structure, which could detract from the primary goal of learning core full-stack concepts.
 *   **Redundant Features:** Its integrated backend features are not required given the existing separate Express.js API.
+
 *   **Frequent Paradigm Shifts:** Next.js's rapid evolution and frequent introduction of new concepts can lead to a more volatile development environment, which is less ideal for a foundational learning project.
 
 ### Conclusion
