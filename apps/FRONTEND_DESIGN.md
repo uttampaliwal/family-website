@@ -98,8 +98,8 @@ Components are organized into logical directories:
     *   `Button.css`: Stylesheet for the `Button` component.
 *   `src/pages`: Top-level components representing different views/pages of the application (e.g., HomePage, LoginPage, DashboardPage).
     *   `HomePage.tsx`: The main landing page, now revamped to integrate with backend data.
-    *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration.
-    *   `SignUpPage.tsx`: Handles user registration with form for email/password and API integration.
+    *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration. Includes loading states, improved messages, and redirection after successful sign-in.
+    *   `SignUpPage.tsx`: Handles user registration with form for name, email, password, and confirm password, with client-side validation and API integration. Includes loading states, improved messages, and redirection after successful sign-up.
 *   `src/features`: (Future) Components and logic related to specific features (e.g., authentication, user profiles, blog posts).
 
 ## 8. Development Process

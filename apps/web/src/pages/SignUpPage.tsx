@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 
 const SignUpPage: React.FC = () => {
@@ -7,18 +8,23 @@ const SignUpPage: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
+    setLoading(true);
 
     if (password !== confirmPassword) {
       setMessage('Passwords do not match.');
+      setLoading(false);
       return;
     }
 
     if (password.length < 6) {
       setMessage('Password must be at least 6 characters.');
+      setLoading(false);
       return;
     }
 
@@ -36,14 +42,18 @@ const SignUpPage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message || 'Sign up successful!');
-        // Here you would typically redirect the user to a sign-in page or dashboard.
+        setMessage(data.message || 'Sign up successful! Redirecting to sign-in...');
+        setTimeout(() => {
+          navigate('/signin'); // Redirect to sign-in page after successful sign-up
+        }, 1500); // Give user time to read success message
       } else {
         setMessage(data.message || 'Sign up failed.');
       }
     } catch (error) {
       console.error('Error during sign-up:', error);
       setMessage('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,6 +69,7 @@ const SignUpPage: React.FC = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            disabled={loading}
             style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
@@ -70,6 +81,7 @@ const SignUpPage: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
             style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
@@ -81,6 +93,7 @@ const SignUpPage: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
             style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
@@ -92,10 +105,11 @@ const SignUpPage: React.FC = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+            disabled={loading}
             style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
-        <Button label="Sign Up" type="submit" />
+        <Button label={loading ? 'Signing Up...' : 'Sign Up'} type="submit" disabled={loading} />
       </form>
       {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
     </div>

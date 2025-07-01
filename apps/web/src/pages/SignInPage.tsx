@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 
 const SignInPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('Attempting to sign in...');
+    setMessage('');
+    setLoading(true);
 
     try {
-      // Replace with your actual backend API endpoint for sign-in
       const response = await fetch('http://localhost:3001/api/auth/signin', {
         method: 'POST',
         headers: {
@@ -24,15 +27,20 @@ const SignInPage: React.FC = () => {
 
       if (response.ok) {
         setMessage(data.message || 'Sign in successful!');
-        // Here you would typically store the JWT token (e.g., in localStorage or HttpOnly cookie)
-        // and redirect the user to a dashboard or home page.
+        // In a real app, you'd store the JWT token (e.g., in localStorage or HttpOnly cookie)
+        // and then redirect.
         console.log('JWT Token (placeholder):', data.token);
+        setTimeout(() => {
+          navigate('/'); // Redirect to home page after successful sign-in
+        }, 1500); // Give user time to read success message
       } else {
         setMessage(data.message || 'Sign in failed.');
       }
     } catch (error) {
       console.error('Error during sign-in:', error);
       setMessage('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,6 +56,7 @@ const SignInPage: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
             style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
@@ -59,10 +68,11 @@ const SignInPage: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
             style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
-        <Button label="Sign In" type="submit" />
+        <Button label={loading ? 'Signing In...' : 'Sign In'} type="submit" disabled={loading} />
       </form>
       {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
     </div>
