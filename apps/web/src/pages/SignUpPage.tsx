@@ -13,10 +13,7 @@ const SignUpPage: React.FC = () => {
 
   const validateEmail = (email: string) => {
     // Basic email regex validation
-    return /^[^
-@]+@[^
-@]+\.[^
-@]+$/.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const validatePassword = (password: string) => {
