@@ -12,7 +12,7 @@ const SignUpPage: React.FC = () => {
 
     try {
       // Replace with your actual backend API endpoint for sign-up
-      const response = await fetch('http://localhost:3000/api/auth/signup', {
+      const response = await fetch('http://localhost:3001/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

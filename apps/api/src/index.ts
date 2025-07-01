@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import cors from 'cors';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -9,6 +10,7 @@ const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/family-webs
 const jwtSecret = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use a strong secret in production
 
 // Middleware
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // For parsing application/json
 
 mongoose.connect(mongoUri)
