@@ -32,6 +32,7 @@ The backend application is a Node.js Express.js server responsible for handling 
 The backend follows a layered architecture:
 
 *   **Routes:** Define API endpoints and handle request/response logic.
+    *   `auth.ts`: Contains authentication-related routes (sign-up, sign-in).
 *   **Middleware:** Intercept requests for tasks like authentication, logging, etc.
     *   `authMiddleware.ts`: Verifies JWTs and protects routes.
 *   **Models:** Define Mongoose schemas for MongoDB data structures.
