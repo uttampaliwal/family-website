@@ -24,16 +24,21 @@ The primary goal of the frontend is to provide a clean, modern, and intuitive us
 The project follows a standard Vite project structure with some additions for better organization:
 
 ```
+```
 apps/web/
 ├── public/
 │   └── vite.svg
+│   └── family-logo.svg
 ├── src/
 │   ├── assets/
 │   │   └── react.svg
 │   ├── components/
-│   │   ├── common/         # Reusable components (Button, Input, etc.)
-│   │   └── layout/         # Layout components (Navbar, Footer, etc.)
-│   ├── pages/            # Page components (HomePage, LoginPage, etc.)
+│   │   ├── Button.css
+│   │   └── Button.tsx
+│   ├── pages/
+│   │   ├── HomePage.tsx
+│   │   ├── SignInPage.tsx
+│   │   └── SignUpPage.tsx
 │   ├── routes/           # Route definitions
 │   ├── services/         # API services
 │   ├── styles/           # Global styles and Tailwind CSS configuration
@@ -49,6 +54,7 @@ apps/web/
 ├── postcss.config.js
 ├── tailwind.config.js
 └── tsconfig.json
+```
 ```
 
 ## 4. Styling and Design System
@@ -88,7 +94,10 @@ This styling will be applied using Tailwind CSS classes, ensuring consistency ac
 Components are organized into logical directories:
 
 *   `src/components`: Reusable UI components (e.g., Button, Modal, Card).
+    *   `Button.tsx`: A reusable button component with styling inspired by the default Vite React template.
+    *   `Button.css`: Stylesheet for the `Button` component.
 *   `src/pages`: Top-level components representing different views/pages of the application (e.g., HomePage, LoginPage, DashboardPage).
+    *   `HomePage.tsx`: The main landing page, now revamped to integrate with backend data.
     *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration.
     *   `SignUpPage.tsx`: Handles user registration with form for email/password and API integration.
 *   `src/features`: (Future) Components and logic related to specific features (e.g., authentication, user profiles, blog posts).
