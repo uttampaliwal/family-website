@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import authMiddleware from './middleware/authMiddleware';
+import User from './models/User'; // Import the User model
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -18,13 +19,7 @@ mongoose.connect(mongoUri)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// User Schema (for demonstration purposes - ideally in a separate file)
-const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-});
 
-const User = mongoose.model('User', UserSchema);
 
 // Routes
 app.get('/', (req, res) => {
@@ -33,7 +28,16 @@ app.get('/', (req, res) => {
 
 // Sign Up Route
 app.post('/api/auth/signup', async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
+
+  // Basic validation
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Please enter all fields' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+  }
 
   try {
     let user = await User.findOne({ email });
@@ -45,6 +49,7 @@ app.post('/api/auth/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     user = new User({
+      name,
       email,
       password: hashedPassword,
     });
