@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
+import authMiddleware from './middleware/authMiddleware';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -83,6 +84,10 @@ app.post('/api/auth/signin', async (req, res) => {
     console.error(err);
     res.status(500).send('Server error');
   }
+});
+
+app.get('/api/protected', authMiddleware, (req, res) => {
+  res.json({ message: 'This is a protected route!', user: req.user });
 });
 
 app.listen(port, () => {
