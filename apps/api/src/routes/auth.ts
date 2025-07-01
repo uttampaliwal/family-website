@@ -2,10 +2,12 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto'; // For generating random tokens
+import { sendEmail } from '../utils/emailService'; // Import email service
 import User from '../models/User';
 
 const router = express.Router();
 const jwtSecret = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use a strong secret in production
+
 
 // Sign Up Route
 router.post('/signup', async (req, res) => {
@@ -40,9 +42,12 @@ router.post('/signup', async (req, res) => {
 
     await user.save();
 
-    // TODO: Send verification email
-    const verificationUrl = `http://localhost:5173/verify-email?token=${verificationToken}`;
-    console.log(`Verification URL: ${verificationUrl}`); // For development
+    // Send verification email
+    await sendEmail({
+      to: email,
+      subject: 'Verify Your Email for Family Website',
+      html: `<p>Please click the following link to verify your email:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
+    });
 
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
