@@ -43,7 +43,7 @@ The backend follows a layered architecture:
 MongoDB is used as the primary data store. Mongoose is used as an Object Data Modeling (ODM) library to interact with MongoDB, providing schema-based solutions to model application data.
 
 *   **Connection:** Established using `mongoose.connect` with URI from environment variables.
-*   **User Schema:** A `User` schema is defined for storing user `name`, `email`, and hashed `password`.
+*   **User Schema:** A `User` schema is defined for storing user `name`, `email`, hashed `password`, `isVerified` status (boolean), and a `verificationToken` (string).
 
 ## 5. Authentication
 
@@ -52,13 +52,19 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 *   **Sign Up (`POST /api/auth/signup`):**
     *   Accepts `name`, `email`, and `password`.
     *   Includes basic server-side validation for all fields and password length (minimum 6 characters).
-    *   Hashes the password using `bcryptjs`.
-    *   Saves the new user to MongoDB.
-    *   Generates a JWT and returns it upon successful registration.
+    *   Generates a unique `verificationToken`.
+    *   Saves the new user to MongoDB with `isVerified` set to `false`.
+    *   Returns a success message and a JWT upon successful registration (user still needs to verify email).
 *   **Sign In (`POST /api/auth/signin`):
     *   Accepts `email` and `password`.
+    *   Checks if the user's email is verified (`isVerified` status).
     *   Verifies credentials by comparing the provided password with the stored hashed password using `bcryptjs`.
     *   Generates a JWT and returns it upon successful authentication.
+*   **Email Verification (`GET /api/auth/verify-email`):
+    *   Accepts a `token` query parameter.
+    *   Finds the user associated with the token.
+    *   Sets `isVerified` to `true` and clears the `verificationToken`.
+    *   Returns a success message.
 *   **Authentication Middleware (`authMiddleware`):**
     *   Verifies the JWT provided in the `x-auth-token` header.
     *   If valid, decodes the token and attaches user information to the request object (`req.user`).

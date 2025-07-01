@@ -82,10 +82,12 @@ const SignUpPage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message || 'Sign up successful! Redirecting to sign-in...');
-        setTimeout(() => {
-          navigate('/signin');
-        }, 1500);
+        setMessage(data.message || 'Sign up successful! Please check your email for verification.');
+        // No automatic redirection to sign-in after sign-up with email verification
+        // The user needs to verify their email first.
+        // setTimeout(() => {
+        //   navigate('/signin');
+        // }, 1500);
       } else {
         setMessage(data.message || 'Sign up failed.');
       }
