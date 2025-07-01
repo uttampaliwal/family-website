@@ -82,4 +82,4 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 
 *   **Development Server:** `ts-node-dev` is used for development, providing automatic restarts on code changes.
 *   **Build Process:** TypeScript is compiled to JavaScript using `tsc`.
-*   **Environment Variables:** Sensitive information like `MONGO_URI`, `JWT_SECRET`, `EMAIL_USER`, and `EMAIL_PASS` are managed via environment variables.
+*   **Environment Variables:** Sensitive information like `MONGO_URI`, `JWT_SECRET`, `EMAIL_USER`, and `EMAIL_PASS` are managed via environment variables loaded using `dotenv`.
