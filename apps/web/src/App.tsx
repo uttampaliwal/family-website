@@ -1,47 +1,28 @@
-import { useState, useEffect } from 'react';
-import LoginPage from './components/Auth/LoginPage';
-import SignupPage from './components/Auth/SignupPage';
-import DashboardPage from './pages/DashboardPage';
-import Layout from './components/Layout';
-import { useAuth } from './context/AuthContext';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import SignInPage from './pages/SignInPage';
+import SignUpPage from './pages/SignUpPage';
+import Button from './components/Button';
 
 function App() {
-  const [showLogin, setShowLogin] = useState(true);
-  const { isAuthenticated, login } = useAuth();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // In a real app, you'd verify the token with your backend
-      // and fetch user data before logging in.
-      // For now, we'll assume a valid token means authenticated.
-      login(token, { name: 'Authenticated User', email: 'user@example.com' }); // Placeholder user data
-    }
-  }, [login]);
-
-  const handleSwitchToSignup = () => {
-    setShowLogin(false);
-  };
-
-  const handleSwitchToLogin = () => {
-    setShowLogin(true);
-  };
-
   return (
-    <Layout>
-      {isAuthenticated ? (
-        <DashboardPage />
-      ) : (
-        <div className="App">
-          {showLogin ? (
-            <LoginPage onSwitchToSignup={handleSwitchToSignup} />
-          ) : (
-            <SignupPage onSwitchToLogin={handleSwitchToLogin} />
-          )}
+    <Router>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
+        <Link to="/">
+          <img src="/family-logo.svg" className="logo-glow" alt="Family Logo" style={{ width: '100px', height: '100px' }} />
+        </Link>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+        </Routes>
+        {/* Sign In/Sign Up buttons - DO NOT CHANGE WITHOUT PERMISSION */}
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <Link to="/signin"><Button label="Sign In" /></Link>
+          <Link to="/signup"><Button label="Sign Up" style={{ marginLeft: '10px' }} /></Link>
         </div>
-      )}
-    </Layout>
+      </div>
+    </Router>
   );
 }
 

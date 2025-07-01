@@ -1,48 +1,88 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import path from 'path';
+import express from 'express';
 import mongoose from 'mongoose';
-import authRoutes from './routes/auth';
-import calendarRoutes from './routes/calendar';
-
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
-console.log('MONGO_URI:', process.env.MONGO_URI);
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const app = express();
 const port = process.env.PORT || 3001;
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/family-website';
+const jwtSecret = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use a strong secret in production
 
-// Connect to MongoDB
-const connectDB = async () => {
-  try {
-    console.log('Attempting to connect to MongoDB...');
-    await mongoose.connect(process.env.MONGO_URI as string, {
-      serverSelectionTimeoutMS: 5000, // 5 second timeout
-      user: 'uttam',
-      pass: 'REDACTED_MONGO_PASSWORD',
-      authSource: 'admin' // Specify the authentication database
-    });
-    console.log('MongoDB Connected successfully!');
-  } catch (err: any) {
-    console.error('MongoDB connection error:', err.message);
-    // Exit process with failure
-    process.exit(1);
-  }
-};
+// Middleware
+app.use(express.json()); // For parsing application/json
 
-connectDB();
+mongoose.connect(mongoUri)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-app.use(cors());
-app.use(express.json());
+// User Schema (for demonstration purposes - ideally in a separate file)
+const UserSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
 
-// Define Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/calendar', calendarRoutes);
+const User = mongoose.model('User', UserSchema);
 
-app.get('/', (req: Request, res: Response) => {
+// Routes
+app.get('/', (req, res) => {
   res.send('Hello from the API!');
 });
 
-app.listen(port, (): void => {
+// Sign Up Route
+app.post('/api/auth/signup', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user = new User({
+      email,
+      password: hashedPassword,
+    });
+
+    await user.save();
+
+    const payload = { user: { id: user.id } };
+    const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
+
+    res.status(201).json({ message: 'User registered successfully', token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+// Sign In Route
+app.post('/api/auth/signin', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const payload = { user: { id: user.id } };
+    const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
+
+    res.json({ message: 'Signed in successfully', token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+app.listen(port, () => {
   console.log(`API server listening on port ${port}`);
 });
