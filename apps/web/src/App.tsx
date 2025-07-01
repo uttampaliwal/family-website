@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import Button from './components/Button';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
         </Routes>
         {/* Sign In/Sign Up buttons - DO NOT CHANGE WITHOUT PERMISSION */}
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
