@@ -60,6 +60,7 @@ The project is in an active implementation phase. The foundational monorepo stru
 *   **Backend (`apps/api`):**
     *   A minimal Express.js server with robust authentication routes (register, login, email verification).
     *   MongoDB integration for data persistence.
+    *   Implemented centralized error handling middleware for graceful error management.
 
 ## 6. Recent Development (July 2, 2025)
 
@@ -68,5 +69,24 @@ The project is in an active implementation phase. The foundational monorepo stru
 *   **Styling Refactoring:** All inline styles in the web application have been refactored to use Tailwind CSS classes, significantly improving code quality and maintainability.
 *   **Custom Select Component:** Implemented a custom select component for the gender field on the register page to overcome native HTML select styling limitations and ensure theme consistency.
 *   **Frontend Validation Enhancement:** Improved the specificity and order of validation messages on the register page for a better user experience.
+*   **Backend Error Handling:** Implemented centralized error handling middleware in the API for graceful error management.
 *   **Terminology Standardization:** Standardized "Sign Up" to "Register" and "Sign In" to "Login" across the entire project (code and documentation) for consistency.
 *   **Version Release:** Version `v0.1.0` has been released and tagged in Git.
+*   **Dependency and TypeScript Configuration Updates:** Upgraded dependencies to their latest stable versions and ensured consistent TypeScript configurations across `apps/api` and `apps/web`. Removed the root `tsconfig.json`.
+*   **Backend Development Environment Fix:** Resolved issues with `npm run dev` in `apps/api` by switching from `ts-node-dev` to `tsx` and removing redundant dependencies, ensuring a stable development environment.
+*   **Security Enhancements:**
+    *   Changed email verification route from GET to POST in `apps/api/src/routes/auth.ts`.
+    *   Removed hardcoded MongoDB credentials from `apps/api/src/index.ts`.
+    *   Removed hardcoded JWT secret fallbacks from `apps/api/src/middleware/authMiddleware.ts` and `apps/api/src/routes/auth.ts`.
+*   **Robustness & Error Handling:**
+    *   Improved error handling in `apps/api/src/routes/auth.ts` to provide more specific client messages and detailed logging.
+    *   Added MongoDB reconnection logic in `apps/api/src/index.ts`.
+*   **Validation & Performance:**
+    *   Enhanced user registration validation (email format, password strength) in `apps/api/src/routes/auth.ts`.
+    *   Defined indexes for `email` and `username` in `apps/api/src/models/User.ts`.
+*   **Frontend Improvements:**
+    *   Configured API endpoint in `apps/web/src/pages/RegisterPage.tsx` via environment variables.
+    *   Improved network error handling with retry mechanisms in `apps/web/src/pages/RegisterPage.tsx`.
+    *   Enhanced form accessibility with ARIA attributes in `apps/web/src/pages/RegisterPage.tsx`.
+    *   Implemented memoization (`useCallback`) for event handlers in `apps/web/src/pages/RegisterPage.tsx`.
+    *   Added a note for logo image optimization in `apps/web/src/App.tsx` and `README.md`.

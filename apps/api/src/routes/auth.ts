@@ -6,7 +6,7 @@ import { sendEmail } from '../utils/emailService'; // Import email service
 import User from '../models/User';
 
 const router = express.Router();
-const jwtSecret = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use a strong secret in production
+const jwtSecret = process.env.JWT_SECRET as string; // Use a strong secret in production
 
 
 // Register Route
@@ -18,8 +18,27 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ message: 'Please enter all required fields' });
   }
 
-  if (password.length < 6) {
-    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+  // Email format validation
+  const emailRegex = /^[\S@]+@[\S@]+\.[\S@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: 'Please enter a valid email address' });
+  }
+
+  // Password strength validation
+  if (password.length < 8) {
+    return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+  }
+  if (!/[A-Z]/.test(password)) {
+    return res.status(400).json({ message: 'Password must contain at least one uppercase letter' });
+  }
+  if (!/[a-z]/.test(password)) {
+    return res.status(400).json({ message: 'Password must contain at least one lowercase letter' });
+  }
+  if (!/[0-9]/.test(password)) {
+    return res.status(400).json({ message: 'Password must contain at least one number' });
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return res.status(400).json({ message: 'Password must contain at least one special character' });
   }
 
   try {
@@ -51,7 +70,7 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email`;
 
     // Send verification email
     await sendEmail({
@@ -65,8 +84,8 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', token });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    console.error('Registration error:', err);
+    res.status(500).json({ message: 'Registration failed. Please try again later.' });
   }
 });
 
@@ -95,14 +114,14 @@ router.post('/login', async (req, res) => {
 
     res.json({ message: 'Logged in successfully', token });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Login failed. Please try again later.' });
   }
 });
 
 // Verify Email Route
-router.get('/verify-email', async (req, res) => {
-  const { token } = req.query;
+router.post('/verify-email', async (req, res) => {
+  const { token } = req.body; // Token should be sent in the request body for security
 
   try {
     const user = await User.findOne({ verificationToken: token });
@@ -117,8 +136,8 @@ router.get('/verify-email', async (req, res) => {
 
     res.status(200).json({ message: 'Email verified successfully! You can now sign in.' });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    console.error('Email verification error:', err);
+    res.status(500).json({ message: 'Email verification failed. Please try again later.' });
   }
 });
 
