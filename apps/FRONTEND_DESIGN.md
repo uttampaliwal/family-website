@@ -78,14 +78,15 @@ The overall visual design aims for a clean, modern, and user-friendly aesthetic.
 
 ### Button Styling
 
-Buttons, especially for core actions like "Sign In" and "Register," will adopt a style similar to the "count is 0" button found in the default Vite React template. This includes:
+Buttons, especially for core actions like "Login" and "Register," will adopt a style similar to the "count is 0" button found in the default Vite React template. This includes:
 
-*   **Rounded Corners:** Slightly rounded borders for a softer look.
-*   **Subtle Border:** A thin, subtle border that changes color on hover.
-*   **Padding:** Generous padding for comfortable click areas.
-*   **Font:** Inherited font family, medium weight.
-*   **Background:** A dark background in dark mode, and a light background in light mode, with a subtle transition on hover.
-*   **Focus Outline:** A clear focus outline for accessibility.
+*   **Rounded Corners:** `rounded-[4px]` for a softer look.
+*   **Subtle Border:** `border border-solid border-[#ccc]` for a thin, subtle border.
+*   **Padding:** `p-[8px]` for comfortable click areas.
+*   **Font:** Inherited font family, `font-medium` weight.
+*   **Background:** `bg-white dark:bg-[#242424]` for a light background in light mode and a dark background in dark mode, with `hover:bg-gray-100 dark:hover:bg-gray-700` for a subtle transition on hover.
+*   **Text Color:** `text-black dark:text-[rgba(255,255,255,0.87)]` for text color that adapts to the theme.
+*   **Focus Outline:** A clear focus outline for accessibility (handled by browser defaults or global styles).
 
 This styling will be applied using Tailwind CSS classes, ensuring consistency across the application.
 
@@ -138,3 +139,7 @@ Both Vite and Next.js are excellent, modern technologies capable of building hig
 By following this guide, we can create a high-quality, maintainable, and scalable frontend for the family website.
 
 **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](../../family-website-checkpoint.zip)
+
+## 10. Version History
+
+- **v0.1.0 (July 2, 2025):** Initial release with basic login and register pages, and foundational project structure.
