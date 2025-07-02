@@ -49,17 +49,19 @@ npm install
 
 ### 3. Set up Environment Variables (for Backend)
 
-Create a `.env` file in the `apps/api` directory with the following content:
+Create a `.env` file in the `apps/api` directory with the necessary environment variables. These variables are crucial for the backend's operation, including database connection, JWT authentication, and email services. Refer to the backend documentation for a complete list of required variables and their descriptions.
+
+**Example `.env` structure (values should be kept secret):**
 
 ```
 PORT=3001
-MONGO_URI=mongodb://localhost:27017/family-website
+MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
-EMAIL_USER=your_email@example.com
+EMAIL_USER=your_email_username
 EMAIL_PASS=your_email_password
 ```
 
-**Note:** For `MONGO_URI`, if you're running MongoDB via Docker, `localhost` should work. Replace `your_jwt_secret_key`, `your_email@example.com`, and `your_email_password` with your actual values.
+**Note:** Ensure your `MONGO_URI` is correctly configured for your MongoDB instance (e.g., `mongodb://localhost:27017/family-website` for a local Docker setup). The `JWT_SECRET` should be a strong, randomly generated string. `EMAIL_USER` and `EMAIL_PASS` are for your email service provider.
 
 ### 4. Run MongoDB with Docker
 
