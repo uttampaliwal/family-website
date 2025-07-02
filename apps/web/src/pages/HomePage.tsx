@@ -21,8 +21,8 @@ const HomePage: React.FC = () => {
           }, 1000);
         });
         setData(response);
-      } catch (err) {
-        setError('Failed to fetch data from backend.');
+      } catch (error: unknown) {
+        setError(`Failed to fetch data from backend: ${(error as Error).message}`);
       } finally {
         setLoading(false);
       }
