@@ -17,6 +17,8 @@ package-lock.json
 .DS_Store
 .env.local
 .env*.local
+apps/web/.env
+/apps/*/.env
 .nvmrc
 npm-debug.log*
 yarn-debug.log*
@@ -28,6 +30,9 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+*.bak
+*.old
+*.orig
 
 # Custom additions
 /docs
