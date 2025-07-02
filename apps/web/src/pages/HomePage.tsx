@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import AuthButtons from '../components/AuthButtons';
 
 interface BackendData {
   message: string;
@@ -43,7 +44,7 @@ const HomePage: React.FC = () => {
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>{data?.message}</h1>
       <p>This is your personalized family website. More content coming soon!</p>
-      {/* You can add more dynamic content here based on backend data */}
+      <AuthButtons />
     </div>
   );
 };

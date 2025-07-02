@@ -50,7 +50,7 @@ MongoDB is used as the primary data store. Mongoose is used as an Object Data Mo
 
 User authentication is implemented using JWTs and `bcryptjs` for secure password handling.
 
-*   **Sign Up (`POST /api/auth/signup`):**
+*   **Register (`POST /api/auth/register`):**
     *   Accepts `name`, `email`, and `password`.
     *   Includes basic server-side validation for all fields and password length (minimum 6 characters).
     *   Generates a unique `verificationToken`.
@@ -75,7 +75,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 ## 6. API Endpoints
 
 *   **`/` (GET):** Basic health check, returns "Hello from the API!".
-*   **`/api/auth/signup` (POST):** User registration.
+*   **`/api/auth/register` (POST):** User registration.
 *   **`/api/auth/signin` (POST):** User login.
 *   **`/api/protected` (GET):** Example of a protected route that requires a valid JWT.
 

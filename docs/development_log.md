@@ -11,7 +11,7 @@ This document tracks the development process, decisions, and technical explanati
 - MERN-like monorepo for scalability and separation of concerns.
 - Local management of databases and files for full control.
 - Detailed explanations for all technology choices and alternatives.
-- User authentication (Sign In/Up) for family members to access personal dashboards.
+- User authentication (Sign In/Register) for family members to access personal dashboards.
 - Content: Photos, blogs, calendars.
 - Access: A mix of public-facing pages and private, login-protected dashboards.
 - Future Features: Potential for a chat application.
@@ -63,7 +63,7 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
 
 ### Chunk 4: Basic Frontend Login UI (2025-06-26)
 - Created a `components` directory in the `web` app.
-- Created `LoginPage.tsx` and `SignupPage.tsx` with basic, unstyled forms.
+- Created `LoginPage.tsx` and `RegisterPage.tsx` with basic, unstyled forms.
 - Updated `App.tsx` to display the new components.
 
 ### Chunk 5: Styling Setup with Tailwind CSS & Environment Troubleshooting (2025-06-26)
@@ -86,11 +86,11 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
 - **Fix 2:** Updated `apps/web/postcss.config.js` to use `@tailwindcss/postcss` instead of `tailwindcss`.
 - **Verification:** The web application successfully started and is accessible on `http://localhost:5174` (port 5173 was in use).
 
-### Chunk 7: Styling Login/Signup UI (2025-06-27)
-- Applied basic Tailwind CSS styling to `LoginPage.tsx` and `SignupPage.tsx` to create a visually appealing and responsive form layout.
+### Chunk 7: Styling Login/Register UI (2025-06-27)
+- Applied basic Tailwind CSS styling to `LoginPage.tsx` and `RegisterPage.tsx` to create a visually appealing and responsive form layout.
 
-### Chunk 8: Conditional Rendering of Login/Signup UI (2025-06-27)
-- Modified `App.tsx` to conditionally render `LoginPage` and `SignupPage` components, allowing users to switch between them via a button.
+### Chunk 8: Conditional Rendering of Login/Register UI (2025-06-27)
+- Modified `App.tsx` to conditionally render `LoginPage` and `RegisterPage` components, allowing users to switch between them via a button.
 - Ensured only one form is displayed at a time, resolving previous layout conflicts and centering the active form on the page.
 
 ### Chunk 9: Backend Authentication Review (2025-06-27)
@@ -102,7 +102,7 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
 - **Conclusion:** The core backend authentication logic is already in place.
 
 ### Chunk 10: Frontend-Backend Integration for Authentication (2025-06-27)
-- Modified `apps/web/src/components/SignupPage.tsx` to handle user registration.
+- Modified `apps/web/src/components/RegisterPage.tsx` to handle user registration.
   - Added state variables for name, email, password, and messages.
   - Implemented `handleSubmit` function to send registration data to `http://localhost:3001/api/auth/register`.
   - Displayed success or error messages based on API response.
@@ -158,7 +158,7 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
     - Implemented logic to check for the 'User not found' message from the backend.
     - If 'User not found', displays a message and redirects the user to the sign-up page after a short delay.
     - Centered the sign-in form using `margin: '0 auto'` and `max-width`.
-- **Frontend (`apps/web/src/pages/SignUpPage.tsx`):
+- **Frontend (`apps/web/src/pages/RegisterPage.tsx`):
     - Removed unused `useNavigate` import and declaration to resolve linting errors.
     - Centered the sign-up form using `margin: '0 auto'` and `max-width`.
 - **Frontend (`apps/web/src/pages/HomePage.tsx`):
@@ -174,9 +174,9 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
 - **Issue:** The web application was showing a blank gray page after recent changes to `App.tsx`.
 - **Diagnosis:** The `useLocation` hook was being called outside of the `Router` context in `App.tsx`, causing a runtime error.
 - **Fix:** Refactored the conditional rendering of authentication buttons into a new component, `AuthButtons.tsx`.
-    - Created `apps/web/src/components/AuthButtons.tsx` to encapsulate the `useLocation` hook and the conditional rendering logic for the "Sign In" and "Sign Up" buttons.
+    - Created `apps/web/src/components/AuthButtons.tsx` to encapsulate the `useLocation` hook and the conditional rendering logic for the "Sign In" and "Register" buttons.
     - Modified `apps/web/src/App.tsx` to import and render the `AuthButtons` component within the `Router`.
-- **Frontend (`apps/web/src/pages/SignInPage.tsx` and `apps/web/src/pages/SignUpPage.tsx`):
-    - Removed the global "Sign In" and "Sign Up" buttons from these pages, as they are now handled by the `AuthButtons` component.
+- **Frontend (`apps/web/src/pages/SignInPage.tsx` and `apps/web/src/pages/RegisterPage.tsx`):
+    - Removed the global "Login" and "Register" buttons from these pages, as they are now handled by the `AuthButtons` component.
     - Added `Link` components to allow switching between sign-in and sign-up forms within their respective pages.
 - **Verification:** The web application now renders correctly, and the authentication buttons are displayed only on the home page.

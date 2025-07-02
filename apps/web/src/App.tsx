@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
-import SignUpPage from './pages/SignUpPage';
+import RegisterPage from './pages/RegisterPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
-import AuthButtons from './components/AuthButtons';
+
 
 function App() {
   return (
@@ -16,11 +16,11 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/signin" element={<SignInPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
           </Routes>
         </div>
-        <AuthButtons />
+        
       </div>
     </Router>
   );

@@ -46,9 +46,9 @@ const SignInPage: React.FC = () => {
         }, 1500); // Give user time to read success message
       } else {
         if (data.message === 'User not found') {
-          setMessage('User not registered. Redirecting to sign up...');
+          setMessage('User not registered. Redirecting to register...');
           setTimeout(() => {
-            navigate('/signup');
+            navigate('/register');
           }, 2000); // Redirect after 2 seconds
         } else {
           setMessage(data.message || 'Sign in failed.');
@@ -67,7 +67,7 @@ const SignInPage: React.FC = () => {
       <h1>Sign In</h1>
       <form onSubmit={handleSubmit} style={{ margin: '0 auto', maxWidth: '300px', textAlign: 'left' }}>
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>Email:</label>
+          <label htmlFor="email" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Email:</label>
           <input
             type="email"
             id="email"
@@ -75,11 +75,11 @@ const SignInPage: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
             disabled={loading}
-            style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
           />
         </div>
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="password" style={{ display: 'block', marginBottom: '5px' }}>Password:</label>
+          <label htmlFor="password" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Password:</label>
           <input
             type="password"
             id="password"
@@ -87,14 +87,14 @@ const SignInPage: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={loading}
-            style={{ padding: '8px', width: '250px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
           />
         </div>
         <Button label={loading ? 'Signing In...' : 'Sign In'} type="submit" disabled={loading} />
       </form>
       {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
       <p style={{ marginTop: '20px' }}>
-        Don't have an account? <Link to="/signup">Sign Up</Link>
+        Don't have an account? <Link to="/register">Register</Link>
       </p>
     </div>
   );
