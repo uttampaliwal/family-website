@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
 
-const SignInPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
@@ -26,7 +26,7 @@ const SignInPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/signin', {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const SignInPage: React.FC = () => {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Sign In</h1>
+      <h1>Login</h1>
       <form onSubmit={handleSubmit} style={{ margin: '0 auto', maxWidth: '300px', textAlign: 'left' }}>
         <div style={{ marginBottom: '15px' }}>
           <label htmlFor="email" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Email:</label>
@@ -90,7 +90,7 @@ const SignInPage: React.FC = () => {
             style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
           />
         </div>
-        <Button label={loading ? 'Signing In...' : 'Sign In'} type="submit" disabled={loading} />
+        <Button label={loading ? 'Logging In...' : 'Login'} type="submit" disabled={loading} />
       </form>
       {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
       <p style={{ marginTop: '20px' }}>
@@ -100,4 +100,4 @@ const SignInPage: React.FC = () => {
   );
 };
 
-export default SignInPage;
+export default LoginPage;
