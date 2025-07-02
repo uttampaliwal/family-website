@@ -71,7 +71,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Sign In Route
-router.post('/signin', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -82,7 +82,7 @@ router.post('/signin', async (req, res) => {
 
     // Check if user is verified
     if (!user.isVerified) {
-      return res.status(400).json({ message: 'Please verify your email before signing in.' });
+      return res.status(400).json({ message: 'Please verify your email before logging in.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

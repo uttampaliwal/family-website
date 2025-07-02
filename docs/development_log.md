@@ -150,14 +150,14 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
 
 - **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](../family-website-checkpoint.zip)
 - **Backend (`apps/api/src/routes/auth.ts`):
-    - Modified the sign-in route to return 'User not found' instead of 'Invalid credentials' when an email is not registered.
+    - Modified the login route to return 'User not found' instead of 'Invalid credentials' when an email is not registered.
     - Added `verificationUrl` definition for email verification.
     - Created `apps/api/src/types/express.d.ts` to extend the Express `Request` interface with a `user` property, resolving TypeScript errors.
     - Updated `apps/api/tsconfig.json` to include the new `src/types` directory.
-- **Frontend (`apps/web/src/pages/SignInPage.tsx`):
+- **Frontend (`apps/web/src/pages/LoginPage.tsx`):
     - Implemented logic to check for the 'User not found' message from the backend.
-    - If 'User not found', displays a message and redirects the user to the sign-up page after a short delay.
-    - Centered the sign-in form using `margin: '0 auto'` and `max-width`.
+    - If 'User not found', displays a message and redirects the user to the register page after a short delay.
+    - Centered the login form using `margin: '0 auto'` and `max-width`.
 - **Frontend (`apps/web/src/pages/RegisterPage.tsx`):
     - Removed unused `useNavigate` import and declaration to resolve linting errors.
     - Centered the sign-up form using `margin: '0 auto'` and `max-width`.
@@ -174,9 +174,9 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
 - **Issue:** The web application was showing a blank gray page after recent changes to `App.tsx`.
 - **Diagnosis:** The `useLocation` hook was being called outside of the `Router` context in `App.tsx`, causing a runtime error.
 - **Fix:** Refactored the conditional rendering of authentication buttons into a new component, `AuthButtons.tsx`.
-    - Created `apps/web/src/components/AuthButtons.tsx` to encapsulate the `useLocation` hook and the conditional rendering logic for the "Sign In" and "Register" buttons.
+    - Created `apps/web/src/components/AuthButtons.tsx` to encapsulate the `useLocation` hook and the conditional rendering logic for the "Login" and "Register" buttons.
     - Modified `apps/web/src/App.tsx` to import and render the `AuthButtons` component within the `Router`.
-- **Frontend (`apps/web/src/pages/SignInPage.tsx` and `apps/web/src/pages/RegisterPage.tsx`):
+- **Frontend (`apps/web/src/pages/LoginPage.tsx` and `apps/web/src/pages/RegisterPage.tsx`):
     - Removed the global "Login" and "Register" buttons from these pages, as they are now handled by the `AuthButtons` component.
-    - Added `Link` components to allow switching between sign-in and sign-up forms within their respective pages.
+    - Added `Link` components to allow switching between login and register forms within their respective pages.
 - **Verification:** The web application now renders correctly, and the authentication buttons are displayed only on the home page.

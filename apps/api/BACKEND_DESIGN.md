@@ -56,7 +56,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
     *   Generates a unique `verificationToken`.
     *   Saves the new user to MongoDB with `isVerified` set to `false`.
     *   Returns a success message and a JWT upon successful registration (user still needs to verify email).
-*   **Sign In (`POST /api/auth/signin`):
+*   **Login (`POST /api/auth/login`):
     *   Accepts `email` and `password`.
     *   Returns 'User not found' if the email is not registered.
     *   Checks if the user's email is verified (`isVerified` status).
@@ -76,7 +76,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 
 *   **`/` (GET):** Basic health check, returns "Hello from the API!".
 *   **`/api/auth/register` (POST):** User registration.
-*   **`/api/auth/signin` (POST):** User login.
+*   **`/api/auth/login` (POST):** User login.
 *   **`/api/protected` (GET):** Example of a protected route that requires a valid JWT.
 
 ## 7. Development Process

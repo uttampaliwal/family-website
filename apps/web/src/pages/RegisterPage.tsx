@@ -236,7 +236,7 @@ const RegisterPage: React.FC = () => {
       </form>
       {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
       <p style={{ marginTop: '20px' }}>
-        Already have an account? <Link to="/signin">Sign In</Link>
+        Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
   );

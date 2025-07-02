@@ -54,7 +54,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
     *   Hashes the password using `bcryptjs`.
     *   Saves the new user to MongoDB.
     *   Generates a JWT and returns it upon successful registration.
-*   **Sign In (`POST /api/auth/signin`):
+*   **Login (`POST /api/auth/login`):
     *   Accepts `email` and `password`.
     *   Verifies credentials by comparing the provided password with the stored hashed password using `bcryptjs`.
     *   Generates a JWT and returns it upon successful authentication.
@@ -67,7 +67,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 
 *   **`/` (GET):** Basic health check, returns "Hello from the API!".
 *   **`/api/auth/register` (POST):** User registration.
-*   **`/api/auth/signin` (POST):** User login.
+*   **`/api/auth/login` (POST):** User login.
 *   **`/api/protected` (GET):** Example of a protected route that requires a valid JWT.
 
 ## 7. Development Process

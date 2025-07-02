@@ -24,7 +24,7 @@ const VerifyEmailPage: React.FC = () => {
         if (response.ok) {
           setMessage(data.message || 'Email verified successfully! You can now sign in.');
           setTimeout(() => {
-            navigate('/signin');
+            navigate('/login');
           }, 3000); // Redirect to sign-in after 3 seconds
         } else {
           setMessage(data.message || 'Email verification failed.');
