@@ -28,6 +28,13 @@ const UserSchema = new mongoose.Schema({
   mobileNumber: {
     type: String,
     required: false,
+    validate: {
+      validator: function(v: string | undefined) {
+        if (v === undefined || v === null || v === '') return true; // Not required, so valid if empty
+        return /^\+?[1-9]\d{1,14}$/.test(v); // E.164 format (or similar, adjust regex as needed)
+      },
+      message: (props: { value: string }) => `${props.value} is not a valid mobile number!`
+    }
   },
   gender: {
     type: String,

@@ -10,8 +10,7 @@ function App() {
     <Router>
       <div className="flex flex-col items-center p-[10px] w-full">
         <Link to="/">
-          {/* TODO: Optimize family-logo.svg for web use (e.g., convert to WebP for better load times if complex) */}
-          <img src="/family-logo.svg" className="logo-glow w-[100px] h-[100px]" alt="Family Logo" />
+          <img src="/family-logo.webp" className="logo-glow w-[100px] h-[100px]" alt="Family Logo" />
         </Link>
         <div className="w-full">
           <Routes>

@@ -90,3 +90,11 @@ The project is in an active implementation phase. The foundational monorepo stru
     *   Enhanced form accessibility with ARIA attributes in `apps/web/src/pages/RegisterPage.tsx`.
     *   Implemented memoization (`useCallback`) for event handlers in `apps/web/src/pages/RegisterPage.tsx`.
     *   Added a note for logo image optimization in `apps/web/src/App.tsx` and `README.md`.
+*   **Testing Setup:**
+    *   Created a `packages/tests` directory within the monorepo for unit and integration tests.
+    *   Configured Jest and React Testing Library for frontend tests, and Jest and Supertest for backend tests.
+    *   Added `packages/tests` to `.gitignore`.
+    *   Provided a guide (`docs/external_testing_repo_guide.md`) for users who wish to manage tests in a separate Git repository.
+*   **Build Fixes:**
+    *   Resolved TypeScript errors in `apps/api` by explicitly typing route handlers and ensuring `mongoUri` is defined.
+    *   Fixed unused variable error in `apps/web`.

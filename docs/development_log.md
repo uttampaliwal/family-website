@@ -201,3 +201,29 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
     - **Accessibility:** Enhanced form accessibility in `src/pages/RegisterPage.tsx` by adding `role="alert"` to the message display and `aria-required="true"` to required input fields, improving the experience for users with assistive technologies.
     - **Performance Optimization:** Implemented memoization using `useCallback` for event handlers (`handleNext`, `handlePrevious`, `handleSubmit`) and utility functions (`validateEmail`, `validatePassword`, `retryFetch`) in `src/pages/RegisterPage.tsx` to prevent unnecessary re-renders and improve component performance.
     - **Image Optimization Note:** Added a comment in `src/App.tsx` and a note in `README.md` to remind about optimizing the logo image for web use (e.g., converting to WebP) to improve load times.
+
+### Chunk 43: Build Fixes and Final Verification (2025-07-02)
+
+- **Goal:** Resolve remaining build errors in both frontend and backend applications and ensure successful compilation.
+- **Backend (`apps/api`):
+    - **Issue:** TypeScript errors related to type assignments and module overloads in `src/index.ts` and `src/routes/auth.ts`.
+    - **Fix:**
+        - In `src/index.ts`, ensured `mongoUri` is a string by adding a runtime check and throwing an error if undefined. Explicitly imported `AuthRequest` and `NextFunction` from `express` and `authMiddleware` respectively, and used them to correctly type the protected route handler.
+        - In `src/routes/auth.ts`, explicitly cast route handlers to `RequestHandler` from `express` to resolve type errors.
+    - **Verification:** `npm run build --workspace=apps/api` now completes successfully.
+- **Frontend (`apps/web`):
+    - **Issue:** `TS6133: 'API_BASE_URL' is declared but its value is never read` error in `src/pages/RegisterPage.tsx`.
+    - **Fix:** Removed the unused `API_BASE_URL` declaration.
+    - **Verification:** `npm run build --workspace=apps/web` now completes successfully.
+- **Overall Verification:** Both `apps/api` and `apps/web` now build without errors, indicating a stable and compilable codebase.
+
+### Chunk 42: Testing Setup and External Repository Guide (2025-07-02)
+
+- **Goal:** Establish a testing framework within the monorepo and provide guidance for managing tests in a separate Git repository.
+- **Actions:**
+    - Created a `packages/tests` directory to house unit and integration tests.
+    - Initialized `packages/tests` as a Node.js project and installed Jest, `ts-jest`, `@types/jest`, `@testing-library/react`, `@testing-library/jest-dom`, `supertest`, and `@types/supertest` as development dependencies.
+    - Configured Jest for TypeScript by creating `jest.config.js` within `packages/tests`.
+    - Created example test files: `src/frontend.test.tsx` for React component testing and `src/backend.test.ts` for API route testing.
+    - Added `packages/tests` to the root `.gitignore` to prevent it from being tracked by the main monorepo's Git.
+    - Created `docs/external_testing_repo_guide.md` with detailed instructions for users who may wish to move the `packages/tests` directory to a completely separate Git repository.

@@ -6,12 +6,21 @@ import dotenv from 'dotenv'; // Import dotenv
 import authMiddleware from './middleware/authMiddleware';
 import authRoutes from './routes/auth'; // Import authentication routes
 import errorHandler from './middleware/errorHandler'; // Import error handling middleware
+import { Request, Response, NextFunction } from 'express';
+
+interface AuthRequest extends Request {
+  user?: { id: string };
+}
 
 dotenv.config(); // Load environment variables from .env file
 
 const app = express();
 const port = process.env.PORT || 3001;
 const mongoUri = process.env.MONGO_URI;
+
+if (!mongoUri) {
+  throw new Error('MONGO_URI environment variable is not defined.');
+}
 
 // Middleware
 app.use(cors()); // Enable CORS for all routes
@@ -21,7 +30,7 @@ const connectDb = () => {
   mongoose.connect(mongoUri)
     .then(() => console.log('MongoDB connected'))
     .catch(err => {
-      console.error('MongoDB connection error:', err);
+      console.error('MongoDB connection error:', err.message, err.stack);
       setTimeout(connectDb, 5000); // Attempt to reconnect after 5 seconds
     });
 };
@@ -32,7 +41,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 mongoose.connection.on('error', err => {
-  console.error('MongoDB connection error:', err);
+  console.error('MongoDB connection error:', err.message, err.stack);
 });
 
 connectDb();
@@ -44,7 +53,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes); // Use authentication routes
 
-app.get('/api/protected', authMiddleware, (req, res) => {
+app.get('/api/protected', authMiddleware as (req: Request, res: Response, next: NextFunction) => void, (req: AuthRequest, res) => {
   res.json({ message: 'This is a protected route!', user: req.user });
 });
 
