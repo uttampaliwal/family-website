@@ -9,9 +9,9 @@ const AuthButtons: React.FC = () => {
   return (
     <>
       {showAuthButtons && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <div className="text-center mt-[20px]">
           <Link to="/login"><Button label="Login" /></Link>
-          <Link to="/register"><Button label="Register" style={{ marginLeft: '10px' }} /></Link>
+          <Link to="/register"><Button label="Register" className="ml-[10px]" /></Link>
         </div>
       )}
     </>

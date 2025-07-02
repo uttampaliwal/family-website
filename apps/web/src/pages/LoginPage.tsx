@@ -63,11 +63,11 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit} style={{ margin: '0 auto', maxWidth: '300px', textAlign: 'left' }}>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="email" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Email:</label>
+    <div className="text-center mt-[10px]">
+      <h1 className="text-[32px] font-bold mb-[20px]">Login</h1>
+      <form onSubmit={handleSubmit} className="mx-auto max-w-[300px] text-left">
+        <div className="mb-[15px] flex items-center">
+          <label htmlFor="email" className="mb-[5px] w-[100px] text-right mr-[15px]">Email:</label>
           <input
             type="email"
             id="email"
@@ -75,11 +75,11 @@ const LoginPage: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
             disabled={loading}
-            style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+            className="p-[8px] w-[160px] rounded-[4px] border border-solid border-[#ccc]"
           />
         </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="password" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Password:</label>
+        <div className="mb-[15px] flex items-center">
+          <label htmlFor="password" className="mb-[5px] w-[100px] text-right mr-[15px]">Password:</label>
           <input
             type="password"
             id="password"
@@ -87,13 +87,15 @@ const LoginPage: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={loading}
-            style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+            className="p-[8px] w-[160px] rounded-[4px] border border-solid border-[#ccc]"
           />
         </div>
-        <Button label={loading ? 'Logging In...' : 'Login'} type="submit" disabled={loading} />
+        <div className="text-right">
+          <Button label={loading ? 'Logging In...' : 'Login'} type="submit" disabled={loading} />
+        </div>
       </form>
-      {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
-      <p style={{ marginTop: '20px' }}>
+      {message && <p className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
+      <p className="mt-[20px]">
         Don't have an account? <Link to="/register">Register</Link>
       </p>
     </div>

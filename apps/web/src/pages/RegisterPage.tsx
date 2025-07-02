@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import Button from '../components/Button';
+import CustomSelect from '../components/CustomSelect';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
@@ -58,13 +59,13 @@ const RegisterPage: React.FC = () => {
         setMessage('Please enter a valid email address.');
         return;
       }
+      if (password !== confirmPassword) {
+        setMessage('Confirm password should be same as password.');
+        return;
+      }
       const passwordErrors = validatePassword(password);
       if (passwordErrors.length > 0) {
         setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
-        return;
-      }
-      if (password !== confirmPassword) {
-        setMessage('Passwords do not match.');
         return;
       }
     }
@@ -117,14 +118,14 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Register</h1>
-      <form onSubmit={handleSubmit} style={{ margin: '0 auto', maxWidth: '300px', textAlign: 'left' }}>
+    <div className="text-center mt-[10px]">
+      <h1 className="text-[32px] font-bold mb-[20px]">Register</h1>
+      <form onSubmit={handleSubmit} className="mx-auto max-w-[300px] text-left">
         {step === 1 && (
-          <div style={{ marginBottom: '25px' }}>
-            <h2 style={{ marginBottom: '20px' }}>Account Information</h2>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="username" style={{ display: 'inline-block', marginBottom: '5px', width: '100px', textAlign: 'right', marginRight: '15px', verticalAlign: 'middle' }}>Username:</label>
+          <div className="mb-[25px]">
+            <h2 className="mb-[20px]">Account Information</h2>
+            <div className="mb-[15px] flex items-center">
+              <label htmlFor="username" className="mb-[5px] w-[100px] text-right mr-[15px]">Username:</label>
               <input
                 type="text"
                 id="username"
@@ -132,11 +133,11 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 disabled={loading}
-                style={{ padding: '8px', width: '180px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="email" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Email:</label>
+            <div className="mb-[15px] flex items-center">
+              <label htmlFor="email" className="mb-[5px] w-[100px] text-right mr-[15px]">Email:</label>
               <input
                 type="email"
                 id="email"
@@ -144,11 +145,11 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="password" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Password:</label>
+            <div className="mb-[15px] flex items-center">
+              <label htmlFor="password" className="mb-[5px] w-[100px] text-right mr-[15px]">Password:</label>
               <input
                 type="password"
                 id="password"
@@ -156,11 +157,11 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="confirmPassword" style={{ display: 'inline-block', marginBottom: '5px', width: '100px', textAlign: 'right', marginRight: '15px', verticalAlign: 'middle' }}>Confirm Password:</label>
+            <div className="mb-[15px] flex items-center">
+              <label htmlFor="confirmPassword" className="mb-[5px] w-[100px] text-right mr-[15px]">Confirm Password:</label>
               <input
                 type="password"
                 id="confirmPassword"
@@ -168,18 +169,20 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 disabled={loading}
-                style={{ padding: '8px', width: '180px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
-            <Button label="Next" onClick={handleNext} disabled={loading} />
+            <div className="text-right">
+              <Button label="Next" onClick={handleNext} disabled={loading} type="button" />
+            </div>
           </div>
         )}
 
         {step === 2 && (
-          <div style={{ marginBottom: '15px' }}>
-            <h2 style={{ marginBottom: '20px' }}>Personal Details</h2>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="name" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Name:</label>
+          <div className="mb-[15px]">
+            <h2 className="mb-[20px]">Personal Details</h2>
+            <div className="mb-[15px] flex items-center">
+              <label htmlFor="name" className="mb-[5px] w-[100px] text-right mr-[15px]">Name:</label>
               <input
                 type="text"
                 id="name"
@@ -187,11 +190,11 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setName(e.target.value)}
                 required
                 disabled={loading}
-                style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="dob" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Date of Birth:</label>
+            <div className="mb-[15px] flex items-center">
+              <label htmlFor="dob" className="mb-[5px] w-[100px] text-right mr-[15px]">Date of Birth:</label>
               <input
                 type="date"
                 id="dob"
@@ -199,43 +202,45 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setDob(e.target.value)}
                 required
                 disabled={loading}
-                style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="mobileNumber" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Mobile Number:</label>
+            <div className="mb-[15px] flex items-center">
+              <label htmlFor="mobileNumber" className="mb-[5px] w-[100px] text-right mr-[15px]">Mobile Number:</label>
               <input
                 type="tel"
                 id="mobileNumber"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
                 disabled={loading}
-                style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
+                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="gender" style={{ display: 'inline-block', marginBottom: '5px', width: '80px', textAlign: 'right', marginRight: '10px', verticalAlign: 'middle' }}>Gender:</label>
-              <select
-                id="gender"
+            <div className="mb-[15px] flex items-center">
+              <label htmlFor="gender" className="mb-[5px] w-[100px] text-right mr-[15px]">Gender:</label>
+              <CustomSelect
+                options={[
+                  { value: '', label: 'Select Gender' },
+                  { value: 'Male', label: 'Male' },
+                  { value: 'Female', label: 'Female' },
+                  { value: 'Prefer not to say', label: 'Prefer not to say' },
+                ]}
                 value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                required
+                onChange={setGender}
+                placeholder="Select Gender"
                 disabled={loading}
-                style={{ padding: '8px', width: '160px', borderRadius: '4px', border: '1px solid #ccc', verticalAlign: 'middle' }}
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Prefer not to say">Prefer not to say</option>
-              </select>
+                className="w-[180px]"
+              />
             </div>
-            <Button label="Previous" onClick={handlePrevious} disabled={loading} style={{ marginRight: '10px' }} />
-            <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} />
+            <div className="text-right">
+              <Button label="Previous" onClick={handlePrevious} disabled={loading} className="mr-[10px]" />
+              <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} />
+            </div>
           </div>
         )}
       </form>
-      {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
-      <p style={{ marginTop: '20px' }}>
+      {message && <p className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
+      <p className="mt-[20px]">
         Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>

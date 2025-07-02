@@ -87,3 +87,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 *   **Type Definitions:** Custom type definitions for Express `Request` object (e.g., `req.user`) are managed in `src/types/express.d.ts`.
 
 **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](../../family-website-checkpoint.zip)
+
+## 8. Version History
+
+- **v0.1.0 (July 2, 2025):** Initial release with basic authentication routes and foundational project structure.

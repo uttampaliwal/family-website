@@ -25,3 +25,4 @@ The project is in the implementation phase. The basic project structure is set u
 - **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](./family-website-checkpoint.zip)
 - **Frontend Rebuild:** The `apps/web` directory has been completely rebuilt from scratch using Vite, React, and TypeScript. A new `FRONTEND_DESIGN.md` document has been created to guide frontend development.
 - **Fresh Frontend Creation:** The `apps/web` directory was removed and a fresh React project with TypeScript was created using Vite, and its dependencies were installed.
+- **Version Release:** Version `v0.1.0` has been released and tagged in Git.

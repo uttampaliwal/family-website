@@ -180,3 +180,13 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
     - Removed the global "Login" and "Register" buttons from these pages, as they are now handled by the `AuthButtons` component.
     - Added `Link` components to allow switching between login and register forms within their respective pages.
 - **Verification:** The web application now renders correctly, and the authentication buttons are displayed only on the home page.
+
+### Chunk 39: Version 0.1.0 Release (2025-07-02)
+
+- **Action:** Tagged the current commit as `v0.1.0` in Git.
+- **Reasoning:** To create a retrievable checkpoint for the project's initial stable state, independent of future updates.
+- **Process:**
+    - Ensured no uncommitted changes were present.
+    - Executed `git tag v0.1.0` to create a lightweight tag.
+    - Executed `git push origin v0.1.0` to push the tag to the remote repository.
+- **Verification:** Confirmed the tag is visible on GitHub.

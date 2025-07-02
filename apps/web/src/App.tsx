@@ -8,11 +8,11 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 function App() {
   return (
     <Router>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', width: '100%' }}>
+      <div className="flex flex-col items-center p-[10px] w-full">
         <Link to="/">
-          <img src="/family-logo.svg" className="logo-glow" alt="Family Logo" style={{ width: '100px', height: '100px' }} />
+          <img src="/family-logo.svg" className="logo-glow w-[100px] h-[100px]" alt="Family Logo" />
         </Link>
-        <div style={{ width: '100%' }}>
+        <div className="w-full">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />

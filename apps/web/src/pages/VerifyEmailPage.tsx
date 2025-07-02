@@ -41,9 +41,9 @@ const VerifyEmailPage: React.FC = () => {
   }, [searchParams, navigate]);
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <div className="text-center mt-[50px]">
       <h1>Email Verification</h1>
-      <p style={{ color: isError ? 'red' : 'green' }}>{message}</p>
+      <p className={`${isError ? 'text-red-500' : 'text-green-500'}`}>{message}</p>
       {!isError && message.includes('successfully') && (
         <p>Redirecting to login page...</p>
       )}

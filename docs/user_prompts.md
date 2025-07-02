@@ -379,4 +379,21 @@ snackableCTO
 1 reply
 
 **Follow-up Prompt:**
-"okay. so we will stick to vite, but add this points and issue to your mind, so that there is no problem in making full-stack application of our project. Also save all of this analysis to frontend design.md. We will create a fresh frontend using react now."
+"okay. so we will stick to vite, but add this points and issue to your mind, so that there is no problem in making full-stack application of our project. Also save all of this analysis to frontend design.md. We will create a fresh frontend using react now.
+**Follow-up Prompt:**
+"to upload current git commit as version 0.1.0 in github, which can be retrivable any time if future code breaks, and should be independent to future version updates of the project."
+
+**Follow-up Prompt:**
+"no only staged files and commits done already should be termed as v0.1.0"
+
+**Follow-up Prompt:**
+"yes do for current commit."
+
+**Follow-up Prompt:**
+"why the problem persists?"
+
+**Follow-up Prompt:**
+"yes"
+
+**Follow-up Prompt:**
+"save this info for future use. hardwire it into your memory and update all files to ensure projec and logs/.md files have memory tha v0.1.0 is out. add all,any new features, info to files.

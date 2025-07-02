@@ -33,15 +33,15 @@ const HomePage: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
+    return <div className="text-center mt-[50px]">Loading...</div>;
   }
 
   if (error) {
-    return <div style={{ textAlign: 'center', marginTop: '50px', color: 'red' }}>Error: {error}</div>;
+    return <div className="text-center mt-[50px] text-red-500">Error: {error}</div>;
   }
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <div className="text-center mt-[50px]">
       <h1>{data?.message}</h1>
       <p>This is your personalized family website. More content coming soon!</p>
       <AuthButtons />
