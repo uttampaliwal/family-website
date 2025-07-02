@@ -14,9 +14,14 @@ This document outlines the architecture, technology stack, and development proce
 
 ---
 
-## 1. Overview
+## 1. Overview & Philosophy
 
-The backend application is a Node.js Express.js server responsible for handling API requests, managing data persistence with MongoDB, and implementing business logic, including user authentication.
+The backend application is a Node.js Express.js server responsible for handling API requests, managing data persistence with MongoDB, and implementing business logic, including user authentication. Our philosophy for the backend emphasizes:
+
+*   **Robustness:** Building reliable and secure APIs.
+*   **Clarity:** Ensuring API endpoints are intuitive and well-documented.
+*   **Maintainability:** Structuring code for easy understanding and future enhancements.
+*   **Security:** Implementing best practices for authentication and data protection.
 
 ## 2. Technology Stack
 
@@ -51,10 +56,13 @@ MongoDB is used as the primary data store. Mongoose is used as an Object Data Mo
 User authentication is implemented using JWTs and `bcryptjs` for secure password handling.
 
 *   **Register (`POST /api/auth/register`):**
-    *   Accepts `name`, `email`, and `password`.
-    *   Includes basic server-side validation for all fields and password length (minimum 6 characters).
+    *   Accepts `name`, `email`, `password`, `dob`, `username`, `gender`, and optionally `mobileNumber`.
+    *   Includes basic server-side validation for all required fields and password length (minimum 6 characters).
+    *   Checks for existing user by email and username.
+    *   Hashes password using `bcryptjs`.
     *   Generates a unique `verificationToken`.
     *   Saves the new user to MongoDB with `isVerified` set to `false`.
+    *   Sends a verification email to the user.
     *   Returns a success message and a JWT upon successful registration (user still needs to verify email).
 *   **Login (`POST /api/auth/login`):
     *   Accepts `email` and `password`.
@@ -62,11 +70,11 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
     *   Checks if the user's email is verified (`isVerified` status).
     *   Verifies credentials by comparing the provided password with the stored hashed password using `bcryptjs`.
     *   Generates a JWT and returns it upon successful authentication.
-*   **Email Verification (`GET /api/auth/verify-email`):
+*   **Email Verification (`GET /api/auth/verify-email`):**
     *   Accepts a `token` query parameter.
     *   Finds the user associated with the token.
     *   Sets `isVerified` to `true` and clears the `verificationToken`.
-    *   Returns a success message.
+    *   Returns a success message, indicating the user can now log in.
 *   **Authentication Middleware (`authMiddleware`):**
     *   Verifies the JWT provided in the `x-auth-token` header.
     *   If valid, decodes the token and attaches user information to the request object (`req.user`).
@@ -79,15 +87,17 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 *   **`/api/auth/login` (POST):** User login.
 *   **`/api/protected` (GET):** Example of a protected route that requires a valid JWT.
 
-## 7. Development Process
+## 7. Development Process & Evolution
 
 *   **Development Server:** `ts-node-dev` is used for development, providing automatic restarts on code changes.
 *   **Build Process:** TypeScript is compiled to JavaScript using `tsc`.
 *   **Environment Variables:** Sensitive information like `MONGO_URI`, `JWT_SECRET`, `EMAIL_USER`, and `EMAIL_PASS` are managed via environment variables loaded using `dotenv`.
 *   **Type Definitions:** Custom type definitions for Express `Request` object (e.g., `req.user`) are managed in `src/types/express.d.ts`.
+*   **Code Quality:** We strive for clean, readable, and maintainable code, adhering to TypeScript best practices and consistent coding styles.
 
 **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](../../family-website-checkpoint.zip)
 
 ## 8. Version History
 
 - **v0.1.0 (July 2, 2025):** Initial release with basic authentication routes and foundational project structure.
+- **v0.0.2 (July 2, 2025):** Enhanced registration fields (DOB, username, gender, mobileNumber); improved server-side validation for registration; updated email verification flow.

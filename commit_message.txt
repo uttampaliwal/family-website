@@ -1,0 +1,10 @@
+Refactor: Apply Tailwind CSS for consistent styling and improve UI/UX
+
+This commit introduces comprehensive styling refactoring across the web application, leveraging Tailwind CSS for improved consistency, maintainability, and separation of concerns. Key changes include:
+
+- Converted all inline styles in React components (LoginPage, RegisterPage, HomePage, AuthButtons, VerifyEmailPage, App) to Tailwind CSS classes.
+- Implemented a custom `CustomSelect` component for the gender dropdown in the Register page to ensure consistent styling and theme adherence across light/dark modes.
+- Adjusted UI/UX elements on Login and Register pages for better visual appeal and user experience, including heading sizes, spacing, and field alignment.
+- Corrected frontend validation logic on the Register page to prioritize specific error messages (e.g., password mismatch) over generic ones.
+- Updated documentation (`FRONTEND_DESIGN.md`) to reflect the adoption of Tailwind CSS for styling guidelines.
+- Verified backend code (`apps/api`) for general code quality and consistency, finding no critical refactoring needs at this stage.

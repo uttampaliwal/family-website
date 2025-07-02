@@ -1,28 +1,72 @@
 # Project: Family Website
 
-This document provides a summary of the project's goals, technology stack, and current status.
+This document serves as the central hub for understanding the "Family Website" project, outlining its core philosophy, technical architecture, development methodology, and current status. It reflects our commitment to building a high-quality, maintainable, and scalable web application while serving as a practical learning platform for full-stack web development.
 
-## Goal
+## 1. Goal & Philosophy
 
-The primary goal of this project is to build a personal/family website to learn full-stack web development. The website will feature user authentication, content management (photos, blogs, calendars), and a mix of public and private pages.
+The primary goal of this project is to build a personal/family website that serves as a hands-on learning experience in full-stack web development. Beyond simply creating a functional website with user authentication and content management (photos, blogs, calendars), our philosophy emphasizes:
 
-## Technology Stack
+*   **Continuous Learning:** Embracing new technologies and best practices, and documenting our journey and decisions.
+*   **Code Quality & Craftsmanship:** Writing clean, readable, maintainable, and efficient code. Adhering to established conventions and striving for idiomatic solutions.
+*   **User-Centric Design:** Prioritizing a clean, intuitive, and responsive user experience (UI/UX).
+*   **Modularity & Scalability:** Designing components and services that are loosely coupled, reusable, and can scale independently.
+*   **Transparency & Documentation:** Thoroughly documenting decisions, processes, and technical details to ensure clarity and facilitate future development.
 
-This project is a MERN-like monorepo managed with Turborepo.
+## 2. Technology Stack & Rationale
 
-*   **Monorepo:** Turborepo
-*   **Frontend:** React with Vite and TypeScript
-*   **Backend:** Node.js with Express.js
-*   **Database:** MongoDB running in Docker
-*   **Authentication:** JSON Web Tokens (JWT)
-*   **Styling:** Tailwind CSS v4.1
+This project is structured as a MERN-like monorepo, managed with Turborepo, reflecting a modern approach to full-stack development.
 
-## Current Status
+*   **Monorepo Management: Turborepo**
+    *   **Rationale:** Chosen for its high-performance build system, caching capabilities, and simplicity in managing multiple interdependent applications (frontend and backend) within a single repository. It streamlines development workflows and ensures consistent tooling.
+*   **Frontend: React with Vite and TypeScript**
+    *   **Rationale:** React provides a robust and widely adopted library for building interactive user interfaces. Vite is selected for its incredibly fast development server and build times, leveraging native ES modules. TypeScript ensures type safety, improves code quality, and enhances developer productivity through better tooling and fewer runtime errors.
+*   **Backend: Node.js with Express.js**
+    *   **Rationale:** Node.js offers a JavaScript runtime environment, enabling a unified language across the full stack. Express.js provides a minimalist and flexible web application framework for building robust APIs.
+*   **Database: MongoDB running in Docker**
+    *   **Rationale:** MongoDB, a NoSQL database, offers flexibility and scalability for handling diverse data types. Running it in Docker ensures a consistent and isolated development environment, simplifying setup and management without direct host installation.
+*   **Authentication: JSON Web Tokens (JWT)**
+    *   **Rationale:** JWTs are a secure and stateless method for handling user authentication, ideal for API-driven applications.
+*   **Styling: Tailwind CSS v4.1**
+    *   **Rationale:** Tailwind CSS is a utility-first CSS framework that promotes rapid UI development and consistent design. Version 4.1, as a PostCSS plugin, allows for highly optimized and performant CSS output. Our commitment to this framework ensures a cohesive visual language across the application.
 
-The project is in the implementation phase. The basic project structure is set up, and both the frontend and backend applications are running. The frontend has basic, styled login and register pages with conditional rendering. The backend is a minimal Express.js server.
+## 3. Methodology & Evolution
 
-**Recent Development (July 2, 2025):**
-- **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](./family-website-checkpoint.zip)
-- **Frontend Rebuild:** The `apps/web` directory has been completely rebuilt from scratch using Vite, React, and TypeScript. A new `FRONTEND_DESIGN.md` document has been created to guide frontend development.
-- **Fresh Frontend Creation:** The `apps/web` directory was removed and a fresh React project with TypeScript was created using Vite, and its dependencies were installed.
-- **Version Release:** Version `v0.1.0` has been released and tagged in Git.
+Our development methodology is iterative and adaptive, focusing on continuous improvement and learning from each phase.
+
+*   **Iterative Development:** Features are developed in small, manageable chunks, allowing for frequent feedback and adjustments.
+*   **Refactoring as a Core Practice:** We actively seek opportunities to refactor code, improving its structure, readability, and maintainability. This includes the recent extensive refactoring of inline styles to Tailwind CSS classes, demonstrating our commitment to code quality.
+*   **Problem-Solving & Debugging:** When issues arise, we employ systematic debugging approaches, including adding detailed logging and verifying changes thoroughly. This was evident in resolving the persistent frontend validation issues.
+*   **Documentation-Driven Development:** Key decisions, architectural choices, and significant changes are documented to provide a clear historical record and guide future development. This ensures that the project's evolution is transparent and understandable.
+
+## 4. Core Principles & Values
+
+Our commitment to this project is underpinned by several core values:
+
+*   **Consistency:** Maintaining a uniform approach to coding style, naming conventions, and UI/UX across the entire codebase.
+*   **Maintainability:** Writing code that is easy to understand, modify, and extend by current and future developers.
+*   **Efficiency:** Optimizing development workflows and application performance.
+*   **Clarity:** Ensuring that the codebase and documentation are clear, concise, and unambiguous.
+*   **Adaptability:** Being open to new tools and techniques, and adapting our approach as the project evolves or new insights emerge.
+
+## 5. Current Status
+
+The project is in an active implementation phase. The foundational monorepo structure is established, with both frontend and backend applications operational.
+
+*   **Frontend (`apps/web`):**
+    *   Features basic, styled login and register pages with conditional rendering.
+    *   Extensive refactoring of inline styles to Tailwind CSS classes has been completed, ensuring a consistent and maintainable styling approach.
+    *   Custom `CustomSelect` component implemented for enhanced UI/UX on the register page.
+    *   Frontend validation logic has been refined for improved user feedback.
+*   **Backend (`apps/api`):**
+    *   A minimal Express.js server with robust authentication routes (register, login, email verification).
+    *   MongoDB integration for data persistence.
+
+## 6. Recent Development (July 2, 2025)
+
+*   **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](./family-website-checkpoint.zip)
+*   **Frontend Rebuild:** The `apps/web` directory was completely rebuilt from scratch using Vite, React, and TypeScript, establishing a clean and modern frontend foundation.
+*   **Styling Refactoring:** All inline styles in the web application have been refactored to use Tailwind CSS classes, significantly improving code quality and maintainability.
+*   **Custom Select Component:** Implemented a custom select component for the gender field on the register page to overcome native HTML select styling limitations and ensure theme consistency.
+*   **Frontend Validation Enhancement:** Improved the specificity and order of validation messages on the register page for a better user experience.
+*   **Terminology Standardization:** Standardized "Sign Up" to "Register" and "Sign In" to "Login" across the entire project (code and documentation) for consistency.
+*   **Version Release:** Version `v0.1.0` has been released and tagged in Git.
