@@ -33,12 +33,15 @@ apps/web/
 │   ├── assets/
 │   │   └── react.svg
 │   ├── components/
+│   │   ├── AuthButtons.tsx
 │   │   ├── Button.css
-│   │   └── Button.tsx
+│   │   ├── Button.tsx
+│   │   └── CustomSelect.tsx
 │   ├── pages/
 │   │   ├── HomePage.tsx
 │   │   ├── LoginPage.tsx
-│   │   └── RegisterPage.tsx
+│   │   ├── RegisterPage.tsx
+│   │   └── VerifyEmailPage.tsx
 │   ├── routes/           # Route definitions
 │   ├── services/         # API services
 │   ├── styles/           # Global styles and Tailwind CSS configuration
@@ -52,19 +55,18 @@ apps/web/
 ├── index.html
 ├── package.json
 ├── postcss.config.js
-├── tailwind.config.js
 └── tsconfig.json
 ```
 ```
 
 ## 4. Styling and Design System
 
-We will use Tailwind CSS for all styling. A design system will be defined in `tailwind.config.js` to ensure consistency in colors, fonts, spacing, and other visual elements.
+We will use Tailwind CSS for all styling. While Tailwind CSS v4.1 does not use a traditional `tailwind.config.js` file for theme configuration, our design system is implicitly defined through the consistent application of Tailwind utility classes and direct color values derived from our global `index.css`.
 
-*   **Colors:** A primary color palette will be defined and used throughout the application.
-*   **Typography:** We will use a consistent set of font sizes, weights, and line heights.
-*   **Spacing:** A consistent spacing scale will be used for margins, padding, and other layout properties.
-*   **Components:** We will build a library of reusable components with consistent styling.
+*   **Colors:** Our primary color palette is defined in `index.css` and directly referenced in Tailwind classes (e.g., `bg-[#242424]`, `text-[rgba(255,255,255,0.87)]`). This ensures a single source of truth for colors and dynamic theming (light/dark mode).
+*   **Typography:** Consistent font sizes (`text-[...]`), weights (`font-bold`, `font-medium`), and line heights are applied using Tailwind utilities.
+*   **Spacing:** A consistent spacing scale is used for margins (`m-[...]`), padding (`p-[...]`), and other layout properties, leveraging Tailwind's built-in spacing scale.
+*   **Components:** We build a library of reusable components (e.g., `Button`, `CustomSelect`) with styling applied directly via Tailwind classes, ensuring visual consistency and reusability.
 
 ## 5. Styling Guidelines
 
@@ -98,10 +100,11 @@ Components are organized into logical directories:
     *   `AuthButtons.tsx`: A new component responsible for conditionally rendering the "Login" and "Register" buttons based on the current route.
     *   `Button.tsx`: A reusable button component with styling inspired by the default Vite React template.
     *   `Button.css`: Stylesheet for the `Button` component.
+    *   `CustomSelect.tsx`: A custom select component to replace native HTML select elements for improved styling and theming.
 *   `src/pages`: Top-level components representing different views/pages of the application (e.g., HomePage, LoginPage, DashboardPage).
     *   `HomePage.tsx`: The main landing page, now revamped to integrate with backend data.
     *   `LoginPage.tsx`: Handles user login with form for email/password and API integration. Includes client-side email format validation, loading states, improved messages, and redirection after successful login. Now redirects to register if user is not found. Includes a link to switch to the register page.
-    *   `RegisterPage.tsx`: Handles user registration with form for name, email, password, and confirm password. Includes robust client-side validation for email format and password strength (minimum 8 characters, at least one uppercase, lowercase, number, and special character), password matching, loading states, improved messages, and redirection after successful registration. Form is now centered. Includes a link to switch to the sign-in page.
+    *   `RegisterPage.tsx`: Handles user registration with form for name, email, password, and confirm password. Includes robust client-side validation for email format and password strength (minimum 8 characters, at least one uppercase, lowercase, number, and special character), password matching, loading states, improved messages, and redirection after successful registration. Form is now centered. Uses a custom select component for the gender field. Includes a link to switch to the login page.
     *   `VerifyEmailPage.tsx`: Handles email verification by processing the token from the URL, communicating with the backend, and providing user feedback.
 *   `src/features`: (Future) Components and logic related to specific features (e.g., authentication, user profiles, blog posts).
 
@@ -123,6 +126,7 @@ During the project's inception, a deliberate decision was made to utilize **Reac
 *   **Lightweight and Flexible:** Vite is a build tool, not a full-fledged framework. This offers greater flexibility in project structure and the choice of libraries, aligning with a preference for less opinionated tooling.
 *   **Focus on Core React Concepts:** By using Vite, developers can concentrate on mastering React fundamentals, TypeScript, and styling with Tailwind CSS in a client-side context, without the added complexity of Next.js's server-side rendering (SSR) or static site generation (SSG) paradigms.
 *   **Separate Backend Alignment:** Given that the project already employs a dedicated Node.js Express backend, Next.js's built-in API routes and integrated full-stack features would be redundant and introduce unnecessary coupling. Maintaining a clear separation of concerns between frontend and backend is prioritized for scalability and maintainability.
+*   **Tailwind CSS v4.1 Compatibility:** Vite's PostCSS integration makes it an ideal environment for using Tailwind CSS v4.1 as a PostCSS plugin, ensuring efficient and optimized CSS generation.
 
 ### Why Not Next.js (for this project's current phase)?
 
@@ -143,3 +147,4 @@ By following this guide, we can create a high-quality, maintainable, and scalabl
 ## 10. Version History
 
 - **v0.1.0 (July 2, 2025):** Initial release with basic login and register pages, and foundational project structure.
+- **v0.0.2 (July 2, 2025):** Extensive refactoring of inline styles to Tailwind CSS classes; implementation of custom `CustomSelect` component; improved frontend validation; standardization of "Sign Up" to "Register" and "Sign In" to "Login" terminology.
