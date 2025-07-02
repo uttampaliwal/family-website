@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import Button from '../components/Button';
 
 const SignUpPage: React.FC = () => {
@@ -9,7 +9,7 @@ const SignUpPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
+  
 
   const validateEmail = (email: string) => {
     // Basic email regex validation
@@ -99,7 +99,7 @@ const SignUpPage: React.FC = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>Sign Up</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'inline-block', textAlign: 'left' }}>
+      <form onSubmit={handleSubmit} style={{ margin: '0 auto', maxWidth: '300px', textAlign: 'left' }}>
         <div style={{ marginBottom: '15px' }}>
           <label htmlFor="name" style={{ display: 'block', marginBottom: '5px' }}>Name:</label>
           <input

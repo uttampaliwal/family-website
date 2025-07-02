@@ -45,7 +45,14 @@ const SignInPage: React.FC = () => {
           navigate('/'); // Redirect to home page after successful sign-in
         }, 1500); // Give user time to read success message
       } else {
-        setMessage(data.message || 'Sign in failed.');
+        if (data.message === 'User not found') {
+          setMessage('User not registered. Redirecting to sign up...');
+          setTimeout(() => {
+            navigate('/signup');
+          }, 2000); // Redirect after 2 seconds
+        } else {
+          setMessage(data.message || 'Sign in failed.');
+        }
       }
     } catch (error) {
       console.error('Error during sign-in:', error);
@@ -58,7 +65,7 @@ const SignInPage: React.FC = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>Sign In</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'inline-block', textAlign: 'left' }}>
+      <form onSubmit={handleSubmit} style={{ margin: '0 auto', maxWidth: '300px', textAlign: 'left' }}>
         <div style={{ marginBottom: '15px' }}>
           <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>Email:</label>
           <input

@@ -42,6 +42,8 @@ router.post('/signup', async (req, res) => {
 
     await user.save();
 
+    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+
     // Send verification email
     await sendEmail({
       to: email,
@@ -66,7 +68,7 @@ router.post('/signin', async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'User not found' });
     }
 
     // Check if user is verified
