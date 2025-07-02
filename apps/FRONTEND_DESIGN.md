@@ -98,8 +98,8 @@ Components are organized into logical directories:
     *   `Button.css`: Stylesheet for the `Button` component.
 *   `src/pages`: Top-level components representing different views/pages of the application (e.g., HomePage, LoginPage, DashboardPage).
     *   `HomePage.tsx`: The main landing page, now revamped to integrate with backend data.
-    *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration. Includes client-side email format validation, loading states, improved messages, and redirection after successful sign-in.
-    *   `SignUpPage.tsx`: Handles user registration with form for name, email, password, and confirm password. Includes robust client-side validation for email format and password strength (minimum 8 characters, at least one uppercase, lowercase, number, and special character), password matching, loading states, improved messages, and redirection after successful sign-up.
+    *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration. Includes client-side email format validation, loading states, improved messages, and redirection after successful sign-in. Now redirects to sign-up if user is not found.
+    *   `SignUpPage.tsx`: Handles user registration with form for name, email, password, and confirm password. Includes robust client-side validation for email format and password strength (minimum 8 characters, at least one uppercase, lowercase, number, and special character), password matching, loading states, improved messages, and redirection after successful sign-up. Form is now centered.
     *   `VerifyEmailPage.tsx`: Handles email verification by processing the token from the URL, communicating with the backend, and providing user feedback.
 *   `src/features`: (Future) Components and logic related to specific features (e.g., authentication, user profiles, blog posts).
 
@@ -135,3 +135,5 @@ While Next.js is a powerful and popular React framework offering comprehensive f
 Both Vite and Next.js are excellent, modern technologies capable of building high-quality web applications. However, for this project's specific context—a learning-focused endeavor with a decoupled frontend and backend—Vite provides a more streamlined, efficient, and focused development experience, allowing for a deeper understanding of core web development principles without unnecessary abstraction or complexity. The choice reflects a commitment to simplicity, maintainability, and a clear separation of concerns, which are crucial for long-term project health and developer productivity.
 
 By following this guide, we can create a high-quality, maintainable, and scalable frontend for the family website.
+
+**Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](../../family-website-checkpoint.zip)

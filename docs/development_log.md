@@ -145,3 +145,27 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
     - The existing `apps/web` directory was removed using `rm -rf`.
     - A new React project with TypeScript was created using `npm create vite@latest apps/web -- --template react-ts`.
     - Dependencies for the new project were installed using `npm install` within the `apps/web` directory.
+
+### Chunk 37: Sign-in Flow and UI Centering Improvements (2025-07-02)
+
+- **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](../family-website-checkpoint.zip)
+- **Backend (`apps/api/src/routes/auth.ts`):
+    - Modified the sign-in route to return 'User not found' instead of 'Invalid credentials' when an email is not registered.
+    - Added `verificationUrl` definition for email verification.
+    - Created `apps/api/src/types/express.d.ts` to extend the Express `Request` interface with a `user` property, resolving TypeScript errors.
+    - Updated `apps/api/tsconfig.json` to include the new `src/types` directory.
+- **Frontend (`apps/web/src/pages/SignInPage.tsx`):
+    - Implemented logic to check for the 'User not found' message from the backend.
+    - If 'User not found', displays a message and redirects the user to the sign-up page after a short delay.
+    - Centered the sign-in form using `margin: '0 auto'` and `max-width`.
+- **Frontend (`apps/web/src/pages/SignUpPage.tsx`):
+    - Removed unused `useNavigate` import and declaration to resolve linting errors.
+    - Centered the sign-up form using `margin: '0 auto'` and `max-width`.
+- **Frontend (`apps/web/src/pages/HomePage.tsx`):
+    - Fixed linting error related to unused `err` variable in `useEffect`.
+    - Attempted to center the "Welcome to your Family Website!" message and other content by adjusting `div` styles and `h1`/`p` `textAlign`.
+- **Frontend (`apps/web/src/App.tsx`):
+    - Adjusted main `div` styling to ensure proper centering of content within the application layout.
+    - Wrapped `Routes` component in a `div` with `width: '100%'`.
+- **Frontend (`apps/web/src/index.css`):
+    - Modified `html` and `body` styles to ensure full width and height, and adjusted `body`'s flexbox properties for overall page centering.
