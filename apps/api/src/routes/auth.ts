@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction, RequestHandler } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto'; // For generating random tokens
@@ -10,7 +10,7 @@ const jwtSecret = process.env.JWT_SECRET as string; // Use a strong secret in pr
 
 
 // Register Route
-router.post('/register', async (req, res) => {
+router.post('/register', (async (req: Request, res: Response) => {
   const { name, email, password, dob, username, gender, mobileNumber } = req.body;
 
   // Basic validation
@@ -87,10 +87,10 @@ router.post('/register', async (req, res) => {
     console.error('Registration error:', err);
     res.status(500).json({ message: 'Registration failed. Please try again later.' });
   }
-});
+}) as RequestHandler);
 
 // Sign In Route
-router.post('/login', async (req, res) => {
+router.post('/login', (async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
@@ -117,10 +117,10 @@ router.post('/login', async (req, res) => {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Login failed. Please try again later.' });
   }
-});
+}) as RequestHandler);
 
 // Verify Email Route
-router.post('/verify-email', async (req, res) => {
+router.post('/verify-email', (async (req: Request, res: Response) => {
   const { token } = req.body; // Token should be sent in the request body for security
 
   try {
@@ -139,6 +139,6 @@ router.post('/verify-email', async (req, res) => {
     console.error('Email verification error:', err);
     res.status(500).json({ message: 'Email verification failed. Please try again later.' });
   }
-});
+}) as RequestHandler);
 
 export default router;

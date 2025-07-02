@@ -18,10 +18,10 @@ This document outlines the architecture, technology stack, and development proce
 
 The backend application is a Node.js Express.js server responsible for handling API requests, managing data persistence with MongoDB, and implementing business logic, including user authentication. Our philosophy for the backend emphasizes:
 
-*   **Robustness:** Building reliable and secure APIs, including graceful error handling.
+*   **Robustness:** Building reliable and secure APIs, including graceful error handling and robust database connections.
 *   **Clarity:** Ensuring API endpoints are intuitive and well-documented.
 *   **Maintainability:** Structuring code for easy understanding and future enhancements.
-*   **Security:** Implementing best practices for authentication and data protection.
+*   **Security:** Implementing best practices for authentication and data protection, including secure handling of credentials and tokens.
 
 ## 2. Technology Stack
 
@@ -50,7 +50,7 @@ The backend follows a layered architecture:
 MongoDB is used as the primary data store. Mongoose is used as an Object Data Modeling (ODM) library to interact with MongoDB, providing schema-based solutions to model application data.
 
 *   **Connection:** Established using `mongoose.connect` with URI from environment variables.
-*   **User Schema:** A `User` schema is defined for storing user `name`, `email`, hashed `password`, `isVerified` status (boolean), and a `verificationToken` (string).
+*   **User Schema:** A `User` schema is defined for storing user `name`, `email`, hashed `password`, `isVerified` status (boolean), `verificationToken` (string), and `mobileNumber` (with validation).
 
 ## 5. Authentication
 
@@ -58,7 +58,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 
 *   **Register (`POST /api/auth/register`):**
     *   Accepts `name`, `email`, `password`, `dob`, `username`, `gender`, and optionally `mobileNumber`.
-    *   Includes basic server-side validation for all required fields and password length (minimum 6 characters).
+    *   Includes robust server-side validation for all required fields, email format, and password strength (minimum length, uppercase, lowercase, number, special character).
     *   Checks for existing user by email and username.
     *   Hashes password using `bcryptjs`.
     *   Generates a unique `verificationToken`.
@@ -71,8 +71,8 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
     *   Checks if the user's email is verified (`isVerified` status).
     *   Verifies credentials by comparing the provided password with the stored hashed password using `bcryptjs`.
     *   Generates a JWT and returns it upon successful authentication.
-*   **Email Verification (`GET /api/auth/verify-email`):**
-    *   Accepts a `token` query parameter.
+*   **Email Verification (`POST /api/auth/verify-email`):**
+    *   Accepts a `token` in the request body.
     *   Finds the user associated with the token.
     *   Sets `isVerified` to `true` and clears the `verificationToken`.
     *   Returns a success message, indicating the user can now log in.
@@ -80,6 +80,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
     *   Verifies the JWT provided in the `x-auth-token` header.
     *   If valid, decodes the token and attaches user information to the request object (`req.user`).
     *   Protects routes by denying access if no token is provided or if the token is invalid.
+    *   **Security Note:** Hardcoded JWT secret fallbacks have been removed, ensuring the secret is sourced only from environment variables.
 
 ## 6. API Endpoints
 
@@ -90,11 +91,12 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 
 ## 7. Development Process & Evolution
 
-*   **Development Server:** `ts-node-dev` is used for development, providing automatic restarts on code changes.
+*   **Development Server:** `tsx` is used for development, providing automatic restarts on code changes.
 *   **Build Process:** TypeScript is compiled to JavaScript using `tsc`.
 *   **Environment Variables:** Sensitive information like `MONGO_URI`, `JWT_SECRET`, `EMAIL_USER`, and `EMAIL_PASS` are managed via environment variables loaded using `dotenv`.
 *   **Type Definitions:** Custom type definitions for Express `Request` object (e.g., `req.user`) are managed in `src/types/express.d.ts`.
 *   **Code Quality:** We strive for clean, readable, and maintainable code, adhering to TypeScript best practices and consistent coding styles.
+*   **Improved Error Logging:** Detailed error information is logged for debugging persistent connection issues.
 
 **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](../../family-website-checkpoint.zip)
 

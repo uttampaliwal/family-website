@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+package-lock.json
 
 # testing
 /coverage
@@ -39,4 +40,6 @@ apps/FRONTEND_DESIGN.md
 apps/api/BACKEND_DESIGN_BACKUP_20250701.md
 apps/api/BACKEND_DESIGN.md
 .zencoder/
+
+/packages/tests
 

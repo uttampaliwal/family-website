@@ -1,10 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 import Button from '../components/Button';
 import CustomSelect from '../components/CustomSelect';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
@@ -18,6 +16,13 @@ const RegisterPage: React.FC = () => {
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1); // New state for multi-step form
+
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const dobRef = useRef<HTMLInputElement>(null);
 
   const validateEmail = useCallback((email: string) => {
     // Basic email regex validation
@@ -55,19 +60,26 @@ const RegisterPage: React.FC = () => {
       // Validate Step 1 fields
       if (!username || !email || !password || !confirmPassword) {
         setMessage('Please fill in all required fields for Account Information.');
+        if (!username) usernameRef.current?.focus();
+        else if (!email) emailRef.current?.focus();
+        else if (!password) passwordRef.current?.focus();
+        else if (!confirmPassword) confirmPasswordRef.current?.focus();
         return;
       }
       if (!validateEmail(email)) {
         setMessage('Please enter a valid email address.');
+        emailRef.current?.focus();
         return;
       }
       if (password !== confirmPassword) {
         setMessage('Confirm password should be same as password.');
+        confirmPasswordRef.current?.focus();
         return;
       }
       const passwordErrors = validatePassword(password);
       if (passwordErrors.length > 0) {
         setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
+        passwordRef.current?.focus();
         return;
       }
     }
@@ -107,6 +119,8 @@ const RegisterPage: React.FC = () => {
     if (step === 2) {
       if (!name || !dob || !gender) {
         setMessage('Please fill in all required fields for Personal Details.');
+        if (!name) nameRef.current?.focus();
+        else if (!dob) dobRef.current?.focus();
         setLoading(false);
         return;
       }
@@ -165,6 +179,7 @@ const RegisterPage: React.FC = () => {
                 required
                 aria-required="true"
                 disabled={loading}
+                ref={usernameRef}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
@@ -178,6 +193,7 @@ const RegisterPage: React.FC = () => {
                 required
                 aria-required="true"
                 disabled={loading}
+                ref={emailRef}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
@@ -191,6 +207,7 @@ const RegisterPage: React.FC = () => {
                 required
                 aria-required="true"
                 disabled={loading}
+                ref={passwordRef}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
@@ -204,6 +221,7 @@ const RegisterPage: React.FC = () => {
                 required
                 aria-required="true"
                 disabled={loading}
+                ref={confirmPasswordRef}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
@@ -226,6 +244,7 @@ const RegisterPage: React.FC = () => {
                 required
                 aria-required="true"
                 disabled={loading}
+                ref={nameRef}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
@@ -239,6 +258,7 @@ const RegisterPage: React.FC = () => {
                 required
                 aria-required="true"
                 disabled={loading}
+                ref={dobRef}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
             </div>
