@@ -169,3 +169,14 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
     - Wrapped `Routes` component in a `div` with `width: '100%'`.
 - **Frontend (`apps/web/src/index.css`):
     - Modified `html` and `body` styles to ensure full width and height, and adjusted `body`'s flexbox properties for overall page centering.
+### Chunk 38: Fix Blank Page and Refactor Auth Buttons (2025-07-02)
+
+- **Issue:** The web application was showing a blank gray page after recent changes to `App.tsx`.
+- **Diagnosis:** The `useLocation` hook was being called outside of the `Router` context in `App.tsx`, causing a runtime error.
+- **Fix:** Refactored the conditional rendering of authentication buttons into a new component, `AuthButtons.tsx`.
+    - Created `apps/web/src/components/AuthButtons.tsx` to encapsulate the `useLocation` hook and the conditional rendering logic for the "Sign In" and "Sign Up" buttons.
+    - Modified `apps/web/src/App.tsx` to import and render the `AuthButtons` component within the `Router`.
+- **Frontend (`apps/web/src/pages/SignInPage.tsx` and `apps/web/src/pages/SignUpPage.tsx`):
+    - Removed the global "Sign In" and "Sign Up" buttons from these pages, as they are now handled by the `AuthButtons` component.
+    - Added `Link` components to allow switching between sign-in and sign-up forms within their respective pages.
+- **Verification:** The web application now renders correctly, and the authentication buttons are displayed only on the home page.

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import Button from '../components/Button';
 
@@ -151,6 +152,9 @@ const SignUpPage: React.FC = () => {
         <Button label={loading ? 'Signing Up...' : 'Sign Up'} type="submit" disabled={loading} />
       </form>
       {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
+      <p style={{ marginTop: '20px' }}>
+        Already have an account? <Link to="/signin">Sign In</Link>
+      </p>
     </div>
   );
 };
