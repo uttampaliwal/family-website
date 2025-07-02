@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+// Checkpoint: family-website-checkpoint.zip
 import dotenv from 'dotenv'; // Import dotenv
 import authMiddleware from './middleware/authMiddleware';
 import authRoutes from './routes/auth'; // Import authentication routes

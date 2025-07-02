@@ -58,6 +58,7 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
     *   Returns a success message and a JWT upon successful registration (user still needs to verify email).
 *   **Sign In (`POST /api/auth/signin`):
     *   Accepts `email` and `password`.
+    *   Returns 'User not found' if the email is not registered.
     *   Checks if the user's email is verified (`isVerified` status).
     *   Verifies credentials by comparing the provided password with the stored hashed password using `bcryptjs`.
     *   Generates a JWT and returns it upon successful authentication.
@@ -83,3 +84,6 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 *   **Development Server:** `ts-node-dev` is used for development, providing automatic restarts on code changes.
 *   **Build Process:** TypeScript is compiled to JavaScript using `tsc`.
 *   **Environment Variables:** Sensitive information like `MONGO_URI`, `JWT_SECRET`, `EMAIL_USER`, and `EMAIL_PASS` are managed via environment variables loaded using `dotenv`.
+*   **Type Definitions:** Custom type definitions for Express `Request` object (e.g., `req.user`) are managed in `src/types/express.d.ts`.
+
+**Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](../../family-website-checkpoint.zip)

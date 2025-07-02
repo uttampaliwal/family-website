@@ -21,6 +21,7 @@ This project is a MERN-like monorepo managed with Turborepo.
 
 The project is in the implementation phase. The basic project structure is set up, and both the frontend and backend applications are running. The frontend has basic, styled login and signup pages with conditional rendering. The backend is a minimal Express.js server.
 
-**Recent Development (July 1, 2025):**
+**Recent Development (July 2, 2025):**
+- **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](./family-website-checkpoint.zip)
 - **Frontend Rebuild:** The `apps/web` directory has been completely rebuilt from scratch using Vite, React, and TypeScript. A new `FRONTEND_DESIGN.md` document has been created to guide frontend development.
 - **Fresh Frontend Creation:** The `apps/web` directory was removed and a fresh React project with TypeScript was created using Vite, and its dependencies were installed.
