@@ -9,13 +9,13 @@ const router = express.Router();
 const jwtSecret = process.env.JWT_SECRET || 'supersecretjwtkey'; // Use a strong secret in production
 
 
-// Sign Up Route
-router.post('/signup', async (req, res) => {
-  const { name, email, password } = req.body;
+// Register Route
+router.post('/register', async (req, res) => {
+  const { name, email, password, dob, username, gender, mobileNumber } = req.body;
 
   // Basic validation
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Please enter all fields' });
+  if (!name || !email || !password || !dob || !username || !gender) {
+    return res.status(400).json({ message: 'Please enter all required fields' });
   }
 
   if (password.length < 6) {
@@ -25,7 +25,12 @@ router.post('/signup', async (req, res) => {
   try {
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'User with this email already exists' });
+    }
+
+    user = await User.findOne({ username });
+    if (user) {
+      return res.status(400).json({ message: 'Username is already taken. Please choose another.' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -37,6 +42,10 @@ router.post('/signup', async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      dob,
+      mobileNumber,
+      username,
+      gender,
       verificationToken,
     });
 
@@ -84,7 +93,7 @@ router.post('/signin', async (req, res) => {
     const payload = { user: { id: user.id } };
     const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
 
-    res.json({ message: 'Signed in successfully', token });
+    res.json({ message: 'Logged in successfully', token });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');

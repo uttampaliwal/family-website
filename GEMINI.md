@@ -19,7 +19,7 @@ This project is a MERN-like monorepo managed with Turborepo.
 
 ## Current Status
 
-The project is in the implementation phase. The basic project structure is set up, and both the frontend and backend applications are running. The frontend has basic, styled login and signup pages with conditional rendering. The backend is a minimal Express.js server.
+The project is in the implementation phase. The basic project structure is set up, and both the frontend and backend applications are running. The frontend has basic, styled login and register pages with conditional rendering. The backend is a minimal Express.js server.
 
 **Recent Development (July 2, 2025):**
 - **Checkpoint:** A project checkpoint has been created: [family-website-checkpoint.zip](./family-website-checkpoint.zip)

@@ -45,7 +45,7 @@ const VerifyEmailPage: React.FC = () => {
       <h1>Email Verification</h1>
       <p style={{ color: isError ? 'red' : 'green' }}>{message}</p>
       {!isError && message.includes('successfully') && (
-        <p>Redirecting to sign-in page...</p>
+        <p>Redirecting to login page...</p>
       )}
     </div>
   );
