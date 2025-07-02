@@ -181,12 +181,23 @@ A MERN-like stack within a monorepo is an excellent, modern choice for this proj
     - Added `Link` components to allow switching between login and register forms within their respective pages.
 - **Verification:** The web application now renders correctly, and the authentication buttons are displayed only on the home page.
 
-### Chunk 39: Version 0.1.0 Release (2025-07-02)
+### Chunk 41: Security, Robustness, and Frontend Enhancements (2025-07-02)
 
-- **Action:** Tagged the current commit as `v0.1.0` in Git.
-- **Reasoning:** To create a retrievable checkpoint for the project's initial stable state, independent of future updates.
-- **Process:**
-    - Ensured no uncommitted changes were present.
-    - Executed `git tag v0.1.0` to create a lightweight tag.
-    - Executed `git push origin v0.1.0` to push the tag to the remote repository.
-- **Verification:** Confirmed the tag is visible on GitHub.
+- **Goal:** Address security vulnerabilities, improve application robustness, and enhance frontend user experience and performance.
+- **Backend (`apps/api`):
+    - **Security Enhancements:**
+        - Changed email verification route from `GET` to `POST` in `src/routes/auth.ts` to prevent token logging/caching in URLs.
+        - Removed hardcoded MongoDB credentials from `src/index.ts`, ensuring `MONGO_URI` is sourced solely from environment variables.
+        - Eliminated hardcoded JWT secret fallbacks from `src/middleware/authMiddleware.ts` and `src/routes/auth.ts`, enforcing reliance on the `JWT_SECRET` environment variable.
+    - **Robustness & Error Handling:**
+        - Improved error handling in `src/routes/auth.ts` to provide more specific client-side messages for different error types (e.g., bad requests, server errors) while logging detailed errors for debugging.
+        - Implemented MongoDB reconnection logic in `src/index.ts` to gracefully handle connection failures and disconnections.
+    - **Validation & Performance:**
+        - Enhanced user registration validation in `src/routes/auth.ts` to include stricter checks for email format and password strength (minimum length, uppercase, lowercase, number, special character), aligning with frontend validation and improving security.
+        - Explicitly defined indexes for `email` and `username` fields in `src/models/User.ts` to optimize query performance for frequently accessed fields.
+- **Frontend (`apps/web`):
+    - **Configurability:** Configured the API endpoint in `src/pages/RegisterPage.tsx` to use an environment variable (`VITE_API_BASE_URL`), allowing for easy switching between different environments (development, staging, production).
+    - **Improved Network Handling:** Enhanced network error handling in `src/pages/RegisterPage.tsx` by implementing a retry mechanism for API calls, providing more robust handling of transient network issues and better user feedback.
+    - **Accessibility:** Enhanced form accessibility in `src/pages/RegisterPage.tsx` by adding `role="alert"` to the message display and `aria-required="true"` to required input fields, improving the experience for users with assistive technologies.
+    - **Performance Optimization:** Implemented memoization using `useCallback` for event handlers (`handleNext`, `handlePrevious`, `handleSubmit`) and utility functions (`validateEmail`, `validatePassword`, `retryFetch`) in `src/pages/RegisterPage.tsx` to prevent unnecessary re-renders and improve component performance.
+    - **Image Optimization Note:** Added a comment in `src/App.tsx` and a note in `README.md` to remind about optimizing the logo image for web use (e.g., converting to WebP) to improve load times.

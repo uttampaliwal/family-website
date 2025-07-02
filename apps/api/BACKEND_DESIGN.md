@@ -18,7 +18,7 @@ This document outlines the architecture, technology stack, and development proce
 
 The backend application is a Node.js Express.js server responsible for handling API requests, managing data persistence with MongoDB, and implementing business logic, including user authentication. Our philosophy for the backend emphasizes:
 
-*   **Robustness:** Building reliable and secure APIs.
+*   **Robustness:** Building reliable and secure APIs, including graceful error handling.
 *   **Clarity:** Ensuring API endpoints are intuitive and well-documented.
 *   **Maintainability:** Structuring code for easy understanding and future enhancements.
 *   **Security:** Implementing best practices for authentication and data protection.
@@ -41,6 +41,7 @@ The backend follows a layered architecture:
     *   `auth.ts`: Contains authentication-related routes (sign-up, sign-in).
 *   **Middleware:** Intercept requests for tasks like authentication, logging, etc.
     *   `authMiddleware.ts`: Verifies JWTs and protects routes.
+    *   `errorHandler.ts`: Centralized error handling middleware for graceful error management.
 *   **Models:** Define Mongoose schemas for MongoDB data structures.
 *   **Controllers (Implicit):** Logic for handling specific requests is currently embedded within route handlers. For larger applications, this would be refactored into separate controller files.
 
@@ -101,3 +102,11 @@ User authentication is implemented using JWTs and `bcryptjs` for secure password
 
 - **v0.1.0 (July 2, 2025):** Initial release with basic authentication routes and foundational project structure.
 - **v0.0.2 (July 2, 2025):** Enhanced registration fields (DOB, username, gender, mobileNumber); improved server-side validation for registration; updated email verification flow.
+- **v0.0.3 (July 2, 2025):**
+    - Changed email verification route from GET to POST.
+    - Removed hardcoded MongoDB credentials.
+    - Removed hardcoded JWT secret fallbacks.
+    - Improved error handling with more specific client messages and detailed logging.
+    - Added MongoDB reconnection logic.
+    - Enhanced user registration validation (email format, password strength).
+    - Defined indexes for 'email' and 'username' in User model.

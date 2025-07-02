@@ -22,17 +22,27 @@ const VerifyEmailPage: React.FC = () => {
         const data = await response.json();
 
         if (response.ok) {
-          setMessage(data.message || 'Email verified successfully! You can now sign in.');
+          setMessage(data.message || 'Email verified successfully! You can now login.');
           setTimeout(() => {
             navigate('/login');
-          }, 3000); // Redirect to sign-in after 3 seconds
+          }, 3000);
         } else {
-          setMessage(data.message || 'Email verification failed.');
+          if (response.status === 400) {
+            setMessage(data.message || 'Bad Request.');
+          } else if (response.status === 500) {
+            setMessage('Server error. Please try again later.');
+          } else {
+            setMessage(data.message || 'An unexpected error occurred.');
+          }
           setIsError(true);
         }
       } catch (error) {
         console.error('Error during email verification:', error);
-        setMessage('An error occurred during verification. Please try again.');
+        if (error instanceof TypeError) {
+          setMessage('Network error. Please check your internet connection or try again later.');
+        } else {
+          setMessage('An error occurred during verification. Please try again.');
+        }
         setIsError(true);
       }
     };

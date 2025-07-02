@@ -148,3 +148,9 @@ By following this guide, we can create a high-quality, maintainable, and scalabl
 
 - **v0.1.0 (July 2, 2025):** Initial release with basic login and register pages, and foundational project structure.
 - **v0.0.2 (July 2, 2025):** Extensive refactoring of inline styles to Tailwind CSS classes; implementation of custom `CustomSelect` component; improved frontend validation; standardization of "Sign Up" to "Register" and "Sign In" to "Login" terminology.
+- **v0.0.3 (July 2, 2025):**
+    - Configured API endpoint in `RegisterPage.tsx` via environment variables.
+    - Improved network error handling with retry mechanisms in `RegisterPage.tsx`.
+    - Enhanced form accessibility with ARIA attributes in `RegisterPage.tsx`.
+    - Implemented memoization (`useCallback`) for event handlers in `RegisterPage.tsx`.
+    - Added a note for logo image optimization in `App.tsx` and `README.md`.

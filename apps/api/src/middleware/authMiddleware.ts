@@ -16,7 +16,7 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
 
   // Verify token
   try {
-    const jwtSecret = process.env.JWT_SECRET || 'supersecretjwtkey';
+    const jwtSecret = process.env.JWT_SECRET as string;
     const decoded = jwt.verify(token, jwtSecret) as { user: { id: string } };
     req.user = decoded.user;
     next();

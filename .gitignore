@@ -27,3 +27,16 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Custom additions
+/docs
+/GEMINI.md
+*.log
+.turbo/
+commit_message.txt
+apps/FRONTEND_DESIGN_BACKUP_20250701.md
+apps/FRONTEND_DESIGN.md
+apps/api/BACKEND_DESIGN_BACKUP_20250701.md
+apps/api/BACKEND_DESIGN.md
+.zencoder/
+

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 import Button from '../components/Button';
 import CustomSelect from '../components/CustomSelect';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
@@ -17,12 +19,12 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1); // New state for multi-step form
 
-  const validateEmail = (email: string) => {
+  const validateEmail = useCallback((email: string) => {
     // Basic email regex validation
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  }, []);
 
-  const validatePassword = (password: string) => {
+  const validatePassword = useCallback((password: string) => {
     // Password must be at least 8 characters long
     // Contain at least one uppercase letter
     // Contain at least one lowercase letter
@@ -45,9 +47,9 @@ const RegisterPage: React.FC = () => {
       errors.push('at least one special character');
     }
     return errors;
-  };
+  }, []);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setMessage('');
     if (step === 1) {
       // Validate Step 1 fields
@@ -70,14 +72,33 @@ const RegisterPage: React.FC = () => {
       }
     }
     setStep(step + 1);
-  };
+  }, [step, username, email, password, confirmPassword, validateEmail, validatePassword]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     setMessage('');
     setStep(step - 1);
-  };
+  }, [step]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const retryFetch = useCallback(async (url: RequestInfo | URL, options?: RequestInit, retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await fetch(url, options);
+        if (response.ok || response.status < 500) {
+          return response;
+        }
+      } catch (error) {
+        if (i < retries - 1) {
+          console.warn(`Fetch failed, retrying in ${delay}ms...`, error);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error; // Re-throw error if max retries reached
+        }
+      }
+    }
+    throw new Error('Max retries reached');
+  }, []);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
     setLoading(true);
@@ -94,7 +115,7 @@ const RegisterPage: React.FC = () => {
     setMessage('Attempting to register...');
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await retryFetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,15 +128,25 @@ const RegisterPage: React.FC = () => {
       if (response.ok) {
         setMessage(data.message || 'Registration successful! Please check your email for verification.');
       } else {
-        setMessage(data.message || 'Registration failed.');
+        if (response.status === 400) {
+          setMessage(data.message || 'Bad Request.');
+        } else if (response.status === 500) {
+          setMessage('Server error. Please try again later.');
+        } else {
+          setMessage(data.message || 'An unexpected error occurred.');
+        }
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      setMessage('An error occurred. Please try again.');
+      if (error instanceof TypeError) {
+        setMessage('Network error. Please check your internet connection or try again later.');
+      } else {
+        setMessage('An error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return (
     <div className="text-center mt-[10px]">
@@ -132,6 +163,7 @@ const RegisterPage: React.FC = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
+                aria-required="true"
                 disabled={loading}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
@@ -144,6 +176,7 @@ const RegisterPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                aria-required="true"
                 disabled={loading}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
@@ -156,6 +189,7 @@ const RegisterPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                aria-required="true"
                 disabled={loading}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
@@ -168,6 +202,7 @@ const RegisterPage: React.FC = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                aria-required="true"
                 disabled={loading}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
@@ -189,6 +224,7 @@ const RegisterPage: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                aria-required="true"
                 disabled={loading}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
@@ -201,6 +237,7 @@ const RegisterPage: React.FC = () => {
                 value={dob}
                 onChange={(e) => setDob(e.target.value)}
                 required
+                aria-required="true"
                 disabled={loading}
                 className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
               />
@@ -239,7 +276,7 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
       </form>
-      {message && <p className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
+      {message && <p role="alert" className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
       <p className="mt-[20px]">
         Already have an account? <Link to="/login">Login</Link>
       </p>

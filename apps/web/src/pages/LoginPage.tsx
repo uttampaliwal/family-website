@@ -37,26 +37,27 @@ const LoginPage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message || 'Sign in successful!');
-        // In a real app, you'd store the JWT token (e.g., in localStorage or HttpOnly cookie)
-        // and then redirect.
+        setMessage(data.message || 'Login successful!');
         console.log('JWT Token (placeholder):', data.token);
         setTimeout(() => {
-          navigate('/'); // Redirect to home page after successful sign-in
-        }, 1500); // Give user time to read success message
+          navigate('/');
+        }, 1500);
       } else {
-        if (data.message === 'User not found') {
-          setMessage('User not registered. Redirecting to register...');
-          setTimeout(() => {
-            navigate('/register');
-          }, 2000); // Redirect after 2 seconds
+        if (response.status === 400) {
+          setMessage(data.message || 'Bad Request.');
+        } else if (response.status === 500) {
+          setMessage('Server error. Please try again later.');
         } else {
-          setMessage(data.message || 'Sign in failed.');
+          setMessage(data.message || 'An unexpected error occurred.');
         }
       }
     } catch (error) {
-      console.error('Error during sign-in:', error);
-      setMessage('An error occurred. Please try again.');
+      console.error('Error during login:', error);
+      if (error instanceof TypeError) {
+        setMessage('Network error. Please check your internet connection or try again later.');
+      } else {
+        setMessage('An error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
