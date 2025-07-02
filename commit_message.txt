@@ -1,3 +1,0 @@
-Refactor: Revert versioning from v0.0.1 to v0.1.0 in documentation and files.
-
-This commit reverts the version numbering in documentation and relevant files from v0.0.1 back to v0.1.0, as per user instruction. The v0.0.2 version remains unchanged.
