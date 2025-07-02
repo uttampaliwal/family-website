@@ -3,7 +3,7 @@ import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
-import Button from './components/Button';
+import AuthButtons from './components/AuthButtons';
 
 function App() {
   return (
@@ -20,11 +20,7 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmailPage />} />
           </Routes>
         </div>
-        {/* Sign In/Sign Up buttons - DO NOT CHANGE WITHOUT PERMISSION */}
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <Link to="/signin"><Button label="Sign In" /></Link>
-          <Link to="/signup"><Button label="Sign Up" style={{ marginLeft: '10px' }} /></Link>
-        </div>
+        <AuthButtons />
       </div>
     </Router>
   );

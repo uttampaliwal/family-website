@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
 
 const SignInPage: React.FC = () => {
@@ -93,6 +93,9 @@ const SignInPage: React.FC = () => {
         <Button label={loading ? 'Signing In...' : 'Sign In'} type="submit" disabled={loading} />
       </form>
       {message && <p style={{ marginTop: '20px', color: message.includes('successful') ? 'green' : 'red' }}>{message}</p>}
+      <p style={{ marginTop: '20px' }}>
+        Don't have an account? <Link to="/signup">Sign Up</Link>
+      </p>
     </div>
   );
 };

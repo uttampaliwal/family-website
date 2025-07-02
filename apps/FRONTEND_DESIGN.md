@@ -94,12 +94,13 @@ This styling will be applied using Tailwind CSS classes, ensuring consistency ac
 Components are organized into logical directories:
 
 *   `src/components`: Reusable UI components (e.g., Button, Modal, Card).
+    *   `AuthButtons.tsx`: A new component responsible for conditionally rendering the "Sign In" and "Sign Up" buttons based on the current route.
     *   `Button.tsx`: A reusable button component with styling inspired by the default Vite React template.
     *   `Button.css`: Stylesheet for the `Button` component.
 *   `src/pages`: Top-level components representing different views/pages of the application (e.g., HomePage, LoginPage, DashboardPage).
     *   `HomePage.tsx`: The main landing page, now revamped to integrate with backend data.
-    *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration. Includes client-side email format validation, loading states, improved messages, and redirection after successful sign-in. Now redirects to sign-up if user is not found.
-    *   `SignUpPage.tsx`: Handles user registration with form for name, email, password, and confirm password. Includes robust client-side validation for email format and password strength (minimum 8 characters, at least one uppercase, lowercase, number, and special character), password matching, loading states, improved messages, and redirection after successful sign-up. Form is now centered.
+    *   `SignInPage.tsx`: Handles user sign-in with form for email/password and API integration. Includes client-side email format validation, loading states, improved messages, and redirection after successful sign-in. Now redirects to sign-up if user is not found. Includes a link to switch to the sign-up page.
+    *   `SignUpPage.tsx`: Handles user registration with form for name, email, password, and confirm password. Includes robust client-side validation for email format and password strength (minimum 8 characters, at least one uppercase, lowercase, number, and special character), password matching, loading states, improved messages, and redirection after successful sign-up. Form is now centered. Includes a link to switch to the sign-in page.
     *   `VerifyEmailPage.tsx`: Handles email verification by processing the token from the URL, communicating with the backend, and providing user feedback.
 *   `src/features`: (Future) Components and logic related to specific features (e.g., authentication, user profiles, blog posts).
 
