@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import Button from '../components/Button';
 import CustomSelect from '../components/CustomSelect';
+import DateOfBirthPicker from '../components/DateOfBirthPicker';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
@@ -20,7 +21,6 @@ const RegisterPage: React.FC = () => {
   const [step, setStep] = useState<number>(1); // New state for multi-step form
 
   const nameRef = useRef<HTMLInputElement>(null);
-  const dobRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -63,7 +63,6 @@ const RegisterPage: React.FC = () => {
       if (!name || !dob || !gender) {
         setMessage('Please fill in all required fields for Personal Details.');
         if (!name) nameRef.current?.focus();
-        else if (!dob) dobRef.current?.focus();
         return;
       }
     } else if (step === 2) {
@@ -196,7 +195,7 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="text-center mt-[10px]">
       <h1 className="text-[32px] font-bold mb-[20px]">Register</h1>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-md text-left">
+      <form onSubmit={handleSubmit} className="mx-auto max-w-lg text-left">
         {step === 1 && (
           <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
             <h2 className="text-2xl font-extrabold mb-6 text-white">Personal Details</h2>
@@ -215,17 +214,11 @@ const RegisterPage: React.FC = () => {
               />
             </div>
             <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="dob" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Date of Birth:</label>
-              <input
-                type="date"
-                id="dob"
+              <label htmlFor="dob" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">DOB:</label>
+              <DateOfBirthPicker
                 value={dob}
-                onChange={(e) => setDob(e.target.value)}
-                required
-                aria-required="true"
+                onChange={setDob}
                 disabled={loading}
-                ref={dobRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
