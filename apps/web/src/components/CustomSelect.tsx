@@ -44,8 +44,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     <div className={`relative ${className}`} ref={selectRef}>
       <button
         type="button"
-        className={`w-[180px] p-[8px] rounded-[4px] border border-solid border-[#ccc] text-left cursor-pointer flex justify-between items-center ${
-          disabled ? 'bg-gray-200 cursor-not-allowed text-gray-400' : 'bg-[#ffffff] text-[#213547] dark:bg-[#242424] dark:text-[rgba(255,255,255,0.87)] dark:border-[#ccc]'
+        className={`flex-1 p-3 rounded-md border border-gray-600 text-left cursor-pointer flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          disabled ? 'bg-gray-700 cursor-not-allowed text-gray-400' : 'bg-gray-700 text-white'
         }`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
@@ -55,11 +55,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       </button>
 
       {isOpen && (
-        <ul className="absolute z-10 w-full bg-[#ffffff] border border-solid border-[#ccc] rounded-[4px] mt-1 max-h-60 overflow-auto shadow-lg dark:bg-[#242424] dark:border-[#ccc]">
-          {options.map((option) => (
+        <ul className="absolute z-10 w-full bg-[#ffffff] border border-solid border-[#ccc] rounded-[4px] mt-1 max-h-60 overflow-auto shadow-lg dark:bg-gray-700 dark:border-gray-600">
+          {options.map((option, index) => (
             <li
               key={option.value}
-              className="p-[8px] cursor-pointer hover:bg-gray-100 text-[#213547] dark:text-[rgba(255,255,255,0.87)] dark:hover:bg-gray-700"
+              className={`p-[8px] cursor-pointer hover:bg-gray-100 text-[#213547] dark:text-[rgba(255,255,255,0.87)] dark:hover:bg-gray-700 ${index < options.length - 1 ? 'border-b border-gray-200 dark:border-gray-600' : ''}`}
               onClick={() => handleOptionClick(option.value)}
             >
               {option.label}
