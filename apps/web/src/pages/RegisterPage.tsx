@@ -200,9 +200,9 @@ const RegisterPage: React.FC = () => {
   }, [name, email, password, confirmPassword, dob, mobileNumber, username, gender, step, validateEmail, validatePassword, retryFetch]);
 
   return (
-    <div className="text-center mt-[10px]">
-      <h1 className="text-[32px] font-bold mb-[20px]">Register</h1>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-lg text-left">
+    <div className="text-center mt-0">
+      <h1 className="text-[32px] font-bold mb-[10px]">Register</h1>
+      <form onSubmit={handleSubmit} className="mx-auto max-w-xl text-left">
         {step === 1 && (
           <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
             <h2 className="text-2xl font-extrabold mb-6 text-white">Personal Details</h2>
