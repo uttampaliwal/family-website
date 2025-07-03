@@ -126,6 +126,15 @@ const RegisterPage: React.FC = () => {
 
     // Validate Step 2 fields (Account Information) before final submission
     if (step === 2) {
+      // Priority 1: Check for password mismatch first.
+      if (password !== confirmPassword) {
+        setMessage('Passwords do not match.');
+        confirmPasswordRef.current?.focus();
+        setLoading(false);
+        return;
+      }
+
+      // Priority 2: Check if all fields are filled.
       if (!email || !username || !password || !confirmPassword) {
         setMessage('Please fill in all required fields for Account Information.');
         if (!email) emailRef.current?.focus();
@@ -135,18 +144,16 @@ const RegisterPage: React.FC = () => {
         setLoading(false);
         return;
       }
+
+      // Priority 3: Validate email format.
       if (!validateEmail(email)) {
         setMessage('Please enter a valid email address.');
         emailRef.current?.focus();
         setLoading(false);
         return;
       }
-      if (password !== confirmPassword) {
-        setMessage('Confirm password should be same as password.');
-        confirmPasswordRef.current?.focus();
-        setLoading(false);
-        return;
-      }
+      
+      // Priority 4: Validate password strength.
       const passwordErrors = validatePassword(password);
       if (passwordErrors.length > 0) {
         setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
