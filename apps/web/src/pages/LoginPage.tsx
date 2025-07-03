@@ -34,7 +34,11 @@ const LoginPage: React.FC = () => {
         }, 1500);
       } else {
         if (response.status === 400) {
-          setMessage(data.message || 'Bad Request.');
+          if (data.message === 'Invalid credentials') {
+            setMessage('Invalid credentials. Please check your details or register.');
+          } else {
+            setMessage(data.message || 'Bad Request.');
+          }
         } else if (response.status === 500) {
           setMessage('Server error. Please try again later.');
         } else {
