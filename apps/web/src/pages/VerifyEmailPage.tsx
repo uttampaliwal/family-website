@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const VerifyEmailPage: React.FC = () => {
@@ -6,6 +6,7 @@ const VerifyEmailPage: React.FC = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState<string>('Verifying your email...');
   const [isError, setIsError] = useState<boolean>(false);
+  const hasVerified = useRef(false); // Ref to prevent multiple calls
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -16,9 +17,21 @@ const VerifyEmailPage: React.FC = () => {
       return;
     }
 
+    if (hasVerified.current) {
+      return; // Prevent multiple verification attempts
+    }
+
+    hasVerified.current = true; // Mark as attempted
+
     const verifyEmail = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/auth/verify-email?token=${token}`);
+        const response = await fetch('http://localhost:3001/api/auth/verify-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
         const data = await response.json();
 
         if (response.ok) {

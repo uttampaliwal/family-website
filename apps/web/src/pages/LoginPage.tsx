@@ -8,6 +8,7 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false); // New state for password visibility
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [showResendButton, setShowResendButton] = useState<boolean>(false); // New state for resend button visibility
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,6 +37,9 @@ const LoginPage: React.FC = () => {
         if (response.status === 400) {
           if (data.message === 'Invalid credentials') {
             setMessage('Invalid credentials. Please check your details or register.');
+          } else if (data.message === 'Please verify your email before logging in.') {
+            setMessage(data.message);
+            setShowResendButton(true);
           } else {
             setMessage(data.message || 'Bad Request.');
           }
@@ -52,6 +56,32 @@ const LoginPage: React.FC = () => {
       } else {
         setMessage('An error occurred. Please try again.');
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setLoading(true);
+    setMessage('');
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ identifier }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setMessage(data.message || 'Verification email sent successfully!');
+        setShowResendButton(false);
+      } else {
+        setMessage(data.message || 'Failed to resend verification email.');
+      }
+    } catch (error) {
+      console.error('Error resending verification email:', error);
+      setMessage('An error occurred while resending verification email.');
     } finally {
       setLoading(false);
     }
@@ -100,6 +130,15 @@ const LoginPage: React.FC = () => {
         </div>
       </form>
       {message && <p className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
+      {showResendButton && (
+        <button
+          onClick={handleResendVerification}
+          disabled={loading}
+          className="mt-4 text-blue-500 hover:underline"
+        >
+          Resend Verification Email
+        </button>
+      )}
       <p className="mt-[20px]">
         Don't have an account? <Link to="/register">Register</Link>
       </p>
@@ -108,3 +147,4 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+    

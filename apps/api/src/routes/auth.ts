@@ -76,7 +76,7 @@ router.post('/register', (async (req: Request, res: Response) => {
 
     await user.save();
 
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email`;
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
     // Send verification email
     await sendEmail({
@@ -140,12 +140,48 @@ router.post('/verify-email', (async (req: Request, res: Response) => {
 
     user.isVerified = true;
     user.verificationToken = undefined; // Clear the token after verification
-    await user.save();
 
     res.status(200).json({ message: 'Email verified successfully! You can now sign in.' });
+    await user.save(); // Save after sending response
   } catch (err) {
     console.error('Email verification error:', err);
     res.status(500).json({ message: 'Email verification failed. Please try again later.' });
+  }
+}) as RequestHandler);
+
+// Resend Verification Email Route
+router.post('/resend-verification', (async (req: Request, res: Response) => {
+  const { identifier } = req.body;
+
+  try {
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { username: identifier }],
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email already verified. Please log in.' });
+    }
+
+    // Reuse existing verification token
+    const verificationToken = user.verificationToken;
+
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+    // Send verification email
+    await sendEmail({
+      to: user.email,
+      subject: 'Verify Your Email for Family Website',
+      html: `<p>Please click the following link to verify your email:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
+    });
+
+    res.status(200).json({ message: 'Verification email sent successfully. Please check your inbox.' });
+  } catch (err) {
+    console.error('Resend verification email error:', err);
+    res.status(500).json({ message: 'Failed to resend verification email. Please try again later.' });
   }
 }) as RequestHandler);
 
