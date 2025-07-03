@@ -6,7 +6,13 @@ import { sendEmail } from '../utils/emailService'; // Import email service
 import User from '../models/User';
 
 const router = express.Router();
-const jwtSecret = process.env.JWT_SECRET as string; // Use a strong secret in production
+const jwtSecret = process.env.JWT_SECRET;
+
+// Fail-safe: Ensure JWT_SECRET is defined.
+if (!jwtSecret) {
+  console.error('FATAL ERROR: JWT_SECRET is not defined in the environment variables.');
+  process.exit(1); // Exit the process with an error code
+}
 
 
 // Register Route

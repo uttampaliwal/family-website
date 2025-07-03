@@ -197,7 +197,7 @@ const RegisterPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [name, email, password, dob, mobileNumber, username, gender, step, validateEmail, validatePassword]);
+  }, [name, email, password, confirmPassword, dob, mobileNumber, username, gender, step, validateEmail, validatePassword, retryFetch]);
 
   return (
     <div className="text-center mt-[10px]">
