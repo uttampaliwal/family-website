@@ -1,8 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 // Checkpoint: family-website-checkpoint.zip
-import dotenv from 'dotenv'; // Import dotenv
 import authMiddleware from './middleware/authMiddleware';
 import authRoutes from './routes/auth'; // Import authentication routes
 import errorHandler from './middleware/errorHandler'; // Import error handling middleware
@@ -12,7 +14,7 @@ interface AuthRequest extends Request {
   user?: { id: string };
 }
 
-dotenv.config(); // Load environment variables from .env file
+import path from 'path';
 
 const app = express();
 const port = process.env.PORT || 3001;
