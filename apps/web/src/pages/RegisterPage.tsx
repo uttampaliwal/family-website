@@ -9,6 +9,8 @@ const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [dob, setDob] = useState<string>('');
   const [mobileNumber, setMobileNumber] = useState<string>('');
   const [username, setUsername] = useState<string>('');
@@ -17,12 +19,12 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1); // New state for multi-step form
 
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const dobRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   const validateEmail = useCallback((email: string) => {
     // Basic email regex validation
@@ -57,11 +59,19 @@ const RegisterPage: React.FC = () => {
   const handleNext = useCallback(() => {
     setMessage('');
     if (step === 1) {
-      // Validate Step 1 fields
-      if (!username || !email || !password || !confirmPassword) {
+      // Validate Step 1 fields (Personal Details)
+      if (!name || !dob || !gender) {
+        setMessage('Please fill in all required fields for Personal Details.');
+        if (!name) nameRef.current?.focus();
+        else if (!dob) dobRef.current?.focus();
+        return;
+      }
+    } else if (step === 2) {
+      // Validate Step 2 fields (Account Information)
+      if (!email || !username || !password || !confirmPassword) {
         setMessage('Please fill in all required fields for Account Information.');
-        if (!username) usernameRef.current?.focus();
-        else if (!email) emailRef.current?.focus();
+        if (!email) emailRef.current?.focus();
+        else if (!username) usernameRef.current?.focus();
         else if (!password) passwordRef.current?.focus();
         else if (!confirmPassword) confirmPasswordRef.current?.focus();
         return;
@@ -84,7 +94,7 @@ const RegisterPage: React.FC = () => {
       }
     }
     setStep(step + 1);
-  }, [step, username, email, password, confirmPassword, validateEmail, validatePassword]);
+  }, [step, name, dob, gender, email, username, password, confirmPassword, validateEmail, validatePassword]);
 
   const handlePrevious = useCallback(() => {
     setMessage('');
@@ -115,12 +125,33 @@ const RegisterPage: React.FC = () => {
     setMessage('');
     setLoading(true);
 
-    // Validate Step 2 fields before final submission
+    // Validate Step 2 fields (Account Information) before final submission
     if (step === 2) {
-      if (!name || !dob || !gender) {
-        setMessage('Please fill in all required fields for Personal Details.');
-        if (!name) nameRef.current?.focus();
-        else if (!dob) dobRef.current?.focus();
+      if (!email || !username || !password || !confirmPassword) {
+        setMessage('Please fill in all required fields for Account Information.');
+        if (!email) emailRef.current?.focus();
+        else if (!username) usernameRef.current?.focus();
+        else if (!password) passwordRef.current?.focus();
+        else if (!confirmPassword) confirmPasswordRef.current?.focus();
+        setLoading(false);
+        return;
+      }
+      if (!validateEmail(email)) {
+        setMessage('Please enter a valid email address.');
+        emailRef.current?.focus();
+        setLoading(false);
+        return;
+      }
+      if (password !== confirmPassword) {
+        setMessage('Confirm password should be same as password.');
+        confirmPasswordRef.current?.focus();
+        setLoading(false);
+        return;
+      }
+      const passwordErrors = validatePassword(password);
+      if (passwordErrors.length > 0) {
+        setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
+        passwordRef.current?.focus();
         setLoading(false);
         return;
       }
@@ -160,82 +191,17 @@ const RegisterPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [name, email, password, dob, mobileNumber, username, gender, step, validateEmail, validatePassword]);
 
   return (
     <div className="text-center mt-[10px]">
       <h1 className="text-[32px] font-bold mb-[20px]">Register</h1>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-[300px] text-left">
+      <form onSubmit={handleSubmit} className="mx-auto max-w-md text-left">
         {step === 1 && (
-          <div className="mb-[25px]">
-            <h2 className="mb-[20px]">Account Information</h2>
-            <div className="mb-[15px] flex items-center">
-              <label htmlFor="username" className="mb-[5px] w-[100px] text-right mr-[15px]">Username:</label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={usernameRef}
-                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
-              />
-            </div>
-            <div className="mb-[15px] flex items-center">
-              <label htmlFor="email" className="mb-[5px] w-[100px] text-right mr-[15px]">Email:</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={emailRef}
-                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
-              />
-            </div>
-            <div className="mb-[15px] flex items-center">
-              <label htmlFor="password" className="mb-[5px] w-[100px] text-right mr-[15px]">Password:</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={passwordRef}
-                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
-              />
-            </div>
-            <div className="mb-[15px] flex items-center">
-              <label htmlFor="confirmPassword" className="mb-[5px] w-[100px] text-right mr-[15px]">Confirm Password:</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={confirmPasswordRef}
-                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
-              />
-            </div>
-            <div className="text-right">
-              <Button label="Next" onClick={handleNext} disabled={loading} type="button" />
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="mb-[15px]">
-            <h2 className="mb-[20px]">Personal Details</h2>
-            <div className="mb-[15px] flex items-center">
-              <label htmlFor="name" className="mb-[5px] w-[100px] text-right mr-[15px]">Name:</label>
+          <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-extrabold mb-6 text-white">Personal Details</h2>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
+              <label htmlFor="name" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Name:</label>
               <input
                 type="text"
                 id="name"
@@ -245,11 +211,11 @@ const RegisterPage: React.FC = () => {
                 aria-required="true"
                 disabled={loading}
                 ref={nameRef}
-                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
+                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="mb-[15px] flex items-center">
-              <label htmlFor="dob" className="mb-[5px] w-[100px] text-right mr-[15px]">Date of Birth:</label>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
+              <label htmlFor="dob" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Date of Birth:</label>
               <input
                 type="date"
                 id="dob"
@@ -259,22 +225,22 @@ const RegisterPage: React.FC = () => {
                 aria-required="true"
                 disabled={loading}
                 ref={dobRef}
-                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
+                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="mb-[15px] flex items-center">
-              <label htmlFor="mobileNumber" className="mb-[5px] w-[100px] text-right mr-[15px]">Mobile Number:</label>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
+              <label htmlFor="mobileNumber" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Mobile Number:</label>
               <input
                 type="tel"
                 id="mobileNumber"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
                 disabled={loading}
-                className="p-[8px] w-[180px] rounded-[4px] border border-solid border-[#ccc]"
+                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="mb-[15px] flex items-center">
-              <label htmlFor="gender" className="mb-[5px] w-[100px] text-right mr-[15px]">Gender:</label>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
+              <label htmlFor="gender" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Gender:</label>
               <CustomSelect
                 options={[
                   { value: '', label: 'Select Gender' },
@@ -286,11 +252,92 @@ const RegisterPage: React.FC = () => {
                 onChange={setGender}
                 placeholder="Select Gender"
                 disabled={loading}
-                className="w-[180px]"
+                className="flex-1"
               />
             </div>
-            <div className="text-right">
-              <Button label="Previous" onClick={handlePrevious} disabled={loading} className="mr-[10px]" />
+            <div className="text-right mt-6">
+              <Button label="Next" onClick={handleNext} disabled={loading} type="button" />
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-extrabold mb-6 text-white">Account Information</h2>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
+              <label htmlFor="email" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Email:</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                aria-required="true"
+                disabled={loading}
+                ref={emailRef}
+                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
+              <label htmlFor="username" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Username:</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                aria-required="true"
+                disabled={loading}
+                ref={usernameRef}
+                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center relative">
+              <label htmlFor="password" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Password:</label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                aria-required="true"
+                disabled={loading}
+                ref={passwordRef}
+                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center relative">
+              <label htmlFor="confirmPassword" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Confirm Password:</label>
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                aria-required="true"
+                disabled={loading}
+                ref={confirmPasswordRef}
+                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+              >
+                {showConfirmPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            <div className="text-right mt-6">
+              <Button label="Previous" onClick={handlePrevious} disabled={loading} className="mr-4" />
               <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} />
             </div>
           </div>

@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
         // Replace with your actual backend endpoint
         const response = await new Promise<BackendData>((resolve) => {
           setTimeout(() => {
-            resolve({ message: 'Welcome to your Family Website!' });
+            resolve({ message: 'Welcome to our Family Portal!' });
           }, 1000);
         });
         setData(response);
@@ -43,7 +43,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="text-center mt-[50px]">
       <h1>{data?.message}</h1>
-      <p>This is your personalized family website. More content coming soon!</p>
+      <p>This is our personalized family portal. More content coming soon!</p>
       <AuthButtons />
     </div>
   );

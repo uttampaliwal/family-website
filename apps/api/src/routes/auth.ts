@@ -91,12 +91,14 @@ router.post('/register', (async (req: Request, res: Response) => {
 
 // Sign In Route
 router.post('/login', (async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { username: identifier }],
+    });
     if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     // Check if user is verified
