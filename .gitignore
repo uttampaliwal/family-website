@@ -1,0 +1,53 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+package-lock.json
+
+# testing
+/coverage
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+.env.local
+.env*.local
+apps/web/.env
+/apps/*/.env
+.nvmrc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.bak
+*.old
+*.orig
+
+# Custom additions
+/docs
+/GEMINI.md
+*.log
+.turbo/
+commit_message.txt
+apps/FRONTEND_DESIGN_BACKUP_20250701.md
+apps/FRONTEND_DESIGN.md
+apps/api/BACKEND_DESIGN_BACKUP_20250701.md
+apps/api/BACKEND_DESIGN.md
+.zencoder/
+
+/packages/tests
+
+commit_message.txt
+.env
+

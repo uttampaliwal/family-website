@@ -1,0 +1,14 @@
+services:
+  mongo:
+    image: mongo:4.4
+    container_name: family-website-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: uttam
+      MONGO_INITDB_ROOT_PASSWORD: REDACTED_MONGO_PASSWORD
+
+volumes:
+  mongo-data:
