@@ -200,14 +200,14 @@ const RegisterPage: React.FC = () => {
   }, [name, email, password, confirmPassword, dob, mobileNumber, username, gender, step, validateEmail, validatePassword, retryFetch]);
 
   return (
-    <div className="text-center mt-0">
-      <h1 className="text-[32px] font-bold mb-[10px]">Register</h1>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-xl text-left">
+    <div className="text-center">
+      <h1 className="text-4xl font-extrabold mb-6 text-gray-100">Register</h1>
+      <form onSubmit={handleSubmit} className="mx-auto max-w-2xl text-left">
         {step === 1 && (
-          <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-extrabold mb-6 text-white">Personal Details</h2>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="name" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Name:</label>
+          <div className="mb-8 p-8 bg-gray-900 rounded-xl shadow-xl">
+            <h2 className="text-2xl font-extrabold mb-6 text-gray-100">Personal Details</h2>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+              <label htmlFor="name" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Name:</label>
               <input
                 type="text"
                 id="name"
@@ -217,30 +217,30 @@ const RegisterPage: React.FC = () => {
                 aria-required="true"
                 disabled={loading}
                 ref={nameRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="dob" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">DOB:</label>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+              <label htmlFor="dob" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">DOB:</label>
               <DateOfBirthPicker
                 value={dob}
                 onChange={setDob}
                 disabled={loading}
               />
             </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="mobileNumber" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Mobile Number:</label>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+              <label htmlFor="mobileNumber" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Mobile Number:</label>
               <input
                 type="tel"
                 id="mobileNumber"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
                 disabled={loading}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="gender" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Gender:</label>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+              <label htmlFor="gender" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Gender:</label>
               <CustomSelect
                 options={[
                   { value: '', label: 'Select Gender' },
@@ -262,10 +262,10 @@ const RegisterPage: React.FC = () => {
         )}
 
         {step === 2 && (
-          <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-extrabold mb-6 text-white">Account Information</h2>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="email" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Email:</label>
+          <div className="mb-8 p-8 bg-gray-900 rounded-xl shadow-xl">
+            <h2 className="text-2xl font-extrabold mb-6 text-gray-100">Account Information</h2>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+              <label htmlFor="email" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Email:</label>
               <input
                 type="email"
                 id="email"
@@ -275,11 +275,11 @@ const RegisterPage: React.FC = () => {
                 aria-required="true"
                 disabled={loading}
                 ref={emailRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="username" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Username:</label>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+              <label htmlFor="username" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Username:</label>
               <input
                 type="text"
                 id="username"
@@ -289,11 +289,11 @@ const RegisterPage: React.FC = () => {
                 aria-required="true"
                 disabled={loading}
                 ref={usernameRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center relative">
-              <label htmlFor="password" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Password:</label>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
+              <label htmlFor="password" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Password:</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -303,19 +303,19 @@ const RegisterPage: React.FC = () => {
                 aria-required="true"
                 disabled={loading}
                 ref={passwordRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none text-sm"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center relative">
-              <label htmlFor="confirmPassword" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Confirm Password:</label>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
+              <label htmlFor="confirmPassword" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Confirm Password:</label>
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
@@ -325,12 +325,12 @@ const RegisterPage: React.FC = () => {
                 aria-required="true"
                 disabled={loading}
                 ref={confirmPasswordRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none text-sm"
                 aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
               >
                 {showConfirmPassword ? 'Hide' : 'Show'}

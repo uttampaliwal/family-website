@@ -25,7 +25,7 @@ const VerifyEmailPage: React.FC = () => {
 
     const verifyEmail = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/auth/verify-email', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ const VerifyEmailPage: React.FC = () => {
   return (
     <div className="text-center mt-[50px]">
       <h1>Email Verification</h1>
-      <p className={`${isError ? 'text-red-500' : 'text-green-500'}`}>{message}</p>
+      <p role="alert" className={`${isError ? 'text-red-500' : 'text-green-500'}`}>{message}</p>
       {!isError && message.includes('successfully') && (
         <p>Redirecting to login page...</p>
       )}

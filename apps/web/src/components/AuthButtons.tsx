@@ -11,7 +11,7 @@ const AuthButtons: React.FC = () => {
       {showAuthButtons && (
         <div className="text-center mt-[20px]">
           <Link to="/login"><Button label="Login" /></Link>
-          <Link to="/register"><Button label="Register" className="ml-[10px]" /></Link>
+          <Link to="/register"><Button label="Register" className="ml-[10px]" isPrimary={true} /></Link>
         </div>
       )}
     </>

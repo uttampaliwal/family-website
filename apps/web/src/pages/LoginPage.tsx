@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     setMessage('');
     try {
-      const response = await fetch('http://localhost:3001/api/auth/resend-verification', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/resend-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,12 +88,16 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="text-center mt-[10px]">
-      <h1 className="text-[32px] font-bold mb-[20px]">Login</h1>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-md text-left">
-        <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-          <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-            <label htmlFor="identifier" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Email or Username:</label>
+    <div className="relative text-center">
+      {/* Ribbon for Register Page */}
+      <Link to="/register" className="absolute top-[-10px] right-[-10px] bg-blue-500 text-white px-4 py-2 rounded-bl-lg shadow-lg transform rotate-45 translate-x-1/4 -translate-y-1/4 origin-top-right">
+        <span className="block transform -rotate-45">Register</span>
+      </Link>
+      <h1 className="text-4xl font-extrabold mb-6 text-gray-100">Login</h1>
+      <form onSubmit={handleSubmit} className="mx-auto max-w-2xl text-left">
+        <div className="mb-8 p-8 bg-gray-900 rounded-xl shadow-xl">
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+            <label htmlFor="identifier" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Email or Username:</label>
             <input
               type="text"
               id="identifier"
@@ -101,11 +105,11 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setIdentifier(e.target.value)}
               required
               disabled={loading}
-              className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center relative">
-            <label htmlFor="password" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Password:</label>
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
+            <label htmlFor="password" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Password:</label>
             <input
               type={showPassword ? 'text' : 'password'}
               id="password"
@@ -113,12 +117,12 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
-              className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Added pr-10 for padding for the button
+              className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Added pr-10 for padding for the button
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none text-sm"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? 'Hide' : 'Show'}
@@ -129,7 +133,7 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       </form>
-      {message && <p className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
+      {message && <p role="alert" className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
       {showResendButton && (
         <button
           onClick={handleResendVerification}

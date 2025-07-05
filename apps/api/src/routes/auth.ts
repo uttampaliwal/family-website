@@ -185,4 +185,20 @@ router.post('/resend-verification', (async (req: Request, res: Response) => {
   }
 }) as RequestHandler);
 
+// Get User Profile by Username
+router.get('/profile/:username', (async (req: Request, res: Response) => {
+  try {
+    const user = await User.findOne({ username: req.params.username }).select('-password -verificationToken'); // Exclude sensitive fields
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error('Error fetching user profile:', err);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+}) as RequestHandler);
+
 export default router;
