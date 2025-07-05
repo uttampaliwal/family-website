@@ -42,7 +42,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="text-center mt-[50px]">
-      <h1>{data?.message}</h1>
+      <h1 className="text-4xl font-extrabold mb-4 text-gray-100">{data?.message}</h1>
       <p>This is our personalized family portal. More content coming soon!</p>
       <AuthButtons />
     </div>
