@@ -2,8 +2,8 @@ import express, { Request, Response, NextFunction, RequestHandler } from 'expres
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto'; // For generating random tokens
-import { sendEmail } from '../utils/emailService'; // Import email service
-import User from '../models/User';
+import { sendEmail } from '../utils/emailService.js'; // Import email service
+import User from '../models/User.js'; // Re-enable User model
 
 const router = express.Router();
 const jwtSecret = process.env.JWT_SECRET;
