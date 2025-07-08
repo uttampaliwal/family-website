@@ -1,14 +1,57 @@
 services:
   mongo:
-    image: mongo:4.4
+    image: mongo:latest
     container_name: family-website-mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    command: mongod --bind_ip 0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      # This simpler form passes credentials as separate arguments, which is more robust and less
+      # prone to errors from special characters in passwords than using a full URI string.
+      test: ["CMD", "mongosh", "--host", "localhost", "--authenticationDatabase", "admin", "-u", "${MONGO_INITDB_ROOT_USERNAME}", "-p", "${MONGO_INITDB_ROOT_PASSWORD}", "--eval", "db.adminCommand('ping')"]
+      interval: 10s   # Check every 10 seconds
+      timeout: 10s    # The check must complete within 10 seconds
+      retries: 3      # Retry 3 times before failing
+      start_period: 30s # A more reasonable 30-second grace period
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: family-website-api
+    ports:
+      - "3001:3001"
+    environment:
+      MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/familywebsite?authSource=admin
+      PORT: 3001
+      JWT_SECRET: ${JWT_SECRET}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      FRONTEND_URL: ${FRONTEND_URL}
+    # Override the default command to force Node.js to prefer IPv4 for DNS resolution.
+    # This is a recommended fix for connection timeout issues in Node.js v18+ on Docker.
+    # The path /app/dist/index.js is confirmed from the application's error logs.
+    depends_on:
+      mongo:
+        condition: service_healthy
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: family-website-web
+    ports:
+      - "5173:5173"
+    environment:
+      # This URL is used by the client-side browser code. It must be accessible from the user's machine.
+      # When running Docker locally, this is localhost and the port mapped from the API container.
+      VITE_API_BASE_URL: http://localhost:3001
+    depends_on:
+      - api # Frontend depends on the API
 
 volumes:
   mongo-data:
