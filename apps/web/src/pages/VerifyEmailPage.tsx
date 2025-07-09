@@ -64,11 +64,11 @@ const VerifyEmailPage: React.FC = () => {
   }, [searchParams, navigate]);
 
   return (
-    <div className="text-center mt-[50px]">
-      <h1>Email Verification</h1>
+    <div className="text-center">
+      <h1 className="text-gray-800 dark:text-white">Email Verification</h1>
       <p role="alert" className={`${isError ? 'text-red-500' : 'text-green-500'}`}>{message}</p>
       {!isError && message.includes('successfully') && (
-        <p>Redirecting to login page...</p>
+        <p className="text-gray-700 dark:text-gray-300">Redirecting to login page...</p>
       )}
     </div>
   );

@@ -69,13 +69,13 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
   return (
     <div className="flex-1 flex items-center gap-2">
       <div className="flex-1">
-        <CustomSelect options={dayOptions} value={day} onChange={setDay} placeholder="Day" disabled={disabled} />
-      </div>
-      <div className="flex-[2]">
-        <CustomSelect options={monthOptions} value={month} onChange={setMonth} placeholder="Month" disabled={disabled} />
+        <CustomSelect options={dayOptions} value={day} onChange={setDay} placeholder="Day" disabled={disabled} className="w-full" />
       </div>
       <div className="flex-1">
-        <CustomSelect options={yearOptions} value={year} onChange={setYear} placeholder="Year" disabled={disabled} />
+        <CustomSelect options={monthOptions} value={month} onChange={setMonth} placeholder="Month" disabled={disabled} className="w-full" />
+      </div>
+      <div className="flex-1">
+        <CustomSelect options={yearOptions} value={year} onChange={setYear} placeholder="Year" disabled={disabled} className="w-full" />
       </div>
     </div>
   );
