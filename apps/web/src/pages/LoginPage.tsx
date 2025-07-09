@@ -31,7 +31,7 @@ const LoginPage: React.FC = () => {
         setMessage(data.message || 'Login successful!');
         console.log('JWT Token (placeholder):', data.token);
         setTimeout(() => {
-          navigate('/');
+          navigate(`/profile/${data.username}`);
         }, 1500);
       } else {
         if (response.status === 400) {
@@ -124,7 +124,10 @@ const LoginPage: React.FC = () => {
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
-          <div className="text-right mt-6">
+          <div className="flex justify-between items-center mt-6">
+            <Link to="/forgot-password" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+              Forgot password?
+            </Link>
             <Button label={loading ? 'Logging In...' : 'Login'} type="submit" disabled={loading} />
           </div>
         </div>
