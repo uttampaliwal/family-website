@@ -14,7 +14,10 @@ This project aims to build a personal/family website, serving as a hands-on lear
 ## Features
 
 *   User authentication (login, register, email verification, resend verification email)
-*   Basic styled login and register pages
+*   Personalized user profile pages after login
+*   Enhanced, interactive, and visually appealing header with improved logo positioning and navigation
+*   Adaptive color schemes for both light and dark modes, ensuring optimal readability and aesthetics
+*   Improved form styling and symmetric date picker dropdowns
 *   Custom select component for enhanced UI/UX
 *   Centralized error handling
 *   Improved email verification flow for mobile users
