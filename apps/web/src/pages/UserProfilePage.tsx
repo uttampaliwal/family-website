@@ -44,7 +44,7 @@ const UserProfilePage: React.FC = () => {
   }, [username]);
 
   if (loading) {
-    return <div className="text-center mt-8 text-gray-300">Loading profile...</div>;
+    return <div className="text-center mt-8 text-gray-700 dark:text-gray-300">Loading profile...</div>;
   }
 
   if (error) {
@@ -52,13 +52,13 @@ const UserProfilePage: React.FC = () => {
   }
 
   if (!userProfile) {
-    return <div className="text-center mt-8 text-gray-300">User profile not found.</div>;
+    return <div className="text-center mt-8 text-gray-700 dark:text-gray-300">User profile not found.</div>;
   }
 
   return (
-    <div className="container mx-auto p-8 bg-gray-900 rounded-lg shadow-lg text-gray-100">
-      <h1 className="text-4xl font-extrabold mb-6 text-center">@{userProfile.username}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+    <div className="container mx-auto p-8 bg-white dark:bg-gray-900 rounded-lg shadow-lg text-gray-800 dark:text-gray-100">
+      <h1 className="text-4xl font-extrabold mb-6 text-center text-gray-800 dark:text-gray-100">@{userProfile.username}</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-gray-700 dark:text-gray-300">
         <p><strong>Name:</strong> {userProfile.name || 'N/A'}</p>
         <p><strong>Email:</strong> {userProfile.email}</p>
         <p><strong>Date of Birth:</strong> {userProfile.dob || 'N/A'}</p>

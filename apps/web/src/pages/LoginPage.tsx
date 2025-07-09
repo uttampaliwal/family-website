@@ -89,15 +89,11 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="relative text-center">
-      {/* Ribbon for Register Page */}
-      <Link to="/register" className="absolute top-[-10px] right-[-10px] bg-blue-500 text-white px-4 py-2 rounded-bl-lg shadow-lg transform rotate-45 translate-x-1/4 -translate-y-1/4 origin-top-right">
-        <span className="block transform -rotate-45">Register</span>
-      </Link>
-      <h1 className="text-4xl font-extrabold mb-6 text-gray-100">Login</h1>
+      <h1 className="text-4xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Login</h1>
       <form onSubmit={handleSubmit} className="mx-auto max-w-2xl text-left">
-        <div className="mb-8 p-8 bg-gray-900 rounded-xl shadow-xl">
+        <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-            <label htmlFor="identifier" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Email or Username:</label>
+            <label htmlFor="identifier" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Email or Username:</label>
             <input
               type="text"
               id="identifier"
@@ -105,11 +101,11 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setIdentifier(e.target.value)}
               required
               disabled={loading}
-              className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
-            <label htmlFor="password" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-300">Password:</label>
+            <label htmlFor="password" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Password:</label>
             <input
               type={showPassword ? 'text' : 'password'}
               id="password"
@@ -117,12 +113,12 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
-              className="flex-1 p-3 rounded-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Added pr-10 for padding for the button
+              className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Added pr-10 for padding for the button
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none text-sm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? 'Hide' : 'Show'}
@@ -138,12 +134,12 @@ const LoginPage: React.FC = () => {
         <button
           onClick={handleResendVerification}
           disabled={loading}
-          className="mt-4 text-blue-500 hover:underline"
+          className="mt-4 text-blue-700 dark:text-blue-500 hover:underline"
         >
           Resend Verification Email
         </button>
       )}
-      <p className="mt-[20px]">
+      <p className="mt-[20px] text-gray-700 dark:text-gray-300">
         Don't have an account? <Link to="/register">Register</Link>
       </p>
     </div>
