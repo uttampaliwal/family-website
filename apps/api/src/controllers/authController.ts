@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { sendEmail } from '../utils/emailService.js';
-import User from '../models/User.js';
+import { sendEmail } from '../utils/emailService';
+import User from '../models/User';
 import type { AuthResponse, RegisterRequest, LoginRequest, VerifyEmailRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, UserProfile } from '../types/auth';
 
 const jwtSecret = process.env.JWT_SECRET as string;
