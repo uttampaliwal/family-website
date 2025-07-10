@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Button from '../components/Button';
+import api from '../api/axios';
 
 interface UserProfile {
   username: string;
@@ -12,24 +15,24 @@ interface UserProfile {
 }
 
 const UserProfilePage: React.FC = () => {
-  const { username } = useParams<{ username: string }>();
+  const { username: paramUsername } = useParams<{ username: string }>();
+  const { username: authUsername, logout } = useAuth();
+  const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const displayUsername = authUsername || paramUsername;
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/profile/${username}`);
-        const data = await response.json();
+        const response = await api.get(`/api/auth/profile/${displayUsername}`);
+        const data = response.data;
 
-        if (response.ok) {
-          setUserProfile(data);
-        } else {
-          setError(data.message || 'Failed to fetch user profile.');
-        }
+        setUserProfile(data);
       } catch (err) {
         console.error('Error fetching user profile:', err);
         setError('Network error or server is unreachable.');
@@ -38,10 +41,15 @@ const UserProfilePage: React.FC = () => {
       }
     };
 
-    if (username) {
+    if (displayUsername) {
       fetchUserProfile();
     }
-  }, [username]);
+  }, [displayUsername]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   if (loading) {
     return <div className="text-center mt-8 text-gray-700 dark:text-gray-300">Loading profile...</div>;
@@ -65,7 +73,9 @@ const UserProfilePage: React.FC = () => {
         <p><strong>Mobile Number:</strong> {userProfile.mobileNumber || 'N/A'}</p>
         <p><strong>Gender:</strong> {userProfile.gender || 'N/A'}</p>
       </div>
-      {/* Add more profile details here */}
+      <div className="text-center mt-8">
+        <Button label="Logout" onClick={handleLogout} isPrimary={true} />
+      </div>
     </div>
   );
 };
