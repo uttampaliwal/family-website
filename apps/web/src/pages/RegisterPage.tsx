@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 import CustomSelect from '../components/CustomSelect';
 import DateOfBirthPicker from '../components/DateOfBirthPicker';
+import api from '../api/axios';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
@@ -100,25 +101,6 @@ const RegisterPage: React.FC = () => {
     setStep(step - 1);
   }, [step]);
 
-  const retryFetch = useCallback(async (url: RequestInfo | URL, options?: RequestInit, retries = 3, delay = 1000) => {
-    for (let i = 0; i < retries; i++) {
-      try {
-        const response = await fetch(url, options);
-        if (response.ok || response.status < 500) {
-          return response;
-        }
-      } catch (error) {
-        if (i < retries - 1) {
-          console.warn(`Fetch failed, retrying in ${delay}ms...`, error);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else {
-          throw error; // Re-throw error if max retries reached
-        }
-      }
-    }
-    throw new Error('Max retries reached');
-  }, []);
-
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
@@ -166,38 +148,30 @@ const RegisterPage: React.FC = () => {
     setMessage('Attempting to register...');
 
     try {
-      const response = await retryFetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password, dob, mobileNumber, username, gender }),
+      const response = await api.post('/api/auth/register', {
+        name, email, password, dob, mobileNumber, username, gender
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
+      if (response.status === 201) {
         setMessage(data.message || 'Registration successful! Please check your email for verification.');
       } else {
-        if (response.status === 400) {
-          setMessage(data.message || 'Bad Request.');
-        } else if (response.status === 500) {
-          setMessage('Server error. Please try again later.');
-        } else {
-          setMessage(data.message || 'An unexpected error occurred.');
-        }
+        setMessage(data.message || 'An unexpected error occurred.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error during registration:', error);
-      if (error instanceof TypeError) {
-        setMessage('Network error. Please check your internet connection or try again later.');
+      if (error.response && error.response.data && error.response.data.message) {
+        setMessage(error.response.data.message);
+      } else if (error.message) {
+        setMessage(error.message);
       } else {
         setMessage('An error occurred. Please try again.');
       }
     } finally {
       setLoading(false);
     }
-  }, [name, email, password, confirmPassword, dob, mobileNumber, username, gender, step, validateEmail, validatePassword, retryFetch]);
+  }, [name, email, password, confirmPassword, dob, mobileNumber, username, gender, step, validateEmail, validatePassword]);
 
   return (
     <div className="text-center">

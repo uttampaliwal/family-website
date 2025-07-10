@@ -7,10 +7,11 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import UserProfilePage from './pages/UserProfilePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
-
+import { useAuth } from './context/AuthContext';
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
+  const { isLoggedIn, username } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,8 +37,14 @@ function App() {
           </Link>
           <nav className="ml-auto space-x-6 mr-8">
             <Link to="/" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Home</Link>
-            <Link to="/login" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Login</Link>
-            <Link to="/register" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Register</Link>
+            {isLoggedIn ? (
+              <Link to={`/profile/${username}`} className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">{username}</Link>
+            ) : (
+              <>
+                <Link to="/login" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Login</Link>
+                <Link to="/register" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Register</Link>
+              </>
+            )}
           </nav>
         </header>
 

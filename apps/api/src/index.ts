@@ -2,10 +2,12 @@ import express, { Express } from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 // Assuming your routes and middleware are structured as per your documentation.
 // Node.js ES Modules require the full file extension in relative imports.
 import authRoutes from './routes/auth.js';
+import feedRoutes from './routes/feed.js';
 // import { errorHandler } from './middleware/errorHandler'; // Uncomment if you have a central error handler
 
 // --- 1. Environment Setup ---
@@ -13,9 +15,9 @@ import authRoutes from './routes/auth.js';
 dotenv.config();
 
 // Validate that all required environment variables are present.
-const { PORT, MONGO_URI, JWT_SECRET, FRONTEND_URL } = process.env;
+const { PORT, MONGO_URI, JWT_SECRET, REFRESH_TOKEN_SECRET, FRONTEND_URL } = process.env;
 
-if (!PORT || !MONGO_URI || !JWT_SECRET || !FRONTEND_URL) {
+if (!PORT || !MONGO_URI || !JWT_SECRET || !REFRESH_TOKEN_SECRET || !FRONTEND_URL) {
   console.error('FATAL ERROR: One or more required environment variables are missing.');
   console.error('Please check your .env file in the project root.');
   process.exit(1); // Exit immediately if configuration is invalid.
@@ -64,9 +66,11 @@ app.use(
 
 // Middleware to parse JSON request bodies.
 app.use(express.json());
+app.use(cookieParser());
 
 // API routes.
 app.use('/api/auth', authRoutes);
+app.use('/api/feed', feedRoutes);
 
 // Central error handling middleware (optional but recommended).
 // app.use(errorHandler); // Uncomment if you have this middleware.

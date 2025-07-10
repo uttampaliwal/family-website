@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 
 const LoginPage: React.FC = () => {
   const [identifier, setIdentifier] = useState<string>('');
@@ -10,6 +12,7 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showResendButton, setShowResendButton] = useState<boolean>(false); // New state for resend button visibility
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,19 +20,17 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ identifier, password }),
+      const response = await api.post('/api/auth/login', {
+        identifier,
+        password,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage(data.message || 'Login successful!');
-        console.log('JWT Token (placeholder):', data.token);
+        localStorage.setItem('accessToken', data.token); // Store the access token
+        login(data.username);
         setTimeout(() => {
           navigate(`/profile/${data.username}`);
         }, 1500);

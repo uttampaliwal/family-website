@@ -39,6 +39,9 @@ const UserSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+  refreshTokens: [String], // Array to store multiple refresh tokens
+  loginAttempts: { type: Number, required: true, default: 0 },
+  lockUntil: { type: Number },
 });
 
 // Index for faster lookups
