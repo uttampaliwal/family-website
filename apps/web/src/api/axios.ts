@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { AuthResponse } from '../types/api';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -29,12 +30,14 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         // Request a new access token using the refresh token (sent via HttpOnly cookie)
-        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, {}, {
+        const response = await axios.post<AuthResponse>(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, {}, {
           withCredentials: true,
         });
 
         const newAccessToken = response.data.accessToken;
-        localStorage.setItem('accessToken', newAccessToken);
+        if (newAccessToken) {
+          localStorage.setItem('accessToken', newAccessToken);
+        }
 
         // Retry the original request with the new access token
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;

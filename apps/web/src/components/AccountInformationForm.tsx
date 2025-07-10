@@ -15,10 +15,10 @@ interface AccountInformationFormProps {
   showConfirmPassword: boolean;
   setShowConfirmPassword: (showConfirmPassword: boolean) => void;
   loading: boolean;
-  emailRef: React.RefObject<HTMLInputElement>;
-  usernameRef: React.RefObject<HTMLInputElement>;
-  passwordRef: React.RefObject<HTMLInputElement>;
-  confirmPasswordRef: React.RefObject<HTMLInputElement>;
+  emailRef: React.RefObject<HTMLInputElement | null>;
+  usernameRef: React.RefObject<HTMLInputElement | null>;
+  passwordRef: React.RefObject<HTMLInputElement | null>;
+  confirmPasswordRef: React.RefObject<HTMLInputElement | null>;
   handlePrevious: () => void;
 }
 

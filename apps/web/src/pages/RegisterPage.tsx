@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
-import Button from '../components/Button';
-import CustomSelect from '../components/CustomSelect';
-import DateOfBirthPicker from '../components/DateOfBirthPicker';
 import api from '../api/axios';
 import { useFormValidation } from '../hooks/useFormValidation';
+import PersonalDetailsForm from '../components/PersonalDetailsForm';
+import AccountInformationForm from '../components/AccountInformationForm';
+import type { RegisterRequest, AuthResponse } from '../types/api';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
@@ -22,36 +22,29 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1); // New state for multi-step form
 
-  const nameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const usernameRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement | null>(null);
 
   const { validateEmail, validatePassword } = useFormValidation();
 
   const handleNext = useCallback(() => {
     setMessage('');
     if (step === 1) {
-      // Validate Step 1 fields (Personal Details)
       if (!name || !dob || !gender) {
         setMessage('Please fill in all required fields for Personal Details.');
         if (!name) nameRef.current?.focus();
         return;
       }
     } else if (step === 2) {
-      // Validate Step 2 fields (Account Information)
       if (!email || !username || !password || !confirmPassword) {
         setMessage('Please fill in all required fields for Account Information.');
         if (!email) emailRef.current?.focus();
         else if (!username) usernameRef.current?.focus();
         else if (!password) passwordRef.current?.focus();
         else if (!confirmPassword) confirmPasswordRef.current?.focus();
-        return;
-      }
-      if (!validateEmail(email)) {
-        setMessage('Please enter a valid email address.');
-        emailRef.current?.focus();
         return;
       }
       if (password !== confirmPassword) {
@@ -79,9 +72,7 @@ const RegisterPage: React.FC = () => {
     setMessage('');
     setLoading(true);
 
-    // Validate Step 2 fields (Account Information) before final submission
     if (step === 2) {
-      // Priority 1: Check for password mismatch first.
       if (password !== confirmPassword) {
         setMessage('Passwords do not match.');
         confirmPasswordRef.current?.focus();
@@ -89,7 +80,6 @@ const RegisterPage: React.FC = () => {
         return;
       }
 
-      // Priority 2: Check if all fields are filled.
       if (!email || !username || !password || !confirmPassword) {
         setMessage('Please fill in all required fields for Account Information.');
         if (!email) emailRef.current?.focus();
@@ -100,7 +90,6 @@ const RegisterPage: React.FC = () => {
         return;
       }
 
-      // Priority 3: Validate email format.
       if (!validateEmail(email)) {
         setMessage('Please enter a valid email address.');
         emailRef.current?.focus();
@@ -108,7 +97,6 @@ const RegisterPage: React.FC = () => {
         return;
       }
       
-      // Priority 4: Validate password strength.
       const passwordErrors = validatePassword(password);
       if (passwordErrors.length > 0) {
         setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
@@ -121,9 +109,9 @@ const RegisterPage: React.FC = () => {
     setMessage('Attempting to register...');
 
     try {
-      const response = await api.post('/api/auth/register', {
+      const response = await api.post<AuthResponse>('/api/auth/register', {
         name, email, password, dob, mobileNumber, username, gender
-      });
+      } as RegisterRequest);
 
       const data = response.data;
 
@@ -151,143 +139,42 @@ const RegisterPage: React.FC = () => {
       <h1 className="text-4xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Register</h1>
       <form onSubmit={handleSubmit} className="mx-auto max-w-2xl text-left">
         {step === 1 && (
-          <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
-            <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Personal Details</h2>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-              <label htmlFor="name" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Name:</label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={nameRef}
-                className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-              <label htmlFor="dob" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">DOB:</label>
-              <DateOfBirthPicker
-                value={dob}
-                onChange={setDob}
-                disabled={loading}
-              />
-            </div>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-              <label htmlFor="mobileNumber" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Mobile Number:</label>
-              <input
-                type="tel"
-                id="mobileNumber"
-                value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-                disabled={loading}
-                className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-              <label htmlFor="gender" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Gender:</label>
-              <CustomSelect
-                options={[
-                  { value: '', label: 'Select Gender' },
-                  { value: 'Male', label: 'Male' },
-                  { value: 'Female', label: 'Female' },
-                  { value: 'Prefer not to say', label: 'Prefer not to say' },
-                ]}
-                value={gender}
-                onChange={setGender}
-                placeholder="Select Gender"
-                disabled={loading}
-                className="flex-1"
-              />
-            </div>
-            <div className="text-right mt-6">
-              <Button label="Next" onClick={handleNext} disabled={loading} type="button" />
-            </div>
-          </div>
+          <PersonalDetailsForm
+            name={name}
+            setName={setName}
+            dob={dob}
+            setDob={setDob}
+            mobileNumber={mobileNumber}
+            setMobileNumber={setMobileNumber}
+            gender={gender}
+            setGender={setGender}
+            loading={loading}
+            nameRef={nameRef}
+            handleNext={handleNext}
+          />
         )}
 
         {step === 2 && (
-          <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
-            <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Account Information</h2>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-              <label htmlFor="email" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Email:</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={emailRef}
-                className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-              <label htmlFor="username" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Username:</label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={usernameRef}
-                className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
-              <label htmlFor="password" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Password:</label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={passwordRef}
-                className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
-            </div>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
-              <label htmlFor="confirmPassword" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Confirm Password:</label>
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={confirmPasswordRef}
-                className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
-                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
-              >
-                {showConfirmPassword ? 'Hide' : 'Show'}
-              </button>
-            </div>
-            <div className="text-right mt-6">
-              <Button label="Previous" onClick={handlePrevious} disabled={loading} className="mr-4" />
-              <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} />
-            </div>
-          </div>
+          <AccountInformationForm
+            email={email}
+            setEmail={setEmail}
+            username={username}
+            setUsername={setUsername}
+            password={password}
+            setPassword={setPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+            showConfirmPassword={showConfirmPassword}
+            setShowConfirmPassword={setShowConfirmPassword}
+            loading={loading}
+            emailRef={emailRef}
+            usernameRef={usernameRef}
+            passwordRef={passwordRef}
+            confirmPasswordRef={confirmPasswordRef}
+            handlePrevious={handlePrevious}
+          />
         )}
       </form>
       {message && <p role="alert" className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}

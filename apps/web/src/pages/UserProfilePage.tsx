@@ -3,16 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import api from '../api/axios';
+import type { UserProfile } from '../types/api';
 
-interface UserProfile {
-  username: string;
-  email: string;
-  name?: string;
-  dob?: string;
-  mobileNumber?: string;
-  gender?: string;
-  // Add other profile fields as needed
-}
+
 
 const UserProfilePage: React.FC = () => {
   const { username: paramUsername } = useParams<{ username: string }>();
