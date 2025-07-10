@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 // Node.js ES Modules require the full file extension in relative imports.
 import authRoutes from './routes/auth.js';
 import feedRoutes from './routes/feed.js';
-// import { errorHandler } from './middleware/errorHandler'; // Uncomment if you have a central error handler
+import { errorHandler } from './middleware/errorHandler.js';
 
 // --- 1. Environment Setup ---
 // Load environment variables from .env file at the very start.
@@ -72,8 +72,8 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', feedRoutes);
 
-// Central error handling middleware (optional but recommended).
-// app.use(errorHandler); // Uncomment if you have this middleware.
+// Central error handling middleware.
+app.use(errorHandler);
 
 // --- 4. Server Startup and Graceful Shutdown ---
 const startServer = async () => {

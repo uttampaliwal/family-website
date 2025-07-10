@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import CustomSelect from '../components/CustomSelect';
 import DateOfBirthPicker from '../components/DateOfBirthPicker';
 import api from '../api/axios';
+import { useFormValidation } from '../hooks/useFormValidation';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
@@ -27,35 +28,7 @@ const RegisterPage: React.FC = () => {
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
-  const validateEmail = useCallback((email: string) => {
-    // Basic email regex validation
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }, []);
-
-  const validatePassword = useCallback((password: string) => {
-    // Password must be at least 8 characters long
-    // Contain at least one uppercase letter
-    // Contain at least one lowercase letter
-    // Contain at least one number
-    // Contain at least one special character
-    const errors: string[] = [];
-    if (password.length < 8) {
-      errors.push('at least 8 characters long');
-    }
-    if (!/[A-Z]/.test(password)) {
-      errors.push('at least one uppercase letter');
-    }
-    if (!/[a-z]/.test(password)) {
-      errors.push('at least one lowercase letter');
-    }
-    if (!/[0-9]/.test(password)) {
-      errors.push('at least one number');
-    }
-    if (!/[^A-Za-z0-9]/.test(password)) {
-      errors.push('at least one special character');
-    }
-    return errors;
-  }, []);
+  const { validateEmail, validatePassword } = useFormValidation();
 
   const handleNext = useCallback(() => {
     setMessage('');

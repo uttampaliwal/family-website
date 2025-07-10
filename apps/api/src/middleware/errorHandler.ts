@@ -1,17 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 
-const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack); // Log the error stack for debugging
 
-  // Set a default status code and message
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  res.status(statusCode);
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
 
-  res.json({
-    message: err.message,
-    // In production, you might not want to send the stack trace
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  res.status(statusCode).json({
+    message: message,
+    // In development, send error stack for debugging
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
 };
-
-export default errorHandler;
