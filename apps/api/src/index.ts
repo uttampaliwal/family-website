@@ -103,4 +103,4 @@ const startServer = async () => {
 };
 
 // --- 5. Run the Application ---
-startServer();
+export default app;
