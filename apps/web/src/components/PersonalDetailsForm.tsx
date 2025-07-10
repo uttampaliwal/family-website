@@ -13,9 +13,9 @@ interface PersonalDetailsFormProps {
   gender: string;
   setGender: (gender: string) => void;
   loading: boolean;
-  nameRef: React.RefObject<HTMLInputElement>;
+  nameRef: React.RefObject<HTMLInputElement | null>;
   handleNext: () => void;
-  setMessage: (message: string) => void;
+  
 }
 
 const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
@@ -30,8 +30,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
   loading,
   nameRef,
   handleNext,
-  setMessage,
-}) => {
+  }) => {
   return (
     <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
       <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Personal Details</h2>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
+import type { LoginRequest, AuthResponse, ResendVerificationRequest } from '../types/api';
 
 const LoginPage: React.FC = () => {
   const [identifier, setIdentifier] = useState<string>('');
@@ -20,17 +21,16 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/api/auth/login', {
+      const response = await api.post<AuthResponse>('/api/auth/login', {
         identifier,
         password,
-      });
+      } as LoginRequest);
 
       const data = response.data;
-
       if (response.status === 200) {
         setMessage(data.message || 'Login successful!');
-        localStorage.setItem('accessToken', data.token); // Store the access token
-        login(data.username);
+        localStorage.setItem('accessToken', data.accessToken || ''); // Store the access token
+        login(data.username || '');
         setTimeout(() => {
           navigate(`/profile/${data.username}`);
         }, 1500);
@@ -66,15 +66,11 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     setMessage('');
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/resend-verification`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ identifier }),
-      });
-      const data = await response.json();
-      if (response.ok) {
+      const response = await api.post<AuthResponse>(`${import.meta.env.VITE_API_BASE_URL}/api/auth/resend-verification`, {
+        identifier,
+      } as ResendVerificationRequest);
+      const data = response.data;
+      if (response.status === 200) {
         setMessage(data.message || 'Verification email sent successfully!');
         setShowResendButton(false);
       } else {
