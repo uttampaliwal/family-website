@@ -125,4 +125,4 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
   );
 };
 
-export default AccountInformationForm;
+export default React.memo(AccountInformationForm);

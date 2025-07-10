@@ -90,4 +90,4 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
   );
 };
 
-export default PersonalDetailsForm;
+export default React.memo(PersonalDetailsForm);
