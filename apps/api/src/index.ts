@@ -6,9 +6,9 @@ import cookieParser from 'cookie-parser';
 
 // Assuming your routes and middleware are structured as per your documentation.
 // Node.js ES Modules require the full file extension in relative imports.
-import authRoutes from './routes/auth.js';
-import feedRoutes from './routes/feed.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import authRoutes from './routes/auth';
+import feedRoutes from './routes/feed';
+import { errorHandler } from './middleware/errorHandler';
 
 // --- 1. Environment Setup ---
 // Load environment variables from .env file at the very start.
@@ -103,4 +103,4 @@ const startServer = async () => {
 };
 
 // --- 5. Run the Application ---
-export default app;
+startServer();
