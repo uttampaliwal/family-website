@@ -35,14 +35,14 @@ yarn-error.log*
 *.orig
 
 # Custom additions
-/docs
-/GEMINI.md
+docs/
+GEMINI.md
 *.log
 .turbo/
 commit_message.txt
 .zencoder/
-
-/packages/tests
+apps/screenshots
+packages/tests/
 
 commit_message.txt
 .env
