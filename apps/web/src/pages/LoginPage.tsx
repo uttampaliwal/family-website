@@ -34,29 +34,37 @@ const LoginPage: React.FC = () => {
         setTimeout(() => {
           navigate(`/profile/${data.username}`);
         }, 1500);
-      } else {
-        if (response.status === 400) {
-          if (data.message === 'Invalid credentials') {
-            setMessage('Invalid credentials. Please check your details or register.');
-          } else if (data.message === 'Please verify your email before logging in.') {
-            setMessage(data.message);
-            setShowResendButton(true);
-          } else {
-            setMessage(data.message || 'Bad Request.');
-          }
-        } else if (response.status === 500) {
-          setMessage('Server error. Please try again later.');
-        } else {
-          setMessage(data.message || 'An unexpected error occurred.');
-        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error during login:', error);
-      if (error instanceof TypeError) {
-        setMessage('Network error. Please check your internet connection or try again later.');
+      console.log('Error response:', error.response);
+      console.log('Error request:', error.request);
+      console.log('Error message property:', error.message);
+      console.log('Error response data:', error.response?.data);
+      console.log('Error response data message:', error.response?.data?.message);
+
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else {
+          errorMessage = error.response.data?.message || error.response.statusText || errorMessage;
+        }
+        if (error.response.data?.message === 'Please verify your email before logging in.') {
+          setShowResendButton(true);
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = 'Network error. Please check your internet connection or try again later.';
       } else {
-        setMessage('An error occurred. Please try again.');
+        // Something happened in setting up the request that triggered an Error
+        errorMessage = error.message || errorMessage;
       }
+
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }
