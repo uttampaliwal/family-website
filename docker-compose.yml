@@ -21,8 +21,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
   api:
     build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/api/Dockerfile
     container_name: family-website-api
     ports:
       - "3001:3001"
@@ -37,29 +37,34 @@ services:
     # Override the default command to force Node.js to prefer IPv4 for DNS resolution.
     # This is a recommended fix for connection timeout issues in Node.js v18+ on Docker.
     # The path /app/dist/index.js is confirmed from the application's error logs.
+    command: ["node", "--dns-result-order=ipv4first", "dist/index.js"]
+
     depends_on:
       mongo:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 3001"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    healthcheck: # This uses curl, which is installed in the Dockerfile.production
+      # This check assumes you have a health endpoint at /api/health in your API
+      test: ["CMD", "curl", "--fail", "http://localhost:3001/api/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
   web:
     build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+      args:
+        # This build-time argument is passed to the Dockerfile to be used by Vite.
+        VITE_API_BASE_URL: http://localhost:3001
     container_name: family-website-web
     ports:
       - "5173:5173"
-    environment:
-      # This URL is used by the client-side browser code. It must be accessible from the user's machine.
-      # When running Docker locally, this is localhost and the port mapped from the API container.
-      VITE_API_BASE_URL: http://localhost:3001
     depends_on:
-      - api # Frontend depends on the API
+      api:
+        # This ensures the web service only starts after the api service is fully healthy.
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 5173"]
+      test: ["CMD", "curl", "-f", "http://localhost:5173/healthz"]
       interval: 10s
       timeout: 5s
       retries: 5

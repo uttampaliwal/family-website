@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 // Node.js ES Modules require the full file extension in relative imports.
 import authRoutes from './routes/auth';
 import feedRoutes from './routes/feed';
+import healthRoutes from './routes/health'; // 1. Import the new health route
 import { errorHandler } from './middleware/errorHandler';
 
 // --- 1. Environment Setup ---
@@ -71,6 +72,8 @@ app.use(cookieParser());
 // API routes.
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api', healthRoutes); // Mount the health check route
+
 
 // Central error handling middleware.
 app.use(errorHandler);
