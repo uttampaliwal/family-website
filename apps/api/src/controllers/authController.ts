@@ -80,7 +80,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
       $or: [{ email: identifier }, { username: identifier }],
     });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'No account found with that email or username. Please register.' });
     }
 
     if (user.lockUntil && user.lockUntil > Date.now()) {
