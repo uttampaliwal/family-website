@@ -44,7 +44,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     <div className={`relative ${className}`} ref={selectRef}>
       <button
         type="button"
-        className={`flex-1 p-3 rounded-md border text-left cursor-pointer flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+        className={`flex-1 p-3 rounded-xl border text-left cursor-pointer flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500 ${
           disabled ? 'bg-gray-700 cursor-not-allowed text-gray-400' : 'bg-gray-800 border-gray-700 text-white'
         }`}
         onClick={() => !disabled && setIsOpen(!isOpen)}

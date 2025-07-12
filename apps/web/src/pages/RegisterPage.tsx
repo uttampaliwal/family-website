@@ -136,7 +136,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="text-center">
-      <h1 className="text-4xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Register</h1>
+      <h1 className="text-4xl font-extrabold mb-6 text-text-light dark:text-text-dark">Register</h1>
       <form onSubmit={handleSubmit} className="mx-auto max-w-2xl text-left">
         {step === 1 && (
           <PersonalDetailsForm
