@@ -56,7 +56,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={emailRef}
-          className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
@@ -70,7 +70,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={usernameRef}
-          className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
@@ -84,7 +84,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={passwordRef}
-          className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
         />
         <button
           type="button"
@@ -106,7 +106,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={confirmPasswordRef}
-          className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
         />
         <button
           type="button"

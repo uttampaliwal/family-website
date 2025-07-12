@@ -96,7 +96,7 @@ const LoginPage: React.FC = () => {
     <div className="relative text-center">
       <h1 className="text-4xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Login</h1>
       <form onSubmit={handleSubmit} className="mx-auto max-w-2xl text-left">
-        <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
+        <div className="mb-8 p-8 bg-background-light dark:bg-background-dark rounded-xl shadow-xl">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
             <label htmlFor="identifier" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Email or Username:</label>
             <input
@@ -106,7 +106,7 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setIdentifier(e.target.value)}
               required
               disabled={loading}
-              className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
@@ -118,7 +118,7 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
-              className="flex-1 p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Added pr-10 for padding for the button
+              className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Added pr-10 for padding for the button
             />
             <button
               type="button"

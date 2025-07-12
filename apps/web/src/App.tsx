@@ -32,8 +32,13 @@ function App() {
 
   return (
     <Router>
-      <div className="bg-gray-50 dark:bg-gray-950" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <header className={`fixed top-0 left-0 w-full bg-gradient-to-r from-blue-800 to-purple-900 text-white z-20 px-8 py-2 flex items-center rounded-b-3xl transition-all duration-300 ${scrolled ? 'shadow-xl' : ''}`}>
+      <div className="bg-background-light dark:bg-background-dark" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <header
+          className={`fixed top-0 left-0 w-full text-white z-20 px-8 py-2 flex items-center rounded-b-3xl transition-all duration-300 ${scrolled ? 'shadow-xl' : ''}`}
+          style={{
+            background: 'linear-gradient(to right, var(--color-primary-default), var(--color-secondary-default))',
+          }}
+        >
           <Link to="/" className="flex items-center">
             <img src="/family-logo.webp" className="w-[120px] h-[120px] object-contain drop-shadow-[0_0_10px_rgba(74,222,128,0.7)]" alt="Family Logo" />
           </Link>
@@ -73,7 +78,7 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="w-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-400 text-center py-4">
+        <footer className="w-full bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark text-center py-4">
           <p>&copy; {new Date().getFullYear()} Family Portal. All rights reserved.</p>
         </footer>
       </div>
