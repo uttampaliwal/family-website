@@ -4,8 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import api from '../api/axios';
 import type { UserProfile } from '../types/api';
-import PersonalDetailsForm from '../components/PersonalDetailsForm';
-import AccountInformationForm from '../components/AccountInformationForm';
+
 import CustomSelect from '../components/CustomSelect';
 import DateOfBirthPicker from '../components/DateOfBirthPicker';
 
@@ -79,13 +78,17 @@ const UserProfilePage: React.FC = () => {
     setIsEditing(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditableProfile(prev => (prev ? { ...prev, [name]: value } : null));
   };
 
-  const handleDateChange = (date: Date | null) => {
-    setEditableProfile(prev => (prev ? { ...prev, dob: date ? date.toISOString().split('T')[0] : '' } : null));
+  const handleSelectChange = (name: string, value: string) => {
+    setEditableProfile(prev => (prev ? { ...prev, [name]: value } : null));
+  };
+
+  const handleDateChange = (value: string) => {
+    setEditableProfile(prev => (prev ? { ...prev, dob: value } : null));
   };
 
   if (loading) {
@@ -121,7 +124,7 @@ const UserProfilePage: React.FC = () => {
             <div>
               <label htmlFor="dob" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
               <DateOfBirthPicker
-                selectedDate={editableProfile?.dob ? new Date(editableProfile.dob) : null}
+                value={editableProfile?.dob || ''}
                 onChange={handleDateChange}
               />
             </div>
@@ -142,7 +145,7 @@ const UserProfilePage: React.FC = () => {
                 id="gender"
                 name="gender"
                 value={editableProfile?.gender || ''}
-                onChange={handleChange}
+                onChange={(value) => handleSelectChange('gender', value)}
                 options={[
                   { value: '', label: 'Select Gender' },
                   { value: 'Male', label: 'Male' },

@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 interface CustomSelectProps {
+  id?: string;
+  name?: string;
   options: { value: string; label: string }[];
   value: string;
   onChange: (value: string) => void;
