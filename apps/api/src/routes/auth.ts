@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction, RequestHandler } from 'express';
 import rateLimit from 'express-rate-limit';
-import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout } from '../controllers/authController';
+import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout, updateUserProfile } from '../controllers/authController';
 import { validate, registerSchema, loginSchema, verifyEmailSchema, resendVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from '../middleware/validate';
 
 const router = express.Router();
@@ -35,6 +35,9 @@ router.post('/refresh-token', refreshToken as RequestHandler);
 
 // Get User Profile by Username
 router.get('/profile/:username', getUserProfile as RequestHandler<{ username: string }>);
+
+// Update User Profile by Username
+router.put('/profile/:username', updateUserProfile as RequestHandler<{ username: string }>);
 
 // Forgot Password Route
 router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword as RequestHandler);

@@ -221,6 +221,31 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
   }
 };
 
+export const updateUserProfile = async (req: Request<{ username: string }, any, UserProfile>, res: Response<AuthResponse>) => {
+  try {
+    const { username } = req.params;
+    const { name, dob, mobileNumber, gender } = req.body;
+
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    user.name = name || user.name;
+    user.dob = dob || user.dob;
+    user.mobileNumber = mobileNumber || user.mobileNumber;
+    user.gender = gender || user.gender;
+
+    await user.save();
+
+    res.status(200).json({ message: 'Profile updated successfully.' });
+  } catch (err: any) {
+    console.error('Error updating user profile:', err);
+    res.status(500).json({ message: 'Failed to update profile.', error: err.message });
+  }
+};
+
 export const forgotPassword = async (req: Request<any, any, ForgotPasswordRequest>, res: Response<AuthResponse>) => {
   const { email } = req.body;
 

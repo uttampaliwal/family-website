@@ -1,6 +1,5 @@
 import express, { Express } from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
@@ -12,8 +11,6 @@ import healthRoutes from './routes/health'; // 1. Import the new health route
 import { errorHandler } from './middleware/errorHandler';
 
 // --- 1. Environment Setup ---
-// Load environment variables from .env file at the very start.
-dotenv.config();
 
 // Validate that all required environment variables are present.
 const { PORT, MONGO_URI, JWT_SECRET, REFRESH_TOKEN_SECRET, FRONTEND_URL } = process.env;

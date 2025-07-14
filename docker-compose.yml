@@ -11,7 +11,7 @@ services:
     healthcheck:
       # This simpler form passes credentials as separate arguments, which is more robust and less
       # prone to errors from special characters in passwords than using a full URI string.
-      test: ["CMD", "mongosh", "--host", "localhost", "--authenticationDatabase", "admin", "-u", "${MONGO_INITDB_ROOT_USERNAME}", "-p", "${MONGO_INITDB_ROOT_PASSWORD}", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s   # Check every 10 seconds
       timeout: 10s    # The check must complete within 10 seconds
       retries: 3      # Retry 3 times before failing
@@ -19,21 +19,24 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    env_file:
+      - ./.env
   api:
     build:
       context: .
       dockerfile: ./apps/api/Dockerfile
     container_name: family-website-api
     ports:
-      - "3001:3001"
+      - "3000:3000"
     environment:
-      MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/familywebsite?authSource=admin
-      PORT: 3001
+      PORT: 3000
       JWT_SECRET: ${JWT_SECRET}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
       EMAIL_USER: ${EMAIL_USER}
       EMAIL_PASS: ${EMAIL_PASS}
       FRONTEND_URL: ${FRONTEND_URL}
+    env_file:
+      - ./.env
     # Override the default command to force Node.js to prefer IPv4 for DNS resolution.
     # This is a recommended fix for connection timeout issues in Node.js v18+ on Docker.
     # The path /app/dist/index.js is confirmed from the application's error logs.
@@ -44,7 +47,7 @@ services:
         condition: service_healthy
     healthcheck: # This uses curl, which is installed in the Dockerfile.production
       # This check assumes you have a health endpoint at /api/health in your API
-      test: ["CMD", "curl", "--fail", "http://localhost:3001/api/health"]
+      test: ["CMD", "curl", "--fail", "http://localhost:3000/api/health"]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -55,7 +58,7 @@ services:
       dockerfile: ./apps/web/Dockerfile
       args:
         # This build-time argument is passed to the Dockerfile to be used by Vite.
-        VITE_API_BASE_URL: http://localhost:3001
+        VITE_API_BASE_URL: http://localhost:3000
     container_name: family-website-web
     ports:
       - "5173:5173"
