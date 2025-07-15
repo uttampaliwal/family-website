@@ -45,5 +45,5 @@ RUN npm install --omit=dev
 # Copy the built 'api' application code.
 COPY --from=builder /app/apps/api/dist ./dist
 
-EXPOSE 3001
+EXPOSE 3000
 CMD ["node", "dist/index.js"]
