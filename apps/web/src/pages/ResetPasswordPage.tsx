@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { isAxiosError } from 'axios';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -35,7 +36,14 @@ const ResetPasswordPage: React.FC = () => {
         setMessage(data.message || 'Something went wrong');
       }
     } catch (error) {
-      setMessage('Failed to connect to the server');
+      console.error(error);
+      if (isAxiosError(error)) {
+        setMessage(error.response?.data?.message || 'Failed to connect to the server');
+      } else if (error instanceof Error) {
+        setMessage(error.message);
+      } else {
+        setMessage('Failed to connect to the server');
+      }
     }
   };
 

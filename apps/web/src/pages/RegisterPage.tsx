@@ -6,6 +6,7 @@ import { useFormValidation } from '../hooks/useFormValidation';
 import PersonalDetailsForm from '../components/PersonalDetailsForm';
 import AccountInformationForm from '../components/AccountInformationForm';
 import type { RegisterRequest, AuthResponse } from '../types/api';
+import { isAxiosError } from 'axios';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
@@ -60,7 +61,7 @@ const RegisterPage: React.FC = () => {
       }
     }
     setStep(step + 1);
-  }, [step, name, dob, gender, email, username, password, confirmPassword, validateEmail, validatePassword]);
+  }, [step, name, dob, gender, email, username, password, confirmPassword, validatePassword]);
 
   const handlePrevious = useCallback(() => {
     setMessage('');
@@ -120,11 +121,17 @@ const RegisterPage: React.FC = () => {
       } else {
         setMessage(data.message || 'An unexpected error occurred.');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error during registration:', error);
-      if (error.response && error.response.data && error.response.data.message) {
-        setMessage(error.response.data.message);
-      } else if (error.message) {
+      if (isAxiosError(error)) {
+        if (error.response && error.response.data && error.response.data.message) {
+          setMessage(error.response.data.message);
+        } else if (error.message) {
+          setMessage(error.message);
+        } else {
+          setMessage('An error occurred. Please try again.');
+        }
+      } else if (error instanceof Error) {
         setMessage(error.message);
       } else {
         setMessage('An error occurred. Please try again.');

@@ -1,25 +1,12 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Light mode colors */
-  --color-primary-default: #6B46C1;
-  --color-primary-light: #805AD5;
-  --color-primary-dark: #553C9A;
-  --color-secondary-default: #F6AD55;
-  --color-secondary-light: #FBD38D;
-  --color-secondary-dark: #DD6B20;
-  --color-accent: #48BB78;
-  --color-background-light: #FDFDFD;
-  --color-background-dark: #1A202C;
-  --color-text-light: #2D3748;
-  --color-text-dark: #E2E8F0;
-
   font-family: theme('fontFamily.sans');
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: var(--color-text-light);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,31 +16,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark mode colors */
-    --color-primary-default: #805AD5;
-    --color-primary-light: #9F7AEA;
-    --color-primary-dark: #6B46C1;
-    --color-secondary-default: #DD6B20;
-    --color-secondary-light: #F6AD55;
-    --color-secondary-dark: #C05621;
-    --color-accent: #48BB78;
-    --color-background-light: #1A202C;
-    --color-background-dark: #000000;
-    --color-text-light: #E2E8F0;
-    --color-text-dark: #FFFFFF;
-
-    color: var(--color-text-dark);
   }
 }
 
 a {
-  font-weight: 500;
-  color: var(--color-primary-default);
-  text-decoration: inherit;
+  @apply font-medium text-primary-default;
 }
 
 a:hover {
-  color: var(--color-primary-light);
+  @apply text-primary-light;
 }
 
 html, body {

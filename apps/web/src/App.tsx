@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
 import ProtectedRoute from './components/ProtectedRoute';
 import RouteFocusManager from './components/RouteFocusManager';
 import HamburgerMenu from './components/HamburgerMenu';
@@ -40,10 +40,7 @@ function App() {
       <div className="bg-background-light dark:bg-background-dark" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <header
           role="banner"
-          className={`fixed top-0 left-0 w-full text-white z-20 px-8 py-2 flex items-center justify-between rounded-b-3xl transition-all duration-300 ${scrolled ? 'shadow-xl' : ''}`}
-          style={{
-            background: 'linear-gradient(to right, var(--color-primary-default), var(--color-secondary-default))',
-          }}
+          className={`fixed top-0 left-0 w-full text-white z-20 px-8 py-2 flex items-center justify-between rounded-b-3xl transition-all duration-300 bg-gradient-to-r from-primary-default to-secondary-default ${scrolled ? 'shadow-xl' : ''}`}
         >
           <Link to="/" className="flex items-center">
             <img src="/family-logo.webp" className="w-[120px] h-[120px] object-contain drop-shadow-[0_0_10px_rgba(74,222,128,0.7)]" alt="Family Logo" />

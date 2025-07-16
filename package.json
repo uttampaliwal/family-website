@@ -2,7 +2,6 @@
   "name": "family-website",
   "version": "0.0.0",
   "private": true,
-  
   "packageManager": "npm@10.8.2",
   "workspaces": [
     "apps/*",
@@ -16,6 +15,6 @@
   },
   "devDependencies": {
     "prettier": "^3.3.3",
-    "turbo": "^2.0.9"
+    "turbo": "^2.5.5"
   }
 }
