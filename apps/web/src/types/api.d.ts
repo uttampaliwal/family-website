@@ -1,8 +1,13 @@
+export interface ErrorResponse {
+  message: string;
+  details?: string;
+}
+
 export interface AuthResponse {
   message: string;
   accessToken?: string;
   username?: string;
-  error?: any;
+  error?: ErrorResponse;
 }
 
 export interface UserProfile {

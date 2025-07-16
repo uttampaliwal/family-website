@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import api from '../api/axios';
 import type { LoginRequest, AuthResponse, ResendVerificationRequest } from '../types/api';
+import { isAxiosError } from 'axios';
 
 const LoginPage: React.FC = () => {
   const [identifier, setIdentifier] = useState<string>('');
@@ -35,33 +36,28 @@ const LoginPage: React.FC = () => {
           navigate(`/profile/${data.username}`);
         }, 1500);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error during login:', error);
-      console.log('Error response:', error.response);
-      console.log('Error request:', error.request);
-      console.log('Error message property:', error.message);
-      console.log('Error response data:', error.response?.data);
-      console.log('Error response data message:', error.response?.data?.message);
 
       let errorMessage = 'An unexpected error occurred. Please try again.';
 
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        if (typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
+      if (isAxiosError(error)) {
+        if (error.response) {
+          if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data;
+          } else {
+            errorMessage = error.response.data?.message || error.response.statusText || errorMessage;
+          }
+          if (error.response.data?.message === 'Please verify your email before logging in.') {
+            setShowResendButton(true);
+          }
+        } else if (error.request) {
+          errorMessage = 'Network error. Please check your internet connection or try again later.';
         } else {
-          errorMessage = error.response.data?.message || error.response.statusText || errorMessage;
+          errorMessage = error.message || errorMessage;
         }
-        if (error.response.data?.message === 'Please verify your email before logging in.') {
-          setShowResendButton(true);
-        }
-      } else if (error.request) {
-        // The request was made but no response was received
-        errorMessage = 'Network error. Please check your internet connection or try again later.';
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        errorMessage = error.message || errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
       }
 
       setMessage(errorMessage);

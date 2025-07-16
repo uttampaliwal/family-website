@@ -1,11 +1,13 @@
 import React from 'react';
 
-interface UserProfileCardProps {}
+interface UserProfileCardProps {
+  username: string;
+}
 
-const UserProfileCard: React.FC<UserProfileCardProps> = ({}) => {
+const UserProfileCard: React.FC<UserProfileCardProps> = ({ username }) => {
   return (
     <div>
-      <h1>UserProfileCard</h1>
+      <h1>{username}</h1>
     </div>
   );
 };
