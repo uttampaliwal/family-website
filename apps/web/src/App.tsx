@@ -2,6 +2,10 @@ import { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import RouteFocusManager from './components/RouteFocusManager';
+import HamburgerMenu from './components/HamburgerMenu';
+
+import UserProfileSkeleton from './components/UserProfileSkeleton';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -32,9 +36,11 @@ function App() {
 
   return (
     <Router>
+      <RouteFocusManager />
       <div className="bg-background-light dark:bg-background-dark" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <header
-          className={`fixed top-0 left-0 w-full text-white z-20 px-8 py-2 flex items-center rounded-b-3xl transition-all duration-300 ${scrolled ? 'shadow-xl' : ''}`}
+          role="banner"
+          className={`fixed top-0 left-0 w-full text-white z-20 px-8 py-2 flex items-center justify-between rounded-b-3xl transition-all duration-300 ${scrolled ? 'shadow-xl' : ''}`}
           style={{
             background: 'linear-gradient(to right, var(--color-primary-default), var(--color-secondary-default))',
           }}
@@ -42,22 +48,25 @@ function App() {
           <Link to="/" className="flex items-center">
             <img src="/family-logo.webp" className="w-[120px] h-[120px] object-contain drop-shadow-[0_0_10px_rgba(74,222,128,0.7)]" alt="Family Logo" />
           </Link>
-          <nav className="ml-auto space-x-6 mr-8">
-            <Link to="/" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Home</Link>
-            {isLoggedIn ? (
-              <Link to={`/profile/${username}`} className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">{username}</Link>
-            ) : (
-              <>
-                <Link to="/login" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Login</Link>
-                <Link to="/register" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Register</Link>
-              </>
-            )}
-          </nav>
+          <div className="hidden md:flex items-center">
+            <nav className="ml-auto space-x-6 mr-8" role="navigation">
+              <Link to="/" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Home</Link>
+              {isLoggedIn ? (
+                <Link to={`/profile/${username}`} className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">{username}</Link>
+              ) : (
+                <>
+                  <Link to="/login" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Login</Link>
+                  <Link to="/register" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Register</Link>
+                </>
+              )}
+            </nav>
+          </div>
+          <HamburgerMenu isLoggedIn={isLoggedIn} username={username} />
         </header>
 
         {/* Main Content Area */}
-        <main className="w-full pt-[160px]" style={{ flex: '1 0 auto' }}>
-          <Suspense fallback={<div>Loading...</div>}>
+        <main role="main" className="w-full pt-[160px]" style={{ flex: '1 0 auto' }} tabIndex={-1}>
+          <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><p>Loading...</p></div>}>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
@@ -67,7 +76,9 @@ function App() {
                 path="/profile/:username"
                 element={
                   <ProtectedRoute>
-                    <UserProfilePage />
+                    <Suspense fallback={<UserProfileSkeleton />}>
+                      <UserProfilePage />
+                    </Suspense>
                   </ProtectedRoute>
                 }
               />
@@ -78,7 +89,7 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="w-full bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark text-center py-4">
+        <footer role="contentinfo" className="w-full bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark text-center py-4">
           <p>&copy; {new Date().getFullYear()} Family Portal. All rights reserved.</p>
         </footer>
       </div>
