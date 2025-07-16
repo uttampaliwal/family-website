@@ -4,7 +4,6 @@
 /node_modules
 /.pnp
 .pnp.js
-package-lock.json
 
 # testing
 /coverage
@@ -36,7 +35,7 @@ yarn-error.log*
 
 # Custom additions
 docs/
-GEMINI.md
+
 *.log
 .turbo/
 commit_message.txt
@@ -48,4 +47,3 @@ docker-compose.prod.yml
 commit_message.txt
 .env
 
-.gemini
