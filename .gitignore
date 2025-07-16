@@ -43,7 +43,7 @@ commit_message.txt
 apps/screenshots
 packages/tests/
 docker-compose.prod.yml
-
+.gemini
 commit_message.txt
 .env
 
