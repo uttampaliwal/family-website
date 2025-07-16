@@ -20,11 +20,12 @@
 }
 
 a {
-  @apply font-medium text-primary-default;
+  color: var(--tw-color-primary-DEFAULT);
+  text-decoration: inherit;
 }
 
 a:hover {
-  @apply text-primary-light;
+  color: var(--tw-color-primary-light);
 }
 
 html, body {
