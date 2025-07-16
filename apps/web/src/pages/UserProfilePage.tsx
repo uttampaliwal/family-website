@@ -9,6 +9,8 @@ import CustomSelect from '../components/CustomSelect';
 import DateOfBirthPicker from '../components/DateOfBirthPicker';
 
 
+import EmptyState from '../components/EmptyState';
+
 const UserProfilePage: React.FC = () => {
   const { username: paramUsername } = useParams<{ username: string }>();
   const { username: authUsername, logout } = useAuth();
@@ -100,7 +102,7 @@ const UserProfilePage: React.FC = () => {
   }
 
   if (!userProfile) {
-    return <div className="text-center mt-8 text-gray-700 dark:text-gray-300">User profile not found.</div>;
+    return <EmptyState message="User profile not found." />;
   }
 
   return (
