@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 import type { LoginRequest, AuthResponse, ResendVerificationRequest } from '../types/api';
 import { isAxiosError } from 'axios';
@@ -10,15 +11,16 @@ const LoginPage: React.FC = () => {
   const [identifier, setIdentifier] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false); // New state for password visibility
-  const [message, setMessage] = useState<string>('');
+  
   const [loading, setLoading] = useState<boolean>(false);
   const [showResendButton, setShowResendButton] = useState<boolean>(false); // New state for resend button visibility
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    showToast('', 'info'); // Clear previous messages
     setLoading(true);
 
     try {
@@ -29,7 +31,7 @@ const LoginPage: React.FC = () => {
 
       const data = response.data;
       if (response.status === 200) {
-        setMessage(data.message || 'Login successful!');
+        showToast(data.message || 'Login successful!', 'success');
         localStorage.setItem('accessToken', data.accessToken || ''); // Store the access token
         login(data.username || '');
         setTimeout(() => {
@@ -60,7 +62,7 @@ const LoginPage: React.FC = () => {
         errorMessage = error.message;
       }
 
-      setMessage(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -68,21 +70,21 @@ const LoginPage: React.FC = () => {
 
   const handleResendVerification = async () => {
     setLoading(true);
-    setMessage('');
+    showToast('', 'info'); // Clear previous messages
     try {
       const response = await api.post<AuthResponse>(`${import.meta.env.VITE_API_BASE_URL}/api/auth/resend-verification`, {
         identifier,
       } as ResendVerificationRequest);
       const data = response.data;
       if (response.status === 200) {
-        setMessage(data.message || 'Verification email sent successfully!');
+        showToast(data.message || 'Verification email sent successfully!', 'success');
         setShowResendButton(false);
       } else {
-        setMessage(data.message || 'Failed to resend verification email.');
+        showToast(data.message || 'Failed to resend verification email.', 'error');
       }
     } catch (error) {
       console.error('Error resending verification email:', error);
-      setMessage('An error occurred while resending verification email.');
+      showToast('An error occurred while resending verification email.', 'error');
     } finally {
       setLoading(false);
     }
@@ -133,7 +135,6 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       </form>
-      {message && <p role="alert" className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
       {showResendButton && (
         <button
           onClick={handleResendVerification}
