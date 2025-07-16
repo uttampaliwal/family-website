@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isAxiosError } from 'axios';
+import { useToast } from '../context/ToastContext';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    showToast('', 'info'); // Clear previous messages
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/forgot-password`, {
@@ -22,18 +23,18 @@ const ForgotPasswordPage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message);
+        showToast(data.message, 'success');
       } else {
-        setMessage(data.message || 'Something went wrong');
+        showToast(data.message || 'Something went wrong', 'error');
       }
     } catch (error) {
       console.error(error);
       if (isAxiosError(error)) {
-        setMessage(error.response?.data?.message || 'Failed to connect to the server');
+        showToast(error.response?.data?.message || 'Failed to connect to the server', 'error');
       } else if (error instanceof Error) {
-        setMessage(error.message);
+        showToast(error.message, 'error');
       } else {
-        setMessage('Failed to connect to the server');
+        showToast('Failed to connect to the server', 'error');
       }
     }
   };
@@ -70,7 +71,6 @@ const ForgotPasswordPage: React.FC = () => {
             </button>
           </div>
         </form>
-        {message && <p className="text-center text-sm text-gray-600 dark:text-gray-400">{message}</p>}
         <div className="text-sm text-center">
           <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
             Back to Login

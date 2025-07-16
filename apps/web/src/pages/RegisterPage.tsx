@@ -8,6 +8,8 @@ import AccountInformationForm from '../components/AccountInformationForm';
 import type { RegisterRequest, AuthResponse } from '../types/api';
 import { isAxiosError } from 'axios';
 
+import { useToast } from '../context/ToastContext';
+
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
@@ -19,7 +21,6 @@ const RegisterPage: React.FC = () => {
   const [mobileNumber, setMobileNumber] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [gender, setGender] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1); // New state for multi-step form
 
@@ -30,18 +31,19 @@ const RegisterPage: React.FC = () => {
   const confirmPasswordRef = useRef<HTMLInputElement | null>(null);
 
   const { validateEmail, validatePassword } = useFormValidation();
+  const { showToast } = useToast();
 
   const handleNext = useCallback(() => {
-    setMessage('');
+    showToast('', 'info'); // Clear previous messages
     if (step === 1) {
       if (!name || !dob || !gender) {
-        setMessage('Please fill in all required fields for Personal Details.');
+        showToast('Please fill in all required fields for Personal Details.', 'error');
         if (!name) nameRef.current?.focus();
         return;
       }
     } else if (step === 2) {
       if (!email || !username || !password || !confirmPassword) {
-        setMessage('Please fill in all required fields for Account Information.');
+        showToast('Please fill in all required fields for Account Information.', 'error');
         if (!email) emailRef.current?.focus();
         else if (!username) usernameRef.current?.focus();
         else if (!password) passwordRef.current?.focus();
@@ -49,40 +51,40 @@ const RegisterPage: React.FC = () => {
         return;
       }
       if (password !== confirmPassword) {
-        setMessage('Confirm password should be same as password.');
+        showToast('Confirm password should be same as password.', 'error');
         confirmPasswordRef.current?.focus();
         return;
       }
       const passwordErrors = validatePassword(password);
       if (passwordErrors.length > 0) {
-        setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
+        showToast(`Password must contain: ${passwordErrors.join(', ')}.`, 'error');
         passwordRef.current?.focus();
         return;
       }
     }
     setStep(step + 1);
-  }, [step, name, dob, gender, email, username, password, confirmPassword, validatePassword]);
+  }, [step, name, dob, gender, email, username, password, confirmPassword, validatePassword, showToast]);
 
   const handlePrevious = useCallback(() => {
-    setMessage('');
+    showToast('', 'info'); // Clear previous messages
     setStep(step - 1);
-  }, [step]);
+  }, [step, showToast]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    showToast('', 'info'); // Clear previous messages
     setLoading(true);
 
     if (step === 2) {
       if (password !== confirmPassword) {
-        setMessage('Passwords do not match.');
+        showToast('Passwords do not match.', 'error');
         confirmPasswordRef.current?.focus();
         setLoading(false);
         return;
       }
 
       if (!email || !username || !password || !confirmPassword) {
-        setMessage('Please fill in all required fields for Account Information.');
+        showToast('Please fill in all required fields for Account Information.', 'error');
         if (!email) emailRef.current?.focus();
         else if (!username) usernameRef.current?.focus();
         else if (!password) passwordRef.current?.focus();
@@ -92,7 +94,7 @@ const RegisterPage: React.FC = () => {
       }
 
       if (!validateEmail(email)) {
-        setMessage('Please enter a valid email address.');
+        showToast('Please enter a valid email address.', 'error');
         emailRef.current?.focus();
         setLoading(false);
         return;
@@ -100,14 +102,14 @@ const RegisterPage: React.FC = () => {
       
       const passwordErrors = validatePassword(password);
       if (passwordErrors.length > 0) {
-        setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
+        showToast(`Password must contain: ${passwordErrors.join(', ')}.`, 'error');
         passwordRef.current?.focus();
         setLoading(false);
         return;
       }
     }
 
-    setMessage('Attempting to register...');
+    showToast('Attempting to register...', 'info');
 
     try {
       const response = await api.post<AuthResponse>('/api/auth/register', {
@@ -117,29 +119,29 @@ const RegisterPage: React.FC = () => {
       const data = response.data;
 
       if (response.status === 201) {
-        setMessage(data.message || 'Registration successful! Please check your email for verification.');
+        showToast(data.message || 'Registration successful! Please check your email for verification.', 'success');
       } else {
-        setMessage(data.message || 'An unexpected error occurred.');
+        showToast(data.message || 'An unexpected error occurred.', 'error');
       }
     } catch (error) {
       console.error('Error during registration:', error);
       if (isAxiosError(error)) {
         if (error.response && error.response.data && error.response.data.message) {
-          setMessage(error.response.data.message);
+          showToast(error.response.data.message, 'error');
         } else if (error.message) {
-          setMessage(error.message);
+          showToast(error.message, 'error');
         } else {
-          setMessage('An error occurred. Please try again.');
+          showToast('An error occurred. Please try again.', 'error');
         }
       } else if (error instanceof Error) {
-        setMessage(error.message);
+        showToast(error.message, 'error');
       } else {
-        setMessage('An error occurred. Please try again.');
+        showToast('An error occurred. Please try again.', 'error');
       }
     } finally {
       setLoading(false);
     }
-  }, [name, email, password, confirmPassword, dob, mobileNumber, username, gender, step, validateEmail, validatePassword]);
+  }, [name, email, password, confirmPassword, dob, mobileNumber, username, gender, step, validateEmail, validatePassword, showToast]);
 
   return (
     <div className="text-center">
@@ -184,7 +186,6 @@ const RegisterPage: React.FC = () => {
           />
         )}
       </form>
-      {message && <p role="alert" className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
       <p className="mt-[20px] text-gray-700 dark:text-gray-300">
         Already have an account? <Link to="/login">Login</Link>
       </p>

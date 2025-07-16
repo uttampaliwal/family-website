@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
+import { useToast } from '../context/ToastContext';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    showToast('', 'info'); // Clear previous messages
 
     if (password !== confirmPassword) {
-      setMessage('Passwords do not match');
+      showToast('Passwords do not match', 'error');
       return;
     }
 
@@ -30,19 +31,19 @@ const ResetPasswordPage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message);
+        showToast(data.message, 'success');
         setTimeout(() => navigate('/login'), 3000);
       } else {
-        setMessage(data.message || 'Something went wrong');
+        showToast(data.message || 'Something went wrong', 'error');
       }
     } catch (error) {
       console.error(error);
       if (isAxiosError(error)) {
-        setMessage(error.response?.data?.message || 'Failed to connect to the server');
+        showToast(error.response?.data?.message || 'Failed to connect to the server', 'error');
       } else if (error instanceof Error) {
-        setMessage(error.message);
+        showToast(error.message, 'error');
       } else {
-        setMessage('Failed to connect to the server');
+        showToast('Failed to connect to the server', 'error');
       }
     }
   };
@@ -98,7 +99,6 @@ const ResetPasswordPage: React.FC = () => {
             </button>
           </div>
         </form>
-        {message && <p className="text-center text-sm text-gray-600 dark:text-gray-400">{message}</p>}
       </div>
     </div>
   );

@@ -7,6 +7,8 @@ import HamburgerMenu from './components/HamburgerMenu';
 
 import UserProfileSkeleton from './components/UserProfileSkeleton';
 
+import { ToastProvider } from './context/ToastContext';
+
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -36,7 +38,8 @@ function App() {
 
   return (
     <Router>
-      <RouteFocusManager />
+      <ToastProvider>
+        <RouteFocusManager />
       <div className="bg-background-light dark:bg-background-dark" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <header
           role="banner"
@@ -90,6 +93,7 @@ function App() {
           <p>&copy; {new Date().getFullYear()} Family Portal. All rights reserved.</p>
         </footer>
       </div>
+      </ToastProvider>
     </Router>
   );
 }
