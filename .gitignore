@@ -40,7 +40,7 @@ docs/
 .turbo/
 commit_message.txt
 .zencoder/
-apps/screenshots
+
 packages/tests/
 docker-compose.prod.yml
 .gemini
