@@ -12,7 +12,7 @@ router.get('/dynamic-feed', (req: Request, res: Response) => {
       type: 'photo-update',
       title: `New Photos from Family Reunion`,
       description: `Aunt Carol just uploaded 25 new photos from the summer family reunion!`,
-      imageUrl: 'https://via.placeholder.com/400x200?text=Family+Reunion+Photos',
+      imageUrl: '/family-logo.webp',
       link: '/photos/reunion-2024',
       timestamp: new Date().toISOString(),
     },
