@@ -46,4 +46,4 @@ docker-compose.prod.yml
 .gemini
 commit_message.txt
 .env
-
+prompt_message
