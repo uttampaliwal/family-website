@@ -1,49 +1,34 @@
-# Base image with Node.js and Turborepo CLI
+# syntax=docker/dockerfile:1
+
+# --- Base Stage ---
 FROM node:20-alpine AS base
 WORKDIR /app
-RUN npm install -g turbo
+RUN apk add --no-cache libc6-compat
 
-# Stage 1: Prune the monorepo
-# This stage creates a minimal version of the monorepo with only the code
-# and dependencies required to build the 'api' application.
-FROM base AS pruner
+# --- Builder Stage ---
+FROM base as builder
 WORKDIR /app
-COPY . .
-RUN turbo prune --scope=api --docker
-
-# Stage 2: The Builder
-# This stage builds the 'api' application using the pruned monorepo.
-FROM base AS builder
-WORKDIR /app
-
-# Copy the pruned files from the 'pruner' stage.
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/package-lock.json ./package-lock.json
-
-# Install all dependencies (including devDependencies for building).
+COPY package.json package-lock.json* turbo.json ./
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+COPY tsconfig.json ./
 RUN npm ci
+COPY . .
+RUN npx turbo run build --filter=api
 
-# Copy the pruned source code.
-COPY --from=pruner /app/out/full/ .
-
-# Build the 'api' application.
-RUN turbo run build --filter=api
-
-# Stage 3: The Production Image
-# This stage creates a lean final image with only the compiled code and production dependencies.
-FROM node:20-alpine
+# --- Runner Stage ---
+FROM node:20-alpine as runner
 WORKDIR /app
-
-# Add curl for healthchecks.
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 expressjs
 RUN apk add --no-cache curl
+COPY package.json package-lock.json* ./
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+RUN npm ci --omit=dev --filter=api
 
-# Copy the pruned dependency manifests from the pruner stage, which has the correct structure for all workspaces.
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/package-lock.json ./
-RUN npm install --omit=dev
-
-# Copy the built 'api' application code.
 COPY --from=builder /app/apps/api/dist ./dist
 
+USER expressjs
 EXPOSE 3000
 CMD ["node", "dist/index.js"]
