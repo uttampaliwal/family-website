@@ -45,23 +45,30 @@ function App() {
         <div className="bg-background-default" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <header
             role="banner"
-            className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${scrolled ? 'shadow-md py-3' : 'py-5'} bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-900 dark:to-purple-900 rounded-b-3xl`}
+            className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${scrolled ? 'shadow-md py-3' : 'py-5'} bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-800 dark:to-purple-900 rounded-b-2xl`}
           >
             <div className="container mx-auto px-4 flex items-center justify-between">
-              <Link to="/" className="flex items-center group">
-                <img 
-                  src="/family-logo.webp" 
-                  className="h-14 object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.6)] transition-all duration-300 group-hover:h-16 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]" 
-                  alt="Family Logo" 
-                />
-                <span className="ml-3 text-xl font-bold text-white hidden sm:block">Family Portal</span>
-              </Link>
+              <div className="flex items-center">
+                <Link to="/" className="flex items-center group">
+                  <div className="relative">
+                    <img 
+                      src="/family-logo.webp" 
+                      className="h-16 object-contain transition-all duration-300 filter drop-shadow-[0_0_3px_rgba(255,255,255,0.5)] group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:scale-110" 
+                      alt="Family Website" 
+                    />
+                  </div>
+                  <div className="ml-3 hidden sm:block">
+                    <span className="text-2xl font-extrabold text-white tracking-wide">Family <span className="text-yellow-300 dark:text-yellow-300">Website</span></span>
+                  </div>
+                </Link>
+                {/* Tagline removed */}
+              </div>
               
               <div className="flex items-center">
-                <div className="hidden md:flex items-center space-x-1">
+                <div className="hidden md:flex items-center space-x-3">
                   <Link 
                     to="/" 
-                    className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                    className="px-4 py-2 rounded-lg text-white hover:bg-white/10 transition-colors duration-200"
                   >
                     Home
                   </Link>
@@ -69,7 +76,7 @@ function App() {
                   {isLoggedIn ? (
                     <Link 
                       to={`/profile/${username}`} 
-                      className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                      className="px-4 py-2 rounded-lg text-white hover:bg-white/10 transition-colors duration-200"
                     >
                       {username}
                     </Link>
@@ -77,13 +84,13 @@ function App() {
                     <>
                       <Link 
                         to="/login" 
-                        className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                        className="px-4 py-2 rounded-lg bg-blue-700 text-white font-medium shadow-sm hover:bg-blue-800 transition-colors duration-200"
                       >
                         Login
                       </Link>
                       <Link 
                         to="/register" 
-                        className="px-4 py-2 rounded-lg gradient-bg text-white font-medium shadow-sm hover:opacity-90 transition-colors duration-200"
+                        className="px-4 py-2 rounded-lg bg-white text-purple-600 font-medium shadow-sm hover:bg-white/90 transition-colors duration-200"
                       >
                         Register
                       </Link>
@@ -101,12 +108,7 @@ function App() {
               </div>
             </div>
             
-            {/* Tagline */}
-            <div className="container mx-auto px-4 mt-1">
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400 hidden md:block">
-                Your central hub for family coordination and memories
-              </p>
-            </div>
+            {/* Tagline removed */}
           </header>
 
           {/* Main Content Area */}
@@ -136,6 +138,7 @@ function App() {
                 />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/healthz" element={<HealthCheck />} />
               </Routes>
             </Suspense>

@@ -321,9 +321,17 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
   }
 };
 
-export const resetPassword = async (req: Request<{ token: string }, any, ResetPasswordRequest>, res: Response<AuthResponse>) => {
-  const { token } = req.params;
+export const resetPassword = async (req: Request<{ token?: string }, any, ResetPasswordRequest>, res: Response<AuthResponse>) => {
+  // Get token from either params or body
+  const tokenFromParams = req.params.token;
+  const tokenFromBody = req.body.token;
+  const token = tokenFromParams || tokenFromBody;
   const { password } = req.body;
+  
+  if (!token) {
+    return res.status(400).json({ message: 'Password reset token is required.' });
+  }
+  
   try {
     // Hash the token from the request to compare with stored hashed token
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');

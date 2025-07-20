@@ -35,7 +35,7 @@ export const forgotPasswordSchema = Joi.object({
 });
 
 export const resetPasswordSchema = Joi.object({
-  token: Joi.string().required(),
+  token: Joi.string().optional(), // Make token optional in the body since it might be in the URL params
   password: Joi.string()
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/)
     .required()
