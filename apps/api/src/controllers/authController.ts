@@ -55,8 +55,32 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       html: `<p>Please click the following link to verify your email:</p><p><a href="${sanitizedUrl}">${sanitizedUrl}</a></p>`,
     });
 
-    const accessToken = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ id: user.id }, refreshTokenSecret, { expiresIn: '7d' });
+    const accessToken = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        iat: Math.floor(Date.now() / 1000)
+      },
+      jwtSecret,
+      {
+        expiresIn: '15m',
+        algorithm: 'HS512'
+      }
+    );
+    const refreshToken = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        iat: Math.floor(Date.now() / 1000)
+      },
+      refreshTokenSecret,
+      {
+        expiresIn: '7d',
+        algorithm: 'HS512'
+      }
+    );
 
     user.refreshTokens.push(refreshToken);
     await user.save();
