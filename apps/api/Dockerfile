@@ -14,7 +14,7 @@ COPY apps/web/package.json ./apps/web/
 COPY tsconfig.json ./
 RUN npm ci
 COPY . .
-RUN npx turbo run build --filter=api
+RUN npx turbo run build --filter=./apps/api
 
 # --- Runner Stage ---
 FROM node:20-alpine as runner
