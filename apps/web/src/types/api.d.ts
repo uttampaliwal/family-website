@@ -47,6 +47,7 @@ export interface ForgotPasswordRequest {
 }
 
 export interface ResetPasswordRequest {
-  token: string;
+  token?: string; // Make token optional since it might be in the URL params
   password: string;
+  confirmPassword?: string; // Add confirmPassword for frontend validation
 }

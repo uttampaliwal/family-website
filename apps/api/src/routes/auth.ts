@@ -45,6 +45,9 @@ router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword a
 // Reset Password Route
 router.post('/reset-password/:token', validate(resetPasswordSchema), resetPassword as RequestHandler<{ token: string }>);
 
+// Reset Password Route with token in body
+router.post('/reset-password', validate(resetPasswordSchema), resetPassword as RequestHandler);
+
 // Logout Route
 router.post('/logout', logout as RequestHandler);
 

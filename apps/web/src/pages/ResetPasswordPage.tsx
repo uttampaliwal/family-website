@@ -1,43 +1,69 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { useToast } from '../hooks/useToast';
+import { resetPassword as resetPasswordApi } from '../api/auth';
+import type { ResetPasswordRequest } from '../types/api';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { token } = useParams<{ token: string }>();
+  const [loading, setLoading] = useState(false);
+  const { token: routeToken } = useParams<{ token: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  
+  // Get token from either route params or query params
+  const queryToken = new URLSearchParams(location.search).get('token');
+  const token = routeToken || queryToken;
+
+  useEffect(() => {
+    if (!token) {
+      showToast('Invalid or missing reset token', 'error');
+      setTimeout(() => navigate('/forgot-password'), 2000);
+    }
+  }, [token, navigate, showToast]);
+
+  const validatePassword = (password: string): string[] => {
+    const errors: string[] = [];
+    if (password.length < 8) errors.push('at least 8 characters');
+    if (!/[A-Z]/.test(password)) errors.push('one uppercase letter');
+    if (!/[a-z]/.test(password)) errors.push('one lowercase letter');
+    if (!/[0-9]/.test(password)) errors.push('one number');
+    if (!/[^A-Za-z0-9]/.test(password)) errors.push('one special character');
+    return errors;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     showToast('', 'info'); // Clear previous messages
+    setLoading(true);
 
     if (password !== confirmPassword) {
       showToast('Passwords do not match', 'error');
+      setLoading(false);
+      return;
+    }
+
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      showToast(`Password must contain: ${passwordErrors.join(', ')}.`, 'error');
+      setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/reset-password/${token}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        showToast(data.message, 'success');
-        setTimeout(() => navigate('/login'), 3000);
-      } else {
-        showToast(data.message || 'Something went wrong', 'error');
-      }
+      // Create the request payload
+      const resetPasswordData: ResetPasswordRequest = { token: token || '', password };
+      
+      // Call the API function
+      const response = await resetPasswordApi(resetPasswordData);
+      
+      showToast(response.message || 'Password reset successful!', 'success');
+      setTimeout(() => navigate('/login'), 3000);
     } catch (error) {
-      console.error(error);
+      console.error('Reset password error:', error);
       if (isAxiosError(error)) {
         showToast(error.response?.data?.message || 'Failed to connect to the server', 'error');
       } else if (error instanceof Error) {
@@ -45,19 +71,26 @@ const ResetPasswordPage: React.FC = () => {
       } else {
         showToast('Failed to connect to the server', 'error');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-900">
-        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white">Reset Password</h2>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="password"className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              New Password
-            </label>
-            <div className="mt-1">
+    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="font-cursive text-4xl md:text-5xl font-bold mb-2 gradient-text">Reset Password</h1>
+          <p className="text-gray-600 dark:text-gray-400">Enter your new password below</p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="h-2 gradient-bg"></div>
+          <form className="p-8" onSubmit={handleSubmit}>
+            <div className="mb-6 relative">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                New Password <span className="text-red-500">*</span>
+              </label>
               <input
                 id="password"
                 name="password"
@@ -65,19 +98,16 @@ const ResetPasswordPage: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                disabled={loading}
+                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                placeholder="Enter your new password"
               />
             </div>
-          </div>
 
-          <div>
-            <label
-              htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Confirm New Password
-            </label>
-            <div className="mt-1">
+            <div className="mb-6 relative">
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Confirm New Password <span className="text-red-500">*</span>
+              </label>
               <input
                 id="confirm-password"
                 name="confirm-password"
@@ -85,20 +115,41 @@ const ResetPasswordPage: React.FC = () => {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                disabled={loading}
+                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                placeholder="Confirm your new password"
               />
             </div>
-          </div>
+            
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+              Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.
+            </div>
 
-          <div>
             <button
               type="submit"
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={loading}
+              className="w-full gradient-bg text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-md hover:opacity-90 transition-all duration-200 flex items-center justify-center"
             >
-              Reset Password
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Resetting Password...
+                </>
+              ) : (
+                'Reset Password'
+              )}
             </button>
-          </div>
-        </form>
+            
+            <div className="text-center mt-6">
+              <a href="/login" className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
+                Back to Login
+              </a>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
