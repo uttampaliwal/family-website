@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../hooks/useToast';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');

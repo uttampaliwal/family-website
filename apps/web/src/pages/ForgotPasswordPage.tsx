@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../hooks/useToast';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');

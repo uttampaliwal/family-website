@@ -60,16 +60,31 @@ const config: Config = {
           900: '#111827',
         },
         background: {
-          light: '#FDFDFD',
-          dark: '#1A202C',
+          DEFAULT: 'var(--color-bg-default)',
+          surface: 'var(--color-bg-surface)',
+          light: '#FDFDFD', // Pure white for light mode background
+          dark: '#121212',  // Darker background for dark mode
         },
         text: {
-          light: '#2D3748',
-          dark: '#E2E8F0',
+          DEFAULT: 'var(--color-text-default)',
+          light: '#2D3748', // Dark gray for light mode text
+          dark: '#E0E0E0',  // Light gray for dark mode text
+        },
+        surface: {
+          light: '#FFFFFF', // White for cards/components in light mode
+          dark: '#1E1E1E',  // Slightly lighter than dark background for cards/components
+        },
+        onSurface: {
+          light: '#2D3748', // Text on light surface
+          dark: '#E0E0E0',  // Text on dark surface
         },
         success: '#10B981', // Green
         warning: '#F59E0B', // Orange
         error: '#EF4444',   // Red
+      },
+      backgroundImage: {
+        'gradient-light-header': 'linear-gradient(to right, #a8c0ff, #3f2b96)',
+        'gradient-dark-header': 'linear-gradient(to right, #232526, #414345)',
       },
       fontFamily: {
         sans: ['Inter', 'Avenir', 'Helvetica', 'Arial', 'sans-serif'],
@@ -78,7 +93,7 @@ const config: Config = {
     },
   },
   plugins: [],
-  
+  darkMode: 'class',
 };
 
 export default config;

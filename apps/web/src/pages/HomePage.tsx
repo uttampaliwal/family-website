@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 
+
 interface FeedItem {
   id: string;
   type: string;
@@ -47,6 +48,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="text-center mt-[50px] flex flex-col justify-center items-center bg-background-light dark:bg-background-dark">
+      
       <h1 className="text-5xl font-extrabold mb-6 text-gray-800 dark:text-white drop-shadow-lg">Welcome to Our Family Portal!</h1>
       <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">Your personalized family updates:</p>
 
