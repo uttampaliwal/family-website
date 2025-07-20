@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Button from '../components/Button';
+import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import api from '../api/axios';
@@ -10,10 +10,10 @@ import { isAxiosError } from 'axios';
 const LoginPage: React.FC = () => {
   const [identifier, setIdentifier] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false); // New state for password visibility
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   
   const [loading, setLoading] = useState<boolean>(false);
-  const [showResendButton, setShowResendButton] = useState<boolean>(false); // New state for resend button visibility
+  const [showResendButton, setShowResendButton] = useState<boolean>(false);
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showToast } = useToast();
@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
       const data = response.data;
       if (response.status === 200) {
         showToast(data.message || 'Login successful!', 'success');
-        localStorage.setItem('accessToken', data.accessToken || ''); // Store the access token
+        localStorage.setItem('accessToken', data.accessToken || '');
         login(data.username || '');
         setTimeout(() => {
           navigate(`/profile/${data.username}`);
@@ -91,65 +91,132 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative text-center">
-      <h1 className="text-4xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Login</h1>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-2xl text-left">
-        <div className="mb-8 p-8 bg-background-light dark:bg-background-dark rounded-xl shadow-xl">
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-            <label htmlFor="identifier" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Email or Username:</label>
-            <input
-              type="text"
-              id="identifier"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              required
-              disabled={loading}
-              className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
-            <label htmlFor="password" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Password:</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-              className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Added pr-10 for padding for the button
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-          <div className="flex justify-between items-center mt-6">
-            <Link to="/forgot-password" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
-              Forgot password?
-            </Link>
-            <Button label={loading ? 'Logging In...' : 'Login'} type="submit" disabled={loading} />
-          </div>
+    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <div className="text-center mb-8">
+          <h1 className="font-cursive text-4xl md:text-5xl font-bold mb-2 gradient-text">Welcome Back</h1>
+          <p className="text-gray-600 dark:text-gray-400">Sign in to continue to your account</p>
         </div>
-      </form>
-      {showResendButton && (
-        <button
-          onClick={handleResendVerification}
-          disabled={loading}
-          className="mt-4 text-blue-700 dark:text-blue-500 hover:underline"
-        >
-          Resend Verification Email
-        </button>
-      )}
-      <p className="mt-[20px] text-gray-700 dark:text-gray-300">
-        Don't have an account? <Link to="/register">Register</Link>
-      </p>
+        
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="h-2 gradient-bg"></div>
+          <form onSubmit={handleSubmit} className="p-8">
+            <div className="mb-6">
+              <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email or Username
+              </label>
+              <input
+                type="text"
+                id="identifier"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                required
+                disabled={loading}
+                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                placeholder="Enter your email or username"
+              />
+            </div>
+            
+            <div className="mb-6 relative">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Password
+              </label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 pr-10"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[38px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
+                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                  Remember me
+                </label>
+              </div>
+              
+              <Link to="/forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
+                Forgot password?
+              </Link>
+            </div>
+            
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full gradient-bg text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-md hover:opacity-90 transition-all duration-200 flex items-center justify-center"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </button>
+          </form>
+          
+          {showResendButton && (
+            <div className="px-8 pb-6 -mt-2">
+              <button
+                onClick={handleResendVerification}
+                disabled={loading}
+                className="w-full text-center text-primary-600 dark:text-primary-400 hover:underline font-medium"
+              >
+                Resend Verification Email
+              </button>
+            </div>
+          )}
+        </div>
+        
+        <div className="text-center mt-6">
+          <p className="text-gray-600 dark:text-gray-400">
+            Don't have an account?{' '}
+            <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
+              Sign up now
+            </Link>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 };
 
 export default LoginPage;
-    
