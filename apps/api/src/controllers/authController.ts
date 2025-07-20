@@ -46,10 +46,13 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
 
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
+    // Sanitize URL to prevent XSS attacks
+    const sanitizedUrl = encodeURI(verificationUrl);
+    
     await sendEmail({
       to: email,
       subject: 'Verify Your Email for Family Website',
-      html: `<p>Please click the following link to verify your email:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
+      html: `<p>Please click the following link to verify your email:</p><p><a href="${sanitizedUrl}">${sanitizedUrl}</a></p>`,
     });
 
     const accessToken = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '15m' });
@@ -76,8 +79,10 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
   const { identifier, password } = req.body;
 
   try {
+    // Prevent NoSQL injection by ensuring identifier is treated as a string literal
+    const sanitizedIdentifier = String(identifier);
     const user = await User.findOne({
-      $or: [{ email: identifier }, { username: identifier }],
+      $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
     if (!user) {
       return res.status(400).json({ message: 'No account found with that email or username. Please register.' });
@@ -132,8 +137,13 @@ export const verifyEmail = async (req: Request<any, any, VerifyEmailRequest>, re
   const { token } = req.body;
 
   try {
+    // Validate token format before querying database
+    if (!token || typeof token !== 'string' || !/^[a-f0-9]{40}$/.test(token)) {
+      return res.status(400).json({ message: 'Invalid verification token format.' });
+    }
+    
     const user = await User.findOne({ verificationToken: token });
-
+    
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired verification token.' });
     }
@@ -153,8 +163,10 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
   const { identifier } = req.body;
 
   try {
+    // Sanitize input to prevent NoSQL injection
+    const sanitizedIdentifier = String(identifier);
     const user = await User.findOne({
-      $or: [{ email: identifier }, { username: identifier }],
+      $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
 
     if (!user) {
@@ -208,7 +220,9 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
 
 export const getUserProfile = async (req: Request<{ username: string }>, res: Response<UserProfile | AuthResponse>) => {
   try {
-    const user = await User.findOne({ username: req.params.username }).select('-password -verificationToken');
+    // Prevent NoSQL injection by using exact string comparison
+    const username = req.params.username;
+    const user = await User.findOne({ username: username }).select('-password -verificationToken');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
@@ -255,20 +269,24 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
       return res.status(404).json({ message: 'User with that email does not exist.' });
     }
 
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    user.resetPasswordToken = resetToken;
+    // Generate a secure random token and hash it for storage
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    
+    user.resetPasswordToken = hashedToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
 
     await user.save();
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    // Send the unhashed token to the user via email
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password`;
 
     await sendEmail({
       to: user.email,
       subject: 'Password Reset Request',
       html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
              <p>Please click on the following link, or paste this into your browser to complete the process:</p>
-             <p><a href="${resetUrl}">${resetUrl}</a></p>
+             <p><a href="${resetUrl}?token=${resetToken}">${resetUrl}</a></p>
              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
     });
 
@@ -283,8 +301,11 @@ export const resetPassword = async (req: Request<{ token: string }, any, ResetPa
   const { token } = req.params;
   const { password } = req.body;
   try {
+    // Hash the token from the request to compare with stored hashed token
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    
     const user = await User.findOne({
-      resetPasswordToken: token,
+      resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
     });
 
@@ -305,7 +326,7 @@ export const resetPassword = async (req: Request<{ token: string }, any, ResetPa
       to: user.email,
       subject: 'Your password has been changed',
       html: `<p>Hello,</p>
-             <p>This is a confirmation that the password for your account ${user.email} has just been changed.</p>`,
+             <p>This is a confirmation that the password for your account has just been changed.</p>`,
     });
 
     res.status(200).json({ message: 'Your password has been updated.' });

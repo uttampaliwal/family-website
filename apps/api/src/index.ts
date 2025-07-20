@@ -44,7 +44,11 @@ mongoose.connection.on('connected', () => {
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('MongoDB connection error:', err);
+  // Sanitize error message to prevent log injection
+  const sanitizedError = err instanceof Error ? 
+    { name: err.name, message: err.message } : 
+    { message: String(err).replace(/[\n\r\t]/g, '') };
+  console.error('MongoDB connection error:', JSON.stringify(sanitizedError));
 });
 
 mongoose.connection.on('disconnected', () => {

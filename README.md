@@ -18,13 +18,22 @@ This project is a personal/family website built to learn and demonstrate full-st
 *   User profiles
 *   Light/dark mode
 
+## Documentation
+
+Comprehensive documentation is available in the [docs](./docs) directory:
+
+- [Getting Started](./docs/getting-started.md) - Quick setup guide for new developers
+- [Architecture](./docs/architecture.md) - Overview of the project's architecture and design
+- [API Documentation](./docs/api-documentation.md) - Details of the backend API endpoints
+- [Frontend Guide](./docs/frontend-guide.md) - Guide to the frontend components and features
+- [Development Workflow](./docs/development-workflow.md) - Development practices and workflow
+- [Docker and MongoDB Guide](./docs/docker-and-mongodb-guide.md) - Guide to Docker setup and MongoDB configuration
+- [Troubleshooting](./docs/troubleshooting.md) - Common issues and their solutions
+- [Development Log](./docs/development-log.md) - History of the project's development
+
 ## Getting Started
 
-For detailed instructions on how to set up and run this project locally, please see the [Docker and MongoDB Guide](./docs/DOCKER_AND_MONGO_GUIDE.md).
-
-## Development
-
-To learn more about the development process and the decisions made along the way, please see the [Development Log](./docs/development_log.md).
+For detailed instructions on how to set up and run this project locally, please see the [Getting Started Guide](./docs/getting-started.md).
 
 ## Contributing
 

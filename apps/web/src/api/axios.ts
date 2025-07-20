@@ -22,38 +22,56 @@ api.interceptors.request.use(
 
 // Response interceptor to handle token refreshing
 api.interceptors.response.use(
+  // Success handler - simply return the response
   (response) => response,
+  
+  // Error handler with token refresh logic
   async (error) => {
+    // Early return if there's no error response or config
+    if (!error.response || !error.config) {
+      return Promise.reject(error);
+    }
+    
     const originalRequest = error.config;
-    // If the error is 403 (Forbidden) and it's not a retry yet
-    if (error.response.status === 403 && !originalRequest._retry) {
+    const isTokenExpired = error.response.status === 403;
+    const isFirstRetry = !originalRequest._retry;
+    
+    // Only attempt token refresh on 403 errors (token expired) and for first retry
+    if (isTokenExpired && isFirstRetry) {
       originalRequest._retry = true;
+      
       try {
-        // Request a new access token using the refresh token (sent via HttpOnly cookie)
-        const response = await axios.post<AuthResponse>(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, {}, {
-          withCredentials: true,
-        });
+        // Request a new access token using the refresh token
+        const response = await axios.post<AuthResponse>(
+          `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, 
+          {}, 
+          { withCredentials: true }
+        );
 
+        // Store the new token if available
         const newAccessToken = response.data.accessToken;
         if (newAccessToken) {
           localStorage.setItem('accessToken', newAccessToken);
+          
+          // Update the original request with the new token
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return api(originalRequest); // Retry the original request
         }
-
-        // Retry the original request with the new access token
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return api(originalRequest);
       } catch (refreshError) {
         console.error('Unable to refresh token:', refreshError);
-        // If refresh fails, log out the user
-        // This part needs to be handled by the AuthContext or a global state manager
-        // For now, we'll just clear the token and redirect to login
-        localStorage.removeItem('accessToken');
-        window.location.href = '/login'; // Redirect to login page
+        handleAuthFailure();
         return Promise.reject(refreshError);
       }
     }
+    
     return Promise.reject(error);
   }
 );
+
+// Helper function to handle authentication failures
+function handleAuthFailure() {
+  localStorage.removeItem('accessToken');
+  window.location.href = '/login';
+}
 
 export default api;

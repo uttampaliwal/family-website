@@ -29,7 +29,12 @@ const HomePage: React.FC = () => {
         const data: FeedItem[] = await response.json();
         setFeed(data);
       } catch (error: unknown) {
-        setError(`Failed to fetch feed data: ${(error as Error).message}`);
+        console.error('Error fetching feed data:', error);
+        if (error instanceof Error) {
+          setError(`Failed to fetch feed data: ${error.message}`);
+        } else {
+          setError('Failed to fetch feed data: Unknown error occurred');
+        }
       } finally {
         setLoading(false);
       }

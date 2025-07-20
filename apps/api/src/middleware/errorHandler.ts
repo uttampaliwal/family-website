@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack); // Log the error stack for debugging
+  // Sanitize error stack to prevent log injection
+  const sanitizedStack = err.stack ? String(err.stack).replace(/[\n\r\t]/g, ' ') : 'No stack trace';
+  console.error('Error occurred:', sanitizedStack); // Log the sanitized error stack for debugging
 
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
