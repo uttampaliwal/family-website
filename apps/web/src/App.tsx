@@ -17,6 +17,7 @@ const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const HealthCheck = lazy(() => import('./pages/HealthCheck'));
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
@@ -88,6 +89,7 @@ function App() {
               />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+              <Route path="/healthz" element={<HealthCheck />} />
             </Routes>
           </Suspense>
         </main>

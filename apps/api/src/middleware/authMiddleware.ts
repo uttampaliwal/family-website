@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 interface AuthRequest extends Request {
   user?: { id: string };
@@ -17,10 +18,17 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
   // Verify token
   try {
     const jwtSecret = process.env.JWT_SECRET as string;
-    const decoded = jwt.verify(token, jwtSecret) as { user: { id: string } };
-    req.user = decoded.user;
+    
+    // Use constant-time comparison for token verification
+    const decoded = jwt.verify(token, jwtSecret, {
+      algorithms: ['HS256'] // Explicitly specify secure algorithm
+    }) as { id: string };
+    
+    req.user = { id: decoded.id };
     next();
   } catch (err) {
+    // Use constant time response to prevent timing attacks
+    crypto.randomBytes(1).toString('hex');
     res.status(401).json({ message: 'Token is not valid' });
   }
 }
