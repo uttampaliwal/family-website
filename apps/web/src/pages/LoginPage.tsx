@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../hooks/useToast';
 import api from '../api/axios';
 import type { LoginRequest, AuthResponse, ResendVerificationRequest } from '../types/api';
 import { isAxiosError } from 'axios';

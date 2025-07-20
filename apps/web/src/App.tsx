@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import ProtectedRoute from './components/ProtectedRoute';
 import RouteFocusManager from './components/RouteFocusManager';
 import HamburgerMenu from './components/HamburgerMenu';
+import ThemeToggleButton from './components/ThemeToggleButton';
 
 import UserProfileSkeleton from './components/UserProfileSkeleton';
 
@@ -40,28 +41,31 @@ function App() {
     <Router>
       <ToastProvider>
         <RouteFocusManager />
-      <div className="bg-background-light dark:bg-background-dark" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div className="bg-background-default" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <header
           role="banner"
-          className={`fixed top-0 left-0 w-full text-white z-20 px-8 py-2 flex items-center justify-between rounded-b-3xl transition-all duration-300 gradient-header from-primary-default to-secondary-default ${scrolled ? 'shadow-xl' : ''}`}
+          className={`fixed top-0 left-0 w-full z-20 px-8 py-2 flex items-center justify-between rounded-b-3xl transition-all duration-300 ${scrolled ? 'shadow-xl' : ''} bg-gradient-light-header dark:bg-gradient-dark-header`}
         >
           <Link to="/" className="flex items-center">
             <img src="/family-logo.webp" className="w-[120px] h-[120px] object-contain drop-shadow-[0_0_10px_rgba(74,222,128,0.7)]" alt="Family Logo" />
           </Link>
           <div className="hidden md:flex items-center">
             <nav className="ml-auto space-x-6 mr-8" role="navigation">
-              <Link to="/" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Home</Link>
+              <Link to="/" className="text-text-default hover:text-gray-700 dark:hover:text-gray-300 text-lg font-semibold transition-colors duration-200">Home</Link>
               {isLoggedIn ? (
-                <Link to={`/profile/${username}`} className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">{username}</Link>
+                <Link to={`/profile/${username}`} className="text-text-default hover:text-gray-700 dark:hover:text-gray-300 text-lg font-semibold transition-colors duration-200">{username}</Link>
               ) : (
                 <>
-                  <Link to="/login" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Login</Link>
-                  <Link to="/register" className="text-white hover:text-gray-200 text-lg font-semibold transition-colors duration-200">Register</Link>
+                  <Link to="/login" className="text-text-default hover:text-gray-700 dark:hover:text-gray-300 text-lg font-semibold transition-colors duration-200">Login</Link>
+                  <Link to="/register" className="text-text-default hover:text-gray-700 dark:hover:text-gray-300 text-lg font-semibold transition-colors duration-200">Register</Link>
                 </>
               )}
             </nav>
+            <ThemeToggleButton />
           </div>
-          <HamburgerMenu isLoggedIn={isLoggedIn} username={username} />
+          <div className="md:hidden flex items-center">
+            <HamburgerMenu isLoggedIn={isLoggedIn} username={username} />
+          </div>
         </header>
 
         {/* Main Content Area */}
@@ -89,7 +93,7 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer role="contentinfo" className="w-full bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark text-center py-4">
+        <footer role="contentinfo" className="w-full bg-background-default text-text-default text-center py-4">
           <p>&copy; {new Date().getFullYear()} Family Portal. All rights reserved.</p>
         </footer>
       </div>

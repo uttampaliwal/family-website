@@ -8,7 +8,7 @@ import AccountInformationForm from '../components/AccountInformationForm';
 import type { RegisterRequest, AuthResponse } from '../types/api';
 import { isAxiosError } from 'axios';
 
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../hooks/useToast';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>('');

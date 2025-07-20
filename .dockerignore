@@ -3,3 +3,8 @@ dist
 .next
 .turbo
 *.log
+
+# Exclude version control history
+.git
+# Exclude local environment variables
+.env*
