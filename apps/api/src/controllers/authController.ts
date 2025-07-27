@@ -16,12 +16,16 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
   const { name, email, password, dob, username, gender, mobileNumber } = req.body;
 
   try {
-    let user = await User.findOne({ email: String(email) });
+    // Sanitize email input to prevent NoSQL injection
+    const sanitizedEmail = typeof email === 'string' ? email.replace(/[{}$]/g, '') : String(email);
+    let user = await User.findOne({ email: sanitizedEmail });
     if (user) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    user = await User.findOne({ username: String(username) });
+    // Sanitize username input to prevent NoSQL injection
+    const sanitizedUsername = typeof username === 'string' ? username.replace(/[{}$]/g, '') : String(username);
+    user = await User.findOne({ username: sanitizedUsername });
     if (user) {
       return res.status(400).json({ message: 'Username is already taken. Please choose another.' });
     }
@@ -55,8 +59,6 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
     const accessToken = jwt.sign(
       {
         id: user.id,
-        username: user.username,
-        email: user.email,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       },
@@ -71,8 +73,6 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
     const refreshToken = jwt.sign(
       {
         id: user.id,
-        username: user.username,
-        email: user.email,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       },
@@ -151,8 +151,6 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     const accessToken = jwt.sign(
       { 
         id: user.id,
-        username: user.username,
-        email: user.email,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
@@ -167,8 +165,6 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     const refreshToken = jwt.sign(
       { 
         id: user.id,
-        username: user.username,
-        email: user.email,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
