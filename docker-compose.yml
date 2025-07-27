@@ -6,7 +6,7 @@ services:
       - "27017"
     volumes:
       - mongo-data:/data/db
-    command: mongod --bind_ip 0.0.0.0 --logpath /var/log/mongodb/mongod.log --logappend
+    command: mongod --bind_ip 0.0.0.0
     restart: unless-stopped
     networks:
       - family-website-network
@@ -18,6 +18,7 @@ services:
       timeout: 10s    # The check must complete within 10 seconds
       retries: 3      # Retry 3 times before failing
       start_period: 30s # A more reasonable 30-second grace period
+    
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
