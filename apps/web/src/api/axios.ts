@@ -3,9 +3,9 @@ import type { AuthResponse } from '../types/api';
 
 // Constants for better maintainability
 const TOKEN_EXPIRED_STATUS = 403;
-const ACCESS_TOKEN_KEY = 'accessToken';
-const USERNAME_KEY = 'username';
-const LOGIN_PATH = '/login';
+const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || 'accessToken';
+const USERNAME_KEY = import.meta.env.VITE_USERNAME_KEY || 'username';
+const LOGIN_PATH = import.meta.env.VITE_LOGIN_PATH || '/login';
 const ROOT_PATH = '/';
 
 const api = axios.create({
