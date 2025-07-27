@@ -28,9 +28,25 @@ const ForgotPasswordPage: React.FC = () => {
         showToast(data.message || 'Something went wrong', 'error');
       }
     } catch (error) {
-      console.error(error);
-      if (isAxiosError(error)) {
-        showToast(error.response?.data?.message || 'Failed to connect to the server', 'error');
+      // Structured error logging with context
+      const errorInfo = {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        email: email,
+        timestamp: new Date().toISOString(),
+        operation: 'forgotPassword'
+      };
+      console.error('Forgot password error:', JSON.stringify(errorInfo));
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        showToast('Network error. Please check your internet connection.', 'error');
+      } else if (isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          showToast('Email address not found. Please check and try again.', 'error');
+        } else if (error.response?.status >= 500) {
+          showToast('Server error. Please try again later.', 'error');
+        } else {
+          showToast(error.response?.data?.message || 'Failed to send reset email', 'error');
+        }
       } else if (error instanceof Error) {
         showToast(error.message, 'error');
       } else {

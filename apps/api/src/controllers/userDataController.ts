@@ -17,16 +17,37 @@ export const getUserData = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
 
-    const userData = await UserData.findOne({ userId });
+    const userData = await UserData.findOne({ userId: String(userId) });
 
     if (!userData) {
       return res.status(404).json({ message: 'User data not found' });
     }
 
-    res.status(200).json(userData);
+    // Sanitize userData before returning to prevent XSS
+    const sanitizedUserData = {
+      ...userData.toObject(),
+      events: userData.events?.map(event => ({
+        ...event,
+        title: String(event.title || '').replace(/[<>"'&]/g, ''),
+        description: String(event.description || '').replace(/[<>"'&]/g, '')
+      })),
+      emergencyContacts: userData.emergencyContacts?.map(contact => ({
+        ...contact,
+        name: String(contact.name || '').replace(/[<>"'&]/g, ''),
+        phoneNumber: String(contact.phoneNumber || '').replace(/[<>"'&]/g, '')
+      }))
+    };
+    
+    res.status(200).json(sanitizedUserData);
   } catch (error) {
-    console.error('Error fetching user data:', error);
-    res.status(500).json({ message: 'Server error', error });
+    const sanitizedError = {
+      message: error instanceof Error ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
+      userId: String(req.params.userId).replace(/[\n\r\t]/g, ''),
+      timestamp: new Date().toISOString(),
+      operation: 'getUserData'
+    };
+    console.error('Error fetching user data:', JSON.stringify(sanitizedError));
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -46,7 +67,7 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
     }
 
     // Find existing user data or create new
-    let userData = await UserData.findOne({ userId });
+    let userData = await UserData.findOne({ userId: String(userId) });
     
     if (!userData) {
       userData = new UserData({ userId });
@@ -60,10 +81,31 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
 
     await userData.save();
     
-    res.status(200).json({ message: 'User data updated successfully', userData });
+    // Sanitize userData before returning to prevent XSS
+    const sanitizedUserData = {
+      ...userData.toObject(),
+      events: userData.events?.map(event => ({
+        ...event,
+        title: String(event.title || '').replace(/[<>"'&]/g, ''),
+        description: String(event.description || '').replace(/[<>"'&]/g, '')
+      })),
+      emergencyContacts: userData.emergencyContacts?.map(contact => ({
+        ...contact,
+        name: String(contact.name || '').replace(/[<>"'&]/g, ''),
+        phone: String(contact.phone || '').replace(/[<>"'&]/g, '')
+      }))
+    };
+    
+    res.status(200).json({ message: 'User data updated successfully', userData: sanitizedUserData });
   } catch (error) {
-    console.error('Error updating user data:', error);
-    res.status(500).json({ message: 'Server error', error });
+    const sanitizedError = {
+      message: error instanceof Error ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
+      userId: String(req.params.userId).replace(/[\n\r\t]/g, ''),
+      timestamp: new Date().toISOString(),
+      operation: 'createOrUpdateUserData'
+    };
+    console.error('Error updating user data:', JSON.stringify(sanitizedError));
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -71,7 +113,15 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
 export const addEvent = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const eventData = req.body;
+    const rawEventData = req.body;
+    
+    // Sanitize event data to prevent XSS
+    const eventData = {
+      ...rawEventData,
+      title: String(rawEventData.title || '').replace(/[<>"'&]/g, ''),
+      description: String(rawEventData.description || '').replace(/[<>"'&]/g, ''),
+      location: String(rawEventData.location || '').replace(/[<>"'&]/g, '')
+    };
     
     if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: 'Invalid user ID format' });
@@ -101,7 +151,15 @@ export const addEvent = async (req: Request, res: Response) => {
 export const addPhoto = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const photoData = req.body;
+    const rawPhotoData = req.body;
+    
+    // Sanitize photo data to prevent XSS
+    const photoData = {
+      ...rawPhotoData,
+      title: String(rawPhotoData.title || '').replace(/[<>"'&]/g, ''),
+      description: String(rawPhotoData.description || '').replace(/[<>"'&]/g, ''),
+      caption: String(rawPhotoData.caption || '').replace(/[<>"'&]/g, '')
+    };
     
     if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: 'Invalid user ID format' });
@@ -131,13 +189,21 @@ export const addPhoto = async (req: Request, res: Response) => {
 export const addTask = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const taskData = req.body;
+    const rawTaskData = req.body;
+    
+    // Sanitize task data to prevent XSS
+    const taskData = {
+      ...rawTaskData,
+      title: String(rawTaskData.title || '').replace(/[<>"'&]/g, ''),
+      description: String(rawTaskData.description || '').replace(/[<>"'&]/g, ''),
+      notes: String(rawTaskData.notes || '').replace(/[<>"'&]/g, '')
+    };
     
     if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
 
-    let userData = await UserData.findOne({ userId });
+    let userData = await UserData.findOne({ userId: String(userId) });
     
     if (!userData) {
       userData = new UserData({ userId, tasks: [taskData] });
@@ -147,9 +213,18 @@ export const addTask = async (req: Request, res: Response) => {
 
     await userData.save();
     
+    // Sanitize task before returning to prevent XSS
+    const lastTask = userData.tasks[userData.tasks.length - 1];
+    const sanitizedTask = {
+      ...lastTask,
+      title: String(lastTask.title || '').replace(/[<>"'&]/g, ''),
+      description: String(lastTask.description || '').replace(/[<>"'&]/g, ''),
+      notes: String(lastTask.notes || '').replace(/[<>"'&]/g, '')
+    };
+    
     res.status(201).json({ 
       message: 'Task added successfully', 
-      task: userData.tasks[userData.tasks.length - 1] 
+      task: sanitizedTask 
     });
   } catch (error) {
     console.error('Error adding task:', error);
@@ -161,25 +236,44 @@ export const addTask = async (req: Request, res: Response) => {
 export const addEmergencyContact = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const contactData = req.body;
+    const rawContactData = req.body;
     
     if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
 
-    let userData = await UserData.findOne({ userId });
+    // Sanitize contact data to prevent XSS
+    const contactData = {
+      ...rawContactData,
+      name: String(rawContactData.name || '').replace(/[<>"'&]/g, ''),
+      phone: String(rawContactData.phone || '').replace(/[<>"'&]/g, ''),
+      email: String(rawContactData.email || '').replace(/[<>"'&]/g, ''),
+      relationship: String(rawContactData.relationship || '').replace(/[<>"'&]/g, '')
+    };
+
+    let userData = await UserData.findOne({ userId: String(userId) });
     
     if (!userData) {
-      userData = new UserData({ userId, emergencyContacts: [contactData] });
+      userData = new UserData({ userId: String(userId), emergencyContacts: [contactData] });
     } else {
       userData.emergencyContacts.push(contactData);
     }
 
     await userData.save();
     
+    // Sanitize contact before returning to prevent XSS
+    const lastContact = userData.emergencyContacts[userData.emergencyContacts.length - 1];
+    const sanitizedContact = {
+      ...lastContact,
+      name: String(lastContact.name || '').replace(/[<>"'&]/g, ''),
+      phone: String(lastContact.phone || '').replace(/[<>"'&]/g, ''),
+      email: String(lastContact.email || '').replace(/[<>"'&]/g, ''),
+      relationship: String(lastContact.relationship || '').replace(/[<>"'&]/g, '')
+    };
+    
     res.status(201).json({ 
       message: 'Emergency contact added successfully', 
-      contact: userData.emergencyContacts[userData.emergencyContacts.length - 1] 
+      contact: sanitizedContact 
     });
   } catch (error) {
     console.error('Error adding emergency contact:', error);

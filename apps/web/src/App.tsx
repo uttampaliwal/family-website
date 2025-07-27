@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect, Suspense, lazy, ErrorBoundary } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -18,6 +18,9 @@ const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const HealthCheck = lazy(() => import('./pages/HealthCheck'));
+const DocumentsPage = lazy(() => import('./pages/DocumentsPage'));
+const DocumentEditPage = lazy(() => import('./pages/DocumentEditPage'));
+const DocumentViewPage = lazy(() => import('./pages/DocumentViewPage'));
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
@@ -73,9 +76,18 @@ function App() {
                     Home
                   </Link>
                   
-                  {isLoggedIn ? (
+                  {isLoggedIn && (
                     <Link 
-                      to={`/profile/${username}`} 
+                      to="/documents" 
+                      className="px-4 py-2 rounded-lg text-white hover:bg-white/10 transition-colors duration-200"
+                    >
+                      Documents
+                    </Link>
+                  )}
+                  
+                  {isLoggedIn && username ? (
+                    <Link 
+                      to={`/profile/${encodeURIComponent(username)}`} 
                       className="px-4 py-2 rounded-lg text-white hover:bg-white/10 transition-colors duration-200"
                     >
                       {username}
@@ -103,7 +115,7 @@ function App() {
                 </div>
                 
                 <div className="md:hidden ml-4">
-                  <HamburgerMenu isLoggedIn={isLoggedIn} username={username} />
+                  <HamburgerMenu isLoggedIn={isLoggedIn} username={username || ''} />
                 </div>
               </div>
             </div>
@@ -113,14 +125,15 @@ function App() {
 
           {/* Main Content Area */}
           <main role="main" className="w-full pt-28" style={{ flex: '1 0 auto' }} tabIndex={-1}>
-            <Suspense fallback={
-              <div className="w-full h-64 flex items-center justify-center">
-                <div className="animate-pulse flex flex-col items-center">
-                  <div className="h-12 w-12 rounded-full bg-blue-400 mb-4"></div>
-                  <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
+            <ErrorBoundary fallback={<div className="text-center p-8 text-red-600">Something went wrong loading the page.</div>}>
+              <Suspense fallback={
+                <div className="w-full h-64 flex items-center justify-center">
+                  <div className="animate-pulse flex flex-col items-center">
+                    <div className="h-12 w-12 rounded-full bg-blue-400 mb-4"></div>
+                    <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                  </div>
                 </div>
-              </div>
-            }>
+              }>
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
@@ -140,8 +153,41 @@ function App() {
                 <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/healthz" element={<HealthCheck />} />
+                <Route
+                  path="/documents"
+                  element={
+                    <ProtectedRoute>
+                      <DocumentsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/documents/new"
+                  element={
+                    <ProtectedRoute>
+                      <DocumentEditPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/documents/edit/:id"
+                  element={
+                    <ProtectedRoute>
+                      <DocumentEditPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/documents/:id"
+                  element={
+                    <ProtectedRoute>
+                      <DocumentViewPage />
+                    </ProtectedRoute>
+                  }
+                />
               </Routes>
             </Suspense>
+            </ErrorBoundary>
           </main>
 
           {/* Footer */}

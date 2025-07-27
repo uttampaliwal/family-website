@@ -1,4 +1,6 @@
 import express from 'express';
+import csrf from 'csurf';
+import csrf from 'csurf';
 import { 
   getUserData, 
   createOrUpdateUserData, 
@@ -11,6 +13,12 @@ import authMiddleware from '../middleware/authMiddleware';
 
 const router = express.Router();
 
+// CSRF protection for state-changing operations
+const csrfProtection = csrf({ cookie: { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' } });
+
+// CSRF protection for state-changing operations
+const csrfProtection = csrf({ cookie: { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' } });
+
 // Apply authentication middleware to all routes
 router.use(authMiddleware);
 
@@ -21,7 +29,7 @@ router.get('/:userId', getUserData);
 router.put('/:userId', createOrUpdateUserData);
 
 // Add an event
-router.post('/:userId/events', addEvent);
+router.post('/:userId/events', csrfProtection, addEvent);
 
 // Add a photo
 router.post('/:userId/photos', addPhoto);
@@ -30,6 +38,6 @@ router.post('/:userId/photos', addPhoto);
 router.post('/:userId/tasks', addTask);
 
 // Add an emergency contact
-router.post('/:userId/emergency-contacts', addEmergencyContact);
+router.post('/:userId/emergency-contacts', csrfProtection, addEmergencyContact);
 
 export default router;

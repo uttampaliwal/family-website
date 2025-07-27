@@ -1,29 +1,28 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+
+// Constants for better maintainability
+const REDIRECT_DELAY = 3000;
+const MESSAGES = {
+  VERIFYING: 'Verifying your email...',
+  TOKEN_NOT_FOUND: 'Verification token not found.',
+  SUCCESS: 'Email verified successfully! You can now login.',
+  BAD_REQUEST: 'Bad Request.',
+  SERVER_ERROR: 'Server error. Please try again later.',
+  NETWORK_ERROR: 'Network error. Please check your internet connection or try again later.',
+  CANCELLED: 'Request was cancelled. Please try again.',
+  GENERIC_ERROR: 'An error occurred during verification. Please try again.',
+  UNEXPECTED_ERROR: 'An unexpected error occurred.'
+} as const;
 
 const VerifyEmailPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [message, setMessage] = useState<string>('Verifying your email...');
+  const [message, setMessage] = useState<string>(MESSAGES.VERIFYING);
   const [isError, setIsError] = useState<boolean>(false);
-  const hasVerified = useRef(false); // Ref to prevent multiple calls
+  const hasVerified = useRef(false);
 
-  useEffect(() => {
-    const token = searchParams.get('token');
-
-    if (!token) {
-      setMessage('Verification token not found.');
-      setIsError(true);
-      return;
-    }
-
-    if (hasVerified.current) {
-      return; // Prevent multiple verification attempts
-    }
-
-    hasVerified.current = true; // Mark as attempted
-
-    const verifyEmail = async () => {
+  const verifyEmail = useCallback(async (token: string) => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email`, {
           method: 'POST',
@@ -35,33 +34,58 @@ const VerifyEmailPage: React.FC = () => {
         const data = await response.json();
 
         if (response.ok) {
-          setMessage(data.message || 'Email verified successfully! You can now login.');
+          setMessage(data.message || MESSAGES.SUCCESS);
           setTimeout(() => {
             navigate('/login');
-          }, 3000);
+          }, REDIRECT_DELAY);
         } else {
           if (response.status === 400) {
-            setMessage(data.message || 'Bad Request.');
+            setMessage(data.message || MESSAGES.BAD_REQUEST);
           } else if (response.status === 500) {
-            setMessage('Server error. Please try again later.');
+            setMessage(MESSAGES.SERVER_ERROR);
           } else {
-            setMessage(data.message || 'An unexpected error occurred.');
+            setMessage(data.message || MESSAGES.UNEXPECTED_ERROR);
           }
           setIsError(true);
         }
       } catch (error) {
-        console.error('Error during email verification:', error);
+        // Structured error logging with context
+        const errorInfo = {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          type: error instanceof TypeError ? 'NetworkError' : 'UnknownError',
+          timestamp: new Date().toISOString(),
+          operation: 'emailVerification',
+          token: token ? 'present' : 'missing'
+        };
+        console.error('Error during email verification:', JSON.stringify(errorInfo));
+        
         if (error instanceof TypeError) {
-          setMessage('Network error. Please check your internet connection or try again later.');
+          setMessage(MESSAGES.NETWORK_ERROR);
+        } else if (error instanceof Error && error.name === 'AbortError') {
+          setMessage(MESSAGES.CANCELLED);
         } else {
-          setMessage('An error occurred during verification. Please try again.');
+          setMessage(MESSAGES.GENERIC_ERROR);
         }
         setIsError(true);
       }
-    };
+  }, [navigate]);
 
-    verifyEmail();
-  }, [searchParams, navigate]);
+  useEffect(() => {
+    const token = searchParams.get('token');
+
+    if (!token) {
+      setMessage(MESSAGES.TOKEN_NOT_FOUND);
+      setIsError(true);
+      return;
+    }
+
+    if (hasVerified.current) {
+      return;
+    }
+
+    hasVerified.current = true;
+    verifyEmail(token);
+  }, [searchParams, verifyEmail]);
 
   return (
     <div className="text-center">

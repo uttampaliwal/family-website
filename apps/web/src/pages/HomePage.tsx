@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense, lazy } from 'react';
+import React, { useEffect, useState, Suspense, lazy, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import ComponentSkeleton from '../components/ComponentSkeleton';
 
@@ -33,15 +33,14 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Mock activity data
-  const recentActivity: ActivityItem[] = [
+  // Memoized activity data to prevent recreation on every render
+  const recentActivity: ActivityItem[] = useMemo(() => [
     { id: '1', type: 'event', title: 'Added new event', time: '1 hour ago', icon: '📅' },
     { id: '2', type: 'photo', title: 'Shared family photo', time: '2 hours ago', icon: '📸' },
     { id: '3', type: 'task', title: 'Completed task', time: '3 hours ago', icon: '✅' },
-  ];
+  ], []);
 
-  useEffect(() => {
-    const fetchFeedData = async () => {
+  const fetchFeedData = useCallback(async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/feed/dynamic-feed`);
         if (!response.ok) {
@@ -50,19 +49,36 @@ const HomePage: React.FC = () => {
         const data: FeedItem[] = await response.json();
         setFeed(data);
       } catch (error: unknown) {
-        console.error('Error fetching feed data:', error);
-        if (error instanceof Error) {
-          setError(`Failed to fetch feed data: ${error.message}`);
+        // Structured error logging with context
+        const errorInfo = {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date().toISOString(),
+          operation: 'fetchFeedData',
+          url: `${import.meta.env.VITE_API_BASE_URL}/api/feed/dynamic-feed`
+        };
+        console.error('Error fetching feed data:', JSON.stringify(errorInfo));
+        
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          setError('Network error. Please check your internet connection.');
+        } else if (error instanceof Error) {
+          if (error.message.includes('404')) {
+            setError('Feed service not available. Please try again later.');
+          } else if (error.message.includes('500')) {
+            setError('Server error. Please try again later.');
+          } else {
+            setError(`Failed to fetch feed data: ${error.message}`);
+          }
         } else {
           setError('Failed to fetch feed data: Unknown error occurred');
         }
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchFeedData();
   }, []);
+
+  useEffect(() => {
+    fetchFeedData();
+  }, [fetchFeedData]);
 
   if (loading) {
     return <div className="text-center mt-[50px]">Loading...</div>;

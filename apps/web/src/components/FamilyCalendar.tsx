@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 interface CalendarEvent {
@@ -44,7 +44,7 @@ const FamilyCalendar: React.FC = () => {
     fetchEvents();
   }, [selectedDate]);
 
-  const getDaysInMonth = (date: Date) => {
+  const getDaysInMonth = useCallback((date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const firstDay = new Date(year, month, 1);
@@ -79,15 +79,15 @@ const FamilyCalendar: React.FC = () => {
     }
 
     return days;
-  };
+  }, []);
 
-  const getEventsForDate = (date: Date) => {
+  const getEventsForDate = useCallback((date: Date) => {
     return events.filter((event) => {
       const eventStart = new Date(event.startDate);
       const eventEnd = new Date(event.endDate);
       return date >= eventStart && date <= eventEnd;
     });
-  };
+  }, [events]);
 
   if (loading) {
     return (
@@ -113,8 +113,8 @@ const FamilyCalendar: React.FC = () => {
     );
   }
 
-  const days = getDaysInMonth(selectedDate);
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const days = useMemo(() => getDaysInMonth(selectedDate), [getDaysInMonth, selectedDate]);
+  const weekDays = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], []);
 
   return (
     <motion.div
@@ -161,17 +161,17 @@ const FamilyCalendar: React.FC = () => {
           </div>
         </div>
         <div className="flex space-x-2">
-          {(['month', 'week', 'day'] as const).map((v) => (
+          {(['month', 'week', 'day'] as const).map((viewType) => (
             <button
-              key={v}
-              onClick={() => setView(v)}
+              key={viewType}
+              onClick={() => setView(viewType)}
               className={`px-3 py-1 rounded-lg ${
-                view === v
+                view === viewType
                   ? 'bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
-              {v.charAt(0).toUpperCase() + v.slice(1)}
+              {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
             </button>
           ))}
         </div>

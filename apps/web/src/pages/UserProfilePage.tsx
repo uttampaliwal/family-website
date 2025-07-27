@@ -11,33 +11,66 @@ import DateOfBirthPicker from '../components/DateOfBirthPicker';
 
 import EmptyState from '../components/EmptyState';
 
+// Constants for better maintainability
+const GENDER_OPTIONS = [
+  { value: '', label: 'Select Gender' },
+  { value: 'Male', label: 'Male' },
+  { value: 'Female', label: 'Female' },
+  { value: 'Other', label: 'Other' },
+] as const;
+
 const UserProfilePage: React.FC = () => {
   const { username: paramUsername } = useParams<{ username: string }>();
   const { username: authUsername, logout } = useAuth();
   const navigate = useNavigate();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editableProfile, setEditableProfile] = useState<UserProfile | null>(null);
+  
+  // Consolidated state for better maintainability
+  const [profileState, setProfileState] = useState({
+    userProfile: null as UserProfile | null,
+    editableProfile: null as UserProfile | null,
+    loading: true,
+    error: null as string | null,
+    isEditing: false,
+  });
 
   const displayUsername = authUsername || paramUsername;
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      setLoading(true);
-      setError(null);
+      setProfileState(prev => ({ ...prev, loading: true, error: null }));
       try {
         const response = await api.get(`/api/auth/profile/${displayUsername}`);
         const data = response.data;
 
-        setUserProfile(data);
-        setEditableProfile(data); // Initialize editable profile with fetched data
+        setProfileState(prev => ({ 
+          ...prev, 
+          userProfile: data, 
+          editableProfile: data 
+        }));
       } catch (err) {
-        console.error('Error fetching user profile:', err);
-        setError('Network error or server is unreachable.');
+        // Structured error logging with context
+        const errorInfo = {
+          message: err instanceof Error ? err.message : 'Unknown error',
+          username: displayUsername,
+          timestamp: new Date().toISOString(),
+          operation: 'fetchUserProfile'
+        };
+        console.error('Error fetching user profile:', JSON.stringify(errorInfo));
+        
+        if (err && typeof err === 'object' && 'response' in err) {
+          const axiosError = err as any;
+          if (axiosError.response?.status === 404) {
+            setProfileState(prev => ({ ...prev, error: 'User profile not found.' }));
+          } else if (axiosError.response?.status >= 500) {
+            setProfileState(prev => ({ ...prev, error: 'Server error. Please try again later.' }));
+          } else {
+            setProfileState(prev => ({ ...prev, error: 'Failed to load profile. Please try again.' }));
+          }
+        } else {
+          setProfileState(prev => ({ ...prev, error: 'Network error or server is unreachable.' }));
+        }
       } finally {
-        setLoading(false);
+        setProfileState(prev => ({ ...prev, loading: false }));
       }
     };
 
@@ -52,64 +85,79 @@ const UserProfilePage: React.FC = () => {
   };
 
   const handleEdit = () => {
-    setIsEditing(true);
+    setProfileState(prev => ({ ...prev, isEditing: true }));
   };
 
   const handleSave = async () => {
-    if (!editableProfile) return;
+    if (!profileState.editableProfile) return;
 
     try {
       // Only send the fields that are editable
       const updateData = {
-        name: editableProfile.name,
-        dob: editableProfile.dob,
-        mobileNumber: editableProfile.mobileNumber,
-        gender: editableProfile.gender,
+        name: profileState.editableProfile.name,
+        dob: profileState.editableProfile.dob,
+        mobileNumber: profileState.editableProfile.mobileNumber,
+        gender: profileState.editableProfile.gender,
       };
       await api.put(`/api/auth/profile/${displayUsername}`, updateData);
-      setUserProfile(editableProfile); // Update main profile state
-      setIsEditing(false);
+      setProfileState(prev => ({ 
+        ...prev, 
+        userProfile: prev.editableProfile, 
+        isEditing: false 
+      }));
     } catch (err) {
       console.error('Error updating user profile:', err);
-      setError('Failed to update profile.');
+      setProfileState(prev => ({ ...prev, error: 'Failed to update profile.' }));
     }
   };
 
   const handleCancel = () => {
-    setEditableProfile(userProfile); // Revert changes
-    setIsEditing(false);
+    setProfileState(prev => ({ 
+      ...prev, 
+      editableProfile: prev.userProfile, 
+      isEditing: false 
+    }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditableProfile(prev => (prev ? { ...prev, [name]: value } : null));
+    setProfileState(prev => ({
+      ...prev,
+      editableProfile: prev.editableProfile ? { ...prev.editableProfile, [name]: value } : null
+    }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setEditableProfile(prev => (prev ? { ...prev, [name]: value } : null));
+    setProfileState(prev => ({
+      ...prev,
+      editableProfile: prev.editableProfile ? { ...prev.editableProfile, [name]: value } : null
+    }));
   };
 
   const handleDateChange = (value: string) => {
-    setEditableProfile(prev => (prev ? { ...prev, dob: value } : null));
+    setProfileState(prev => ({
+      ...prev,
+      editableProfile: prev.editableProfile ? { ...prev.editableProfile, dob: value } : null
+    }));
   };
 
-  if (loading) {
+  if (profileState.loading) {
     return <div className="text-center mt-8 text-gray-700 dark:text-gray-300">Loading profile...</div>;
   }
 
-  if (error) {
-    return <div className="text-center mt-8 text-red-500">Error: {error}</div>;
+  if (profileState.error) {
+    return <div className="text-center mt-8 text-red-500">Error: {profileState.error}</div>;
   }
 
-  if (!userProfile) {
+  if (!profileState.userProfile) {
     return <EmptyState message="User profile not found." />;
   }
 
   return (
     <div className="container mx-auto p-8 bg-background-light dark:bg-background-dark rounded-xl shadow-lg text-text-light dark:text-text-dark">
-      <h1 className="text-4xl font-extrabold mb-6 text-center text-gray-800 dark:text-gray-100">@{userProfile.username}</h1>
+      <h1 className="text-4xl font-extrabold mb-6 text-center text-gray-800 dark:text-gray-100">@{profileState.userProfile.username}</h1>
 
-      {isEditing ? (
+      {profileState.isEditing ? (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -118,7 +166,7 @@ const UserProfilePage: React.FC = () => {
                 type="text"
                 id="name"
                 name="name"
-                value={editableProfile?.name || ''}
+                value={profileState.editableProfile?.name || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
               />
@@ -126,7 +174,7 @@ const UserProfilePage: React.FC = () => {
             <div>
               <label htmlFor="dob" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
               <DateOfBirthPicker
-                value={editableProfile?.dob || ''}
+                value={profileState.editableProfile?.dob || ''}
                 onChange={handleDateChange}
               />
             </div>
@@ -136,7 +184,7 @@ const UserProfilePage: React.FC = () => {
                 type="text"
                 id="mobileNumber"
                 name="mobileNumber"
-                value={editableProfile?.mobileNumber || ''}
+                value={profileState.editableProfile?.mobileNumber || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
               />
@@ -146,14 +194,9 @@ const UserProfilePage: React.FC = () => {
               <CustomSelect
                 id="gender"
                 name="gender"
-                value={editableProfile?.gender || ''}
+                value={profileState.editableProfile?.gender || ''}
                 onChange={(value) => handleSelectChange('gender', value)}
-                options={[
-                  { value: '', label: 'Select Gender' },
-                  { value: 'Male', label: 'Male' },
-                  { value: 'Female', label: 'Female' },
-                  { value: 'Other', label: 'Other' },
-                ]}
+                options={GENDER_OPTIONS}
               />
             </div>
           </div>
@@ -168,14 +211,14 @@ const UserProfilePage: React.FC = () => {
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-gray-700 dark:text-gray-300">
-            <p><strong>Name:</strong> {userProfile.name || 'N/A'}</p>
-            <p><strong>Email:</strong> {userProfile.email}</p>
-            <p><strong>Date of Birth:</strong> {userProfile.dob || 'N/A'}</p>
-            <p><strong>Mobile Number:</strong> {userProfile.mobileNumber || 'N/A'}</p>
-            <p><strong>Gender:</strong> {userProfile.gender || 'N/A'}</p>
+            <p><strong>Name:</strong> {profileState.userProfile.name || 'N/A'}</p>
+            <p><strong>Email:</strong> {profileState.userProfile.email}</p>
+            <p><strong>Date of Birth:</strong> {profileState.userProfile.dob || 'N/A'}</p>
+            <p><strong>Mobile Number:</strong> {profileState.userProfile.mobileNumber || 'N/A'}</p>
+            <p><strong>Gender:</strong> {profileState.userProfile.gender || 'N/A'}</p>
           </div>
           <div className="flex justify-center space-x-4 mt-8">
-            {authUsername === userProfile.username && (
+            {authUsername === profileState.userProfile.username && (
               <Button label="Edit Profile" onClick={handleEdit} isPrimary={true} />
             )}
             <Button label="Logout" onClick={handleLogout} />

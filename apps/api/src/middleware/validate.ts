@@ -1,15 +1,19 @@
 import Joi from 'joi';
 import { Request, Response, NextFunction } from 'express';
 
+// Constants for validation patterns and messages
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+const PASSWORD_ERROR_MESSAGE = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.';
+
 // Joi Schemas for validation
 export const registerSchema = Joi.object({
   name: Joi.string().min(3).max(30).required(),
   email: Joi.string().email().required(),
   password: Joi.string()
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/)
+    .pattern(PASSWORD_REGEX)
     .required()
     .messages({
-      'string.pattern.base': 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+      'string.pattern.base': PASSWORD_ERROR_MESSAGE,
     }),
   dob: Joi.string().isoDate().required(),
   mobileNumber: Joi.string().pattern(/^[0-9]{10}$/).allow('', null),
@@ -37,10 +41,10 @@ export const forgotPasswordSchema = Joi.object({
 export const resetPasswordSchema = Joi.object({
   token: Joi.string().optional(), // Make token optional in the body since it might be in the URL params
   password: Joi.string()
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/)
+    .pattern(PASSWORD_REGEX)
     .required()
     .messages({
-      'string.pattern.base': 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+      'string.pattern.base': PASSWORD_ERROR_MESSAGE,
     }),
 });
 
@@ -50,7 +54,9 @@ export const validate = (schema: Joi.ObjectSchema) => {
     const { error } = schema.validate(req.body, { abortEarly: false });
 
     if (error) {
-      const errors = error.details.map((err) => err.message);
+      const errors = error.details.map((err) => 
+        String(err.message).replace(/[<>"'&]/g, '')
+      );
       return res.status(400).json({ message: 'Validation failed', errors });
     }
     next();

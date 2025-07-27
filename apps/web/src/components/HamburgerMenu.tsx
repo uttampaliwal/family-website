@@ -41,13 +41,29 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
                 Home
               </Link>
               
-              {isLoggedIn ? (
+              {isLoggedIn && (
                 <Link 
-                  to={`/profile/${username}`} 
+                  to="/documents" 
                   className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
-                  {username}
+                  Documents
+                </Link>
+              )}
+              
+              {isLoggedIn ? (
+                <Link 
+                  to={`/profile/${username ? String(username).replace(/[<>"'&]/g, '') : 'user'}`} 
+                  className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  onClick={() => {
+                    try {
+                      setIsOpen(false);
+                    } catch (error) {
+                      console.error('Error closing menu:', error);
+                    }
+                  }}
+                >
+                  {username ? String(username).replace(/[<>"'&]/g, '') : 'User'}
                 </Link>
               ) : (
                 <>

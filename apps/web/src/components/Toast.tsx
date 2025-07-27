@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
+// Constants for better maintainability
+const TOAST_DURATION = 3000;
+const TOAST_STYLES = {
+  success: 'bg-green-500',
+  error: 'bg-red-500',
+  info: 'bg-blue-500',
+} as const;
+
+const BASE_CLASSES = 'fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300';
+
 interface ToastProps {
   message: string;
   type: 'success' | 'error' | 'info';
@@ -13,22 +23,18 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
     const timer = setTimeout(() => {
       setIsVisible(false);
       onClose();
-    }, 3000); // Toast disappears after 3 seconds
+    }, TOAST_DURATION);
 
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  const bgColor = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    info: 'bg-blue-500',
-  }[type];
+  const bgColor = TOAST_STYLES[type];
 
   if (!isVisible) return null;
 
   return (
     <div
-      className={`fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white ${bgColor} transition-opacity duration-300`}
+      className={`${BASE_CLASSES} ${bgColor}`}
       role="alert"
     >
       {message}

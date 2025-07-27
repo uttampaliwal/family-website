@@ -6,12 +6,16 @@ function RouteFocusManager() {
   const mainContentRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // Find the main content area
-    mainContentRef.current = document.querySelector('main');
+    try {
+      // Find the main content area
+      mainContentRef.current = document.querySelector('main');
 
-    // On route change, focus the main content area
-    if (mainContentRef.current) {
-      mainContentRef.current.focus();
+      // On route change, focus the main content area
+      if (mainContentRef.current) {
+        mainContentRef.current.focus();
+      }
+    } catch (error) {
+      console.error('Error managing route focus:', error);
     }
   }, [location]);
 

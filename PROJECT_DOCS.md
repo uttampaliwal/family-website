@@ -90,13 +90,13 @@ Create a `.env` file in the project root directory (`family-website/`) with the 
 
 ```dotenv
 PORT=3000
-MONGO_URI=mongodb://admin:password@mongo:27017/familywebsite?authSource=admin
-MONGO_INITDB_ROOT_USERNAME=admin
-MONGO_INITDB_ROOT_PASSWORD=password
-EMAIL_USER=your_email@example.com
-EMAIL_PASS=your_email_password
-JWT_SECRET=your_jwt_secret_key
-REFRESH_TOKEN_SECRET=your_refresh_token_secret_key
+MONGO_URI=mongodb://<username>:<password>@mongo:27017/familywebsite?authSource=admin
+MONGO_INITDB_ROOT_USERNAME=<your_mongo_username>
+MONGO_INITDB_ROOT_PASSWORD=<your_mongo_password>
+EMAIL_USER=<your_email@example.com>
+EMAIL_PASS=<your_email_password>
+JWT_SECRET=<your_jwt_secret_key>
+REFRESH_TOKEN_SECRET=<your_refresh_token_secret_key>
 FRONTEND_URL=http://localhost:5173
 ```
 
@@ -153,9 +153,9 @@ If you prefer to run the `api` or `web` services outside of Docker for faster de
     *   Create an `.env` file in `apps/api/` with the following content (note `localhost` for `MONGO_URI`):
         ```dotenv
         PORT=3000
-        MONGO_URI=mongodb://admin:password@localhost:27017/familywebsite?authSource=admin
-        JWT_SECRET=your_jwt_secret_key
-        REFRESH_TOKEN_SECRET=your_refresh_token_secret_key
+        MONGO_URI=mongodb://<username>:<password>@localhost:27017/familywebsite?authSource=admin
+        JWT_SECRET=<your_jwt_secret_key>
+        REFRESH_TOKEN_SECRET=<your_refresh_token_secret_key>
         FRONTEND_URL=http://localhost:5173
         ```
     *   Start the development server:

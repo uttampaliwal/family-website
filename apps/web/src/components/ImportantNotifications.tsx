@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Notification {
@@ -12,6 +12,15 @@ interface Notification {
     url: string;
   };
 }
+
+// Constants for better performance
+const NOTIFICATION_STYLES = {
+  urgent: 'bg-red-50 dark:bg-red-900/20 border-red-500',
+  warning: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500',
+  info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
+} as const;
+
+const sanitizeString = (str: string) => String(str).replace(/[<>"'&]/g, '');
 
 const ImportantNotifications: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -28,8 +37,29 @@ const ImportantNotifications: React.FC = () => {
         const data = await response.json();
         setNotifications(data);
       } catch (error) {
-        console.error('Error fetching notifications:', error);
-        setError('Failed to load notifications');
+        // Structured error logging with context
+        const errorInfo = {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date().toISOString(),
+          operation: 'fetchNotifications',
+          url: `${import.meta.env.VITE_API_BASE_URL}/api/notifications/important`
+        };
+        console.error('Error fetching notifications:', JSON.stringify(errorInfo));
+        
+        let errorMessage = 'Failed to load notifications';
+        if (error instanceof Error) {
+          if (error.message.includes('404')) {
+            errorMessage = 'Notifications service not available.';
+          } else if (error.message.includes('403') || error.message.includes('unauthorized')) {
+            errorMessage = 'You do not have permission to view notifications.';
+          } else if (error.message.includes('500')) {
+            errorMessage = 'Server error. Please try again later.';
+          } else if (error.message.includes('network') || error.message.includes('Network')) {
+            errorMessage = 'Network error. Please check your connection.';
+          }
+        }
+        
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -56,21 +86,26 @@ const ImportantNotifications: React.FC = () => {
     );
   }
 
-  const getNotificationStyles = (type: string) => {
-    switch (type) {
-      case 'urgent':
-        return 'bg-red-50 dark:bg-red-900/20 border-red-500';
-      case 'warning':
-        return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500';
-      default:
-        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-500';
-    }
-  };
+  const getNotificationStyles = useCallback((type: Notification['type']) => {
+    return NOTIFICATION_STYLES[type] || NOTIFICATION_STYLES.info;
+  }, []);
+
+  const sanitizedNotifications = useMemo(() => {
+    return notifications.map(notification => ({
+      ...notification,
+      title: sanitizeString(notification.title),
+      message: sanitizeString(notification.message),
+      action: notification.action ? {
+        ...notification.action,
+        label: sanitizeString(notification.action.label)
+      } : undefined
+    }));
+  }, [notifications]);
 
   return (
     <div className="space-y-4">
       <AnimatePresence>
-        {notifications.map((notification) => (
+        {sanitizedNotifications.map((notification) => (
           <motion.div
             key={notification.id}
             initial={{ opacity: 0, x: -20 }}
@@ -92,8 +127,10 @@ const ImportantNotifications: React.FC = () => {
               </div>
               {notification.action && (
                 <a
-                  href={notification.action.url}
+                  href={notification.action.url.startsWith('/') || notification.action.url.startsWith('http') ? notification.action.url : '#'}
                   className="ml-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white dark:bg-gray-800 text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700"
+                  rel="noopener noreferrer"
+                  target={notification.action.url.startsWith('http') ? '_blank' : '_self'}
                 >
                   {notification.action.label}
                   <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

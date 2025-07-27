@@ -9,7 +9,7 @@ export interface RegisterRequest {
 }
 
 export interface LoginRequest {
-  identifier: string;
+  emailOrUsername: string; // More descriptive than 'identifier'
   password: string;
 }
 
@@ -30,12 +30,18 @@ export interface ResetPasswordRequest {
   password: string;
 }
 
+// Error response interface for better type safety
+export interface AuthError {
+  message: string;
+  code?: string;
+  details?: string;
+}
+
 export interface AuthResponse {
   message: string;
-  token?: string; // Access token
+  accessToken?: string; // Consolidated access token property
   username?: string;
-  accessToken?: string; // New: Access token for login/register responses
-  error?: any; // New: For error responses
+  error?: AuthError; // Properly typed error responses
 }
 
 export interface UserProfile {

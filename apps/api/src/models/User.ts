@@ -18,16 +18,27 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: [8, 'Password must be at least 8 characters long']
   },
-  dob: {
+  dateOfBirth: {
     type: String,
     required: true,
   },
-  mobileNumber: {
+  phoneNumber: {
     type: String,
+    validate: {
+      validator: function(v: string) {
+        return !v || /^[+]?[1-9]\d{1,14}$/.test(v);
+      },
+      message: 'Please provide a valid phone number'
+    }
   },
   username: {
     type: String,
-    required: true,
+    required: [true, 'Username is required'],
+    unique: true,
+    trim: true,
+    minlength: [3, 'Username must be at least 3 characters long'],
+    maxlength: [30, 'Username cannot exceed 30 characters'],
+    match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores']
   },
   gender: {
     type: String,
