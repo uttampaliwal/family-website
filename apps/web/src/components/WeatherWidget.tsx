@@ -71,6 +71,16 @@ const WeatherWidget: React.FC = () => {
     }
   }, [location, fetchWeather]);
 
+  const forecastWithFormattedDates = useMemo(() => {
+    if (!weather) return [];
+    return weather.forecast.map(day => ({
+      ...day,
+      formattedDate: new Date(day.date).toLocaleDateString(undefined, {
+        weekday: 'short',
+      })
+    }));
+  }, [weather]);
+
   if (loading) {
     return (
       <div className="h-full bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg animate-pulse">
@@ -93,15 +103,6 @@ const WeatherWidget: React.FC = () => {
   }
 
   if (!weather) return null;
-
-  const forecastWithFormattedDates = useMemo(() => {
-    return weather.forecast.map(day => ({
-      ...day,
-      formattedDate: new Date(day.date).toLocaleDateString(undefined, {
-        weekday: 'short',
-      })
-    }));
-  }, [weather.forecast]);
 
   return (
     <motion.div

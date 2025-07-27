@@ -1,4 +1,5 @@
-import { useState, useEffect, Suspense, lazy, ErrorBoundary } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -8,7 +9,7 @@ import ThemeToggleButton from './components/ThemeToggleButton';
 
 import UserProfileSkeleton from './components/UserProfileSkeleton';
 
-import { ToastProvider } from './context/ToastContext';
+import { ToastProvider } from './context/ToastProvider';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));

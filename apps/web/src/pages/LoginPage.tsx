@@ -106,12 +106,14 @@ const LoginPage: React.FC = () => {
       let errorMessage = 'An error occurred while resending verification email.';
       
       if (isAxiosError(error)) {
-        if (error.response?.status === 404) {
-          errorMessage = 'User not found. Please check your email or username.';
-        } else if (error.response?.status >= 500) {
-          errorMessage = 'Server error. Please try again later.';
-        } else if (error.response?.data?.message) {
-          errorMessage = error.response.data.message;
+        if (error.response) {
+          if (error.response.status === 404) {
+            errorMessage = 'User not found. Please check your email or username.';
+          } else if (error.response.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else if (error.response.data?.message) {
+            errorMessage = error.response.data.message;
+          }
         } else if (error.request) {
           errorMessage = 'Network error. Please check your connection.';
         }

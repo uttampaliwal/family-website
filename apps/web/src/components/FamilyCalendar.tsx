@@ -89,6 +89,9 @@ const FamilyCalendar: React.FC = () => {
     });
   }, [events]);
 
+  const days = useMemo(() => getDaysInMonth(selectedDate), [getDaysInMonth, selectedDate]);
+  const weekDays = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], []);
+
   if (loading) {
     return (
       <div className="h-96 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg animate-pulse">
@@ -112,9 +115,6 @@ const FamilyCalendar: React.FC = () => {
       </div>
     );
   }
-
-  const days = useMemo(() => getDaysInMonth(selectedDate), [getDaysInMonth, selectedDate]);
-  const weekDays = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], []);
 
   return (
     <motion.div

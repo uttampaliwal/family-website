@@ -18,7 +18,7 @@ export interface VerifyEmailRequest {
 }
 
 export interface ResendVerificationRequest {
-  identifier: string;
+  emailOrUsername: string;
 }
 
 export interface ForgotPasswordRequest {

@@ -1,7 +1,7 @@
-import React, { createContext, useState, type ReactNode, useCallback } from 'react';
+import React, { useState, type ReactNode, useCallback } from 'react';
 import Toast from '../components/Toast';
 
-import type { ToastContextType } from './ToastContextDefinition';
+import { ToastContext } from './ToastContext';
 
 // Types for better maintainability
 type ToastType = 'success' | 'error' | 'info';
@@ -10,8 +10,6 @@ interface ToastState {
   message: string;
   type: ToastType;
 }
-
-export const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -31,5 +29,3 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     </ToastContext.Provider>
   );
 };
-
-

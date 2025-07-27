@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
+import { AxiosError } from 'axios';
 import api from '../api/axios';
 import type { UserProfile } from '../types/api';
 
@@ -17,7 +18,7 @@ const GENDER_OPTIONS = [
   { value: 'Male', label: 'Male' },
   { value: 'Female', label: 'Female' },
   { value: 'Other', label: 'Other' },
-] as const;
+];
 
 const UserProfilePage: React.FC = () => {
   const { username: paramUsername } = useParams<{ username: string }>();
@@ -58,13 +59,15 @@ const UserProfilePage: React.FC = () => {
         console.error('Error fetching user profile:', JSON.stringify(errorInfo));
         
         if (err && typeof err === 'object' && 'response' in err) {
-          const axiosError = err as any;
-          if (axiosError.response?.status === 404) {
-            setProfileState(prev => ({ ...prev, error: 'User profile not found.' }));
-          } else if (axiosError.response?.status >= 500) {
-            setProfileState(prev => ({ ...prev, error: 'Server error. Please try again later.' }));
-          } else {
-            setProfileState(prev => ({ ...prev, error: 'Failed to load profile. Please try again.' }));
+          const axiosError = err as AxiosError;
+          if (axiosError.response) {
+            if (axiosError.response.status === 404) {
+              setProfileState(prev => ({ ...prev, error: 'User profile not found.' }));
+            } else if (axiosError.response.status >= 500) {
+              setProfileState(prev => ({ ...prev, error: 'Server error. Please try again later.' }));
+            } else {
+              setProfileState(prev => ({ ...prev, error: 'Failed to load profile. Please try again.' }));
+            }
           }
         } else {
           setProfileState(prev => ({ ...prev, error: 'Network error or server is unreachable.' }));

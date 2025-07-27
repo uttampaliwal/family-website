@@ -183,7 +183,7 @@ const QuickTools: React.FC = () => {
     }
   ];
 
-  const QuickActionButton = ({ action, index }: { action: typeof QUICK_ACTIONS[0], index: number }) => (
+  const QuickActionButton = ({ action }: { action: typeof QUICK_ACTIONS[0] }) => (
     <motion.button
       onClick={action.onClick}
       className="text-white p-6 flex flex-col items-center justify-center h-[120px] rounded-lg border-none outline-none"
@@ -201,8 +201,8 @@ const QuickTools: React.FC = () => {
     <div className="mb-8">
       <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6">Quick Actions</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {QUICK_ACTIONS.map((action, index) => (
-          <QuickActionButton key={action.id} action={action} index={index} />
+        {QUICK_ACTIONS.map((action) => (
+          <QuickActionButton key={action.id} action={action} />
         ))}
       </div>
 

@@ -105,16 +105,16 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       operation: 'register'
     };
     console.error('Registration error:', JSON.stringify(sanitizedError));
-    res.status(500).json({ message: 'Registration failed. Please try again later.' });
+    res.status(500).json({ message: 'Registration failed. Please try again later.', error: sanitizedError });
   }
 };
 
 export const login = async (req: Request<any, any, LoginRequest>, res: Response<AuthResponse>) => {
-  const { identifier, password } = req.body;
+  const { emailOrUsername, password } = req.body;
 
   try {
     // Prevent NoSQL injection by ensuring identifier is treated as a string literal
-    const sanitizedIdentifier = String(identifier);
+    const sanitizedIdentifier = String(emailOrUsername);
     const user = await User.findOne({
       $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
@@ -151,6 +151,8 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     const accessToken = jwt.sign(
       { 
         id: user.id,
+        username: user.username,
+        email: user.email,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
@@ -165,6 +167,8 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     const refreshToken = jwt.sign(
       { 
         id: user.id,
+        username: user.username,
+        email: user.email,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
@@ -188,9 +192,9 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     });
 
     res.json({ message: 'Logged in successfully', accessToken: accessToken, username: String(user.username).replace(/[<>"'&]/g, '') });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Login error:', err);
-    res.status(500).json({ message: 'An error occurred during login.' });
+    res.status(500).json({ message: 'An error occurred during login.', error: err.message });
   }
 };
 
@@ -221,11 +225,11 @@ export const verifyEmail = async (req: Request<any, any, VerifyEmailRequest>, re
 };
 
 export const resendVerification = async (req: Request<any, any, ResendVerificationRequest>, res: Response<AuthResponse>) => {
-  const { identifier } = req.body;
+  const { emailOrUsername } = req.body;
 
   try {
     // Sanitize input to prevent NoSQL injection
-    const sanitizedIdentifier = String(identifier);
+    const sanitizedIdentifier = String(emailOrUsername);
     const user = await User.findOne({
       $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
@@ -329,8 +333,8 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
     }
 
     user.name = name || user.name;
-    user.dob = dob || user.dob;
-    user.mobileNumber = mobileNumber || user.mobileNumber;
+    user.dateOfBirth = dob || user.dateOfBirth;
+    user.phoneNumber = mobileNumber || user.phoneNumber;
     user.gender = gender || user.gender;
 
     await user.save();
@@ -457,6 +461,6 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-    res.status(200).json({ message: 'Logged out successfully (token invalid).', error: err });
+    res.status(200).json({ message: 'Logged out successfully (token invalid).', error: { message: err instanceof Error ? err.message : 'Unknown error' } });
   }
 };

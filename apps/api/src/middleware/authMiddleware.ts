@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
 interface AuthRequest extends Request {
-  user?: { id: string };
+  user?: { id: string; username: string; email: string; };
 }
 
 export default function (req: AuthRequest, res: Response, next: NextFunction) {
@@ -22,15 +22,15 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
     // Use constant-time comparison for token verification
     const decoded = jwt.verify(token, jwtSecret, {
       algorithms: ['HS512'] // Use stronger algorithm
-    }) as { id: string };
+    }) as { id: string; username: string; email: string; };
     
     // Validate decoded token structure
-    if (!decoded || typeof decoded !== 'object' || !decoded.id || typeof decoded.id !== 'string') {
+    if (!decoded || typeof decoded !== 'object' || !decoded.id || typeof decoded.id !== 'string' || !decoded.username || typeof decoded.username !== 'string' || !decoded.email || typeof decoded.email !== 'string') {
       crypto.randomBytes(1).toString('hex');
       return res.status(401).json({ message: 'Token is not valid' });
     }
     
-    req.user = { id: decoded.id };
+    req.user = { id: decoded.id, username: decoded.username, email: decoded.email };
     next();
   } catch (err) {
     // Use constant time response to prevent timing attacks

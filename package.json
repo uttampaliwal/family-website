@@ -20,5 +20,9 @@
   "dependencies": {
     "@types/react": "^19.1.8",
     "react": "^19.1.0"
+  },
+  "overrides": {
+    "express": "^4.19.2",
+    "@types/express": "^4.17.21"
   }
 }

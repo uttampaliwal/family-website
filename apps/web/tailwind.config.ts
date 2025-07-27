@@ -1,4 +1,6 @@
 import type { Config } from 'tailwindcss';
+import forms from '@tailwindcss/forms';
+import aspectRatio from '@tailwindcss/aspect-ratio';
 
 const config: Config = {
   content: [
@@ -134,8 +136,8 @@ const config: Config = {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/aspect-ratio'),
+    forms,
+    aspectRatio,
   ],
   darkMode: 'class',
 };
