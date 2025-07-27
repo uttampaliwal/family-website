@@ -3,6 +3,45 @@ import UserData from '../models/UserData';
 import User from '../models/User';
 import mongoose from 'mongoose';
 
+// Type definitions
+interface Task {
+  title: string;
+  description?: string | null;
+  notes?: string | null;
+  createdAt: Date;
+  dueDate?: Date | null;
+  priority: 'low' | 'medium' | 'high';
+  status: 'pending' | 'in-progress' | 'completed';
+}
+
+interface EmergencyContact {
+  name: string;
+  phoneNumber: string;
+  email?: string | null;
+  relationship?: string | null;
+}
+
+// Sanitization utilities
+const sanitizeString = (input: unknown): string => 
+  String(input ?? '').replace(/[^\p{L}\p{N}\s.,-]/gu, '');
+
+const sanitizeTask = (task: Task): Task => ({
+  title: sanitizeString(task.title),
+  description: task.description ? sanitizeString(task.description) : undefined,
+  notes: task.notes ? sanitizeString(task.notes) : undefined,
+  createdAt: task.createdAt,
+  dueDate: task.dueDate,
+  priority: task.priority,
+  status: task.status
+});
+
+const sanitizeContact = (contact: EmergencyContact): EmergencyContact => ({
+  name: sanitizeString(contact.name),
+  phoneNumber: sanitizeString(contact.phoneNumber),
+  email: contact.email ? sanitizeString(contact.email) : undefined,
+  relationship: contact.relationship ? sanitizeString(contact.relationship) : undefined
+});
+
 // Helper function to check if ObjectId is valid
 const isValidObjectId = (id: string): boolean => {
   return mongoose.Types.ObjectId.isValid(id);
@@ -31,11 +70,7 @@ export const getUserData = async (req: Request, res: Response) => {
         title: String(event.title || '').replace(/[<>"'&]/g, ''),
         description: String(event.description || '').replace(/[<>"'&]/g, '')
       })),
-      emergencyContacts: userData.emergencyContacts?.map(contact => ({
-        ...contact,
-        name: String(contact.name || '').replace(/[<>"'&]/g, ''),
-        phoneNumber: String(contact.phoneNumber || '').replace(/[<>"'&]/g, '')
-      }))
+      emergencyContacts: userData.emergencyContacts?.map(sanitizeContact)
     };
     
     res.status(200).json(sanitizedUserData);
@@ -89,11 +124,7 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
         title: String(event.title || '').replace(/[<>"'&]/g, ''),
         description: String(event.description || '').replace(/[<>"'&]/g, '')
       })),
-      emergencyContacts: userData.emergencyContacts?.map(contact => ({
-        ...contact,
-        name: String(contact.name || '').replace(/[<>"'&]/g, ''),
-        phone: String(contact.phone || '').replace(/[<>"'&]/g, '')
-      }))
+      emergencyContacts: userData.emergencyContacts?.map(sanitizeContact)
     };
     
     res.status(200).json({ message: 'User data updated successfully', userData: sanitizedUserData });
@@ -192,12 +223,12 @@ export const addTask = async (req: Request, res: Response) => {
     const rawTaskData = req.body;
     
     // Sanitize task data to prevent XSS
-    const taskData = {
+    const taskData = sanitizeTask({
       ...rawTaskData,
-      title: String(rawTaskData.title || '').replace(/[<>"'&]/g, ''),
-      description: String(rawTaskData.description || '').replace(/[<>"'&]/g, ''),
-      notes: String(rawTaskData.notes || '').replace(/[<>"'&]/g, '')
-    };
+      createdAt: new Date(),
+      priority: rawTaskData.priority || 'medium',
+      status: 'pending'
+    });
     
     if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: 'Invalid user ID format' });
@@ -215,12 +246,7 @@ export const addTask = async (req: Request, res: Response) => {
     
     // Sanitize task before returning to prevent XSS
     const lastTask = userData.tasks[userData.tasks.length - 1];
-    const sanitizedTask = {
-      ...lastTask,
-      title: String(lastTask.title || '').replace(/[<>"'&]/g, ''),
-      description: String(lastTask.description || '').replace(/[<>"'&]/g, ''),
-      notes: String(lastTask.notes || '').replace(/[<>"'&]/g, '')
-    };
+    const sanitizedTask = sanitizeTask(lastTask);
     
     res.status(201).json({ 
       message: 'Task added successfully', 
@@ -243,13 +269,12 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
     }
 
     // Sanitize contact data to prevent XSS
-    const contactData = {
-      ...rawContactData,
-      name: String(rawContactData.name || '').replace(/[<>"'&]/g, ''),
-      phone: String(rawContactData.phone || '').replace(/[<>"'&]/g, ''),
-      email: String(rawContactData.email || '').replace(/[<>"'&]/g, ''),
-      relationship: String(rawContactData.relationship || '').replace(/[<>"'&]/g, '')
-    };
+    const contactData = sanitizeContact({
+      name: rawContactData.name,
+      phoneNumber: rawContactData.phoneNumber,
+      email: rawContactData.email,
+      relationship: rawContactData.relationship
+    });
 
     let userData = await UserData.findOne({ userId: String(userId) });
     
@@ -263,13 +288,7 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
     
     // Sanitize contact before returning to prevent XSS
     const lastContact = userData.emergencyContacts[userData.emergencyContacts.length - 1];
-    const sanitizedContact = {
-      ...lastContact,
-      name: String(lastContact.name || '').replace(/[<>"'&]/g, ''),
-      phone: String(lastContact.phone || '').replace(/[<>"'&]/g, ''),
-      email: String(lastContact.email || '').replace(/[<>"'&]/g, ''),
-      relationship: String(lastContact.relationship || '').replace(/[<>"'&]/g, '')
-    };
+    const sanitizedContact = sanitizeContact(lastContact);
     
     res.status(201).json({ 
       message: 'Emergency contact added successfully', 
