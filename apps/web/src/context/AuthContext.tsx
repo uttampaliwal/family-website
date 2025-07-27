@@ -4,8 +4,8 @@ import { AuthContext } from './AuthContextDefinition';
 
 // Constants for better maintainability
 const STORAGE_KEYS = {
-  USERNAME: 'username',
-  ACCESS_TOKEN: 'accessToken'
+  USERNAME: import.meta.env.VITE_USERNAME_KEY || 'username',
+  ACCESS_TOKEN: import.meta.env.VITE_ACCESS_TOKEN_KEY || 'accessToken'
 } as const;
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

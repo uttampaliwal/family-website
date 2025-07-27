@@ -4,15 +4,15 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 // Constants for better maintainability
 const REDIRECT_DELAY = 3000;
 const MESSAGES = {
-  VERIFYING: 'Verifying your email...',
-  TOKEN_NOT_FOUND: 'Verification token not found.',
-  SUCCESS: 'Email verified successfully! You can now login.',
-  BAD_REQUEST: 'Bad Request.',
-  SERVER_ERROR: 'Server error. Please try again later.',
-  NETWORK_ERROR: 'Network error. Please check your internet connection or try again later.',
-  CANCELLED: 'Request was cancelled. Please try again.',
-  GENERIC_ERROR: 'An error occurred during verification. Please try again.',
-  UNEXPECTED_ERROR: 'An unexpected error occurred.'
+  VERIFYING: import.meta.env.VITE_MSG_VERIFYING || 'Verifying your email...',
+  TOKEN_NOT_FOUND: import.meta.env.VITE_MSG_TOKEN_NOT_FOUND || 'Verification token not found.',
+  SUCCESS: import.meta.env.VITE_MSG_SUCCESS || 'Email verified successfully! You can now login.',
+  BAD_REQUEST: import.meta.env.VITE_MSG_BAD_REQUEST || 'Bad Request.',
+  SERVER_ERROR: import.meta.env.VITE_MSG_SERVER_ERROR || 'Server error. Please try again later.',
+  NETWORK_ERROR: import.meta.env.VITE_MSG_NETWORK_ERROR || 'Network error. Please check your internet connection or try again later.',
+  CANCELLED: import.meta.env.VITE_MSG_CANCELLED || 'Request was cancelled. Please try again.',
+  GENERIC_ERROR: import.meta.env.VITE_MSG_GENERIC_ERROR || 'An error occurred during verification. Please try again.',
+  UNEXPECTED_ERROR: import.meta.env.VITE_MSG_UNEXPECTED_ERROR || 'An unexpected error occurred.'
 } as const;
 
 const VerifyEmailPage: React.FC = () => {
@@ -51,11 +51,11 @@ const VerifyEmailPage: React.FC = () => {
       } catch (error) {
         // Structured error logging with context
         const errorInfo = {
-          message: error instanceof Error ? error.message : 'Unknown error',
-          type: error instanceof TypeError ? 'NetworkError' : 'UnknownError',
+          message: error instanceof Error ? error.message : import.meta.env.VITE_ERROR_UNKNOWN || 'Unknown error',
+          type: error instanceof TypeError ? import.meta.env.VITE_ERROR_NETWORK || 'NetworkError' : import.meta.env.VITE_ERROR_UNKNOWN_TYPE || 'UnknownError',
           timestamp: new Date().toISOString(),
-          operation: 'emailVerification',
-          token: token ? 'present' : 'missing'
+          operation: import.meta.env.VITE_OPERATION_EMAIL_VERIFY || 'emailVerification',
+          token: token ? import.meta.env.VITE_TOKEN_PRESENT || 'present' : import.meta.env.VITE_TOKEN_MISSING || 'missing'
         };
         console.error('Error during email verification:', JSON.stringify(errorInfo));
         
