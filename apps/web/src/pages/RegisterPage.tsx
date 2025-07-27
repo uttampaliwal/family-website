@@ -132,10 +132,12 @@ const RegisterPage: React.FC = () => {
       console.error('Error during registration:', JSON.stringify(errorInfo));
       
       if (isAxiosError(error)) {
-        if (error.response?.status === 400 && error.response.data?.message) {
-          showToast(error.response.data.message, 'error');
-        } else if (error.response?.status >= 500) {
-          showToast('Server error. Please try again later.', 'error');
+        if (error.response) {
+          if (error.response.status === 400 && error.response.data?.message) {
+            showToast(error.response.data.message, 'error');
+          } else if (error.response.status >= 500) {
+            showToast('Server error. Please try again later.', 'error');
+          }
         } else if (error.code === 'NETWORK_ERROR') {
           showToast('Network error. Please check your connection.', 'error');
         } else if (error.message) {

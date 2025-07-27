@@ -1,17 +1,12 @@
 import express, { Request, Response, NextFunction, RequestHandler } from 'express';
 import rateLimit from 'express-rate-limit';
-import csrf from 'csurf';
+
 import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout, updateUserProfile } from '../controllers/authController';
 import { validate, registerSchema, loginSchema, verifyEmailSchema, resendVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from '../middleware/validate';
 
 const router = express.Router();
 
-// CSRF protection for state-changing operations
-const csrfProtection = csrf({ 
-  cookie: { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' },
-  ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
-  value: (req) => req.body._csrf || req.query._csrf || req.headers['x-csrf-token']
-});
+
 
 // Rate limiting for authentication routes
 const authLimiter = rateLimit({
@@ -27,36 +22,36 @@ const loginLimiter = rateLimit({
 });
 
 // Register Route
-router.post('/register', authLimiter, validate(registerSchema), register as RequestHandler);
+router.post('/register', authLimiter, validate(registerSchema), register);
 
 // Sign In Route
-router.post('/login', csrfProtection, loginLimiter, validate(loginSchema), login as RequestHandler);
+router.post('/login', loginLimiter, validate(loginSchema), login);
 
 // Verify Email Route
-router.post('/verify-email', csrfProtection, validate(verifyEmailSchema), verifyEmail as RequestHandler);
+router.post('/verify-email', validate(verifyEmailSchema), verifyEmail);
 
 // Resend Verification Email Route
-router.post('/resend-verification', csrfProtection, validate(resendVerificationSchema), resendVerification as RequestHandler);
+router.post('/resend-verification', validate(resendVerificationSchema), resendVerification);
 
 // Refresh Token Route
-router.post('/refresh-token', csrfProtection, refreshToken as RequestHandler);
+router.post('/refresh-token', refreshToken);
 
 // Get User Profile by Username
-router.get('/profile/:username', getUserProfile as RequestHandler<{ username: string }>);
+router.get('/profile/:username', getUserProfile);
 
 // Update User Profile by Username
-router.put('/profile/:username', csrfProtection, updateUserProfile as RequestHandler<{ username: string }>);
+router.put('/profile/:username', updateUserProfile);
 
 // Forgot Password Route
-router.post('/forgot-password', csrfProtection, validate(forgotPasswordSchema), forgotPassword as RequestHandler);
+router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
 
 // Reset Password Route
-router.post('/reset-password/:token', csrfProtection, validate(resetPasswordSchema), resetPassword as RequestHandler<{ token: string }>);
+router.post('/reset-password/:token', validate(resetPasswordSchema), resetPassword);
 
 // Reset Password Route with token in body
-router.post('/reset-password', csrfProtection, validate(resetPasswordSchema), resetPassword as RequestHandler);
+router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
 
 // Logout Route
-router.post('/logout', csrfProtection, logout as RequestHandler);
+router.post('/logout', logout);
 
 export default router;

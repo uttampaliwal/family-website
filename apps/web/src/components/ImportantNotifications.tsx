@@ -68,6 +68,22 @@ const ImportantNotifications: React.FC = () => {
     fetchNotifications();
   }, []);
 
+  const getNotificationStyles = useCallback((type: Notification['type']) => {
+    return NOTIFICATION_STYLES[type] || NOTIFICATION_STYLES.info;
+  }, []);
+
+  const sanitizedNotifications = useMemo(() => {
+    return notifications.map(notification => ({
+      ...notification,
+      title: sanitizeString(notification.title),
+      message: sanitizeString(notification.message),
+      action: notification.action ? {
+        ...notification.action,
+        label: sanitizeString(notification.action.label)
+      } : undefined
+    }));
+  }, [notifications]);
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -85,22 +101,6 @@ const ImportantNotifications: React.FC = () => {
       </div>
     );
   }
-
-  const getNotificationStyles = useCallback((type: Notification['type']) => {
-    return NOTIFICATION_STYLES[type] || NOTIFICATION_STYLES.info;
-  }, []);
-
-  const sanitizedNotifications = useMemo(() => {
-    return notifications.map(notification => ({
-      ...notification,
-      title: sanitizeString(notification.title),
-      message: sanitizeString(notification.message),
-      action: notification.action ? {
-        ...notification.action,
-        label: sanitizeString(notification.action.label)
-      } : undefined
-    }));
-  }, [notifications]);
 
   return (
     <div className="space-y-4">

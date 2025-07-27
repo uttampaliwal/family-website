@@ -1,5 +1,5 @@
 import express from 'express';
-import csrf from 'csurf';
+
 import { 
   getDocuments, 
   getDocumentById, 
@@ -15,8 +15,7 @@ import path from 'path';
 
 const router = express.Router();
 
-// CSRF protection for state-changing operations
-const csrfProtection = csrf({ cookie: { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' } });
+
 
 // Apply authentication middleware to all routes
 router.use(authMiddleware);
@@ -37,7 +36,7 @@ router.put('/:id', updateDocument);
 router.delete('/:id', deleteDocument);
 
 // Share a document
-router.post('/:id/share', csrfProtection, shareDocument);
+router.post('/:id/share', shareDocument);
 
 // Download a document file
 router.get('/:id/download', downloadFile);
