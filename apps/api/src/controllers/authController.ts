@@ -56,7 +56,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       html: `<p>Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
     });
 
-    const accessToken = jwt.sign(
+      const accessToken = jwt.sign(
       {
         id: user.id,
         iat: Math.floor(Date.now() / 1000),
@@ -190,7 +190,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     res.json({ message: 'Logged in successfully', accessToken: accessToken, username: String(user.username).replace(/[<>"'&]/g, '') });
   } catch (err: any) {
     console.error('Login error:', err);
-    res.status(500).json({ message: 'An error occurred during login.', error: err.message });
+    res.status(500).json({ message: 'An error occurred during login.' });
   }
 };
 
