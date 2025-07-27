@@ -114,7 +114,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
 
   try {
     // Prevent NoSQL injection by ensuring identifier is treated as a string literal
-    const sanitizedIdentifier = String(emailOrUsername);
+    const sanitizedIdentifier = typeof emailOrUsername === 'string' ? emailOrUsername.replace(/[{}$]/g, '') : String(emailOrUsername);
     const user = await User.findOne({
       $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
@@ -125,7 +125,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     if (user.lockUntil && user.lockUntil > Date.now()) {
       const timeLeft = Math.ceil((user.lockUntil - Date.now()) / (1000 * 60));
       const sanitizedTimeLeft = Math.max(0, Math.floor(Number(timeLeft) || 0));
-      return res.status(403).json({ message: `Account locked. Please try again in ${sanitizedTimeLeft} minutes.` });
+      return res.status(403).json({ message: 'Account is temporarily locked. Please try again later.' });
     }
 
     if (!user.isVerified) {
@@ -187,7 +187,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({ message: 'Logged in successfully', accessToken: accessToken, username: String(user.username).replace(/[<>"'&]/g, '') });
+    res.json({ message: 'Logged in successfully', accessToken: accessToken, username: String(user.username).replace(/[<>"'&\/<>]/g, '').replace(/javascript:/gi, '').replace(/on\w+=/gi, '') });
   } catch (err: any) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'An error occurred during login.' });
@@ -313,7 +313,7 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
     res.status(200).json(sanitizedUser);
   } catch (err: any) {
     console.error('Error fetching user profile:', err);
-    res.status(500).json({ message: 'Server error. Please try again later.', error: err.message });
+    res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
 
