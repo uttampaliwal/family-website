@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Button from './Button';
 
 interface AccountInformationFormProps {
@@ -42,6 +42,15 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
   confirmPasswordRef,
   handlePrevious,
 }) => {
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value || '';
+    setEmail(value);
+  }, [setEmail]);
+
+  const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value || '';
+    setUsername(value);
+  }, [setUsername]);
   return (
     <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
       <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Account Information</h2>
@@ -51,7 +60,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           type="email"
           id="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleEmailChange}
           required
           aria-required="true"
           disabled={loading}
@@ -65,7 +74,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           type="text"
           id="username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={handleUsernameChange}
           required
           aria-required="true"
           disabled={loading}
@@ -84,11 +93,18 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={passwordRef}
+          autoComplete="new-password"
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
         />
         <button
           type="button"
-          onClick={() => setShowPassword(!showPassword)}
+          onClick={() => {
+            try {
+              setShowPassword(!showPassword);
+            } catch (error) {
+              console.error('Error toggling password visibility:', error);
+            }
+          }}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
@@ -106,11 +122,18 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={confirmPasswordRef}
+          autoComplete="new-password"
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
         />
         <button
           type="button"
-          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+          onClick={() => {
+            try {
+              setShowConfirmPassword(!showConfirmPassword);
+            } catch (error) {
+              console.error('Error toggling confirm password visibility:', error);
+            }
+          }}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
           aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
         >

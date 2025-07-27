@@ -3,11 +3,21 @@ import { motion } from 'framer-motion';
 
 const ThemeToggleButton: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme as 'light' | 'dark';
+    try {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+        return savedTheme as 'light' | 'dark';
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage for theme:', error);
     }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } catch (error) {
+      console.error('Error accessing media query:', error);
+      return 'light'; // Default fallback
+    }
   });
 
   useEffect(() => {
@@ -17,12 +27,22 @@ const ThemeToggleButton: React.FC = () => {
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('theme', theme);
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (error) {
+      console.error('Error saving theme to localStorage:', error);
+    }
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
       // Only change the theme if there is no user-saved theme
-      if (!localStorage.getItem('theme')) {
+      let hasStoredTheme = false;
+      try {
+        hasStoredTheme = !!localStorage.getItem('theme');
+      } catch (error) {
+        console.error('Error checking localStorage for theme:', error);
+      }
+      if (!hasStoredTheme) {
         setTheme(e.matches ? 'dark' : 'light');
       }
     };
@@ -37,7 +57,11 @@ const ThemeToggleButton: React.FC = () => {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme); // Explicitly set theme on toggle
+    try {
+      localStorage.setItem('theme', newTheme);
+    } catch (error) {
+      console.error('Error saving theme to localStorage:', error);
+    }
   };
 
   return (

@@ -54,23 +54,42 @@ const ResetPasswordPage: React.FC = () => {
     }
 
     try {
+      // Validate token exists
+      if (!token || token.trim() === '') {
+        throw new Error('Reset token is missing or invalid');
+      }
+      
       // Create the request payload
-      const resetPasswordData: ResetPasswordRequest = { token: token || '', password };
+      const resetPasswordData: ResetPasswordRequest = { token: token.trim(), password };
       
       // Call the API function
       const response = await resetPasswordApi(resetPasswordData);
+      
+      if (!response || typeof response !== 'object') {
+        throw new Error('Invalid response from server');
+      }
       
       showToast(response.message || 'Password reset successful!', 'success');
       setTimeout(() => navigate('/login'), 3000);
     } catch (error) {
       console.error('Reset password error:', error);
+      let errorMessage = 'An unexpected error occurred';
+      
       if (isAxiosError(error)) {
-        showToast(error.response?.data?.message || 'Failed to connect to the server', 'error');
+        if (error.response?.status === 400) {
+          errorMessage = error.response.data?.message || 'Invalid or expired reset token';
+        } else if (error.response?.status === 500) {
+          errorMessage = 'Server error. Please try again later';
+        } else if (error.code === 'NETWORK_ERROR' || !error.response) {
+          errorMessage = 'Network error. Please check your connection';
+        } else {
+          errorMessage = error.response?.data?.message || 'Failed to reset password';
+        }
       } else if (error instanceof Error) {
-        showToast(error.message, 'error');
-      } else {
-        showToast('Failed to connect to the server', 'error');
+        errorMessage = error.message;
       }
+      
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }

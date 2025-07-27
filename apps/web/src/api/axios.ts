@@ -1,6 +1,13 @@
 import axios from 'axios';
 import type { AuthResponse } from '../types/api';
 
+// Constants for better maintainability
+const TOKEN_EXPIRED_STATUS = 403;
+const ACCESS_TOKEN_KEY = 'accessToken';
+const USERNAME_KEY = 'username';
+const LOGIN_PATH = '/login';
+const ROOT_PATH = '/';
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true, // Important for sending HttpOnly cookies
@@ -9,7 +16,7 @@ const api = axios.create({
 // Request interceptor to attach access token
 api.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem('accessToken'); // Assuming you store accessToken in localStorage
+    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -33,7 +40,7 @@ api.interceptors.response.use(
     }
     
     const originalRequest = error.config;
-    const isTokenExpired = error.response.status === 403;
+    const isTokenExpired = error.response.status === TOKEN_EXPIRED_STATUS;
     const isFirstRetry = !originalRequest._retry;
     
     // Only attempt token refresh on 403 errors (token expired) and for first retry
@@ -51,7 +58,7 @@ api.interceptors.response.use(
         // Store the new token if available
         const newAccessToken = response.data.accessToken;
         if (newAccessToken) {
-          localStorage.setItem('accessToken', newAccessToken);
+          localStorage.setItem(ACCESS_TOKEN_KEY, newAccessToken);
           
           // Update the original request with the new token
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -70,8 +77,14 @@ api.interceptors.response.use(
 
 // Helper function to handle authentication failures
 function handleAuthFailure() {
-  localStorage.removeItem('accessToken');
-  window.location.href = '/login';
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(USERNAME_KEY);
+  // Validate that the path is safe (starts with / and doesn't contain dangerous characters)
+  if (LOGIN_PATH.startsWith('/') && !/[<>"']/.test(LOGIN_PATH)) {
+    window.location.replace(LOGIN_PATH);
+  } else {
+    window.location.replace(ROOT_PATH);
+  }
 }
 
 export default api;

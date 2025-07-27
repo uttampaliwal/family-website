@@ -1,16 +1,48 @@
 import { Request, Response, NextFunction } from 'express';
+import { isHttpError } from 'http-errors';
 
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  // Sanitize error stack to prevent log injection
-  const sanitizedStack = err.stack ? String(err.stack).replace(/[\n\r\t]/g, ' ') : 'No stack trace';
-  console.error('Error occurred:', sanitizedStack); // Log the sanitized error stack for debugging
+/**
+ * A custom error interface to ensure statusCode is available.
+ * This is optional but good practice.
+ */
+interface AppError extends Error {
+  statusCode?: number;
+}
 
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
+export const errorHandler = (
+  err: AppError,
+  req: Request,
+  res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  next: NextFunction
+) => {
+  // In development, or for non-http errors, log the full error
+  if (process.env.NODE_ENV !== 'production' || !isHttpError(err)) {
+    const sanitizedError = {
+      name: err.name?.replace(/[\n\r\t]/g, '') || 'Unknown',
+      message: err.message?.replace(/[\n\r\t]/g, '') || 'Unknown error',
+      stack: err.stack?.replace(/[\n\r\t]/g, ' ') || 'No stack trace'
+    };
+    console.error('Error:', JSON.stringify(sanitizedError));
+  }
 
-  res.status(statusCode).json({
-    message: message,
-    // In development, send error stack for debugging
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
+  // If it's an HttpError from the http-errors package, use its properties
+  // Otherwise, default to 500 Internal Server Error
+  const statusCode = isHttpError(err) ? err.statusCode : 500;
+  const message = isHttpError(err) ? err.message : 'Internal Server Error';
+
+  // Don't leak stack trace in production for client-facing errors
+  const errorResponse: { message: string; stack?: string } = {
+    message: String(message).replace(/[<>"'&]/g, ''),
+  };
+
+  // Add stack trace in development mode
+  if (process.env.NODE_ENV !== 'production' && err.stack) {
+    errorResponse.stack = err.stack.replace(/[\n\r\t]/g, ' ');
+  }
+
+  // Ensure response hasn't been sent already
+  if (!res.headersSent) {
+    res.status(statusCode).json(errorResponse);
+  }
 };

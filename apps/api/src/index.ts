@@ -7,7 +7,8 @@ import cookieParser from 'cookie-parser';
 // Node.js ES Modules require the full file extension in relative imports.
 import authRoutes from './routes/auth';
 import feedRoutes from './routes/feed';
-import healthRoutes from './routes/health'; // 1. Import the new health route
+import healthRoutes from './routes/health';
+import documentRoutes from './routes/documents'; // Import document routes
 import { errorHandler } from './middleware/errorHandler';
 
 // --- 1. Environment Setup ---
@@ -46,7 +47,7 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('error', (err) => {
   // Sanitize error message to prevent log injection
   const sanitizedError = err instanceof Error ? 
-    { name: err.name, message: err.message } : 
+    { name: err.name.replace(/[\n\r\t]/g, ''), message: err.message.replace(/[\n\r\t]/g, '') } : 
     { message: String(err).replace(/[\n\r\t]/g, '') };
   console.error('MongoDB connection error:', JSON.stringify(sanitizedError));
 });
@@ -74,6 +75,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', feedRoutes);
 app.use('/api', healthRoutes); // Mount the health check route
+app.use('/api/documents', documentRoutes); // Mount the documents routes
 
 
 // Central error handling middleware.
@@ -86,12 +88,14 @@ const startServer = async () => {
 
   // Then, start the Express server.
   const server = app.listen(PORT, () => {
-    console.log(`API server listening on port ${PORT}`);
+    const sanitizedPort = String(PORT).replace(/[\n\r\t]/g, '');
+    console.log(`API server listening on port ${sanitizedPort}`);
   });
 
   // Implement graceful shutdown to properly close resources.
   const gracefulShutdown = (signal: string) => {
-    console.log(`\n${signal} received. Shutting down gracefully...`);
+    const sanitizedSignal = String(signal).replace(/[\n\r\t]/g, '');
+    console.log(`\n${sanitizedSignal} received. Shutting down gracefully...`);
     server.close(() => {
       console.log('HTTP server closed.');
       mongoose.connection.close(false).then(() => {

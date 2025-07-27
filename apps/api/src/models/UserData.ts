@@ -1,6 +1,46 @@
 import mongoose from 'mongoose';
 
-// Define the schema for user data
+// Constants for better maintainability
+const PRIORITY_LEVELS = ['low', 'medium', 'high'] as const;
+const TASK_STATUSES = ['pending', 'in-progress', 'completed'] as const;
+
+// Sub-schemas for better organization
+const EventSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  date: { type: Date, required: true },
+  location: { type: String },
+  participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  createdAt: { type: Date, default: Date.now }
+});
+
+const PhotoSchema = new mongoose.Schema({
+  title: { type: String },
+  description: { type: String },
+  url: { type: String, required: true },
+  uploadDate: { type: Date, default: Date.now },
+  tags: [String]
+});
+
+const TaskSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  dueDate: { type: Date },
+  priority: { type: String, enum: PRIORITY_LEVELS, default: 'medium' },
+  status: { type: String, enum: TASK_STATUSES, default: 'pending' },
+  assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  createdAt: { type: Date, default: Date.now }
+});
+
+const EmergencyContactSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  relationship: { type: String },
+  phoneNumber: { type: String, required: true },
+  email: { type: String },
+  address: { type: String }
+});
+
+// Main schema definition
 const UserDataSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -8,96 +48,10 @@ const UserDataSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  events: [{
-    title: {
-      type: String,
-      required: true
-    },
-    description: {
-      type: String
-    },
-    date: {
-      type: Date,
-      required: true
-    },
-    location: {
-      type: String
-    },
-    participants: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }],
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  photos: [{
-    title: {
-      type: String
-    },
-    description: {
-      type: String
-    },
-    url: {
-      type: String,
-      required: true
-    },
-    uploadDate: {
-      type: Date,
-      default: Date.now
-    },
-    tags: [String]
-  }],
-  tasks: [{
-    title: {
-      type: String,
-      required: true
-    },
-    description: {
-      type: String
-    },
-    dueDate: {
-      type: Date
-    },
-    priority: {
-      type: String,
-      enum: ['low', 'medium', 'high'],
-      default: 'medium'
-    },
-    status: {
-      type: String,
-      enum: ['pending', 'in-progress', 'completed'],
-      default: 'pending'
-    },
-    assignedTo: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }],
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  emergencyContacts: [{
-    name: {
-      type: String,
-      required: true
-    },
-    relationship: {
-      type: String
-    },
-    phoneNumber: {
-      type: String,
-      required: true
-    },
-    email: {
-      type: String
-    },
-    address: {
-      type: String
-    }
-  }]
+  events: [EventSchema],
+  photos: [PhotoSchema],
+  tasks: [TaskSchema],
+  emergencyContacts: [EmergencyContactSchema]
 }, {
   timestamps: true
 });
@@ -106,5 +60,9 @@ const UserDataSchema = new mongoose.Schema({
 UserDataSchema.index({ 'events.date': 1 });
 UserDataSchema.index({ 'tasks.dueDate': 1 });
 UserDataSchema.index({ 'tasks.status': 1 });
+// Compound indexes for common query patterns
+UserDataSchema.index({ userId: 1, 'events.date': 1 });
+UserDataSchema.index({ userId: 1, 'tasks.status': 1, 'tasks.dueDate': 1 });
+UserDataSchema.index({ userId: 1, 'photos.uploadDate': -1 });
 
 export default mongoose.model('UserData', UserDataSchema);

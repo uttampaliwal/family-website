@@ -20,11 +20,11 @@ The API relies on several environment variables for proper operation. These shou
 
 ```
 PORT=3001
-MONGO_URI=mongodb://uttam:REDACTED_MONGO_PASSWORD@localhost:27017/family-website?authSource=admin
-JWT_SECRET=your-super-secret-and-long-jwt-secret
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-gmail-app-password
-FRONTEND_URL=http://192.168.1.8:5173
+MONGO_URI=mongodb://<username>:<password>@localhost:27017/family-website?authSource=admin
+JWT_SECRET=<your-super-secret-and-long-jwt-secret>
+EMAIL_USER=<your-email@gmail.com>
+EMAIL_PASS=<your-gmail-app-password>
+FRONTEND_URL=http://<your-local-ip>:5173
 ```
 
 ## 2. Authentication Routes (`src/routes/auth.ts`)

@@ -2,11 +2,41 @@ import api from './axios';
 import type { AuthResponse, ResetPasswordRequest, ForgotPasswordRequest } from '../types/api';
 
 export const resetPassword = async (data: ResetPasswordRequest): Promise<AuthResponse> => {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Reset password data is required');
+  }
+  
+  if (!data.token || typeof data.token !== 'string' || data.token.trim() === '') {
+    throw new Error('Reset token is required');
+  }
+  
+  if (!data.password || typeof data.password !== 'string' || data.password.length < 8) {
+    throw new Error('Valid password is required');
+  }
+  
   const response = await api.post<AuthResponse>('/api/auth/reset-password', data);
+  
+  if (!response.data || typeof response.data !== 'object') {
+    throw new Error('Invalid response from server');
+  }
+  
   return response.data;
 };
 
 export const forgotPassword = async (data: ForgotPasswordRequest): Promise<AuthResponse> => {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Forgot password data is required');
+  }
+  
+  if (!data.email || typeof data.email !== 'string' || !data.email.includes('@')) {
+    throw new Error('Valid email is required');
+  }
+  
   const response = await api.post<AuthResponse>('/api/auth/forgot-password', data);
+  
+  if (!response.data || typeof response.data !== 'object') {
+    throw new Error('Invalid response from server');
+  }
+  
   return response.data;
 };

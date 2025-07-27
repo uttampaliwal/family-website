@@ -31,27 +31,38 @@ const LoginPage: React.FC = () => {
 
       const data = response.data;
       if (response.status === 200) {
-        showToast(data.message || 'Login successful!', 'success');
         localStorage.setItem('accessToken', data.accessToken || '');
         login(data.username || '');
-        setTimeout(() => {
-          navigate(`/profile/${data.username}`);
-        }, 1500);
+        showToast(data.message || 'Login successful!', 'success');
+        navigate(`/profile/${data.username}`);
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      // Structured error logging with context
+      const errorInfo = {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        identifier: identifier,
+        timestamp: new Date().toISOString(),
+        operation: 'userLogin'
+      };
+      console.error('Error during login:', JSON.stringify(errorInfo));
 
       let errorMessage = 'An unexpected error occurred. Please try again.';
 
       if (isAxiosError(error)) {
         if (error.response) {
-          if (typeof error.response.data === 'string') {
-            errorMessage = error.response.data;
+          if (error.response.status === 400 || error.response.status === 401) {
+            if (typeof error.response.data === 'string') {
+              errorMessage = error.response.data;
+            } else {
+              errorMessage = error.response.data?.message || 'Invalid credentials';
+            }
+            if (error.response.data?.message === 'Please verify your email before logging in.') {
+              setShowResendButton(true);
+            }
+          } else if (error.response.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
           } else {
             errorMessage = error.response.data?.message || error.response.statusText || errorMessage;
-          }
-          if (error.response.data?.message === 'Please verify your email before logging in.') {
-            setShowResendButton(true);
           }
         } else if (error.request) {
           errorMessage = 'Network error. Please check your internet connection or try again later.';
@@ -83,8 +94,30 @@ const LoginPage: React.FC = () => {
         showToast(data.message || 'Failed to resend verification email.', 'error');
       }
     } catch (error) {
-      console.error('Error resending verification email:', error);
-      showToast('An error occurred while resending verification email.', 'error');
+      // Structured error logging with context
+      const errorInfo = {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        identifier: identifier,
+        timestamp: new Date().toISOString(),
+        operation: 'resendVerification'
+      };
+      console.error('Error resending verification email:', JSON.stringify(errorInfo));
+      
+      let errorMessage = 'An error occurred while resending verification email.';
+      
+      if (isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          errorMessage = 'User not found. Please check your email or username.';
+        } else if (error.response?.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.request) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+      }
+      
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }

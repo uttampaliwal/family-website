@@ -16,12 +16,12 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
   const { name, email, password, dob, username, gender, mobileNumber } = req.body;
 
   try {
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: String(email) });
     if (user) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    user = await User.findOne({ username });
+    user = await User.findOne({ username: String(username) });
     if (user) {
       return res.status(400).json({ message: 'Username is already taken. Please choose another.' });
     }
@@ -45,14 +45,11 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
     await user.save();
 
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-
-    // Sanitize URL to prevent XSS attacks
-    const sanitizedUrl = encodeURI(verificationUrl);
     
     await sendEmail({
       to: email,
       subject: 'Verify Your Email for Family Website',
-      html: `<p>Please click the following link to verify your email:</p><p><a href="${sanitizedUrl}">${sanitizedUrl}</a></p>`,
+      html: `<p>Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
     });
 
     const accessToken = jwt.sign(
@@ -60,12 +57,15 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
         id: user.id,
         username: user.username,
         email: user.email,
-        iat: Math.floor(Date.now() / 1000)
+        iat: Math.floor(Date.now() / 1000),
+        jti: crypto.randomBytes(16).toString('hex')
       },
       jwtSecret,
       {
         expiresIn: '15m',
-        algorithm: 'HS512'
+        algorithm: 'HS512',
+        issuer: 'family-website',
+        audience: 'family-website-users'
       }
     );
     const refreshToken = jwt.sign(
@@ -73,12 +73,15 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
         id: user.id,
         username: user.username,
         email: user.email,
-        iat: Math.floor(Date.now() / 1000)
+        iat: Math.floor(Date.now() / 1000),
+        jti: crypto.randomBytes(16).toString('hex')
       },
       refreshTokenSecret,
       {
         expiresIn: '7d',
-        algorithm: 'HS512'
+        algorithm: 'HS512',
+        issuer: 'family-website',
+        audience: 'family-website-users'
       }
     );
 
@@ -92,9 +95,16 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: user.username });
+    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: String(user.username).replace(/[<>"'&]/g, '') });
   } catch (err) {
-    console.error('Registration error:', err);
+    const sanitizedError = {
+      message: err instanceof Error ? err.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
+      email: String(email).replace(/[\n\r\t]/g, ''),
+      username: String(username).replace(/[\n\r\t]/g, ''),
+      timestamp: new Date().toISOString(),
+      operation: 'register'
+    };
+    console.error('Registration error:', JSON.stringify(sanitizedError));
     res.status(500).json({ message: 'Registration failed. Please try again later.' });
   }
 };
@@ -114,14 +124,15 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
 
     if (user.lockUntil && user.lockUntil > Date.now()) {
       const timeLeft = Math.ceil((user.lockUntil - Date.now()) / (1000 * 60));
-      return res.status(403).json({ message: `Account locked. Please try again in ${timeLeft} minutes.` });
+      const sanitizedTimeLeft = Math.max(0, Math.floor(Number(timeLeft) || 0));
+      return res.status(403).json({ message: `Account locked. Please try again in ${sanitizedTimeLeft} minutes.` });
     }
 
     if (!user.isVerified) {
       return res.status(400).json({ message: 'Please verify your email before logging in.' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(String(password), user.password);
     if (!isMatch) {
       user.loginAttempts = (user.loginAttempts || 0) + 1;
       if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
@@ -137,8 +148,34 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     user.lockUntil = undefined;
     await user.save();
 
-    const accessToken = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ id: user.id }, refreshTokenSecret, { expiresIn: '7d' });
+    const accessToken = jwt.sign(
+      { 
+        id: user.id,
+        iat: Math.floor(Date.now() / 1000),
+        jti: crypto.randomBytes(16).toString('hex')
+      }, 
+      jwtSecret, 
+      { 
+        expiresIn: '15m',
+        algorithm: 'HS512',
+        issuer: 'family-website',
+        audience: 'family-website-users'
+      }
+    );
+    const refreshToken = jwt.sign(
+      { 
+        id: user.id,
+        iat: Math.floor(Date.now() / 1000),
+        jti: crypto.randomBytes(16).toString('hex')
+      }, 
+      refreshTokenSecret, 
+      { 
+        expiresIn: '7d',
+        algorithm: 'HS512',
+        issuer: 'family-website',
+        audience: 'family-website-users'
+      }
+    );
 
     user.refreshTokens.push(refreshToken);
     await user.save();
@@ -150,7 +187,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({ message: 'Logged in successfully', accessToken: accessToken, username: user.username });
+    res.json({ message: 'Logged in successfully', accessToken: accessToken, username: String(user.username).replace(/[<>"'&]/g, '') });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'An error occurred during login.' });
@@ -166,7 +203,7 @@ export const verifyEmail = async (req: Request<any, any, VerifyEmailRequest>, re
       return res.status(400).json({ message: 'Invalid verification token format.' });
     }
     
-    const user = await User.findOne({ verificationToken: token });
+    const user = await User.findOne({ verificationToken: String(token) });
     
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired verification token.' });
@@ -208,7 +245,7 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
     await sendEmail({
       to: user.email,
       subject: 'Verify Your Email for Family Website',
-      html: `<p>Please click the following link to verify your email:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
+      html: `<p>Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
     });
 
     res.status(200).json({ message: 'Verification email sent successfully. Please check your inbox.' });
@@ -227,15 +264,28 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
 
   try {
     const decoded: any = jwt.verify(refreshToken, refreshTokenSecret);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(String(decoded.id));
 
     if (!user || !user.refreshTokens.includes(refreshToken)) {
       return res.status(403).json({ message: 'Invalid refresh token.' });
     }
 
-    const newAccessToken = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '15m' });
+    const newAccessToken = jwt.sign(
+      { 
+        id: user.id,
+        iat: Math.floor(Date.now() / 1000),
+        jti: crypto.randomBytes(16).toString('hex')
+      }, 
+      jwtSecret, 
+      { 
+        expiresIn: '15m',
+        algorithm: 'HS512',
+        issuer: 'family-website',
+        audience: 'family-website-users'
+      }
+    );
 
-    res.json({ message: 'Token refreshed successfully', accessToken: newAccessToken, username: user.username });
+    res.json({ message: 'Token refreshed successfully', accessToken: newAccessToken, username: String(user.username).replace(/[<>"'&]/g, '') });
   } catch (err) {
     console.error('Refresh token error:', err);
     res.status(403).json({ message: 'Invalid or expired refresh token.' });
@@ -245,14 +295,22 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
 export const getUserProfile = async (req: Request<{ username: string }>, res: Response<UserProfile | AuthResponse>) => {
   try {
     // Prevent NoSQL injection by using exact string comparison
-    const username = req.params.username;
+    const username = String(req.params.username);
     const user = await User.findOne({ username: username }).select('-password -verificationToken');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    res.status(200).json(user);
+    // Sanitize user data before returning to prevent XSS
+    const sanitizedUser = {
+      ...user.toObject(),
+      name: String(user.name || '').replace(/[<>"'&]/g, ''),
+      username: String(user.username || '').replace(/[<>"'&]/g, ''),
+      email: String(user.email || '').replace(/[<>"'&]/g, '')
+    };
+    
+    res.status(200).json(sanitizedUser);
   } catch (err: any) {
     console.error('Error fetching user profile:', err);
     res.status(500).json({ message: 'Server error. Please try again later.', error: err.message });
@@ -264,7 +322,7 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
     const { username } = req.params;
     const { name, dob, mobileNumber, gender } = req.body;
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username: String(username) });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
@@ -288,7 +346,7 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
   const { email } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: String(email) });
     if (!user) {
       return res.status(404).json({ message: 'User with that email does not exist.' });
     }
@@ -309,8 +367,9 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
       to: user.email,
       subject: 'Password Reset Request',
       html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
-             <p>Please click on the following link, or paste this into your browser to complete the process:</p>
-             <p><a href="${resetUrl}?token=${resetToken}">${resetUrl}</a></p>
+             <p>Please visit the password reset page and enter your reset code:</p>
+             <p><a href="${resetUrl}">Reset Password</a></p>
+             <p>Your reset code: <strong>${resetToken}</strong></p>
              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
     });
 
@@ -377,7 +436,7 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
 
   try {
     const decoded: any = jwt.verify(refreshToken, refreshTokenSecret);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(String(decoded.id));
 
     if (user) {
       user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);

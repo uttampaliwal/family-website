@@ -21,14 +21,29 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
     
     // Use constant-time comparison for token verification
     const decoded = jwt.verify(token, jwtSecret, {
-      algorithms: ['HS256'] // Explicitly specify secure algorithm
+      algorithms: ['HS512'] // Use stronger algorithm
     }) as { id: string };
+    
+    // Validate decoded token structure
+    if (!decoded || typeof decoded !== 'object' || !decoded.id || typeof decoded.id !== 'string') {
+      crypto.randomBytes(1).toString('hex');
+      return res.status(401).json({ message: 'Token is not valid' });
+    }
     
     req.user = { id: decoded.id };
     next();
   } catch (err) {
     // Use constant time response to prevent timing attacks
     crypto.randomBytes(1).toString('hex');
+    
+    // Log error for debugging (sanitized)
+    const sanitizedError = {
+      message: err instanceof Error ? err.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
+      timestamp: new Date().toISOString(),
+      operation: 'authMiddleware'
+    };
+    console.error('Auth middleware error:', JSON.stringify(sanitizedError));
+    
     res.status(401).json({ message: 'Token is not valid' });
   }
 }

@@ -121,19 +121,32 @@ const RegisterPage: React.FC = () => {
         showToast(data.message || 'An unexpected error occurred.', 'error');
       }
     } catch (error) {
-      console.error('Error during registration:', error);
+      // Structured error logging with context
+      const errorInfo = {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        username: username,
+        email: email,
+        timestamp: new Date().toISOString(),
+        operation: 'userRegistration'
+      };
+      console.error('Error during registration:', JSON.stringify(errorInfo));
+      
       if (isAxiosError(error)) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (error.response?.status === 400 && error.response.data?.message) {
           showToast(error.response.data.message, 'error');
+        } else if (error.response?.status >= 500) {
+          showToast('Server error. Please try again later.', 'error');
+        } else if (error.code === 'NETWORK_ERROR') {
+          showToast('Network error. Please check your connection.', 'error');
         } else if (error.message) {
           showToast(error.message, 'error');
         } else {
-          showToast('An error occurred. Please try again.', 'error');
+          showToast('Registration failed. Please try again.', 'error');
         }
       } else if (error instanceof Error) {
         showToast(error.message, 'error');
       } else {
-        showToast('An error occurred. Please try again.', 'error');
+        showToast('An unexpected error occurred. Please try again.', 'error');
       }
     } finally {
       setLoading(false);

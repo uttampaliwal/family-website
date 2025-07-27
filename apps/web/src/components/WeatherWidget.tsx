@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 interface WeatherData {
@@ -32,7 +32,11 @@ const WeatherWidget: React.FC = () => {
           });
         },
         (err) => {
-          console.error('Error getting location:', err);
+          const sanitizedError = {
+            code: err.code || 'unknown',
+            message: String(err.message || 'Unknown error').replace(/[\n\r\t]/g, '')
+          };
+          console.error('Error getting location:', JSON.stringify(sanitizedError));
           setError('Unable to get location. Please enable location services.');
           setLoading(false);
         }
@@ -43,29 +47,29 @@ const WeatherWidget: React.FC = () => {
     }
   }, []);
 
+  const fetchWeather = useCallback(async (lat: number, lon: number) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/weather?lat=${lat}&lon=${lon}`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setWeather(data);
+    } catch (error) {
+      console.error('Error fetching weather:', error);
+      setError('Failed to load weather data');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (location) {
-      const fetchWeather = async () => {
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/api/weather?lat=${location.lat}&lon=${location.lon}`
-          );
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-          setWeather(data);
-        } catch (error) {
-          console.error('Error fetching weather:', error);
-          setError('Failed to load weather data');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchWeather();
+      fetchWeather(location.lat, location.lon);
     }
-  }, [location]);
+  }, [location, fetchWeather]);
 
   if (loading) {
     return (
@@ -89,6 +93,15 @@ const WeatherWidget: React.FC = () => {
   }
 
   if (!weather) return null;
+
+  const forecastWithFormattedDates = useMemo(() => {
+    return weather.forecast.map(day => ({
+      ...day,
+      formattedDate: new Date(day.date).toLocaleDateString(undefined, {
+        weekday: 'short',
+      })
+    }));
+  }, [weather.forecast]);
 
   return (
     <motion.div
@@ -134,15 +147,13 @@ const WeatherWidget: React.FC = () => {
           3-Day Forecast
         </h4>
         <div className="grid grid-cols-3 gap-2">
-          {weather.forecast.map((day) => (
+          {forecastWithFormattedDates.map((day) => (
             <div
               key={day.date}
               className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded-lg"
             >
               <div className="text-xs text-gray-600 dark:text-gray-300 mb-1">
-                {new Date(day.date).toLocaleDateString(undefined, {
-                  weekday: 'short',
-                })}
+                {day.formattedDate}
               </div>
               <img
                 src={day.icon}

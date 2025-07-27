@@ -54,7 +54,22 @@ const tools: Tool[] = [
   }
 ];
 
+// Constants for better maintainability
+const ANIMATION_CONFIG = {
+  duration: 0.3,
+  delayMultiplier: 0.1,
+  hoverScale: 1.03
+} as const;
+
 const FamilyTools: React.FC = () => {
+  const handleToolClick = (link: string) => {
+    try {
+      window.location.href = link;
+    } catch (error) {
+      console.error('Error navigating to tool:', error);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {tools.map((tool, index) => (
@@ -62,10 +77,10 @@ const FamilyTools: React.FC = () => {
           key={tool.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.1 }}
-          whileHover={{ scale: 1.03 }}
+          transition={{ duration: ANIMATION_CONFIG.duration, delay: index * ANIMATION_CONFIG.delayMultiplier }}
+          whileHover={{ scale: ANIMATION_CONFIG.hoverScale }}
           className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 cursor-pointer"
-          onClick={() => window.location.href = tool.link}
+          onClick={() => handleToolClick(tool.link)}
         >
           <div className="flex items-center mb-4">
             <span className="text-4xl mr-4" role="img" aria-label={tool.name}>
