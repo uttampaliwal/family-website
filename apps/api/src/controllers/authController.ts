@@ -95,7 +95,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: String(user.username).replace(/[<>"'&]/g, '') });
+    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: String(user.username).replace(/[<>"'&\/<>]/g, '').replace(/javascript:/gi, '').replace(/on\w+=/gi, '') });
   } catch (err) {
     const sanitizedError = {
       message: err instanceof Error ? err.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
@@ -105,7 +105,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       operation: 'register'
     };
     console.error('Registration error:', JSON.stringify(sanitizedError));
-    res.status(500).json({ message: 'Registration failed. Please try again later.', error: sanitizedError });
+    res.status(500).json({ message: 'Registration failed. Please try again later.' });
   }
 };
 
