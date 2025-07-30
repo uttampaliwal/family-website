@@ -203,7 +203,7 @@ export const verifyEmail = async (req: Request<any, any, VerifyEmailRequest>, re
       return res.status(400).json({ message: 'Invalid verification token format.' });
     }
     
-    const user = await User.findOne({ verificationToken: String(token) });
+    const user = await User.findOne({ verificationToken: token });
     
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired verification token.' });
@@ -225,7 +225,7 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
 
   try {
     // Sanitize input to prevent NoSQL injection
-    const sanitizedIdentifier = String(emailOrUsername);
+    const sanitizedIdentifier = typeof emailOrUsername === 'string' ? emailOrUsername.replace(/[{}$]/g, '') : String(emailOrUsername);
     const user = await User.findOne({
       $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
@@ -285,7 +285,31 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
       }
     );
 
-    res.json({ message: 'Token refreshed successfully', accessToken: newAccessToken, username: String(user.username).replace(/[<>"'&]/g, '') });
+    const newRefreshToken = jwt.sign(
+      { 
+        id: user.id,
+        iat: Math.floor(Date.now() / 1000),
+        jti: crypto.randomBytes(16).toString('hex')
+      }, 
+      refreshTokenSecret, 
+      { 
+        expiresIn: '7d',
+        algorithm: 'HS512',
+        issuer: 'family-website',
+        audience: 'family-website-users'
+      }
+    );
+    user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
+    user.refreshTokens.push(newRefreshToken);
+    await user.save();
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    res.status(200).json({ accessToken: newAccessToken, message: 'Token refreshed successfully.' });
+    
   } catch (err) {
     console.error('Refresh token error:', err);
     res.status(403).json({ message: 'Invalid or expired refresh token.' });
@@ -338,7 +362,7 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
     res.status(200).json({ message: 'Profile updated successfully.' });
   } catch (err: any) {
     console.error('Error updating user profile:', err);
-    res.status(500).json({ message: 'Failed to update profile.', error: err.message });
+    res.status(500).json({ message: 'Failed to update profile.' });
   }
 };
 
@@ -368,8 +392,8 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
       subject: 'Password Reset Request',
       html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
              <p>Please visit the password reset page and enter your reset code:</p>
-             <p><a href="${resetUrl}">Reset Password</a></p>
-             <p>Your reset code: <strong>${resetToken}</strong></p>
+             <p><a href="${resetUrl.replace(/[<>"'&]/g, '')}">Reset Password</a></p>
+             <p>Your reset code: <strong>${resetToken.replace(/[<>"'&]/g, '')}</strong></p>
              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
     });
 

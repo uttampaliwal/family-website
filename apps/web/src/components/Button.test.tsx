@@ -11,14 +11,14 @@ describe('Button', () => {
   it('applies primary styles when isPrimary is true', () => {
     render(<Button label="Primary Button" isPrimary />);
     const button = screen.getByText('Primary Button');
-    expect(button).toHaveClass('bg-primary-default');
+    expect(button).toHaveClass('gradient-bg');
     expect(button).toHaveClass('text-white');
   });
 
   it('applies default styles when isPrimary is false or not provided', () => {
     render(<Button label="Default Button" />);
     const button = screen.getByText('Default Button');
-    expect(button).toHaveClass('bg-background-dark');
-    expect(button).toHaveClass('text-text-dark');
+    expect(button).toHaveClass('bg-gray-100');
+    expect(button).toHaveClass('text-gray-800');
   });
 });
