@@ -194,7 +194,7 @@ If you prefer to run the `api` or `web` services outside of Docker for faster de
 
 ### 5.3. Health Checks
 
-*   API and Web services include health check endpoints (`/api/health` and `/healthz` respectively) for Docker Compose to monitor service status.
+API and Web services include health check endpoints (`/api/health` and `/healthz` respectively) for Docker Compose to monitor service status.
 
 ## 6. Design and Layout (Frontend)
 
@@ -225,15 +225,29 @@ If you prefer to run the `api` or `web` services outside of Docker for faster de
 
 ### 6.4. Theming
 
-*   The application uses CSS variables for theming, allowing for easy switching between light and dark modes. These variables are defined in `src/index.css` and utilized by Tailwind CSS classes.
+The application uses CSS variables for theming, allowing for easy switching between light and dark modes. These variables are defined in `src/index.css` and utilized by Tailwind CSS classes.
 
-## 7. Troubleshooting and Common Issues
+## 7. Deployment
+
+This application is designed to be deployed using Docker. The `docker-compose.yml` file is configured for a production environment, and the `Dockerfile.production` files in the `apps/api` and `apps/web` directories are used to build the production images.
+
+To deploy the application, you will need to have a server with Docker and Docker Compose installed. You will also need to have a domain name and a reverse proxy, such as Nginx or Traefik, to handle SSL termination and route traffic to the application.
+
+1.  **Clone the repository to your server.**
+2.  **Create a `.env` file with your production environment variables.**
+3.  **Build and run the application with Docker Compose:**
+
+    ```bash
+    docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+    ```
+
+## 8. Troubleshooting and Common Issues
 
 This section addresses common issues encountered during the setup and operation of the `family-website` project.
 
-### 7.1. Docker-Related Issues
+### 8.1. Docker-Related Issues
 
-#### 7.1.1. `connect ECONNREFUSED 127.0.0.1:27017` or `MongoServerError: Authentication failed.`
+#### 8.1.1. `connect ECONNREFUSED 127.0.0.1:27017` or `MongoServerError: Authentication failed.`
 
 **Problem:** The API service cannot connect to MongoDB, or authentication fails.
 
@@ -251,7 +265,7 @@ This section addresses common issues encountered during the setup and operation 
     ```
     This ensures a fresh MongoDB instance is initialized with the correct credentials.
 
-#### 7.1.2. `archive/tar: unknown file mode` during Docker build
+#### 8.1.2. `archive/tar: unknown file mode` during Docker build
 
 **Problem:** Docker build fails with an error related to unknown file modes, often in `node_modules`.
 
@@ -275,15 +289,15 @@ This section addresses common issues encountered during the setup and operation 
     docker compose up -d --build
     ```
 
-#### 7.1.3. `dependency failed to start: container <service_name> is unhealthy`
+#### 8.1.3. `dependency failed to start: container <service_name> is unhealthy`
 
 **Problem:** A service fails to start because a dependency (e.g., `mongo` or `api`) is unhealthy.
 
 **Solution:** Check the logs of the unhealthy dependency first. For example, if `api` is unhealthy because `mongo` is unhealthy, check `docker logs family-website-mongo` to diagnose the root cause.
 
-### 7.2. Frontend (Web) Issues
+### 8.2. Frontend (Web) Issues
 
-#### 7.2.1. TypeScript Compilation Errors
+#### 8.2.1. TypeScript Compilation Errors
 
 **Problem:** The frontend build fails with TypeScript errors (e.g., `TS2322`, `TS6133`).
 
@@ -293,31 +307,31 @@ This section addresses common issues encountered during the setup and operation 
 *   **Unused variables/imports:** Remove unused imports or variables to resolve `TS6133` errors.
 *   **Missing imports:** Ensure all components and types are correctly imported.
 
-#### 7.2.2. `Failed to update profile.`
+#### 8.2.2. `Failed to update profile.`
 
 **Problem:** When attempting to update a user profile, the frontend displays this error.
 
 **Solution:** This indicates an issue on the API side. Ensure the `updateUserProfile` function is correctly implemented in `apps/api/src/controllers/authController.ts` and that the corresponding `PUT` route (`/api/auth/profile/:username`) is defined and correctly imported in `apps/api/src/routes/auth.ts`.
 
-### 7.3. Authentication Issues
+### 8.3. Authentication Issues
 
-#### 7.3.1. `No account found with that email or username. Please register.`
+#### 8.3.1. `No account found with that email or username. Please register.`
 
 **Problem:** Unable to log in with existing credentials, even if the user is visible in MongoDB Compass.
 
 **Solution:** This almost always means the API is connecting to a different MongoDB database or instance than the one you're inspecting. Verify the `MONGO_URI` used by the API container (as described in 7.1.1) and ensure the database name matches the one where your user data resides.
 
-#### 7.3.2. `MongoServerError: Authentication failed.` (from API logs)
+#### 8.3.2. `MongoServerError: Authentication failed.` (from API logs)
 
 **Problem:** The API service fails to authenticate with MongoDB.
 
 **Solution:** Ensure the `MONGO_URI` in `docker-compose.yml` (for the `api` service) and in `apps/api/.env` (if running the dev server) contains the correct username and password (`admin:password`) and `authSource=admin`.
 
-## 8. Development Logs and Decisions
+## 9. Development Logs and Decisions
 
 This section chronicles significant issues encountered during the development of the `family-website` project and the decisions made to resolve them. It serves as a historical record of the project's evolution.
 
-### 8.1. Initial Setup and Dockerization
+### 9.1. Initial Setup and Dockerization
 
 *   **Issue:** `npm run dev --workspace=apps/api` failed with "FATAL ERROR: One or more required environment variables are missing." and "Please check your .env file in the project root."
     *   **Decision:** Created a `.env` file in `apps/api` with placeholder environment variables (`PORT`, `MONGO_URI`, `JWT_SECRET`, `REFRESH_TOKEN_SECRET`, `FRONTEND_URL`).
@@ -331,12 +345,12 @@ This section chronicles significant issues encountered during the development of
 *   **Issue:** `family-website-mongo` container unhealthy after `docker compose up -d --build`.
     *   **Decision:** MongoDB logs showed version incompatibility with existing data. Performed `docker compose down -v` and `docker compose up -d --build` to remove the old data volume and force a fresh initialization.
 
-### 8.2. Port Uniformity
+### 9.2. Port Uniformity
 
 *   **Issue:** API was running on port `3001` as per `docker-compose.yml`, while `.env` files specified `3000`.
     *   **Decision:** Modified `docker-compose.yml` to change the API port to `3000` for uniformity, updating `ports` mapping, `PORT` environment variable, and `VITE_API_BASE_URL` in the `web` service args.
 
-### 8.3. MongoDB Authentication and Connection
+### 9.3. MongoDB Authentication and Connection
 
 *   **Issue:** `MongoServerError: Authentication failed.` when trying to log in or connect with MongoDB Compass.
     *   **Decision:** Initially, hardcoded `MONGO_INITDB_ROOT_USERNAME` and `MONGO_INITDB_ROOT_PASSWORD` in `docker-compose.yml` for the `mongo` service to ensure credentials were being passed. This helped confirm the issue was not with the credentials themselves but how they were being picked up.
@@ -350,12 +364,10 @@ This section chronicles significant issues encountered during the development of
 *   **Issue:** `No account found with that email or username. Please register.` despite user existing in MongoDB Compass.
     *   **Decision:** Discovered a mismatch in the database name. The API container was connecting to `family_website` (with an underscore) while Compass was showing data in `familywebsite` (without an underscore). Corrected the database name in the `MONGO_URI` in `docker-compose.yml` to `familywebsite`.
 
-### 8.4. User Profile Update Functionality
+### 9.4. User Profile Update Functionality
 
 *   **Issue:** "Failed to update profile." error when trying to edit profile.
     *   **Decision:** Identified that the `updateUserProfile` function was missing in `apps/api/src/controllers/authController.ts`. Implemented the `updateUserProfile` function to handle `PUT` requests for user profile updates.
     *   **Decision:** Added the corresponding `router.put('/profile/:username', updateUserProfile as RequestHandler<{ username: string }>);` route to `apps/api/src/routes/auth.ts`.
     *   **Issue:** Docker build failed with `Cannot find name 'updateUserProfile'` in `src/routes/auth.ts`.
         *   **Decision:** Added `updateUserProfile` to the import statement in `apps/api/src/routes/auth.ts`.
-
----

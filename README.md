@@ -2,38 +2,25 @@
 
 This project is a personal/family website built to learn and demonstrate full-stack web development using modern technologies. It features user authentication, personalized profiles, and a clean, responsive design.
 
-## Technology Stack
-
-*   **Monorepo:** Turborepo
-*   **Frontend:** React, Vite, TypeScript, Tailwind CSS
-*   **Backend:** Node.js, Express.js, TypeScript
-*   **Database:** MongoDB (in Docker)
-*   **Authentication:** JWT
-
 ## Features
 
-*   User registration and login
-*   Email verification
-*   Password reset
-*   User profiles
-*   Light/dark mode
+*   **User Authentication:** Secure user registration, login, and session management.
+*   **Email Verification:** New users must verify their email address.
+*   **Password Reset:** Users can securely reset their password.
+*   **User Profiles:** Users can view and edit their profiles.
+*   **Responsive Design:** The application is designed to work on all devices.
+*   **Light/Dark Mode:** The application supports both light and dark themes.
 
-## Documentation
+## Project Structure
 
-Comprehensive documentation is available in the [docs](./docs) directory:
+This project is a monorepo managed by Turborepo. It consists of two main packages:
 
-- [Getting Started](./docs/getting-started.md) - Quick setup guide for new developers
-- [Architecture](./docs/architecture.md) - Overview of the project's architecture and design
-- [API Documentation](./docs/api-documentation.md) - Details of the backend API endpoints
-- [Frontend Guide](./docs/frontend-guide.md) - Guide to the frontend components and features
-- [Development Workflow](./docs/development-workflow.md) - Development practices and workflow
-- [Docker and MongoDB Guide](./docs/docker-and-mongodb-guide.md) - Guide to Docker setup and MongoDB configuration
-- [Troubleshooting](./docs/troubleshooting.md) - Common issues and their solutions
-- [Development Log](./docs/development-log.md) - History of the project's development
+*   `apps/api`: A Node.js and Express.js backend that provides a RESTful API.
+*   `apps/web`: A React and Vite frontend that consumes the API.
 
 ## Getting Started
 
-For detailed instructions on how to set up and run this project locally, please see the [Getting Started Guide](./docs/getting-started.md).
+For detailed instructions on how to set up and run this project locally, please see the [Project Documentation](./PROJECT_DOCS.md).
 
 ## Contributing
 
