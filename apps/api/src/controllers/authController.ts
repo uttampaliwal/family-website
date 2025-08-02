@@ -12,6 +12,17 @@ const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
+// Helper function to HTML-encode a string
+const htmlEncode = (str: string) => {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};
+
 export const register = async (req: Request<any, any, RegisterRequest>, res: Response<AuthResponse>) => {
   const { name, email, password, dob, username, gender, phoneNumber } = req.body;
 
@@ -20,7 +31,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
     if (typeof email !== 'string') {
       return res.status(400).json({ message: 'Invalid email format' });
     }
-    let user = await User.findOne({ email: email });
+    let user = await User.findOne({ email: String(email) });
     if (user) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
@@ -62,13 +73,16 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       if (!jwtSecret) {
         throw new Error('JWT_SECRET environment variable is not configured');
       }
+      if (!refreshTokenSecret) {
+        throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
+      }
       const accessToken = jwt.sign(
       {
         id: user.id,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       },
-      jwtSecret,
+      jwtSecret!,
       {
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -82,7 +96,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       },
-      refreshTokenSecret,
+      refreshTokenSecret!,
       {
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -101,7 +115,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: String(user.username).replace(/[<>"'&\/<>]/g, '').replace(/javascript:/gi, '').replace(/on\w+=/gi, '') });
+    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: htmlEncode(user.username) });
   } catch (err) {
     const sanitizedError = {
       message: err instanceof Error ? err.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
@@ -156,13 +170,16 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     user.lockUntil = undefined;
     await user.save();
 
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is not configured');
+    }
     const accessToken = jwt.sign(
       { 
         id: user.id,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      jwtSecret, 
+      jwtSecret!,
       { 
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -170,13 +187,16 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
         audience: 'family-website-users'
       }
     );
+    if (!refreshTokenSecret) {
+      throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
+    }
     const refreshToken = jwt.sign(
       { 
         id: user.id,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      refreshTokenSecret, 
+      refreshTokenSecret!,
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -273,7 +293,10 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
   }
 
   try {
-    const decoded: any = jwt.verify(refreshToken, refreshTokenSecret);
+    if (!refreshTokenSecret) {
+      throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
+    }
+    const decoded: any = jwt.verify(refreshToken, refreshTokenSecret!);
     const user = await User.findById(String(decoded.id));
 
     if (!user || !user.refreshTokens.includes(refreshToken)) {
@@ -342,9 +365,9 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
     // Sanitize user data before returning to prevent XSS
     const sanitizedUser = {
       ...user.toObject(),
-      name: String(user.name || '').replace(/[<>"'&]/g, ''),
-      username: String(user.username || '').replace(/[<>"'&]/g, ''),
-      email: String(user.email || '').replace(/[<>"'&]/g, '')
+      name: htmlEncode(user.name || ''),
+      username: htmlEncode(user.username || ''),
+      email: htmlEncode(user.email || '')
     };
     
     res.status(200).json(sanitizedUser);
@@ -408,8 +431,8 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
       subject: 'Password Reset Request',
       html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
              <p>Please visit the password reset page and enter your reset code:</p>
-             <p><a href="${resetUrl.replace(/[<>"'&]/g, '')}">Reset Password</a></p>
-             <p>Your reset code: <strong>${resetToken.replace(/[<>"'&]/g, '')}</strong></p>
+             <p><a href="${resetUrl}">Reset Password</a></p>
+             <p>Your reset code: <strong>${resetToken}</strong></p>
              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
     });
 
