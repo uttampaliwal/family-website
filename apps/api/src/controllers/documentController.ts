@@ -31,7 +31,7 @@ export const getDocuments = async (req: Request, res: Response) => {
     res.status(200).json(documents);
   } catch (error) {
     console.error('Error fetching documents:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to retrieve documents' });
   }
 };
 
@@ -62,7 +62,13 @@ export const getDocumentById = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    res.status(200).json(document);
+    // Sanitize document data before returning
+    const sanitizedDocument = {
+      ...document.toObject(),
+      title: String(document.title || '').replace(/[<>"'&]/g, ''),
+      content: String(document.content || '').replace(/[<>"'&]/g, '')
+    };
+    res.status(200).json(sanitizedDocument);
   } catch (error) {
     console.error('Error fetching document:', error);
     res.status(500).json({ message: 'Server error' });
@@ -216,7 +222,8 @@ export const downloadFile = async (req: Request, res: Response) => {
     }
 
     // Set headers for file download
-    res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}"`); 
+    const sanitizedFileName = String(document.fileName || 'download').replace(/[^a-zA-Z0-9_.-]/g, '_');
+    res.setHeader('Content-Disposition', `attachment; filename="${sanitizedFileName}"`); 
     res.setHeader('Content-Type', document.fileType || 'application/octet-stream');
 
     // Stream the file
