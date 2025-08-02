@@ -5,7 +5,7 @@ export interface RegisterRequest {
   dob: string;
   phoneNumber?: string;
   username: string;
-  gender: string;
+  gender: 'male' | 'female' | 'other';
 }
 
 export interface LoginRequest {
