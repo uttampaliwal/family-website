@@ -209,7 +209,7 @@ export const downloadFile = async (req: Request, res: Response) => {
     }
 
     // Extract filename from fileUrl
-    const filename = document.fileUrl.split('/').pop();
+    const filename = path.basename(document.fileUrl);
     if (!filename) {
       return res.status(404).json({ message: 'File not found' });
     }

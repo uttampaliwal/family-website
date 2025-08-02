@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+
 interface Notification {
   id: string;
   title: string;
@@ -127,7 +128,7 @@ const ImportantNotifications: React.FC = () => {
               </div>
               {notification.action && (
                 <a
-                  href={notification.action.url.startsWith('/') || notification.action.url.startsWith('http') ? notification.action.url : '#'}
+                  href={/^https?:\/\//.test(notification.action.url) ? sanitizeString(notification.action.url) : '#'}
                   className="ml-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white dark:bg-gray-800 text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700"
                   rel="noopener noreferrer"
                   target={notification.action.url.startsWith('http') ? '_blank' : '_self'}

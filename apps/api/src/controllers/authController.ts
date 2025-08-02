@@ -196,7 +196,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      refreshTokenSecret as string,
+      process.env.REFRESH_TOKEN_SECRET as string,
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -303,13 +303,16 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
       return res.status(403).json({ message: 'Invalid refresh token.' });
     }
 
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is not configured');
+    }
     const newAccessToken = jwt.sign(
       { 
         id: user.id,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      jwtSecret as string, 
+      Buffer.from(jwtSecret, 'hex'), 
       { 
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -327,7 +330,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      process.env.REFRESH_TOKEN_SECRET as string, 
+      Buffer.from(refreshTokenSecret, 'hex'), 
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
