@@ -10,6 +10,7 @@ import feedRoutes from './routes/feed';
 import healthRoutes from './routes/health';
 import documentRoutes from './routes/documents'; // Import document routes
 import { errorHandler } from './middleware/errorHandler';
+import { generateCsrfToken, validateCsrfToken } from './middleware/csrf';
 
 // --- 1. Environment Setup ---
 
@@ -20,6 +21,12 @@ if (!PORT || !MONGO_URI || !JWT_SECRET || !REFRESH_TOKEN_SECRET || !FRONTEND_URL
   console.error('FATAL ERROR: One or more required environment variables are missing.');
   console.error('Please check your .env file in the project root.');
   process.exit(1); // Exit immediately if configuration is invalid.
+}
+
+const portNumber = parseInt(PORT, 10);
+if (isNaN(portNumber) || portNumber <= 0 || portNumber > 65535) {
+  console.error(`FATAL ERROR: Invalid PORT environment variable. Expected a number between 1 and 65535, got "${PORT}".`);
+  process.exit(1);
 }
 
 // --- 2. Database Connection ---
@@ -71,6 +78,9 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(generateCsrfToken);
+app.use(validateCsrfToken);
+
 // API routes.
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', feedRoutes);
@@ -87,9 +97,8 @@ const startServer = async () => {
   await connectDb();
 
   // Then, start the Express server.
-  const server = app.listen(PORT, () => {
-    const sanitizedPort = String(PORT).replace(/[\n\r\t]/g, '');
-    console.log(`API server listening on port ${sanitizedPort}`);
+  const server = app.listen(portNumber, () => {
+    console.log(`API server listening on port ${portNumber}`);
   });
 
   // Implement graceful shutdown to properly close resources.

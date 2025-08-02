@@ -149,9 +149,9 @@ export const addEvent = async (req: Request, res: Response) => {
     // Sanitize event data to prevent XSS
     const eventData = {
       ...rawEventData,
-      title: String(rawEventData.title || '').replace(/[<>"'&]/g, ''),
-      description: String(rawEventData.description || '').replace(/[<>"'&]/g, ''),
-      location: String(rawEventData.location || '').replace(/[<>"'&]/g, '')
+      title: sanitizeString(rawEventData.title),
+      description: sanitizeString(rawEventData.description),
+      location: sanitizeString(rawEventData.location)
     };
     
     if (!isValidObjectId(userId)) {
@@ -187,9 +187,9 @@ export const addPhoto = async (req: Request, res: Response) => {
     // Sanitize photo data to prevent XSS
     const photoData = {
       ...rawPhotoData,
-      title: String(rawPhotoData.title || '').replace(/[<>"'&]/g, ''),
-      description: String(rawPhotoData.description || '').replace(/[<>"'&]/g, ''),
-      caption: String(rawPhotoData.caption || '').replace(/[<>"'&]/g, '')
+      title: sanitizeString(rawPhotoData.title),
+      description: sanitizeString(rawPhotoData.description),
+      caption: sanitizeString(rawPhotoData.caption)
     };
     
     if (!isValidObjectId(userId)) {

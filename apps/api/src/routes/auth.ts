@@ -4,6 +4,8 @@ import rateLimit from 'express-rate-limit';
 import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout, updateUserProfile } from '../controllers/authController';
 import { validate, registerSchema, loginSchema, verifyEmailSchema, resendVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from '../middleware/validate';
 
+import { validateCsrfToken } from '../middleware/csrf';
+
 const router = express.Router();
 
 // Rate limiting for authentication routes
@@ -26,13 +28,13 @@ router.post('/register', authLimiter, validate(registerSchema), register);
 router.post('/login', loginLimiter, validate(loginSchema), login);
 
 // Verify Email Route
-router.post('/verify-email', validate(verifyEmailSchema), verifyEmail);
+router.post('/verify-email', validateCsrfToken, validate(verifyEmailSchema), verifyEmail);
 
 // Resend Verification Email Route
-router.post('/resend-verification', validate(resendVerificationSchema), resendVerification);
+router.post('/resend-verification', validateCsrfToken, validate(resendVerificationSchema), resendVerification);
 
 // Refresh Token Route
-router.post('/refresh-token', refreshToken);
+router.post('/refresh-token', validateCsrfToken, refreshToken);
 
 // Get User Profile by Username
 router.get('/profile/:username', getUserProfile);
@@ -41,15 +43,15 @@ router.get('/profile/:username', getUserProfile);
 router.put('/profile/:username', updateUserProfile);
 
 // Forgot Password Route
-router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
+router.post('/forgot-password', validateCsrfToken, validate(forgotPasswordSchema), forgotPassword);
 
 // Reset Password Route
-router.post('/reset-password/:token', validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password/:token', validateCsrfToken, validate(resetPasswordSchema), resetPassword);
 
 // Reset Password Route with token in body
-router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password', validateCsrfToken, validate(resetPasswordSchema), resetPassword);
 
 // Logout Route
-router.post('/logout', logout);
+router.post('/logout', validateCsrfToken, logout);
 
 export default router;

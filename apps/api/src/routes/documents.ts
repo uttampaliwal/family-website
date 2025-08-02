@@ -10,6 +10,7 @@ import {
   downloadFile
 } from '../controllers/documentController';
 import authMiddleware from '../middleware/authMiddleware';
+import { validateCsrfToken } from '../middleware/csrf';
 import upload from '../middleware/fileUpload';
 import path from 'path';
 
@@ -25,7 +26,7 @@ router.get('/', getDocuments);
 router.get('/:id', getDocumentById);
 
 // Create a new document
-router.post('/', upload.single('file'), createDocument);
+router.post('/', validateCsrfToken, upload.single('file'), createDocument);
 
 // Update a document
 router.put('/:id', updateDocument);
