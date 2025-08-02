@@ -24,7 +24,12 @@ const htmlEncode = (str: string) => {
 };
 
 export const register = async (req: Request<any, any, RegisterRequest>, res: Response<AuthResponse>) => {
-  const { name, email, password, dob, username, gender, phoneNumber } = req.body;
+  const { name, email, password, dob, username, phoneNumber } = req.body;
+  const gender = req.body.gender as 'male' | 'female' | 'other';
+
+  if (gender && !['male', 'female', 'other'].includes(gender)) {
+    return res.status(400).json({ message: 'Invalid gender specified. Must be male, female, or other.' });
+  }
 
   try {
     // Sanitize email input to prevent NoSQL injection
@@ -383,7 +388,12 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
 export const updateUserProfile = async (req: Request<{ username: string }, any, UserProfile>, res: Response<AuthResponse>) => {
   try {
     const { username } = req.params;
-    const { name, dob, phoneNumber, gender } = req.body;
+    const { name, dob, phoneNumber } = req.body;
+    const gender = req.body.gender as 'male' | 'female' | 'other';
+
+    if (gender && !['male', 'female', 'other'].includes(gender)) {
+      return res.status(400).json({ message: 'Invalid gender specified. Must be male, female, or other.' });
+    }
 
     const user = await User.findOne({ username: username });
 
