@@ -40,13 +40,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
           type="text"
           id="name"
           value={name}
-          onChange={(e) => {
-            try {
-              setName(e.target.value);
-            } catch (error) {
-              console.error('Error updating name:', error);
-            }
-          }}
+          onChange={(e) => setName(e.target.value)}
           required
           aria-required="true"
           disabled={loading}
@@ -68,13 +62,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
           type="tel"
           id="mobileNumber"
           value={mobileNumber}
-          onChange={(e) => {
-            try {
-              setMobileNumber(e.target.value);
-            } catch (error) {
-              console.error('Error updating mobile number:', error);
-            }
-          }}
+          onChange={(e) => setMobileNumber(e.target.value)}
           disabled={loading}
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />

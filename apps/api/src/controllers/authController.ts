@@ -392,7 +392,9 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
     }
 
     user.name = name || user.name;
-    user.dateOfBirth = dob || user.dateOfBirth;
+    if (dob) {
+      user.dateOfBirth = new Date(dob);
+    }
     user.phoneNumber = phoneNumber || user.phoneNumber;
     user.gender = gender || user.gender;
 

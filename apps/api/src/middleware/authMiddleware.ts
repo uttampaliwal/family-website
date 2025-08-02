@@ -6,6 +6,12 @@ interface AuthRequest extends Request {
   user?: { id: string; username: string; email: string; };
 }
 
+/**
+ * Authentication middleware that verifies JWT tokens from request headers
+ * @param req - Express request object with optional user property
+ * @param res - Express response object
+ * @param next - Express next function to continue middleware chain
+ */
 export default function (req: AuthRequest, res: Response, next: NextFunction) {
   // Get token from header
   const token = req.header('x-auth-token');
@@ -26,7 +32,7 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
     
     // Validate decoded token structure
     if (!decoded || typeof decoded !== 'object' || !decoded.id || typeof decoded.id !== 'string' || !decoded.username || typeof decoded.username !== 'string' || !decoded.email || typeof decoded.email !== 'string') {
-      crypto.randomBytes(1).toString('hex');
+
       return res.status(401).json({ message: 'Token is not valid' });
     }
     
@@ -34,7 +40,6 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
     next();
   } catch (err) {
     // Use constant time response to prevent timing attacks
-    crypto.randomBytes(1).toString('hex');
     
     // Log error for debugging (sanitized)
     const sanitizedError = {
@@ -42,7 +47,8 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
       timestamp: new Date().toISOString(),
       operation: 'authMiddleware'
     };
-    console.error('Auth middleware error:', JSON.stringify(sanitizedError));
+    // Use structured logging for better monitoring and debugging
+    process.stderr.write(`[ERROR] ${new Date().toISOString()} - Auth middleware error: ${JSON.stringify(sanitizedError)}\n`);
     
     res.status(401).json({ message: 'Token is not valid' });
   }
