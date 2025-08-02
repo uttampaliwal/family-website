@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { sanitizeLog } from './logSanitizer';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -47,7 +48,7 @@ export const sendEmail = async (options: EmailOptions) => {
       error: error instanceof Error ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
       timestamp: new Date().toISOString()
     };
-    console.error(JSON.stringify(errorData));
+    console.error(sanitizeLog(JSON.stringify(errorData)));
     throw new Error(`Failed to send email to ${options.to}: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };

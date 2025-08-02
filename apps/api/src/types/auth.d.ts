@@ -1,3 +1,9 @@
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female',
+  OTHER = 'other'
+}
+
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -5,7 +11,7 @@ export interface RegisterRequest {
   dateOfBirth: string;
   phoneNumber?: string;
   username: string;
-  gender: 'male' | 'female' | 'other';
+  gender: Gender;
 }
 
 export interface LoginRequest {
@@ -50,6 +56,6 @@ export interface UserProfile {
   name?: string;
   dateOfBirth?: string;
   phoneNumber?: string | null;
-  gender?: 'male' | 'female' | 'other';
+  gender?: string;
 }
 

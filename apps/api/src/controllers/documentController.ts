@@ -4,6 +4,18 @@ import User from '../models/User';
 import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
+import { sanitizeLog } from '../utils/logSanitizer';
+
+// Helper function to HTML-encode a string
+const htmlEncode = (str: string) => {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};
 
 // Get all documents for the logged-in user
 export const getDocuments = async (req: Request, res: Response) => {
@@ -29,7 +41,7 @@ export const getDocuments = async (req: Request, res: Response) => {
     .sort({ updatedAt: -1 });
 
     res.status(200).json(documents);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching documents:', error);
     res.status(500).json({ message: 'Failed to retrieve documents' });
   }
@@ -71,7 +83,7 @@ export const getDocumentById = async (req: Request, res: Response) => {
       content: String(document.content || '').replace(/[<>"'&]/g, '')
     };
     res.status(200).json(sanitizedDocument);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching document:', error);
     res.status(500).json({ message: 'Server error' });
   }
@@ -96,10 +108,14 @@ export const createDocument = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Title and content are required' });
     }
 
+    // Sanitize title and content before saving
+    const sanitizedTitle = htmlEncode(title);
+    const sanitizedContent = htmlEncode(content);
+
     // Create document object
     const documentData: any = {
-      title,
-      content,
+      title: sanitizedTitle,
+      content: sanitizedContent,
       owner: req.user.id
     };
 
@@ -116,9 +132,8 @@ export const createDocument = async (req: Request, res: Response) => {
 
     const newDocument = new Document(documentData);
     await newDocument.save();
-    
     res.status(201).json(newDocument);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error creating document:', error);
     res.status(500).json({ message: 'Server error' });
   }
@@ -153,12 +168,12 @@ export const updateDocument = async (req: Request, res: Response) => {
     }
 
     // Update document
-    document.title = title || document.title;
-    document.content = content || document.content;
+    document.title = title ? htmlEncode(title) : document.title;
+    document.content = content ? htmlEncode(content) : document.content;
     
     await document.save();
     const sanitizedFileName = String(document.fileName || 'download').replace(/[^a-zA-Z0-9_.-]/g, '_');
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error updating document:', error);
     res.status(500).json({ message: 'Server error' });
   }
@@ -185,7 +200,7 @@ export const deleteDocument = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({ message: 'Document deleted successfully' });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error deleting document:', error);
     res.status(500).json({ message: 'Server error' });
   }
@@ -251,7 +266,7 @@ export const downloadFile = async (req: Request, res: Response) => {
     // Stream the file
     const fileStream = fs.createReadStream(filePath);
     fileStream.pipe(res);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error downloading file:', error);
     res.status(500).json({ message: 'Server error' });
   }
@@ -318,8 +333,8 @@ export const shareDocument = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({ message: 'Document shared successfully' });
-  } catch (error) {
-    console.error('Error sharing document:', error);
+  } catch (error: unknown) {
+    console.error('Error sharing document:', sanitizeLog((error as Error).message || String(error)));
     res.status(500).json({ message: 'Server error' });
   }
 };

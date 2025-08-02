@@ -17,7 +17,7 @@ export const validateCsrfToken = (req: Request, res: Response, next: NextFunctio
   const clientToken = req.headers['x-xsrf-token'];
   const cookieToken = req.cookies?.['XSRF-TOKEN'];
 
-  if (!clientToken || !cookieToken || typeof clientToken !== 'string' || typeof cookieToken !== 'string' || clientToken !== cookieToken) {
+  if (!clientToken || !cookieToken || typeof clientToken !== 'string' || typeof cookieToken !== 'string' || !crypto.timingSafeEqual(Buffer.from(clientToken), Buffer.from(cookieToken))) {
     res.status(403).json({ message: 'CSRF token mismatch' });
   }
 
