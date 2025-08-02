@@ -367,7 +367,7 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
 
     user.name = name || user.name;
     user.dateOfBirth = dob || user.dateOfBirth;
-      phoneNumber,
+    user.phoneNumber = phoneNumber || user.phoneNumber;
     user.gender = gender || user.gender;
 
     await user.save();
