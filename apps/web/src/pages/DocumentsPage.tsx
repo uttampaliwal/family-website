@@ -53,7 +53,15 @@ const DocumentsPage: React.FC = () => {
         setDocuments(prev => prev.filter(doc => doc._id !== id));
         showToast('Document deleted successfully', 'success');
       } catch (error) {
-        console.error('Error deleting document:', error);
+        // Log error without exposing sensitive information
+        const errorInfo = {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date().toISOString(),
+          operation: 'deleteDocument'
+        };
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error deleting document:', JSON.stringify(errorInfo));
+        }
         
         let errorMessage = 'Failed to delete document';
         if (error instanceof Error) {

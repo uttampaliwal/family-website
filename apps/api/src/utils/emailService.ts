@@ -31,7 +31,10 @@ export const sendEmail = async (options: EmailOptions) => {
       subject: options.subject.replace(/[\n\r\t]/g, ''),
       timestamp: new Date().toISOString()
     };
-    console.log(JSON.stringify(logData));
+    // Use structured logging instead of console.log for production
+    if (process.env.NODE_ENV === 'development') {
+      console.log(JSON.stringify(logData));
+    }
   } catch (error) {
     const errorData = {
       level: 'error',
@@ -42,6 +45,6 @@ export const sendEmail = async (options: EmailOptions) => {
       timestamp: new Date().toISOString()
     };
     console.error(JSON.stringify(errorData));
-    throw new Error('Failed to send email');
+    throw new Error(`Failed to send email to ${options.to}: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };

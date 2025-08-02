@@ -47,20 +47,28 @@ const ImportantNotifications: React.FC = () => {
         };
         console.error('Error fetching notifications:', JSON.stringify(errorInfo));
         
-        let errorMessage = 'Failed to load notifications';
-        if (error instanceof Error) {
-          if (error.message.includes('404')) {
-            errorMessage = 'Notifications service not available.';
-          } else if (error.message.includes('403') || error.message.includes('unauthorized')) {
-            errorMessage = 'You do not have permission to view notifications.';
-          } else if (error.message.includes('500')) {
-            errorMessage = 'Server error. Please try again later.';
-          } else if (error.message.includes('network') || error.message.includes('Network') || error.message.includes('fetch')) {
-            errorMessage = 'Network error. Please check your connection.';
-          } else {
-            errorMessage = 'An unexpected error occurred. Please try again.';
+        const getErrorMessage = (error: unknown): string => {
+          if (!(error instanceof Error)) return 'Failed to load notifications';
+          
+          const errorMap: Record<string, string> = {
+            '404': 'Notifications service not available.',
+            '403': 'You do not have permission to view notifications.',
+            '401': 'You do not have permission to view notifications.',
+            '500': 'Server error. Please try again later.',
+            'network': 'Network error. Please check your connection.',
+            'fetch': 'Network error. Please check your connection.'
+          };
+          
+          for (const [key, message] of Object.entries(errorMap)) {
+            if (error.message.toLowerCase().includes(key.toLowerCase())) {
+              return message;
+            }
           }
-        }
+          
+          return 'An unexpected error occurred. Please try again.';
+        };
+        
+        const errorMessage = getErrorMessage(error);
         
         setError(errorMessage);
       } finally {
@@ -119,10 +127,10 @@ const ImportantNotifications: React.FC = () => {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  {notification.title}
+                  {sanitizeString(notification.title)}
                 </h3>
                 <p className="mt-1 text-gray-700 dark:text-gray-300">
-                  {notification.message}
+                  {sanitizeString(notification.message)}
                 </p>
                 <time className="block mt-2 text-sm text-gray-500 dark:text-gray-400">
                   {new Date(notification.timestamp).toLocaleString()}
@@ -135,7 +143,7 @@ const ImportantNotifications: React.FC = () => {
                   rel="noopener noreferrer"
                   target={notification.action.url.startsWith('http') ? '_blank' : '_self'}
                 >
-                  {notification.action.label}
+                  {sanitizeString(notification.action.label)}
                   <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>

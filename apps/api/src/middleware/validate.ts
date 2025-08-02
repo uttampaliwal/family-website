@@ -54,10 +54,20 @@ export const validate = (schema: Joi.ObjectSchema) => {
     const { error } = schema.validate(req.body, { abortEarly: false });
 
     if (error) {
-      const errors = error.details.map((err) => 
-        String(err.message).replace(/[<>"'&]/g, '')
-      );
-      return res.status(400).json({ message: 'Validation failed', errors });
+      const categorizedErrors = error.details.map((err) => {
+        const sanitizedMessage = String(err.message).replace(/[<>"'&]/g, '');
+        return {
+          field: err.path.join('.'),
+          message: sanitizedMessage,
+          type: err.type
+        };
+      });
+      
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: categorizedErrors,
+        errorCount: categorizedErrors.length
+      });
     }
     next();
   };

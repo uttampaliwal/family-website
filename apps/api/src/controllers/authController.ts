@@ -80,7 +80,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
     await sendEmail({
       to: email,
       subject: 'Verify Your Email for Family Website',
-      html: `<p>Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
+      html: `<p>Please click the link below to verify your email address:</p><p><a href="${htmlEncode(verificationUrl)}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
     });
 
       if (!jwtSecret) {
@@ -209,7 +209,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      refreshTokenSecret,
+      Buffer.from(refreshTokenSecret, 'hex'),
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -266,11 +266,15 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
 
   try {
     // Sanitize input to prevent NoSQL injection
-    if (typeof emailOrUsername !== 'string') {
+    if (typeof emailOrUsername !== 'string' || !emailOrUsername.trim()) {
       return res.status(400).json({ message: 'Invalid email or username format' });
     }
+    
+    // Sanitize the input to prevent NoSQL injection
+    const sanitizedInput = String(emailOrUsername).trim();
+    
     const user = await User.findOne({
-      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+      $or: [{ email: sanitizedInput }, { username: sanitizedInput }],
     });
 
     if (!user) {
@@ -288,7 +292,7 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
     await sendEmail({
       to: user.email,
       subject: 'Verify Your Email for Family Website',
-      html: `<p>Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
+      html: `<p>Please click the link below to verify your email address:</p><p><a href="${htmlEncode(verificationUrl)}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
     });
 
     res.status(200).json({ message: 'Verification email sent successfully. Please check your inbox.' });
@@ -309,7 +313,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
     if (!refreshTokenSecret) {
       throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
     }
-    const decoded: any = jwt.verify(refreshToken, refreshTokenSecret);
+    const decoded: any = jwt.verify(refreshToken, Buffer.from(refreshTokenSecret, 'hex'));
     const user = await User.findById(String(decoded.id));
 
     if (!user || !user.refreshTokens.includes(refreshToken)) {
@@ -325,7 +329,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      jwtSecret, 
+      Buffer.from(jwtSecret, 'hex'), 
       { 
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -334,16 +338,13 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
       }
     );
 
-    if (!refreshTokenSecret) {
-      throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
-    }
     const newRefreshToken = jwt.sign(
       { 
         id: user.id,
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      refreshTokenSecret, 
+      Buffer.from(refreshTokenSecret, 'hex'), 
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -454,7 +455,7 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
       subject: 'Password Reset Request',
       html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
              <p>Please visit the password reset page and enter your reset code:</p>
-             <p><a href="${resetUrl}">Reset Password</a></p>
+             <p><a href="${htmlEncode(resetUrl)}">Reset Password</a></p>
              <p>Your reset code: <strong>${htmlEncode(resetToken)}</strong></p>
              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
     });

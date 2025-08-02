@@ -50,7 +50,7 @@ export interface UserProfile {
   name?: string;
   dateOfBirth?: string;
   phoneNumber?: string | null;
-  gender?: string;
+  gender?: 'male' | 'female' | 'other';
 }
 
 export interface AuthRequest extends Request {

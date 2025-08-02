@@ -22,7 +22,13 @@ const SunIcon = () => (
 );
 
 const ThemeToggleButton: React.FC = () => {
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('theme') || 'light';
+    } catch {
+      return 'light';
+    }
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -31,7 +37,11 @@ const ThemeToggleButton: React.FC = () => {
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('theme', theme);
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      // Silently fail if localStorage is not available
+    }
   }, [theme]);
 
   const toggleTheme = () => {
