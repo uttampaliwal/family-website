@@ -34,7 +34,7 @@ yarn-error.log*
 *.orig
 
 # Custom additions
-docs/
+docs
 
 *.log
 .turbo/
