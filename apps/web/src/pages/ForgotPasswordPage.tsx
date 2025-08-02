@@ -3,6 +3,33 @@ import { Link } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { useToast } from '../hooks/useToast';
 import api from '../api/axios'; // Import the configured axios instance
+import type { ToastType } from '../context/ToastContext';
+
+// Error handling utility function
+const handleForgotPasswordError = (error: unknown, email: string, showToast: (message: string, type: ToastType) => void) => {
+  console.error('Forgot password error:', JSON.stringify({
+    message: error instanceof Error ? error.message : 'Unknown error',
+    email: email,
+    timestamp: new Date().toISOString(),
+    operation: 'forgotPassword'
+  }));
+  
+  if (error instanceof TypeError && error.message.includes('fetch')) {
+    showToast('Network error. Please check your internet connection.', 'error');
+  } else if (isAxiosError(error) && error.response) {
+    if (error.response.status === 404) {
+      showToast('Email address not found. Please check and try again.', 'error');
+    } else if (error.response.status >= 500) {
+      showToast('Server error. Please try again later.', 'error');
+    } else {
+      showToast(error.response.data?.message || 'Failed to send reset email', 'error');
+    }
+  } else if (error instanceof Error) {
+    showToast(error.message, 'error');
+  } else {
+    showToast('Failed to connect to the server', 'error');
+  }
+};
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +37,7 @@ const ForgotPasswordPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast('', 'info'); // Clear previous messages
+    showToast('', 'info');
 
     try {
       const response = await api.post('/api/auth/forgot-password', { email });
@@ -22,32 +49,7 @@ const ForgotPasswordPage: React.FC = () => {
         showToast(data.message || 'Something went wrong', 'error');
       }
     } catch (error) {
-      // Structured error logging with context
-      const errorInfo = {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        email: email,
-        timestamp: new Date().toISOString(),
-        operation: 'forgotPassword'
-      };
-      console.error('Forgot password error:', JSON.stringify(errorInfo));
-      
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        showToast('Network error. Please check your internet connection.', 'error');
-      } else if (isAxiosError(error)) {
-        if (error.response) {
-          if (error.response.status === 404) {
-            showToast('Email address not found. Please check and try again.', 'error');
-          } else if (error.response.status >= 500) {
-            showToast('Server error. Please try again later.', 'error');
-          } else {
-            showToast(error.response.data?.message || 'Failed to send reset email', 'error');
-          }
-        }
-      } else if (error instanceof Error) {
-        showToast(error.message, 'error');
-      } else {
-        showToast('Failed to connect to the server', 'error');
-      }
+      handleForgotPasswordError(error, email, showToast);
     }
   };
 

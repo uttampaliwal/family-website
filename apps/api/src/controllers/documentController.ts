@@ -60,12 +60,13 @@ export const getDocumentById = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    const documentId = String(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(documentId)) {
       return res.status(400).json({ message: 'Invalid document ID' });
     }
 
     const document = await Document.findOne({
-      _id: req.params.id,
+      _id: documentId,
       $or: [
         { owner: String(req.user.id) },
         { sharedWith: String(req.user.id) }
@@ -295,7 +296,8 @@ export const shareDocument = async (req: Request, res: Response) => {
     const sanitizedUsername = String(username).trim();
     
     // Additional validation to prevent NoSQL injection
-    if (!/^[a-zA-Z0-9_.-]+$/.test(sanitizedUsername)) {
+    const usernamePattern = /^[a-zA-Z0-9_.-]+$/;
+    if (!usernamePattern.test(sanitizedUsername)) {
       return res.status(400).json({ message: 'Invalid username format' });
     }
     
@@ -310,12 +312,13 @@ export const shareDocument = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Cannot share document with yourself' });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    const documentId = String(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(documentId)) {
       return res.status(400).json({ message: 'Invalid document ID' });
     }
 
     const document = await Document.findOne({
-      _id: req.params.id,
+      _id: documentId,
       owner: String(req.user.id)
     });
 

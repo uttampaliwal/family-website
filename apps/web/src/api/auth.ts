@@ -10,7 +10,7 @@ export const resetPassword = async (data: ResetPasswordRequest): Promise<AuthRes
     throw new Error('Reset token is required');
   }
   
-  const minPasswordLength = parseInt(import.meta.env.VITE_MIN_PASSWORD_LENGTH || import.meta.env.VITE_DEFAULT_MIN_PASSWORD_LENGTH || import.meta.env.VITE_PASSWORD_MIN_LENGTH, 10);
+  const minPasswordLength = parseInt(import.meta.env.VITE_MIN_PASSWORD_LENGTH || import.meta.env.VITE_DEFAULT_MIN_PASSWORD_LENGTH || import.meta.env.VITE_PASSWORD_MIN_LENGTH || '8', 10);
   if (!data.password || typeof data.password !== 'string' || data.password.length < minPasswordLength) {
     throw new Error('Valid password is required');
   }

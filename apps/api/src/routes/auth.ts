@@ -25,7 +25,7 @@ const loginLimiter = rateLimit({
 router.post('/register', authLimiter, validate(registerSchema), validateCsrfToken as RequestHandler, register);
 
 // Sign In Route
-router.post('/login', loginLimiter, validateCsrfToken as RequestHandler, validate(loginSchema), login);
+router.post('/login', validateCsrfToken as RequestHandler, loginLimiter, validate(loginSchema), login);
 
 // Verify Email Route
 router.post('/verify-email', validateCsrfToken as RequestHandler, validate(verifyEmailSchema), verifyEmail);
@@ -37,7 +37,13 @@ router.post('/resend-verification', validateCsrfToken as RequestHandler, validat
 router.post('/refresh-token', validateCsrfToken as RequestHandler, refreshToken); // CWE-352: Addressed by validateCsrfToken. CWE-1275: Not applicable to this route.
 
 // Get User Profile by Username
-router.get('/profile/:username', getUserProfile);
+router.get('/profile/:username', (req, res, next) => {
+  try {
+    getUserProfile(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Update User Profile by Username
 router.put('/profile/:username', validateCsrfToken as RequestHandler, updateUserProfile);

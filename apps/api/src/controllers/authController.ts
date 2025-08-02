@@ -525,7 +525,8 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
 
   try {
     const decoded: any = jwt.verify(refreshToken, Buffer.from(refreshTokenSecret, 'hex'));
-    const user = await User.findById(String(decoded.id));
+    const userId = String(decoded.id);
+    const user = await User.findById(userId);
 
     if (user) {
       user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
