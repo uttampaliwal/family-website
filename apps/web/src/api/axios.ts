@@ -89,12 +89,27 @@ api.interceptors.response.use(
 
 // Helper function to handle authentication failures
 function handleAuthFailure() {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(USERNAME_KEY);
+  try {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(USERNAME_KEY);
+  } catch (error) {
+    console.error('Failed to clear localStorage:', error);
+  }
   
-  const isValidPath = LOGIN_PATH.startsWith('/') && !LOGIN_PATH.includes('<');
-  const redirectPath = isValidPath ? LOGIN_PATH : ROOT_PATH;
-  window.location.replace(redirectPath);
+  try {
+    const isValidPath = LOGIN_PATH.startsWith('/') && !LOGIN_PATH.includes('<');
+    const redirectPath = isValidPath ? LOGIN_PATH : ROOT_PATH;
+    window.location.replace(redirectPath);
+  } catch (error) {
+    console.error('Failed to redirect:', error);
+    // Fallback: try to redirect to root
+    try {
+      window.location.href = ROOT_PATH;
+    } catch {
+      // Last resort: reload the page
+      window.location.reload();
+    }
+  }
 }
 
 export default api;

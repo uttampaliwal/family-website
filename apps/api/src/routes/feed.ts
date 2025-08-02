@@ -57,13 +57,17 @@ router.get('/dynamic-feed', (req: Request, res: Response) => {
   } catch (err) {
     // Structured error logging with context
     const errorInfo = {
+      level: 'error',
       message: err instanceof Error ? err.message : 'Unknown error',
+      stack: err instanceof Error ? err.stack : undefined,
       timestamp: new Date().toISOString(),
       operation: 'fetchDynamicFeed',
       endpoint: '/dynamic-feed',
-      method: 'GET'
+      method: 'GET',
+      userAgent: req.get('User-Agent') || 'Unknown',
+      ip: req.ip || 'Unknown'
     };
-    console.error('Error fetching dynamic feed:', sanitizeLog(JSON.stringify(errorInfo)));
+    console.error(sanitizeLog(JSON.stringify(errorInfo)));
     res.status(500).json({ message: 'Failed to retrieve feed data' });
   }
 });

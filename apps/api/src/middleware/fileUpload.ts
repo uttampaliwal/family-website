@@ -3,6 +3,23 @@ import path from 'path';
 import fs from 'fs';
 import { sanitizeLog } from '../utils/logSanitizer';
 
+// File interface for type safety
+interface UploadedFile {
+  filename: string;
+  originalname: string;
+  mimetype: string;
+  size: number;
+}
+
+// Extend Request interface to include file property
+declare global {
+  namespace Express {
+    interface Request {
+      file?: UploadedFile;
+    }
+  }
+}
+
 // Since we can't install multer, let's create a simple middleware
 type FileUploadMiddleware = (req: Request, res: Response, next: NextFunction) => void;
 
@@ -34,12 +51,13 @@ const createPlaceholderUploadMiddleware = {
     return (req: Request, res: Response, next: NextFunction) => {
       // Add placeholder file property to request for compatibility
       // TODO: Replace with actual file upload implementation
-      req.file = {
+      const placeholderFile: UploadedFile = {
         filename: PLACEHOLDER_FILE.FILENAME,
         originalname: PLACEHOLDER_FILE.FILENAME,
         mimetype: PLACEHOLDER_FILE.MIMETYPE,
         size: PLACEHOLDER_FILE.SIZE
       };
+      req.file = placeholderFile;
       next();
     };
   }
