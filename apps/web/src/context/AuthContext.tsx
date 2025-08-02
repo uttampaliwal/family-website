@@ -24,17 +24,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   })());
 
   const login = (user: User) => {
-    try {
-      if (!user || typeof user !== 'object' || !user.username) {
-        throw new Error('Invalid user object provided');
-      }
-      
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-      setAuthState({ isLoggedIn: true, user, username: user.username });
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+    if (!user || typeof user !== 'object' || !user.username) {
+      throw new Error('Invalid user object provided');
     }
+    
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    setAuthState({ isLoggedIn: true, user, username: user.username });
   };
 
   const logout = async () => {

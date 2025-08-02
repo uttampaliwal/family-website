@@ -40,6 +40,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   const selectRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((option) => option.value === value);
+  const buttonClasses = `${STYLES.button.base} ${disabled ? STYLES.button.disabled : STYLES.button.enabled}`;
 
   const handleOptionClick = (optionValue: string) => {
     onChange(optionValue);
@@ -63,9 +64,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     <div className={`${STYLES.container} ${className}`} ref={selectRef}>
       <button
         type="button"
-        className={`${STYLES.button.base} ${
-          disabled ? STYLES.button.disabled : STYLES.button.enabled
-        }`}
+        className={buttonClasses}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
       >
@@ -75,15 +74,20 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
       {isOpen && (
         <ul className={STYLES.dropdown}>
-          {options.map((option, index) => (
-            <li
-              key={option.value}
-              className={`${STYLES.option} ${index < options.length - 1 ? STYLES.optionBorder : ''}`}
-              onClick={() => handleOptionClick(option.value)}
-            >
-              {option.label}
-            </li>
-          ))}
+          {options.map((option, index) => {
+            const isLastOption = index === options.length - 1;
+            const optionClasses = `${STYLES.option} ${!isLastOption ? STYLES.optionBorder : ''}`;
+            
+            return (
+              <li
+                key={option.value}
+                className={optionClasses}
+                onClick={() => handleOptionClick(option.value)}
+              >
+                {option.label}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

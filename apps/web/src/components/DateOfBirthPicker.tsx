@@ -5,6 +5,13 @@ import CustomSelect from './CustomSelect';
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] as const;
 const YEARS_TO_SHOW = 100;
 
+// Pre-calculate year options to avoid recalculation on every render
+const currentYear = new Date().getFullYear();
+const yearOptions = [{ value: '', label: 'Year' }, ...Array.from({ length: YEARS_TO_SHOW }, (_, i) => {
+  const year = currentYear - i;
+  return { value: year.toString(), label: year.toString() };
+})];
+
 interface DateOfBirthPickerProps {
   value: string;
   onChange: (value: string) => void;
@@ -40,7 +47,7 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
         setDay('');
       }
     } catch (error) {
-      console.error('Error parsing date value:', error);
+      // Reset to empty state on parse error
       setYear('');
       setMonth('');
       setDay('');
@@ -73,7 +80,8 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
         }
       }
     } catch (error) {
-      console.error('Error formatting date:', error);
+      // Silently handle formatting errors to prevent crashes
+      return;
     }
   }, [day, month, year, onChange, value]); // `value` is a dependency to ensure the comparison is always up-to-date.
 
@@ -88,14 +96,7 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
     return [{ value: '', label: 'Month' }, ...months];
   }, []);
 
-  const yearOptions = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: YEARS_TO_SHOW }, (_, i) => {
-      const year = currentYear - i;
-      return { value: year.toString(), label: year.toString() };
-    });
-    return [{ value: '', label: 'Year' }, ...years];
-  }, []);
+
 
   return (
     <div className="flex-1 flex items-center gap-2">

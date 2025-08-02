@@ -32,11 +32,6 @@ const WeatherWidget: React.FC = () => {
           });
         },
         (err) => {
-          const sanitizedError = {
-            code: err.code || 'unknown',
-            message: String(err.message || 'Unknown error').replace(/[\n\r\t]/g, '')
-          };
-          console.error('Error getting location:', JSON.stringify(sanitizedError));
           setError('Unable to get location. Please enable location services.');
           setLoading(false);
         }
@@ -58,7 +53,6 @@ const WeatherWidget: React.FC = () => {
       const data = await response.json();
       setWeather(data);
     } catch (error) {
-      console.error('Error fetching weather:', error);
       setError('Failed to load weather data');
     } finally {
       setLoading(false);

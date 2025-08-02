@@ -3,11 +3,6 @@ export interface ErrorResponse {
   details?: string;
 }
 
-export interface ErrorResponse {
-  message: string;
-  details?: string;
-}
-
 export interface AuthResponse {
   message: string;
   accessToken?: string;
@@ -22,8 +17,8 @@ export interface UserProfile {
   email: string;
   name?: string;
   dob?: string;
-  mobileNumber?: string | null;
   gender?: string;
+  phoneNumber?: string;
 }
 
 export interface RegisterRequest {
@@ -31,7 +26,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   dob: string;
-  mobileNumber?: string;
+  phoneNumber?: string;
   username: string;
   gender: string;
 }
