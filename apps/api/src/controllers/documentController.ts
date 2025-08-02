@@ -299,8 +299,8 @@ export const shareDocument = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid username format' });
     }
     
-    // Verify target user exists using strict string matching
-    const targetUser = await User.findOne({ username: { $eq: sanitizedUsername } });
+    // Verify target user exists using parameterized query to prevent NoSQL injection
+    const targetUser = await User.findOne({ username: sanitizedUsername });
     if (!targetUser) {
       return res.status(404).json({ message: 'Target user not found' });
     }

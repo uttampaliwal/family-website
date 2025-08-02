@@ -396,11 +396,17 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
     const { name, dateOfBirth, phoneNumber } = req.body;
     const gender = req.body.gender as 'male' | 'female' | 'other';
 
+    // Sanitize username to prevent NoSQL injection
+    if (typeof username !== 'string' || !username.trim()) {
+      return res.status(400).json({ message: 'Invalid username format' });
+    }
+
     if (gender && !['male', 'female', 'other'].includes(gender)) {
       return res.status(400).json({ message: 'Invalid gender specified. Must be male, female, or other.' });
     }
 
-    const user = await User.findOne({ username: username });
+    const sanitizedUsername = String(username).trim();
+    const user = await User.findOne({ username: sanitizedUsername });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });

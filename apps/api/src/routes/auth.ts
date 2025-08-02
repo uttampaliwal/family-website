@@ -25,31 +25,31 @@ const loginLimiter = rateLimit({
 router.post('/register', authLimiter, validate(registerSchema), validateCsrfToken as RequestHandler, register);
 
 // Sign In Route
-router.post('/login', loginLimiter, validateCsrfToken, validate(loginSchema), login);
+router.post('/login', loginLimiter, validateCsrfToken as RequestHandler, validate(loginSchema), login);
 
 // Verify Email Route
-router.post('/verify-email', validateCsrfToken, validate(verifyEmailSchema), verifyEmail);
+router.post('/verify-email', validateCsrfToken as RequestHandler, validate(verifyEmailSchema), verifyEmail);
 
 // Resend Verification Email Route
-router.post('/resend-verification', validateCsrfToken, validate(resendVerificationSchema), resendVerification);
+router.post('/resend-verification', validateCsrfToken as RequestHandler, validate(resendVerificationSchema), resendVerification);
 
 // Refresh Token Route
-router.post('/refresh-token', validateCsrfToken, refreshToken); // CWE-352: Addressed by validateCsrfToken. CWE-1275: Not applicable to this route.
+router.post('/refresh-token', validateCsrfToken as RequestHandler, refreshToken); // CWE-352: Addressed by validateCsrfToken. CWE-1275: Not applicable to this route.
 
 // Get User Profile by Username
 router.get('/profile/:username', getUserProfile);
 
 // Update User Profile by Username
-router.put('/profile/:username', validateCsrfToken, updateUserProfile);
+router.put('/profile/:username', validateCsrfToken as RequestHandler, updateUserProfile);
 
 // Forgot Password Route
-router.post('/forgot-password', validateCsrfToken, validate(forgotPasswordSchema), forgotPassword);
+router.post('/forgot-password', validateCsrfToken as RequestHandler, validate(forgotPasswordSchema), forgotPassword);
 
 // Reset Password Route
-router.post('/reset-password/:token', validateCsrfToken, validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password/:token', validateCsrfToken as RequestHandler, validate(resetPasswordSchema), resetPassword);
 
 // Reset Password Route with token in body
-router.post('/reset-password', validateCsrfToken, validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password', validateCsrfToken as RequestHandler, validate(resetPasswordSchema), resetPassword);
 
 // Logout Route
 router.post('/logout', validateCsrfToken as RequestHandler, logout);

@@ -21,16 +21,16 @@ router.use(authMiddleware);
 router.get('/:userId', getUserData);
 
 // Create or update user data
-router.put('/:userId', validateCsrfToken, createOrUpdateUserData);
+router.put('/:userId', validateCsrfToken as RequestHandler, createOrUpdateUserData);
 
 // Add an event
-router.post('/:userId/events', validateCsrfToken, addEvent);
+router.post('/:userId/events', validateCsrfToken as RequestHandler, addEvent);
 
 // Add a photo
-router.post('/:userId/photos', validateCsrfToken, addPhoto);
+router.post('/:userId/photos', validateCsrfToken as RequestHandler, addPhoto);
 
 // Add a task
-router.post('/:userId/tasks', validateCsrfToken, addTask);
+router.post('/:userId/tasks', validateCsrfToken as RequestHandler, addTask);
 
 // Add an emergency contact
 router.post('/:userId/emergency-contacts', validateCsrfToken as RequestHandler, addEmergencyContact);

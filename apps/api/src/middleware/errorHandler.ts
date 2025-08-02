@@ -29,9 +29,9 @@ export const errorHandler = (
       level: 'error',
       timestamp: new Date().toISOString(),
       ...sanitizedError,
-      url: String(req.url || '').replace(/[\n\r\t<>"'&]/g, ''),
-      method: String(req.method || '').replace(/[\n\r\t<>"'&]/g, ''),
-      userAgent: req.get('User-Agent')?.replace(/[\n\r\t<>"'&]/g, '') || 'Unknown'
+      url: sanitizeLog(String(req.url || '')),
+      method: sanitizeLog(String(req.method || '')),
+      userAgent: sanitizeLog(req.get('User-Agent') || 'Unknown')
     };
     console.error(JSON.stringify(logEntry));
   }

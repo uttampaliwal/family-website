@@ -17,6 +17,7 @@ const EventSchema = new mongoose.Schema({
 const PhotoSchema = new mongoose.Schema({
   title: { type: String },
   description: { type: String },
+  caption: { type: String },
   url: { type: String, required: true },
   uploadDate: { type: Date, default: Date.now },
   tags: [String]
