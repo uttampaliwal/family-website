@@ -268,10 +268,13 @@ export const addTask = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
 
-    let userData = await UserData.findOne({ userId: String(userId) });
+    // Sanitize userId to prevent NoSQL injection
+    const sanitizedUserId = String(userId).trim();
+    
+    let userData = await UserData.findOne({ userId: sanitizedUserId });
     
     if (!userData) {
-      userData = new UserData({ userId: String(userId), tasks: [taskData] }); // CWE-943: userId is validated as ObjectId, preventing injection.
+      userData = new UserData({ userId: sanitizedUserId, tasks: [taskData] });
     } else {
       userData.tasks.push(taskData);
     }

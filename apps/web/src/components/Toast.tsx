@@ -37,8 +37,9 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
     <div
       className={`${BASE_CLASSES} ${bgColor}`}
       role="alert"
-      dangerouslySetInnerHTML={{ __html: sanitizeText(message) }}
-    />
+    >
+      {sanitizeText(message)}
+    </div>
   );
 };
 

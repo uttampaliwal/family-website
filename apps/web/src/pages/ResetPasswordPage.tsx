@@ -72,23 +72,38 @@ const ResetPasswordPage: React.FC = () => {
       showToast(response.message || 'Password reset successful!', 'success');
       setTimeout(() => navigate('/login'), 3000);
     } catch (error) {
-      console.error('Reset password error:', error);
-      let errorMessage = 'An unexpected error occurred';
-      
-      if (isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          errorMessage = error.response.data?.message || 'Invalid or expired reset token';
-        } else if (error.response?.status === 500) {
-          errorMessage = 'Server error. Please try again later';
-        } else if (error.code === 'NETWORK_ERROR' || !error.response) {
-          errorMessage = 'Network error. Please check your connection';
-        } else {
-          errorMessage = error.response?.data?.message || 'Failed to reset password';
+      const getErrorMessage = (error: unknown): string => {
+        if (isAxiosError(error)) {
+          const status = error.response?.status;
+          const errorData = error.response?.data;
+          
+          switch (status) {
+            case 400:
+              return errorData?.message || 'Invalid or expired reset token';
+            case 401:
+              return 'Reset token has expired. Please request a new password reset.';
+            case 404:
+              return 'Reset token not found. Please request a new password reset.';
+            case 429:
+              return 'Too many attempts. Please try again later.';
+            case 500:
+              return 'Server error. Please try again later.';
+            default:
+              if (error.code === 'NETWORK_ERROR' || !error.response) {
+                return 'Network error. Please check your connection.';
+              }
+              return errorData?.message || 'Failed to reset password';
+          }
         }
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
+        
+        if (error instanceof Error) {
+          return error.message;
+        }
+        
+        return 'An unexpected error occurred';
+      };
       
+      const errorMessage = getErrorMessage(error);
       showToast(errorMessage, 'error');
     } finally {
       setLoading(false);

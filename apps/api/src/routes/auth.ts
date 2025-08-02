@@ -22,16 +22,16 @@ const loginLimiter = rateLimit({
 });
 
 // Register Route
-router.post('/register', authLimiter, validateCsrfToken, validate(registerSchema), register);
+router.post('/register', authLimiter, validate(registerSchema), validateCsrfToken, register);
 
 // Sign In Route
-router.post('/login', loginLimiter, validateCsrfToken, validate(loginSchema), login);
+router.post('/login', loginLimiter, validate(loginSchema), validateCsrfToken, login);
 
 // Verify Email Route
-router.post('/verify-email', validateCsrfToken, validate(verifyEmailSchema), verifyEmail);
+router.post('/verify-email', validate(verifyEmailSchema), validateCsrfToken, verifyEmail);
 
 // Resend Verification Email Route
-router.post('/resend-verification', validateCsrfToken, validate(resendVerificationSchema), resendVerification);
+router.post('/resend-verification', validate(resendVerificationSchema), validateCsrfToken, resendVerification);
 
 // Refresh Token Route
 router.post('/refresh-token', validateCsrfToken, refreshToken); // CWE-352: Addressed by validateCsrfToken. CWE-1275: Not applicable to this route.

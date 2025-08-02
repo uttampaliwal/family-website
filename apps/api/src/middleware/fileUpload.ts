@@ -27,11 +27,12 @@ const PLACEHOLDER_FILE = {
   SIZE: 0
 } as const;
 
-// Simple file upload middleware
-const upload = {
+// Placeholder file upload middleware (does not handle actual file uploads)
+const createPlaceholderUploadMiddleware = {
   single: (fieldName: string): FileUploadMiddleware => {
     return (req: Request, res: Response, next: NextFunction) => {
-      // Add a file property to the request with placeholder values
+      // Add placeholder file property to request for compatibility
+      // TODO: Replace with actual file upload implementation
       req.file = {
         filename: PLACEHOLDER_FILE.FILENAME,
         originalname: PLACEHOLDER_FILE.FILENAME,
@@ -42,5 +43,7 @@ const upload = {
     };
   }
 };
+
+const upload = createPlaceholderUploadMiddleware;
 
 export default upload;

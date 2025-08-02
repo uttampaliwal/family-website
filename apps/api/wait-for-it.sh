@@ -1,14 +1,14 @@
-
 #!/bin/sh
 # wait-for-it.sh
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
 
 set -e
 
 WAITFORIT_cmdname=$(basename $0)
 WAITFORIT
-_HOST=""WAITFORIT_PORT=""
+WAITFORIT_HOST=""
+WAITFORIT_PORT=""
 WAITFORIT_TIMEOUT=15
 WAITFORIT_STRICT=0
 WAITFORIT_CHILD=0
@@ -16,6 +16,11 @@ WAITFORIT_QUIET=0
 WAITFORIT_CLI=()
 WAITFORIT_ISBUSY=0
 
+echoerr() {
+    echo "$@" >&2
+}
+
+usage()
 {
     cat <<EOF | tr -d '\r' >&2
 Usage:
@@ -95,9 +100,8 @@ while [[ $# -gt 0 ]]
 do
     case "$1" in
         *:* )
-        WAITFORIT_hostport=(${1//:/ })
-        WAITFORIT_HOST=${WAITFORIT_hostport[0]}
-        WAITFORIT_PORT=${WAITFORIT_hostport[1]}
+        WAITFORIT_HOST=${1%%:*}
+        WAITFORIT_PORT=${1#*:}
         shift 1
         ;;
         --child)

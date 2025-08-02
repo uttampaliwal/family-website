@@ -272,12 +272,15 @@ export const shareDocument = async (req: Request, res: Response) => {
 
     const { username } = req.body;
     
-    if (!username || typeof username !== 'string') {
+    if (!username || typeof username !== 'string' || !username.trim()) {
       return res.status(400).json({ message: 'Username is required' });
     }
 
+    // Sanitize username input to prevent NoSQL injection
+    const sanitizedUsername = String(username).trim();
+    
     // Verify target user exists
-        const targetUser = await User.findOne({ username: String(username) }); // CWE-943: Prevented by Mongoose schema validation with regex for username.
+    const targetUser = await User.findOne({ username: sanitizedUsername });
     if (!targetUser) {
       return res.status(404).json({ message: 'Target user not found' });
     }

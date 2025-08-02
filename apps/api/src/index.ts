@@ -18,9 +18,20 @@ import { generateCsrfToken, validateCsrfToken } from './middleware/csrf';
 const { PORT, MONGO_URI, JWT_SECRET, REFRESH_TOKEN_SECRET, FRONTEND_URL } = process.env;
 
 if (!PORT || !MONGO_URI || !JWT_SECRET || !REFRESH_TOKEN_SECRET || !FRONTEND_URL) {
-  console.error('FATAL ERROR: One or more required environment variables are missing.');
-  console.error('Please check your .env file in the project root.');
-  process.exit(1); // Exit immediately if configuration is invalid.
+  const errorLog = {
+    level: 'FATAL',
+    message: 'One or more required environment variables are missing',
+    timestamp: new Date().toISOString(),
+    missing: {
+      PORT: !PORT,
+      MONGO_URI: !MONGO_URI,
+      JWT_SECRET: !JWT_SECRET,
+      REFRESH_TOKEN_SECRET: !REFRESH_TOKEN_SECRET,
+      FRONTEND_URL: !FRONTEND_URL
+    }
+  };
+  console.error(JSON.stringify(errorLog));
+  process.exit(1);
 }
 
 const portNumber = parseInt(PORT, 10);

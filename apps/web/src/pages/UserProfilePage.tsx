@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import api from '../api/axios';
 import type { UserProfile } from '../types/api';
 
@@ -58,20 +58,28 @@ const UserProfilePage: React.FC = () => {
         };
         console.error('Error fetching user profile:', JSON.stringify(errorInfo));
         
-        if (err && typeof err === 'object' && 'response' in err) {
-          const axiosError = err as AxiosError;
-          if (axiosError.response) {
-            if (axiosError.response.status === 404) {
-              setProfileState(prev => ({ ...prev, error: 'User profile not found.' }));
-            } else if (axiosError.response.status >= 500) {
-              setProfileState(prev => ({ ...prev, error: 'Server error. Please try again later.' }));
-            } else {
-              setProfileState(prev => ({ ...prev, error: 'Failed to load profile. Please try again.' }));
+        const getErrorMessage = (error: unknown): string => {
+          if (isAxiosError(error)) {
+            const status = error.response?.status;
+            switch (status) {
+              case 404:
+                return 'User profile not found.';
+              case 401:
+                return 'You are not authorized to view this profile.';
+              case 403:
+                return 'Access denied to this profile.';
+              case 500:
+              case 502:
+              case 503:
+                return 'Server error. Please try again later.';
+              default:
+                return error.response?.data?.message || 'Failed to load profile. Please try again.';
             }
           }
-        } else {
-          setProfileState(prev => ({ ...prev, error: 'Network error or server is unreachable.' }));
-        }
+          return 'Network error or server is unreachable.';
+        };
+        
+        setProfileState(prev => ({ ...prev, error: getErrorMessage(err) }));
       } finally {
         setProfileState(prev => ({ ...prev, loading: false }));
       }

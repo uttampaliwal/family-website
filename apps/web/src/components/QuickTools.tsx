@@ -183,7 +183,15 @@ const QuickTools: React.FC = () => {
     }
   ];
 
-  const QuickActionButton = ({ action }: { action: any }) => (
+  interface QuickAction {
+    id: string;
+    label: string;
+    color: string;
+    onClick: () => void;
+    delay: number;
+  }
+
+  const QuickActionButton = ({ action }: { action: QuickAction }) => (
     <motion.button
       onClick={action.onClick}
       className="text-white p-6 flex flex-col items-center justify-center h-[120px] rounded-lg border-none outline-none"

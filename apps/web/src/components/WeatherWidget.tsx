@@ -53,7 +53,19 @@ const WeatherWidget: React.FC = () => {
       const data = await response.json();
       setWeather(data);
     } catch (error) {
-      setError('Failed to load weather data');
+      if (error instanceof Error) {
+        if (error.message.includes('404')) {
+          setError('Weather service not available for your location');
+        } else if (error.message.includes('401') || error.message.includes('403')) {
+          setError('Weather service access denied');
+        } else if (error.message.includes('500')) {
+          setError('Weather service temporarily unavailable');
+        } else {
+          setError(`Weather error: ${error.message}`);
+        }
+      } else {
+        setError('Failed to load weather data');
+      }
     } finally {
       setLoading(false);
     }

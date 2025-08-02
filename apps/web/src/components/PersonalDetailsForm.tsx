@@ -89,7 +89,21 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
         />
       </div>
       <div className="text-right mt-6">
-        <Button label="Next" onClick={handleNext} disabled={loading} type="button" />
+        <Button 
+          label="Next" 
+          onClick={() => {
+            if (!name.trim()) {
+              nameRef.current?.focus();
+              return;
+            }
+            if (!dob) {
+              return;
+            }
+            handleNext();
+          }} 
+          disabled={loading} 
+          type="button" 
+        />
       </div>
     </div>
   );
