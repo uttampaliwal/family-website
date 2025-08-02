@@ -3,14 +3,21 @@ export interface ErrorResponse {
   details?: string;
 }
 
+export interface ErrorResponse {
+  message: string;
+  details?: string;
+}
+
 export interface AuthResponse {
   message: string;
   accessToken?: string;
   username?: string;
+  user?: UserProfile;
   error?: ErrorResponse;
 }
 
 export interface UserProfile {
+  id: string;
   username: string;
   email: string;
   name?: string;

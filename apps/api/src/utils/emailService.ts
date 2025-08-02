@@ -24,9 +24,24 @@ export const sendEmail = async (options: EmailOptions) => {
       subject: options.subject,
       html: options.html,
     });
-    console.log('Email sent successfully!');
+    const logData = {
+      level: 'info',
+      message: 'Email sent successfully',
+      to: options.to.replace(/[\n\r\t]/g, ''),
+      subject: options.subject.replace(/[\n\r\t]/g, ''),
+      timestamp: new Date().toISOString()
+    };
+    console.log(JSON.stringify(logData));
   } catch (error) {
-    console.error('Error sending email:', error);
+    const errorData = {
+      level: 'error',
+      message: 'Failed to send email',
+      to: options.to.replace(/[\n\r\t]/g, ''),
+      subject: options.subject.replace(/[\n\r\t]/g, ''),
+      error: error instanceof Error ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
+      timestamp: new Date().toISOString()
+    };
+    console.error(JSON.stringify(errorData));
     throw new Error('Failed to send email');
   }
 };

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import api from '../api/axios';
-import type { LoginRequest, AuthResponse, ResendVerificationRequest } from '../types/api';
+import type { LoginRequest, AuthResponse, ResendVerificationRequest, UserProfile } from '../types/api';
 import { isAxiosError } from 'axios';
 
 const LoginPage: React.FC = () => {
@@ -30,11 +30,12 @@ const LoginPage: React.FC = () => {
       } as LoginRequest);
 
       const data = response.data;
-      if (response.status === 200) {
+      if (response.status === 200 && data.username) {
         localStorage.setItem('accessToken', data.accessToken || '');
-        login(data.user);
+        const userResponse = await api.get<UserProfile>(`/api/auth/profile/${data.username}`);
+        login(userResponse.data);
         showToast(data.message || 'Login successful!', 'success');
-        navigate(`/profile/${data.user.username}`);
+        navigate(`/profile/${data.username}`);
       }
     } catch (error) {
       // Structured error logging with context

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type ReactNode } from 'react';
+import React, { useState, type ReactNode } from 'react';
 import api from '../api/axios';
 import { AuthContext, type User } from './AuthContextDefinition';
 
@@ -9,17 +9,18 @@ const STORAGE_KEYS = {
 } as const;
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [authState, setAuthState] = useState<{ isLoggedIn: boolean; user: User | null }>((() => {
+  const [authState, setAuthState] = useState<{ isLoggedIn: boolean; user: User | null; username: string | null }>((() => {
     try {
       const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
       const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
       if (storedUser && accessToken) {
-        return { isLoggedIn: true, user: JSON.parse(storedUser) };
+        const user = JSON.parse(storedUser);
+        return { isLoggedIn: true, user, username: user.username };
       }
     } catch (error) {
       console.error('Error reading auth state from localStorage:', error);
     }
-    return { isLoggedIn: false, user: null };
+    return { isLoggedIn: false, user: null, username: null };
   })());
 
   const login = (user: User) => {
@@ -29,7 +30,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-      setAuthState({ isLoggedIn: true, user });
+      setAuthState({ isLoggedIn: true, user, username: user.username });
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -49,7 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch (storageError) {
         console.error('Error clearing localStorage:', storageError);
       }
-      setAuthState({ isLoggedIn: false, user: null });
+      setAuthState({ isLoggedIn: false, user: null, username: null });
     }
   };
 
@@ -57,6 +58,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider value={{ 
       isLoggedIn: authState.isLoggedIn, 
       user: authState.user, 
+      username: authState.username,
       login, 
       logout 
     }}>
