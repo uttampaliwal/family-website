@@ -8,20 +8,22 @@ const STORAGE_KEYS = {
   ACCESS_TOKEN: import.meta.env.VITE_ACCESS_TOKEN_KEY || 'accessToken'
 } as const;
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [authState, setAuthState] = useState<{ isLoggedIn: boolean; user: User | null; username: string | null }>((() => {
-    try {
-      const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
-      const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-      if (storedUser && accessToken) {
-        const user = JSON.parse(storedUser);
-        return { isLoggedIn: true, user, username: user.username };
-      }
-    } catch (error) {
-      console.error('Error reading auth state from localStorage:', error);
+const getInitialAuthState = () => {
+  try {
+    const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
+    const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    if (storedUser && accessToken) {
+      const user = JSON.parse(storedUser);
+      return { isLoggedIn: true, user, username: user.username };
     }
-    return { isLoggedIn: false, user: null, username: null };
-  })());
+  } catch (error) {
+    console.error('Error reading auth state from localStorage:', error);
+  }
+  return { isLoggedIn: false, user: null, username: null };
+};
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [authState, setAuthState] = useState(getInitialAuthState);
 
   const login = (user: User) => {
     if (!user || typeof user !== 'object' || !user.username) {

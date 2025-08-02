@@ -48,6 +48,10 @@ export const getDocumentById = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid document ID' });
+    }
+
     const document = await Document.findOne({
       _id: req.params.id,
       $or: [
@@ -55,8 +59,6 @@ export const getDocumentById = async (req: Request, res: Response) => {
         { sharedWith: req.user.id }
       ]
     })
-    .populate('owner', 'username name')
-    .populate('sharedWith', 'username name');
 
     if (!document) {
       return res.status(404).json({ message: 'Document not found' });
@@ -135,6 +137,10 @@ export const updateDocument = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid document ID' });
+    }
+
     const { title, content } = req.body;
     
     // Find document and verify ownership
@@ -165,6 +171,10 @@ export const deleteDocument = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid document ID' });
+    }
+
     const document = await Document.findOneAndDelete({
       _id: req.params.id,
       owner: String(req.user.id)
@@ -192,11 +202,23 @@ export const downloadFile = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid document ID' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid document ID' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid document ID' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid document ID' });
+    }
+
     const document = await Document.findOne({
       _id: req.params.id,
       $or: [
-        { owner: String(req.user.id) },
-        { sharedWith: String(req.user.id) }
+        { owner: req.user.id },
+        { sharedWith: req.user.id }
       ]
     });
 

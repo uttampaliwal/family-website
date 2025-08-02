@@ -110,7 +110,7 @@ const RegisterPage: React.FC = () => {
 
     try {
       const response = await api.post<AuthResponse>('/api/auth/register', {
-        name, email, password, dob, mobileNumber, username, gender
+        name: name, email: email, password: password, dob: dob, mobileNumber: mobileNumber, username: username, gender: gender
       } as RegisterRequest);
 
       const data = response.data;
@@ -239,9 +239,9 @@ const RegisterPage: React.FC = () => {
                     className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                   >
                     <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Prefer not to say</option>
                   </select>
                 </div>
                 
@@ -307,7 +307,7 @@ const RegisterPage: React.FC = () => {
                     disabled={loading}
                     ref={passwordRef}
                     className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 pr-10"
-                    placeholder="Create a password"
+                    placeholder="Enter password"
                   />
                   <button
                     type="button"

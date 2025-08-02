@@ -4,14 +4,32 @@ import User from '../models/User';
 import mongoose from 'mongoose';
 
 // Type definitions
+interface Event {
+  title: string;
+  description?: string | null;
+  date: Date;
+  location?: string | null;
+  participants?: mongoose.Types.ObjectId[];
+  createdAt: Date;
+}
+
 interface Task {
   title: string;
   description?: string | null;
-  notes?: string | null;
   createdAt: Date;
   dueDate?: Date | null;
   priority: 'low' | 'medium' | 'high';
   status: 'pending' | 'in-progress' | 'completed';
+  assignedTo?: mongoose.Types.ObjectId[];
+}
+
+interface Event {
+  title: string;
+  description?: string | null;
+  date: Date;
+  location?: string | null;
+  participants?: mongoose.Types.ObjectId[];
+  createdAt: Date;
 }
 
 interface EmergencyContact {
@@ -25,14 +43,23 @@ interface EmergencyContact {
 const sanitizeString = (input: unknown): string => 
   String(input ?? '').replace(/[^\p{L}\p{N}\s.,-]/gu, '');
 
+const sanitizeEvent = (event: Event): Event => ({
+  title: sanitizeString(event.title),
+  description: event.description ? sanitizeString(event.description) : undefined,
+  date: event.date,
+  location: event.location ? sanitizeString(event.location) : undefined,
+  participants: event.participants,
+  createdAt: event.createdAt
+});
+
 const sanitizeTask = (task: Task): Task => ({
   title: sanitizeString(task.title),
   description: task.description ? sanitizeString(task.description) : undefined,
-  notes: task.notes ? sanitizeString(task.notes) : undefined,
   createdAt: task.createdAt,
   dueDate: task.dueDate,
   priority: task.priority,
-  status: task.status
+  status: task.status,
+  assignedTo: task.assignedTo
 });
 
 const sanitizeContact = (contact: EmergencyContact): EmergencyContact => ({
@@ -168,9 +195,12 @@ export const addEvent = async (req: Request, res: Response) => {
 
     await userData.save();
     
+    const lastEvent = userData.events[userData.events.length - 1];
+    const sanitizedEvent = sanitizeEvent(lastEvent);
+    
     res.status(201).json({ 
       message: 'Event added successfully', 
-      event: userData.events[userData.events.length - 1] 
+      event: sanitizedEvent 
     });
   } catch (error) {
     console.error('Error adding event:', error);

@@ -6,6 +6,7 @@ export interface ErrorResponse {
 export interface AuthResponse {
   message: string;
   accessToken?: string;
+  
   username?: string;
   user?: UserProfile;
   error?: ErrorResponse;
@@ -17,6 +18,7 @@ export interface UserProfile {
   email: string;
   name?: string;
   dob?: string;
+  phoneNumber?: string | null;
   mobileNumber?: string | null;
   gender?: string;
 }

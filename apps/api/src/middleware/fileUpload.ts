@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
 
@@ -30,7 +30,7 @@ const PLACEHOLDER_FILE = {
 // Simple file upload middleware
 const upload = {
   single: (fieldName: string): FileUploadMiddleware => {
-    return (req: any, res: any, next: () => void) => {
+    return (req: Request, res: Response, next: NextFunction) => {
       // Add a file property to the request with placeholder values
       req.file = {
         filename: PLACEHOLDER_FILE.FILENAME,
