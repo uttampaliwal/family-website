@@ -24,10 +24,13 @@ const VerifyEmailPage: React.FC = () => {
 
   const verifyEmail = useCallback(async (token: string) => {
       try {
+        const xsrfToken = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1];
+
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': xsrfToken || '',
           },
           body: JSON.stringify({ token }),
         });

@@ -128,5 +128,5 @@ export const shareDocument = async (id: string, username: string): Promise<void>
   const validatedId = validateId(id);
   const validatedUsername = validateUsername(username);
   
-  await api.post(API_ENDPOINTS.DOCUMENT_SHARE(validatedId), { username: validatedUsername });
+  await api.post(API_ENDPOINTS.DOCUMENT_SHARE(validatedId), { username: String(validatedUsername) });
 };

@@ -186,7 +186,6 @@ export const addPhoto = async (req: Request, res: Response) => {
     
     // Sanitize photo data to prevent XSS
     const photoData = {
-      ...rawPhotoData,
       title: sanitizeString(rawPhotoData.title),
       description: sanitizeString(rawPhotoData.description),
       caption: sanitizeString(rawPhotoData.caption)
