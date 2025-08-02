@@ -26,13 +26,11 @@ const DocumentSchema: Schema = new Schema({
   owner: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    index: true // Add index for faster queries
+    required: true
   },
   sharedWith: [{
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    index: true // Add index for shared document queries
+    ref: 'User'
   }],
   fileUrl: {
     type: String

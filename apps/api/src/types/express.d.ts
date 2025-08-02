@@ -19,6 +19,7 @@ declare global {
         path?: string;
         buffer?: Buffer;
       };
+      cookies: { [key: string]: string; };
     }
   }
 }

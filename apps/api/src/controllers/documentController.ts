@@ -276,11 +276,16 @@ export const shareDocument = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Username is required' });
     }
 
-    // Sanitize username input to prevent NoSQL injection
+    // Validate and sanitize username input to prevent NoSQL injection
     const sanitizedUsername = String(username).trim();
     
-    // Verify target user exists
-    const targetUser = await User.findOne({ username: sanitizedUsername });
+    // Additional validation to prevent NoSQL injection
+    if (!/^[a-zA-Z0-9_.-]+$/.test(sanitizedUsername)) {
+      return res.status(400).json({ message: 'Invalid username format' });
+    }
+    
+    // Verify target user exists using strict string matching
+    const targetUser = await User.findOne({ username: { $eq: sanitizedUsername } });
     if (!targetUser) {
       return res.status(404).json({ message: 'Target user not found' });
     }

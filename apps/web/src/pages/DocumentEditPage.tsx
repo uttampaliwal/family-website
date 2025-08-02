@@ -82,8 +82,9 @@ const DocumentEditPage: React.FC = () => {
       navigate('/documents');
     } catch (error) {
       // Structured error logging with context
+      const errorMessage = error && typeof error === 'object' && 'message' in error ? String(error.message) : 'Unknown error';
       const errorInfo = {
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: errorMessage,
         documentId: isNewDocument ? 'new' : id,
         title: title,
         timestamp: new Date().toISOString(),
@@ -91,22 +92,22 @@ const DocumentEditPage: React.FC = () => {
       };
       console.error('Error saving document:', JSON.stringify(errorInfo));
       
-      let errorMessage = 'Failed to save document';
-      if (error instanceof Error) {
-        if (error.message.includes('403') || error.message.includes('unauthorized')) {
-          errorMessage = 'You do not have permission to save this document.';
-        } else if (error.message.includes('413') || error.message.includes('too large')) {
-          errorMessage = 'File is too large. Please choose a smaller file.';
-        } else if (error.message.includes('400') || error.message.includes('validation')) {
-          errorMessage = 'Invalid document data. Please check your input.';
-        } else if (error.message.includes('500')) {
-          errorMessage = 'Server error. Please try again later.';
-        } else if (error.message.includes('network') || error.message.includes('Network')) {
-          errorMessage = 'Network error. Please check your connection.';
+      let displayMessage = 'Failed to save document';
+      if (errorMessage) {
+        if (errorMessage.includes('403') || errorMessage.includes('unauthorized')) {
+          displayMessage = 'You do not have permission to save this document.';
+        } else if (errorMessage.includes('413') || errorMessage.includes('too large')) {
+          displayMessage = 'File is too large. Please choose a smaller file.';
+        } else if (errorMessage.includes('400') || errorMessage.includes('validation')) {
+          displayMessage = 'Invalid document data. Please check your input.';
+        } else if (errorMessage.includes('500')) {
+          displayMessage = 'Server error. Please try again later.';
+        } else if (errorMessage.includes('network') || errorMessage.includes('Network')) {
+          displayMessage = 'Network error. Please check your connection.';
         }
       }
       
-      showToast(errorMessage, 'error');
+      showToast(displayMessage, 'error');
     } finally {
       setSaving(false);
     }

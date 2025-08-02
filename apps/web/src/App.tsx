@@ -140,8 +140,12 @@ function App() {
                   Reload Page
                 </button>
               </div>}
-              onError={(error, errorInfo) => {
-                console.error('ErrorBoundary caught an error:', { error: error.message, errorInfo });
+              onError={(error) => {
+                const sanitizedError = {
+                  message: error?.message?.replace(/[<>"'&\n\r\t]/g, '') || 'Unknown error',
+                  timestamp: new Date().toISOString()
+                };
+                console.error('ErrorBoundary caught an error:', sanitizedError);
               }}
             >
               <Suspense fallback={

@@ -44,6 +44,12 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
 }) => {
   const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value || '';
+    // Basic email format validation
+    if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      e.target.setCustomValidity('Please enter a valid email address');
+    } else {
+      e.target.setCustomValidity('');
+    }
     handlers.setEmail(value);
   }, [handlers]);
 

@@ -59,9 +59,14 @@ const DocumentViewPage: React.FC = () => {
   }, [id, navigate, showToast, fetchDocument]);
 
   const handleDelete = async () => {
+    if (!id) {
+      showToast('Invalid document ID', 'error');
+      return;
+    }
+    
     if (window.confirm('Are you sure you want to delete this document?')) {
       try {
-        await deleteDocument(id!);
+        await deleteDocument(id);
         showToast('Document deleted successfully', 'success');
         navigate('/documents');
       } catch (error) {

@@ -15,7 +15,7 @@ const ComponentSkeleton: React.FC<ComponentSkeletonProps> = ({
     <div className={`animate-pulse space-y-4 ${className}`}>
       {Array.from({ length: rows }).map((_, index) => (
         <div
-          key={index}
+          key={`skeleton-${index}`}
           className={`${height} bg-gray-200 dark:bg-gray-700 rounded-lg`}
         />
       ))}

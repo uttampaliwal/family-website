@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import api from '../api/axios';
 import { useFormValidation } from '../hooks/useFormValidation';
@@ -29,6 +29,7 @@ const RegisterPage: React.FC = () => {
 
   const { validateEmail, validatePassword } = useFormValidation();
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   const validateStep2 = useCallback(() => {
     if (!email || !username || !password || !confirmPassword) {
@@ -127,6 +128,9 @@ const RegisterPage: React.FC = () => {
 
       if (response.status === 201) {
         showToast(data.message || 'Registration successful! Please check your email for verification.', 'success');
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000); // Navigate after 3 seconds to allow user to read the toast
       } else {
         showToast(data.message || 'An unexpected error occurred.', 'error');
       }
@@ -135,8 +139,12 @@ const RegisterPage: React.FC = () => {
         if (error.response) {
           if (error.response.status === 400 && error.response.data?.message) {
             showToast(error.response.data.message, 'error');
+          } else if (error.response.status === 409) {
+            showToast('User already exists. Please try with different email or username.', 'error');
           } else if (error.response.status >= 500) {
             showToast('Server error. Please try again later.', 'error');
+          } else {
+            showToast('Registration failed. Please check your information.', 'error');
           }
         } else if (error.code === 'NETWORK_ERROR') {
           showToast('Network error. Please check your connection.', 'error');
@@ -144,7 +152,7 @@ const RegisterPage: React.FC = () => {
           showToast('Registration failed. Please try again.', 'error');
         }
       } else {
-        showToast('Registration failed. Please try again.', 'error');
+        showToast('An unexpected error occurred. Please try again.', 'error');
       }
     } finally {
       setLoading(false);

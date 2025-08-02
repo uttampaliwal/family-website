@@ -18,11 +18,14 @@ interface EmailOptions {
 
 export const sendEmail = async (options: EmailOptions) => {
   try {
+    // Sanitize HTML content to prevent XSS
+    const sanitizedHtml = String(options.html || '').replace(/<script[^>]*>.*?<\/script>/gi, '').replace(/javascript:/gi, '').replace(/on\w+\s*=/gi, '');
+    
     await transporter.sendMail({
       from: process.env.EMAIL_USER, // Sender address
       to: options.to,
       subject: options.subject,
-      html: options.html,
+      html: sanitizedHtml,
     });
     const logData = {
       level: 'info',

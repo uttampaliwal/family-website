@@ -28,9 +28,9 @@ export const errorHandler = (
       level: 'error',
       timestamp: new Date().toISOString(),
       ...sanitizedError,
-      url: req.url,
-      method: req.method,
-      userAgent: req.get('User-Agent')?.replace(/[\n\r\t]/g, '') || 'Unknown'
+      url: String(req.url || '').replace(/[\n\r\t<>"'&]/g, ''),
+      method: String(req.method || '').replace(/[\n\r\t<>"'&]/g, ''),
+      userAgent: req.get('User-Agent')?.replace(/[\n\r\t<>"'&]/g, '') || 'Unknown'
     };
     console.error(JSON.stringify(logEntry));
   }
@@ -52,6 +52,10 @@ export const errorHandler = (
 
   // Ensure response hasn't been sent already
   if (!res.headersSent) {
-    res.status(statusCode).json(errorResponse);
+    try {
+      res.status(statusCode).json(errorResponse);
+    } catch (responseError) {
+      console.error('Failed to send error response:', responseError instanceof Error ? responseError.message : 'Unknown error');
+    }
   }
 };

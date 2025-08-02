@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 
 import { 
   getDocuments, 
@@ -17,7 +17,7 @@ import path from 'path';
 const router = express.Router();
 
 // Apply authentication middleware to all routes
-router.use(authMiddleware as any as express.RequestHandler);
+router.use(authMiddleware);
 
 // Get all documents
 router.get('/', getDocuments);
@@ -26,16 +26,16 @@ router.get('/', getDocuments);
 router.get('/:id', getDocumentById);
 
 // Create a new document
-router.post('/', validateCsrfToken, upload.single('file'), createDocument);
+router.post('/', validateCsrfToken as RequestHandler, upload.single('file'), createDocument);
 
 // Update a document
 router.put('/:id', validateCsrfToken, updateDocument);
 
 // Delete a document
-router.delete('/:id', validateCsrfToken, deleteDocument);
+router.delete('/:id', validateCsrfToken as RequestHandler, deleteDocument);
 
 // Share a document
-router.post('/:id/share', validateCsrfToken, shareDocument);
+router.post('/:id/share', validateCsrfToken as RequestHandler, shareDocument);
 
 // Download a document file
 router.get('/:id/download', downloadFile);

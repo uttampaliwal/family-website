@@ -56,8 +56,9 @@ export const validate = (schema: Joi.ObjectSchema) => {
     if (error) {
       const categorizedErrors = error.details.map((err) => {
         const sanitizedMessage = String(err.message).replace(/[<>"'&]/g, '');
+        const sanitizedField = String(err.path.join('.')).replace(/[<>"'&]/g, '');
         return {
-          field: err.path.join('.'),
+          field: sanitizedField,
           message: sanitizedMessage,
           type: err.type
         };

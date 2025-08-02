@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import rateLimit from 'express-rate-limit';
 
 import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout, updateUserProfile } from '../controllers/authController';
@@ -22,16 +22,16 @@ const loginLimiter = rateLimit({
 });
 
 // Register Route
-router.post('/register', authLimiter, validate(registerSchema), validateCsrfToken, register);
+router.post('/register', authLimiter, validate(registerSchema), validateCsrfToken as RequestHandler, register);
 
 // Sign In Route
-router.post('/login', loginLimiter, validate(loginSchema), validateCsrfToken, login);
+router.post('/login', loginLimiter, validateCsrfToken, validate(loginSchema), login);
 
 // Verify Email Route
-router.post('/verify-email', validate(verifyEmailSchema), validateCsrfToken, verifyEmail);
+router.post('/verify-email', validateCsrfToken, validate(verifyEmailSchema), verifyEmail);
 
 // Resend Verification Email Route
-router.post('/resend-verification', validate(resendVerificationSchema), validateCsrfToken, resendVerification);
+router.post('/resend-verification', validateCsrfToken, validate(resendVerificationSchema), resendVerification);
 
 // Refresh Token Route
 router.post('/refresh-token', validateCsrfToken, refreshToken); // CWE-352: Addressed by validateCsrfToken. CWE-1275: Not applicable to this route.
@@ -52,6 +52,6 @@ router.post('/reset-password/:token', validateCsrfToken, validate(resetPasswordS
 router.post('/reset-password', validateCsrfToken, validate(resetPasswordSchema), resetPassword);
 
 // Logout Route
-router.post('/logout', validateCsrfToken, logout);
+router.post('/logout', validateCsrfToken as RequestHandler, logout);
 
 export default router;
