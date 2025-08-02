@@ -82,7 +82,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       },
-      jwtSecret!,
+      jwtSecret as string,
       {
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -96,7 +96,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       },
-      refreshTokenSecret!,
+      refreshTokenSecret as string,
       {
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -179,7 +179,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      jwtSecret!,
+      jwtSecret as string,
       { 
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -196,7 +196,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      refreshTokenSecret!,
+      refreshTokenSecret as string,
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -309,7 +309,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      jwtSecret, 
+      jwtSecret as string, 
       { 
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -327,7 +327,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      refreshTokenSecret, 
+      process.env.REFRESH_TOKEN_SECRET as string, 
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
