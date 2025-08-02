@@ -1,35 +1,35 @@
 import React, { useState, useEffect, type ReactNode } from 'react';
 import api from '../api/axios';
-import { AuthContext } from './AuthContextDefinition';
+import { AuthContext, type User } from './AuthContextDefinition';
 
 // Constants for better maintainability
 const STORAGE_KEYS = {
-  USERNAME: import.meta.env.VITE_USERNAME_KEY || 'username',
+  USER: import.meta.env.VITE_USER_KEY || 'user',
   ACCESS_TOKEN: import.meta.env.VITE_ACCESS_TOKEN_KEY || 'accessToken'
 } as const;
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [authState, setAuthState] = useState({
-    isLoggedIn: false,
-    username: null as string | null
-  });
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem(STORAGE_KEYS.USERNAME);
-    const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-    if (storedUsername && accessToken) {
-      setAuthState({ isLoggedIn: true, username: storedUsername });
-    }
-  }, []);
-
-  const login = (user: string) => {
+  const [authState, setAuthState] = useState<{ isLoggedIn: boolean; user: User | null }>((() => {
     try {
-      if (!user || typeof user !== 'string' || user.trim() === '') {
-        throw new Error('Invalid username provided');
+      const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
+      const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+      if (storedUser && accessToken) {
+        return { isLoggedIn: true, user: JSON.parse(storedUser) };
+      }
+    } catch (error) {
+      console.error('Error reading auth state from localStorage:', error);
+    }
+    return { isLoggedIn: false, user: null };
+  })());
+
+  const login = (user: User) => {
+    try {
+      if (!user || typeof user !== 'object' || !user.username) {
+        throw new Error('Invalid user object provided');
       }
       
-      const sanitizedUser = user.trim();
-      setAuthState({ isLoggedIn: true, username: sanitizedUser });
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      setAuthState({ isLoggedIn: true, user });
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -45,18 +45,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } finally {
       try {
         localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.USERNAME);
+        localStorage.removeItem(STORAGE_KEYS.USER);
       } catch (storageError) {
         console.error('Error clearing localStorage:', storageError);
       }
-      setAuthState({ isLoggedIn: false, username: null });
+      setAuthState({ isLoggedIn: false, user: null });
     }
   };
 
   return (
     <AuthContext.Provider value={{ 
       isLoggedIn: authState.isLoggedIn, 
-      username: authState.username, 
+      user: authState.user, 
       login, 
       logout 
     }}>
@@ -64,4 +64,3 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     </AuthContext.Provider>
   );
 };
-

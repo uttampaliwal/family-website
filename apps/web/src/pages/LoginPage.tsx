@@ -32,9 +32,9 @@ const LoginPage: React.FC = () => {
       const data = response.data;
       if (response.status === 200) {
         localStorage.setItem('accessToken', data.accessToken || '');
-        login(data.username || '');
+        login(data.user);
         showToast(data.message || 'Login successful!', 'success');
-        navigate(`/profile/${data.username}`);
+        navigate(`/profile/${data.user.username}`);
       }
     } catch (error) {
       // Structured error logging with context

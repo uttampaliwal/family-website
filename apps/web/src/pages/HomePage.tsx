@@ -28,6 +28,8 @@ interface ActivityItem {
   icon: string;
 }
 
+import WelcomeMessage from '../components/WelcomeMessage';
+
 const HomePage: React.FC = () => {
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -96,13 +98,7 @@ const HomePage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="container mx-auto px-4 py-8"
       >
-        {/* Hero Section - Hidden on mobile for cleaner look */}
-        <section className="hidden md:block text-center mb-12">
-          <h1 className="font-cursive text-6xl font-bold mb-6 gradient-text">
-            Welcome to Our Family Portal
-          </h1>
-          <p className="text-xl text-gray-700 dark:text-gray-300">Your central hub for family coordination and memories</p>
-        </section>
+        <WelcomeMessage />
 
         {/* Quick Actions */}
         <section className="mb-12">

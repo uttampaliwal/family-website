@@ -17,15 +17,19 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
 
   try {
     // Sanitize email input to prevent NoSQL injection
-    const sanitizedEmail = typeof email === 'string' ? email.replace(/[{}$]/g, '') : String(email);
-    let user = await User.findOne({ email: sanitizedEmail });
+    if (typeof email !== 'string') {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+    let user = await User.findOne({ email: email });
     if (user) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
     // Sanitize username input to prevent NoSQL injection
-    const sanitizedUsername = typeof username === 'string' ? username.replace(/[{}$]/g, '') : String(username);
-    user = await User.findOne({ username: sanitizedUsername });
+    if (typeof username !== 'string') {
+      return res.status(400).json({ message: 'Invalid username format' });
+    }
+    user = await User.findOne({ username: username });
     if (user) {
       return res.status(400).json({ message: 'Username is already taken. Please choose another.' });
     }
@@ -56,6 +60,9 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       html: `<p>Please click the link below to verify your email address:</p><p><a href="${verificationUrl}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
     });
 
+      if (!jwtSecret) {
+        throw new Error('JWT_SECRET environment variable is not configured');
+      }
       const accessToken = jwt.sign(
       {
         id: user.id,
