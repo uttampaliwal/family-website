@@ -1,6 +1,17 @@
 import Joi from 'joi';
 import { Request, Response, NextFunction } from 'express';
 
+// Helper function to HTML-encode a string
+const htmlEncode = (str: string) => {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};
+
 // Constants for validation patterns and messages
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
 const PASSWORD_ERROR_MESSAGE = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.';
@@ -55,8 +66,8 @@ export const validate = (schema: Joi.ObjectSchema) => {
 
     if (error) {
       const categorizedErrors = error.details.map((err) => {
-        const sanitizedMessage = String(err.message).replace(/[<>"'&]/g, '');
-        const sanitizedField = String(err.path.join('.')).replace(/[<>"'&]/g, '');
+        const sanitizedMessage = htmlEncode(String(err.message));
+        const sanitizedField = htmlEncode(String(err.path.join('.')));
         return {
           field: sanitizedField,
           message: sanitizedMessage,

@@ -11,7 +11,7 @@ interface ShareDocumentModalProps {
 
 // Simple client-side log sanitization
 const sanitizeClientLog = (input: unknown): string => {
-  return String(input ?? '').replace(/[\n\r\t]/g, '');
+  return String(input ?? '').replace(/[\n\r\t\x00-\x1f\x7f-\x9f<>"'&]/g, '');
 };
 
 const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({ 

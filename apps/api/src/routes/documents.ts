@@ -29,7 +29,7 @@ router.get('/:id', getDocumentById);
 router.post('/', validateCsrfToken as RequestHandler, upload.single('file'), createDocument);
 
 // Update a document
-router.put('/:id', validateCsrfToken, updateDocument);
+router.put('/:id', validateCsrfToken as RequestHandler, updateDocument);
 
 // Delete a document
 router.delete('/:id', validateCsrfToken as RequestHandler, deleteDocument);

@@ -106,12 +106,23 @@ export const getUserData = async (req: Request, res: Response) => {
       ...userData.toObject(),
       events: userData.events?.map(event => ({
         ...event,
-        title: String(event.title || '').replace(/[<>"'&]/g, ''),
-        description: String(event.description || '').replace(/[<>"'&]/g, '')
+        title: htmlEncode(String(event.title || '')),
+        description: event.description ? htmlEncode(String(event.description)) : undefined,
+        location: event.location ? htmlEncode(String(event.location)) : undefined
+      })),
+      tasks: userData.tasks?.map(task => ({
+        ...task,
+        title: htmlEncode(String(task.title || '')),
+        description: task.description ? htmlEncode(String(task.description)) : undefined
+      })),
+      photos: userData.photos?.map(photo => ({
+        ...photo,
+        title: photo.title ? htmlEncode(String(photo.title)) : undefined,
+        description: photo.description ? htmlEncode(String(photo.description)) : undefined,
+        caption: photo.caption ? htmlEncode(String(photo.caption)) : undefined
       })),
       emergencyContacts: userData.emergencyContacts?.map(sanitizeContact)
     };
-    
     res.status(200).json(sanitizedUserData);
   } catch (error: unknown) {
     const sanitizedError = {
@@ -337,13 +348,7 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
     
     // Sanitize contact before returning to prevent XSS
     const lastContact = userData.emergencyContacts[userData.emergencyContacts.length - 1];
-    const sanitizedContact = {
-      ...sanitizeContact(lastContact),
-      name: String(lastContact.name || '').replace(/[<>"'&]/g, ''),
-      phoneNumber: String(lastContact.phoneNumber || '').replace(/[<>"'&]/g, ''),
-      email: lastContact.email ? String(lastContact.email).replace(/[<>"'&]/g, '') : undefined,
-      relationship: lastContact.relationship ? String(lastContact.relationship).replace(/[<>"'&]/g, '') : undefined
-    };
+    const sanitizedContact = sanitizeContact(lastContact);
     
     res.status(201).json({ 
       message: 'Emergency contact added successfully', 

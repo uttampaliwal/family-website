@@ -115,7 +115,7 @@ const startServer = async () => {
 
   // Implement graceful shutdown to properly close resources.
   const gracefulShutdown = (signal: string) => {
-    const sanitizedSignal = String(signal).replace(/[\n\r\t\x00-\x1f\x7f-\x9f<>"'&]/g, '');
+    const sanitizedSignal = sanitizeLog(String(signal));
     console.log(`\n${sanitizedSignal} received. Shutting down gracefully...`);
     server.close((err) => {
       if (err) {
