@@ -33,11 +33,18 @@ export const forgotPassword = async (data: ForgotPasswordRequest): Promise<AuthR
     throw new Error('Valid email is required');
   }
   
-  const response = await api.post<AuthResponse>('/api/auth/forgot-password', data);
-  
-  if (!response.data || typeof response.data !== 'object') {
-    throw new Error('Invalid response from server');
+  try {
+    const response = await api.post<AuthResponse>('/api/auth/forgot-password', data);
+    
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error('Invalid response from server');
+    }
+    
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to send password reset email');
   }
-  
-  return response.data;
 };

@@ -96,11 +96,18 @@ const startServer = async () => {
   const gracefulShutdown = (signal: string) => {
     const sanitizedSignal = String(signal).replace(/[\n\r\t]/g, '');
     console.log(`\n${sanitizedSignal} received. Shutting down gracefully...`);
-    server.close(() => {
-      console.log('HTTP server closed.');
+    server.close((err) => {
+      if (err) {
+        console.error('Error closing HTTP server:', err);
+      } else {
+        console.log('HTTP server closed.');
+      }
       mongoose.connection.close(false).then(() => {
         console.log('MongoDB connection closed.');
         process.exit(0);
+      }).catch((err) => {
+        console.error('Error closing MongoDB connection:', err);
+        process.exit(1);
       });
     });
   };

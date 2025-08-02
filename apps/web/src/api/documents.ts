@@ -82,24 +82,20 @@ export const getDocumentById = async (id: string): Promise<Document> => {
 
 // Create a new document
 export const createDocument = async (title: string, content: string, file?: File): Promise<Document> => {
-  // If there's a file, use FormData
-  if (file) {
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('content', content);
-    formData.append('file', file);
-    
-    const response = await api.post(API_ENDPOINTS.DOCUMENTS, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    return response.data;
-  } else {
-    // No file, use regular JSON
+  if (!file) {
     const response = await api.post(API_ENDPOINTS.DOCUMENTS, { title, content });
     return response.data;
   }
+  
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('content', content);
+  formData.append('file', file);
+  
+  const response = await api.post(API_ENDPOINTS.DOCUMENTS, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
 };
 
 // Update a document
