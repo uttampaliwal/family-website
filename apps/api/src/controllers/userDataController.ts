@@ -205,9 +205,14 @@ export const addPhoto = async (req: Request, res: Response) => {
 
     await userData.save();
     
+    const lastPhoto = userData.photos[userData.photos.length - 1];
+    const sanitizedPhoto = {
+      title: sanitizeString(lastPhoto.title),
+      description: sanitizeString(lastPhoto.description)
+    };
     res.status(201).json({ 
       message: 'Photo added successfully', 
-      photo: userData.photos[userData.photos.length - 1] 
+      photo: sanitizedPhoto 
     });
   } catch (error) {
     console.error('Error adding photo:', error);
