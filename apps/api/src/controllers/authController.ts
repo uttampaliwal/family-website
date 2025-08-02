@@ -372,11 +372,14 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
 
     // Sanitize user data before returning to prevent XSS
     const sanitizedUser = {
-      ...user.toObject(),
+      id: user._id,
       name: htmlEncode(user.name || ''),
       username: htmlEncode(user.username || ''),
       email: htmlEncode(user.email || ''),
       dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : undefined,
+      phoneNumber: user.phoneNumber ? htmlEncode(user.phoneNumber) : undefined,
+      gender: user.gender,
+      isVerified: user.isVerified,
     };
     
     res.status(200).json(sanitizedUser);
