@@ -1,14 +1,4 @@
-#!/bin/sh
-# wait-for-it.sh
-# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-
-set -e
-
 WAITFORIT_cmdname=$(basename $0)
-WAITFORIT
-WAITFORIT_HOST=""
-WAITFORIT_PORT=""
 WAITFORIT_TIMEOUT=15
 WAITFORIT_STRICT=0
 WAITFORIT_CHILD=0
@@ -22,7 +12,7 @@ echoerr() {
 
 usage()
 {
-    cat <<EOF | tr -d '\r' >&2
+    cat <<EOF
 Usage:
     $WAITFORIT_cmdname host:port [-s] [-t timeout] [-- command args]
     -h HOST | --host=HOST       Host or IP under test

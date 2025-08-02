@@ -1,4 +1,4 @@
-import express, { Express } from 'express';
+import express, { Express, RequestHandler } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -89,8 +89,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(generateCsrfToken);
-app.use(validateCsrfToken);
+app.use(generateCsrfToken as RequestHandler);
+app.use(validateCsrfToken as RequestHandler);
 
 // API routes.
 app.use('/api/auth', authRoutes);
@@ -114,7 +114,7 @@ const startServer = async () => {
 
   // Implement graceful shutdown to properly close resources.
   const gracefulShutdown = (signal: string) => {
-    const sanitizedSignal = String(signal).replace(/[\n\r\t\x00-\x1f\x7f-\x9f]/g, '');
+    const sanitizedSignal = String(signal).replace(/[\n\r\t\x00-\x1f\x7f-\x9f<>"'&]/g, '');
     console.log(`\n${sanitizedSignal} received. Shutting down gracefully...`);
     server.close((err) => {
       if (err) {

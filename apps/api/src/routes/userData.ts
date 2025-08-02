@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 
 import { 
   getUserData, 
@@ -14,7 +14,7 @@ import { validateCsrfToken } from '../middleware/csrf';
 const router = express.Router();
 
 // Apply authentication middleware to all routes
-router.use(authMiddleware as any as express.RequestHandler);
+router.use(authMiddleware);
 
 // Routes
 // Get user data
@@ -33,6 +33,6 @@ router.post('/:userId/photos', validateCsrfToken, addPhoto);
 router.post('/:userId/tasks', validateCsrfToken, addTask);
 
 // Add an emergency contact
-router.post('/:userId/emergency-contacts', validateCsrfToken, addEmergencyContact);
+router.post('/:userId/emergency-contacts', validateCsrfToken as RequestHandler, addEmergencyContact);
 
 export default router;

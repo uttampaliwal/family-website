@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 // Since we can't install multer, let's create a simple middleware
-type FileUploadMiddleware = (req: Request, res: any, next: () => void) => void;
+type FileUploadMiddleware = (req: Request, res: Response, next: NextFunction) => void;
 
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, '../../uploads');

@@ -1,18 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 
-interface CustomRequest extends Request {
-  csrfToken?: string;
-}
-
-export const generateCsrfToken = (req: CustomRequest, res: Response, next: NextFunction) => {
-  const token = crypto.randomBytes(32).toString('hex');
-  res.cookie('XSRF-TOKEN', token, { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' });
-  req.csrfToken = token;
+export const generateCsrfToken = (req: Request, res: Response, next: NextFunction): void => {
+  if (!req.cookies?.['XSRF-TOKEN']) {
+    const csrfToken = crypto.randomBytes(100).toString('base64');
+    res.cookie('XSRF-TOKEN', csrfToken, { httpOnly: false, secure: process.env.NODE_ENV === 'production' });
+  }
   next();
 };
 
-export const validateCsrfToken = (req: CustomRequest, res: Response, next: NextFunction) => {
+export const validateCsrfToken = (req: Request, res: Response, next: NextFunction): void => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return next();
   }
@@ -21,7 +18,7 @@ export const validateCsrfToken = (req: CustomRequest, res: Response, next: NextF
   const cookieToken = req.cookies?.['XSRF-TOKEN'];
 
   if (!clientToken || !cookieToken || typeof clientToken !== 'string' || typeof cookieToken !== 'string' || clientToken !== cookieToken) {
-    return res.status(403).json({ message: 'CSRF token mismatch' });
+    res.status(403).json({ message: 'CSRF token mismatch' });
   }
 
   next();

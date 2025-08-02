@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { AuthRequest } from '../types/auth';
 
 
 
@@ -11,7 +10,7 @@ import { AuthRequest } from '../types/auth';
  * @param res - Express response object
  * @param next - Express next function to continue middleware chain
  */
-export default function (req: AuthRequest, res: Response, next: NextFunction) {
+export default function (req: Request, res: Response, next: NextFunction) {
   // Get token from header
   const token = (req.headers as any)['x-auth-token'] as string;
 
@@ -22,7 +21,10 @@ export default function (req: AuthRequest, res: Response, next: NextFunction) {
 
   // Verify token
   try {
-    const jwtSecret = process.env.JWT_SECRET as string;
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is not set');
+    }
     
     // Use constant-time comparison for token verification
     const decoded = jwt.verify(token, jwtSecret, {

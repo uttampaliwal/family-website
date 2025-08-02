@@ -53,6 +53,3 @@ export interface UserProfile {
   gender?: 'male' | 'female' | 'other';
 }
 
-export interface AuthRequest extends Request {
-  user?: { id: string; username: string; email: string; };
-}
