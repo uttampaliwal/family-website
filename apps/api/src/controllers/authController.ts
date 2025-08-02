@@ -4,7 +4,15 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { sendEmail } from '../utils/emailService';
 import User from '../models/User';
-import type { AuthResponse, RegisterRequest, LoginRequest, VerifyEmailRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, UserProfile } from '../types/auth';
+import { AuthRequest, RegisterRequest, LoginRequest, VerifyEmailRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, AuthResponse, UserProfile } from '../types/auth';
+
+function sanitizeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+}
 
 const jwtSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
@@ -87,7 +95,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       },
-      jwtSecret as string,
+      Buffer.from(jwtSecret, 'hex'),
       {
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -101,7 +109,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       },
-      refreshTokenSecret as string,
+      Buffer.from(refreshTokenSecret, 'hex'),
       {
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -184,7 +192,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      jwtSecret as string,
+      Buffer.from(jwtSecret, 'hex'),
       { 
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -201,7 +209,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      process.env.REFRESH_TOKEN_SECRET as string,
+      Buffer.from(refreshTokenSecret, 'hex'),
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -220,7 +228,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({ message: 'Logged in successfully', accessToken: accessToken, username: String(user.username).replace(/[<>"'&\/<>]/g, '').replace(/javascript:/gi, '').replace(/on\w+=/gi, '') });
+    res.json({ message: 'Logged in successfully', accessToken: accessToken, username: htmlEncode(user.username) });
   } catch (err: any) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'An error occurred during login.' });
@@ -335,7 +343,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      Buffer.from(refreshTokenSecret, 'hex'), 
+      refreshTokenSecret, 
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -343,7 +351,6 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
         audience: 'family-website-users'
       }
     );
-    user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
     user.refreshTokens.push(newRefreshToken);
     await user.save();
     res.cookie('refreshToken', newRefreshToken, {
@@ -447,7 +454,7 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
       html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
              <p>Please visit the password reset page and enter your reset code:</p>
              <p><a href="${resetUrl}">Reset Password</a></p>
-             <p>Your reset code: <strong>${resetToken}</strong></p>
+             <p>Your reset code: <strong>${htmlEncode(resetToken)}</strong></p>
              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
     });
 
@@ -535,6 +542,6 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-    res.status(200).json({ message: 'Logged out successfully (token invalid).', error: { message: err instanceof Error ? err.message : 'Unknown error' } });
+    res.status(200).json({ message: 'Logged out successfully (token invalid).' });
   }
 };
