@@ -2,19 +2,14 @@ import { useCallback } from 'react';
 
 export const useFormValidation = () => {
   const validateEmail = useCallback((email: string) => {
-    try {
-      if (!email || typeof email !== 'string') {
-        return false;
-      }
-      const trimmedEmail = email.trim();
-      if (trimmedEmail.length === 0 || trimmedEmail.length > 254) {
-        return false;
-      }
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
-    } catch (error) {
-      console.error('Error validating email:', error);
+    if (!email || typeof email !== 'string') {
       return false;
     }
+    const trimmedEmail = email.trim();
+    if (trimmedEmail.length === 0 || trimmedEmail.length > 254) {
+      return false;
+    }
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
   }, []);
 
   const validatePassword = useCallback((password: string) => {

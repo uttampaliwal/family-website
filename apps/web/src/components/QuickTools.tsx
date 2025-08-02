@@ -134,11 +134,7 @@ const QuickTools: React.FC = () => {
       label: 'Add Event',
       color: '#2196F3',
       onClick: () => {
-        try {
-          console.log('Add event clicked');
-        } catch (error) {
-          console.error('Error handling add event action:', error);
-        }
+        // Add event action
       },
       delay: 0
     },
@@ -147,11 +143,7 @@ const QuickTools: React.FC = () => {
       label: 'Share Photo',
       color: '#00C853',
       onClick: () => {
-        try {
-          console.log('Share photo clicked');
-        } catch (error) {
-          console.error('Error handling share photo action:', error);
-        }
+        // Share photo action
       },
       delay: 0.1
     },
@@ -160,11 +152,7 @@ const QuickTools: React.FC = () => {
       label: 'Add Task',
       color: '#FFC107',
       onClick: () => {
-        try {
-          console.log('Add task clicked');
-        } catch (error) {
-          console.error('Error handling add task action:', error);
-        }
+        // Add task action
       },
       delay: 0.2
     },
@@ -173,17 +161,13 @@ const QuickTools: React.FC = () => {
       label: 'Emergency',
       color: '#F44336',
       onClick: () => {
-        try {
-          console.log('Emergency clicked');
-        } catch (error) {
-          console.error('Error handling emergency action:', error);
-        }
+        // Emergency action
       },
       delay: 0.3
     }
   ];
 
-  const QuickActionButton = ({ action }: { action: typeof QUICK_ACTIONS[0] }) => (
+  const QuickActionButton = ({ action }: { action: any }) => (
     <motion.button
       onClick={action.onClick}
       className="text-white p-6 flex flex-col items-center justify-center h-[120px] rounded-lg border-none outline-none"
@@ -216,11 +200,7 @@ const QuickTools: React.FC = () => {
           <button 
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium"
             onClick={() => {
-              try {
-                console.log('View All clicked');
-              } catch (error) {
-                console.error('Error handling view all action:', error);
-              }
+              // View all action
             }}
           >
             View All

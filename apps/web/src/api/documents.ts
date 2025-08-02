@@ -8,6 +8,10 @@ const API_ENDPOINTS = {
   DOCUMENT_SHARE: (id: string) => `/documents/${id}/share`
 } as const;
 
+const CONTENT_TYPES = {
+  MULTIPART_FORM_DATA: 'multipart/form-data'
+} as const;
+
 // Utility functions for validation
 const validateId = (id: string): string => {
   if (!id || typeof id !== 'string' || id.trim() === '') {
@@ -82,6 +86,8 @@ export const getDocumentById = async (id: string): Promise<Document> => {
 
 // Create a new document
 export const createDocument = async (title: string, content: string, file?: File): Promise<Document> => {
+  if (!title?.trim()) throw new Error('Title is required');
+  
   if (!file) {
     const response = await api.post(API_ENDPOINTS.DOCUMENTS, { title, content });
     return response.data;
@@ -93,7 +99,7 @@ export const createDocument = async (title: string, content: string, file?: File
   formData.append('file', file);
   
   const response = await api.post(API_ENDPOINTS.DOCUMENTS, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': CONTENT_TYPES.MULTIPART_FORM_DATA }
   });
   return response.data;
 };

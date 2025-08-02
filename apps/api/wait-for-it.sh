@@ -40,14 +40,13 @@ wait_for()
             fi
         fi
         
-        if [[ $WAITFORIT_ISBUSY -eq 1 ]]; then
-            if command -v nc >/dev/null 2>&1; then
-                nc -z "$WAITFORIT_HOST" "$WAITFORIT_PORT" 2>/dev/null
-                WAITFORIT_result=$?
-            else
-                echoerr "Error: nc command not found and busybox mode enabled"
-                return 1
-            fi
+        # Test connection using appropriate method
+        if [[ $WAITFORIT_ISBUSY -eq 1 ]] && command -v nc >/dev/null 2>&1; then
+            nc -z "$WAITFORIT_HOST" "$WAITFORIT_PORT" 2>/dev/null
+            WAITFORIT_result=$?
+        elif [[ $WAITFORIT_ISBUSY -eq 1 ]]; then
+            echoerr "Error: nc command not found and busybox mode enabled"
+            return 1
         else
             (echo -n > "/dev/tcp/$WAITFORIT_HOST/$WAITFORIT_PORT") >/dev/null 2>&1
             WAITFORIT_result=$?

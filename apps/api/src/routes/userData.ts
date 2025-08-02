@@ -19,7 +19,7 @@ router.use(authMiddleware);
 router.get('/:userId', getUserData);
 
 // Create or update user data
-router.put('/:userId', createOrUpdateUserData as express.RequestHandler);
+router.put('/:userId', createOrUpdateUserData);
 
 // Add an event
 router.post('/:userId/events', addEvent);

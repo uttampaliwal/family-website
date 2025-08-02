@@ -79,12 +79,10 @@ api.interceptors.response.use(
 function handleAuthFailure() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(USERNAME_KEY);
-  // Validate that the path is safe (starts with / and doesn't contain dangerous characters)
-  if (LOGIN_PATH.startsWith('/') && !/[<>"']/.test(LOGIN_PATH)) {
-    window.location.replace(LOGIN_PATH);
-  } else {
-    window.location.replace(ROOT_PATH);
-  }
+  
+  const isValidPath = LOGIN_PATH.startsWith('/') && !LOGIN_PATH.includes('<');
+  const redirectPath = isValidPath ? LOGIN_PATH : ROOT_PATH;
+  window.location.replace(redirectPath);
 }
 
 export default api;
