@@ -29,13 +29,13 @@ router.get('/:id', getDocumentById);
 router.post('/', validateCsrfToken, upload.single('file'), createDocument);
 
 // Update a document
-router.put('/:id', updateDocument);
+router.put('/:id', validateCsrfToken, updateDocument);
 
 // Delete a document
-router.delete('/:id', deleteDocument);
+router.delete('/:id', validateCsrfToken, deleteDocument);
 
 // Share a document
-router.post('/:id/share', shareDocument);
+router.post('/:id/share', validateCsrfToken, shareDocument);
 
 // Download a document file
 router.get('/:id/download', downloadFile);

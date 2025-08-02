@@ -54,7 +54,21 @@ const DocumentsPage: React.FC = () => {
         showToast('Document deleted successfully', 'success');
       } catch (error) {
         console.error('Error deleting document:', error);
-        showToast('Failed to delete document', 'error');
+        
+        let errorMessage = 'Failed to delete document';
+        if (error instanceof Error) {
+          if (error.message.includes('404')) {
+            errorMessage = 'Document not found or already deleted.';
+          } else if (error.message.includes('403') || error.message.includes('unauthorized')) {
+            errorMessage = 'You do not have permission to delete this document.';
+          } else if (error.message.includes('500')) {
+            errorMessage = 'Server error. Please try again later.';
+          } else if (error.message.includes('network') || error.message.includes('Network')) {
+            errorMessage = 'Network error. Please check your connection.';
+          }
+        }
+        
+        showToast(errorMessage, 'error');
       }
     }
   }, [showToast]);

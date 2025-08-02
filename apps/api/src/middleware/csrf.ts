@@ -17,10 +17,10 @@ export const validateCsrfToken = (req: CustomRequest, res: Response, next: NextF
     return next();
   }
 
-  const clientToken = req.headers['x-xsrf-token'] as string;
-  const cookieToken = req.cookies['XSRF-TOKEN'] as string;
+  const clientToken = req.headers['x-xsrf-token'];
+  const cookieToken = req.cookies?.['XSRF-TOKEN'];
 
-  if (!clientToken || !cookieToken || clientToken !== cookieToken) {
+  if (!clientToken || !cookieToken || typeof clientToken !== 'string' || typeof cookieToken !== 'string' || clientToken !== cookieToken) {
     return res.status(403).json({ message: 'CSRF token mismatch' });
   }
 

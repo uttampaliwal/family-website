@@ -29,11 +29,13 @@ const Button: React.FC<ButtonProps> = ({
   icon,
   ...props 
 }) => {
-  const buttonClasses = isPrimary 
-    ? BUTTON_STYLES.primary 
-    : color !== 'default' 
-    ? BUTTON_STYLES.colors[color] 
-    : BUTTON_STYLES.default;
+  const getButtonClasses = () => {
+    if (isPrimary) return BUTTON_STYLES.primary;
+    if (color !== 'default') return BUTTON_STYLES.colors[color];
+    return BUTTON_STYLES.default;
+  };
+  
+  const buttonClasses = getButtonClasses();
 
   return (
     <button 

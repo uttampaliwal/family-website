@@ -23,7 +23,16 @@ export const errorHandler = (
       message: err.message?.replace(/[\n\r\t]/g, '') || 'Unknown error',
       stack: err.stack?.replace(/[\n\r\t]/g, ' ') || 'No stack trace'
     };
-    console.error('Error:', JSON.stringify(sanitizedError));
+    // Use structured logging with appropriate log level
+    const logEntry = {
+      level: 'error',
+      timestamp: new Date().toISOString(),
+      ...sanitizedError,
+      url: req.url,
+      method: req.method,
+      userAgent: req.get('User-Agent')?.replace(/[\n\r\t]/g, '') || 'Unknown'
+    };
+    console.error(JSON.stringify(logEntry));
   }
 
   // If it's an HttpError from the http-errors package, use its properties

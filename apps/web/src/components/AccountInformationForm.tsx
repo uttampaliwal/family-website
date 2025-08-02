@@ -1,56 +1,67 @@
 import React, { useCallback } from 'react';
 import Button from './Button';
 
-interface AccountInformationFormProps {
+interface FormData {
   email: string;
-  setEmail: (email: string) => void;
   username: string;
-  setUsername: (username: string) => void;
   password: string;
-  setPassword: (password: string) => void;
   confirmPassword: string;
+}
+
+interface FormHandlers {
+  setEmail: (email: string) => void;
+  setUsername: (username: string) => void;
+  setPassword: (password: string) => void;
   setConfirmPassword: (confirmPassword: string) => void;
-  showPassword: boolean;
   setShowPassword: (showPassword: boolean) => void;
-  showConfirmPassword: boolean;
   setShowConfirmPassword: (showConfirmPassword: boolean) => void;
-  loading: boolean;
+  handlePrevious: () => void;
+}
+
+interface FormRefs {
   emailRef: React.RefObject<HTMLInputElement | null>;
   usernameRef: React.RefObject<HTMLInputElement | null>;
   passwordRef: React.RefObject<HTMLInputElement | null>;
   confirmPasswordRef: React.RefObject<HTMLInputElement | null>;
-  handlePrevious: () => void;
+}
+
+interface AccountInformationFormProps {
+  formData: FormData;
+  handlers: FormHandlers;
+  refs: FormRefs;
+  showPassword: boolean;
+  showConfirmPassword: boolean;
+  loading: boolean;
 }
 
 const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
-  email,
-  setEmail,
-  username,
-  setUsername,
-  password,
-  setPassword,
-  confirmPassword,
-  setConfirmPassword,
+  formData,
+  handlers,
+  refs,
   showPassword,
-  setShowPassword,
   showConfirmPassword,
-  setShowConfirmPassword,
   loading,
-  emailRef,
-  usernameRef,
-  passwordRef,
-  confirmPasswordRef,
-  handlePrevious,
 }) => {
   const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value || '';
-    setEmail(value);
-  }, [setEmail]);
+    handlers.setEmail(value);
+  }, [handlers]);
 
   const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value || '';
-    setUsername(value);
-  }, [setUsername]);
+    handlers.setUsername(value);
+  }, [handlers]);
+
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value || '';
+    handlers.setPassword(value);
+  }, [handlers]);
+
+  const handleConfirmPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value || '';
+    handlers.setConfirmPassword(value);
+  }, [handlers]);
+
   return (
     <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
       <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Account Information</h2>
@@ -59,12 +70,12 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         <input
           type="email"
           id="email"
-          value={email}
+          value={formData.email}
           onChange={handleEmailChange}
           required
           aria-required="true"
           disabled={loading}
-          ref={emailRef}
+          ref={refs.emailRef}
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -73,12 +84,12 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         <input
           type="text"
           id="username"
-          value={username}
+          value={formData.username}
           onChange={handleUsernameChange}
           required
           aria-required="true"
           disabled={loading}
-          ref={usernameRef}
+          ref={refs.usernameRef}
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -87,18 +98,18 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         <input
           type={showPassword ? 'text' : 'password'}
           id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handlePasswordChange}
           required
           aria-required="true"
           disabled={loading}
-          ref={passwordRef}
+          ref={refs.passwordRef}
           autoComplete="new-password"
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
         />
         <button
           type="button"
-          onClick={() => setShowPassword(!showPassword)}
+          onClick={() => handlers.setShowPassword(!showPassword)}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
@@ -110,18 +121,18 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         <input
           type={showConfirmPassword ? 'text' : 'password'}
           id="confirmPassword"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          value={formData.confirmPassword}
+          onChange={handleConfirmPasswordChange}
           required
           aria-required="true"
           disabled={loading}
-          ref={confirmPasswordRef}
+          ref={refs.confirmPasswordRef}
           autoComplete="new-password"
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
         />
         <button
           type="button"
-          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+          onClick={() => handlers.setShowConfirmPassword(!showConfirmPassword)}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
           aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
         >
@@ -129,7 +140,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         </button>
       </div>
       <div className="text-right mt-6">
-        <Button label="Previous" onClick={handlePrevious} disabled={loading} className="mr-4" />
+        <Button label="Previous" onClick={handlers.handlePrevious} disabled={loading} className="mr-4" />
         <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} />
       </div>
     </div>

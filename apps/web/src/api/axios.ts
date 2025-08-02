@@ -27,14 +27,39 @@ api.interceptors.request.use(
   }
 );
 
+// Helper function to refresh access token
+async function refreshAccessToken(): Promise<string | null> {
+  try {
+    const response = await axios.post<AuthResponse>(
+      `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, 
+      {}, 
+      { withCredentials: true }
+    );
+    return response.data.accessToken || null;
+  } catch (error) {
+    console.error('Unable to refresh token:', error);
+    handleAuthFailure();
+    throw error;
+  }
+}
+
+// Helper function to handle token refresh and retry
+async function handleTokenRefresh(originalRequest: any) {
+  originalRequest._retry = true;
+  
+  const newAccessToken = await refreshAccessToken();
+  if (newAccessToken) {
+    localStorage.setItem(ACCESS_TOKEN_KEY, newAccessToken);
+    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+    return api(originalRequest);
+  }
+  throw new Error('Failed to refresh token');
+}
+
 // Response interceptor to handle token refreshing
 api.interceptors.response.use(
-  // Success handler - simply return the response
   (response) => response,
-  
-  // Error handler with token refresh logic
   async (error) => {
-    // Early return if there's no error response or config
     if (!error.response || !error.config) {
       return Promise.reject(error);
     }
@@ -43,30 +68,10 @@ api.interceptors.response.use(
     const isTokenExpired = error.response.status === TOKEN_EXPIRED_STATUS;
     const isFirstRetry = !originalRequest._retry;
     
-    // Only attempt token refresh on 403 errors (token expired) and for first retry
     if (isTokenExpired && isFirstRetry) {
-      originalRequest._retry = true;
-      
       try {
-        // Request a new access token using the refresh token
-        const response = await axios.post<AuthResponse>(
-          `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, 
-          {}, 
-          { withCredentials: true }
-        );
-
-        // Store the new token if available
-        const newAccessToken = response.data.accessToken;
-        if (newAccessToken) {
-          localStorage.setItem(ACCESS_TOKEN_KEY, newAccessToken);
-          
-          // Update the original request with the new token
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return api(originalRequest); // Retry the original request
-        }
+        return await handleTokenRefresh(originalRequest);
       } catch (refreshError) {
-        console.error('Unable to refresh token:', refreshError);
-        handleAuthFailure();
         return Promise.reject(refreshError);
       }
     }

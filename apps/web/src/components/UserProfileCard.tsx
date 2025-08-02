@@ -6,9 +6,9 @@ interface UserProfileCardProps {
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({ username }) => {
   return (
-    <div>
+    <section className="user-profile-card">
       <h1>{username}</h1>
-    </div>
+    </section>
   );
 };
 
