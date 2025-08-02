@@ -13,7 +13,7 @@ const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
 export const register = async (req: Request<any, any, RegisterRequest>, res: Response<AuthResponse>) => {
-  const { name, email, password, dob, username, gender, mobileNumber } = req.body;
+  const { name, email, password, dob, username, gender, phoneNumber } = req.body;
 
   try {
     // Sanitize email input to prevent NoSQL injection
@@ -44,8 +44,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       email,
       password: hashedPassword,
       dob,
-      mobileNumber,
-      username,
+      phoneNumber,      username,
       gender,
       verificationToken,
     });
@@ -358,7 +357,7 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
 export const updateUserProfile = async (req: Request<{ username: string }, any, UserProfile>, res: Response<AuthResponse>) => {
   try {
     const { username } = req.params;
-    const { name, dob, mobileNumber, gender } = req.body;
+    const { name, dob, phoneNumber, gender } = req.body;
 
     const user = await User.findOne({ username: username });
 
@@ -368,7 +367,7 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
 
     user.name = name || user.name;
     user.dateOfBirth = dob || user.dateOfBirth;
-    user.phoneNumber = mobileNumber || user.phoneNumber;
+      phoneNumber,
     user.gender = gender || user.gender;
 
     await user.save();
