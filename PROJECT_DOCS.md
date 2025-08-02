@@ -90,7 +90,7 @@ Create a `.env` file in the project root directory (`family-website/`) with the 
 
 ```dotenv
 PORT=3000
-MONGO_URI=mongodb://<username>:<password>@mongo:27017/familywebsite?authSource=admin
+MONGO_URI=mongodb://<your_mongo_username>:<your_mongo_password>@mongo:27017/familywebsite?authSource=admin
 MONGO_INITDB_ROOT_USERNAME=<your_mongo_username>
 MONGO_INITDB_ROOT_PASSWORD=<your_mongo_password>
 EMAIL_USER=<your_email@example.com>
@@ -100,7 +100,7 @@ REFRESH_TOKEN_SECRET=<your_refresh_token_secret_key>
 FRONTEND_URL=http://localhost:5173
 ```
 
-**Note:** The `MONGO_URI` here is for the API service running inside Docker. When running the API development server directly (outside Docker), the `MONGO_URI` in `apps/api/.env` should be `mongodb://admin:password@localhost:27017/familywebsite?authSource=admin`.
+**Note:** The `MONGO_URI` here is for the API service running inside Docker. When running the API development server directly (outside Docker), the `MONGO_URI` in `apps/api/.env` should be `mongodb://<your_mongo_username>:<your_mongo_password>@localhost:27017/familywebsite?authSource=admin`.
 
 ### 4.4. Install Dependencies
 
@@ -255,8 +255,8 @@ This section addresses common issues encountered during the setup and operation 
 
 *   **MongoDB container not running:** Ensure the `mongo` container is running and healthy. Check its status with `docker compose ps`.
 *   **Incorrect `MONGO_URI`:**
-    *   **Inside Docker:** When the API is running inside a Docker container, it must connect to the MongoDB service using its service name (`mongo`), not `localhost`. The `MONGO_URI` in `docker-compose.yml` should be `mongodb://admin:password@mongo:27017/familywebsite?authSource=admin`.
-    *   **Outside Docker (dev server):** If running the API development server directly (e.g., `npm run dev --workspace=apps/api`), the `MONGO_URI` in `apps/api/.env` should use `localhost`: `mongodb://admin:password@localhost:27017/familywebsite?authSource=admin`.
+    *   **Inside Docker:** When the API is running inside a Docker container, it must connect to the MongoDB service using its service name (`mongo`), not `localhost`. The `MONGO_URI` in `docker-compose.yml` should be `mongodb://<your_mongo_username>:<your_mongo_password>@mongo:27017/familywebsite?authSource=admin`.
+    *   **Outside Docker (dev server):** If running the API development server directly (e.g., `npm run dev --workspace=apps/api`), the `MONGO_URI` in `apps/api/.env` should use `localhost`: `mongodb://<your_mongo_username>:<your_mongo_password>@localhost:27017/familywebsite?authSource=admin`.
 *   **`.env` file not loaded/overridden:** Ensure your `.env` files are correctly placed and that Docker Compose is configured to load them (e.g., `env_file: - ./.env`). Be aware that environment variables explicitly set in `docker-compose.yml` will override those in `.env` files.
 *   **MongoDB data volume corruption/mismatch:** If you've changed MongoDB versions or encountered persistent connection issues, the existing data volume might be incompatible. Cleanly remove and recreate the volume:
     ```bash
@@ -359,7 +359,7 @@ This section chronicles significant issues encountered during the development of
         *   **Decision:** Realized `apps/api/src/index.ts` was loading its own `.env` file via `dotenv.config()`, overriding Docker Compose environment variables. Removed `dotenv.config()` from `apps/api/src/index.ts`.
         *   **Decision:** Removed the `MONGO_URI` line from `apps/api/.env` to prevent it from overriding the Docker Compose-provided `MONGO_URI`.
     *   **Issue:** `MongoServerError: Authentication failed.` persisted for the API container.
-        *   **Decision:** Hardcoded `MONGO_URI` in `docker-compose.yml` for the `api` service to `mongodb://admin:password@mongo:27017/familywebsite?authSource=admin` to ensure the API was connecting to the correct service name (`mongo`) and using the correct credentials.
+        *   **Decision:** Hardcoded `MONGO_URI` in `docker-compose.yml` for the `api` service to `mongodb://<your_mongo_username>:<your_mongo_password>@mongo:27017/familywebsite?authSource=admin` to ensure the API was connecting to the correct service name (`mongo`) and using the correct credentials.
 
 *   **Issue:** `No account found with that email or username. Please register.` despite user existing in MongoDB Compass.
     *   **Decision:** Discovered a mismatch in the database name. The API container was connecting to `family_website` (with an underscore) while Compass was showing data in `familywebsite` (without an underscore). Corrected the database name in the `MONGO_URI` in `docker-compose.yml` to `familywebsite`.
