@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { sanitizeText } from '../utils/sanitization';
 
 // Constants for better maintainability
 const TOAST_DURATION = 3000;
@@ -36,9 +37,8 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
     <div
       className={`${BASE_CLASSES} ${bgColor}`}
       role="alert"
-    >
-      {message}
-    </div>
+      dangerouslySetInnerHTML={{ __html: sanitizeText(message) }}
+    />
   );
 };
 
