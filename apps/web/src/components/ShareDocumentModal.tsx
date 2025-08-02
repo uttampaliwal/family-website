@@ -27,31 +27,44 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   if (!isOpen) return null;
 
   const handleShareError = (error: unknown) => {
-    const errorInfo = {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      documentId: sanitizeClientLog(documentId),
-      username: sanitizeClientLog(username),
-      timestamp: new Date().toISOString(),
-      operation: 'shareDocument'
-    };
-    console.error('Error sharing document:', JSON.stringify(errorInfo));
-    
-    let errorMessage = 'Failed to share document';
-    if (error instanceof Error) {
-      if (error.message.includes('404') || error.message.includes('not found')) {
-        errorMessage = 'User not found. Please check the username.';
-      } else if (error.message.includes('403') || error.message.includes('unauthorized')) {
-        errorMessage = 'You do not have permission to share this document.';
-      } else if (error.message.includes('400') || error.message.includes('already shared')) {
-        errorMessage = 'Document is already shared with this user.';
-      } else if (error.message.includes('500')) {
-        errorMessage = 'Server error. Please try again later.';
-      } else if (error.message.includes('network') || error.message.includes('Network')) {
-        errorMessage = 'Network error. Please check your connection.';
-      }
+    try {
+      const errorInfo = {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        documentId: sanitizeClientLog(documentId),
+        username: sanitizeClientLog(username),
+        timestamp: new Date().toISOString(),
+        operation: 'shareDocument'
+      };
+      console.error('Error sharing document:', JSON.stringify(errorInfo));
+    } catch (logError) {
+      console.error('Failed to log share error:', logError);
     }
     
-    showToast(errorMessage, 'error');
+    let errorMessage = 'Failed to share document';
+    try {
+      if (error instanceof Error) {
+        const message = error.message.toLowerCase();
+        if (message.includes('404') || message.includes('not found')) {
+          errorMessage = 'User not found. Please check the username.';
+        } else if (message.includes('403') || message.includes('unauthorized')) {
+          errorMessage = 'You do not have permission to share this document.';
+        } else if (message.includes('400') || message.includes('already shared')) {
+          errorMessage = 'Document is already shared with this user.';
+        } else if (message.includes('500')) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (message.includes('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+      }
+    } catch (parseError) {
+      console.error('Failed to parse error message:', parseError);
+    }
+    
+    try {
+      showToast(errorMessage, 'error');
+    } catch (toastError) {
+      console.error('Failed to show error toast:', toastError);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

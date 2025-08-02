@@ -115,7 +115,13 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         />
         <button
           type="button"
-          onClick={() => handlers.setShowPassword(!showPassword)}
+          onClick={() => {
+            try {
+              handlers.setShowPassword(!showPassword);
+            } catch (error) {
+              console.error('Failed to toggle password visibility:', error);
+            }
+          }}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
@@ -138,7 +144,13 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         />
         <button
           type="button"
-          onClick={() => handlers.setShowConfirmPassword(!showConfirmPassword)}
+          onClick={() => {
+            try {
+              handlers.setShowConfirmPassword(!showConfirmPassword);
+            } catch (error) {
+              console.error('Failed to toggle confirm password visibility:', error);
+            }
+          }}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
           aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
         >

@@ -3,7 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import { getDocuments, deleteDocument } from '../api/documents';
 import type { Document } from '../api/documents';
 import { useToast } from '../hooks/useToast';
-import DocumentCard from '../components/DocumentCard'; // Import the new component
+import DocumentCard from '../components/DocumentCard';
+
+// Utility function to handle document operation errors
+const getErrorMessage = (error: unknown, operation: 'fetch' | 'delete'): string => {
+  if (!(error instanceof Error)) return `Failed to ${operation} document${operation === 'fetch' ? 's' : ''}`;
+  
+  const message = error.message.toLowerCase();
+  if (message.includes('404')) {
+    return operation === 'fetch' 
+      ? 'Documents service not available. Please try again later.'
+      : 'Document not found or already deleted.';
+  }
+  if (message.includes('403') || message.includes('unauthorized')) {
+    return `You do not have permission to ${operation} ${operation === 'fetch' ? 'documents' : 'this document'}.`;
+  }
+  if (message.includes('network')) {
+    return 'Network error. Please check your connection.';
+  }
+  if (message.includes('500')) {
+    return 'Server error. Please try again later.';
+  }
+  return `Failed to ${operation} document${operation === 'fetch' ? 's' : ''}`;
+};
 
 const DocumentsPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -17,28 +39,12 @@ const DocumentsPage: React.FC = () => {
         const data = await getDocuments();
         setDocuments(data);
       } catch (error) {
-        // Structured error logging with context
-        const errorInfo = {
+        console.error('Error fetching documents:', JSON.stringify({
           message: error instanceof Error ? error.message : 'Unknown error',
           timestamp: new Date().toISOString(),
           operation: 'fetchDocuments'
-        };
-        console.error('Error fetching documents:', JSON.stringify(errorInfo));
-        
-        let errorMessage = 'Failed to load documents';
-        if (error instanceof Error) {
-          if (error.message.includes('404')) {
-            errorMessage = 'Documents service not available. Please try again later.';
-          } else if (error.message.includes('403') || error.message.includes('unauthorized')) {
-            errorMessage = 'You do not have permission to view documents.';
-          } else if (error.message.includes('network') || error.message.includes('Network')) {
-            errorMessage = 'Network error. Please check your connection.';
-          } else if (error.message.includes('500')) {
-            errorMessage = 'Server error. Please try again later.';
-          }
-        }
-        
-        showToast(errorMessage, 'error');
+        }));
+        showToast(getErrorMessage(error, 'fetch'), 'error');
       } finally {
         setLoading(false);
       }
@@ -54,30 +60,14 @@ const DocumentsPage: React.FC = () => {
         setDocuments(prev => prev.filter(doc => doc._id !== id));
         showToast('Document deleted successfully', 'success');
       } catch (error) {
-        // Log error without exposing sensitive information
-        const errorInfo = {
-          message: error instanceof Error ? error.message : 'Unknown error',
-          timestamp: new Date().toISOString(),
-          operation: 'deleteDocument'
-        };
         if (process.env.NODE_ENV === 'development') {
-          console.error('Error deleting document:', JSON.stringify(errorInfo));
+          console.error('Error deleting document:', JSON.stringify({
+            message: error instanceof Error ? error.message : 'Unknown error',
+            timestamp: new Date().toISOString(),
+            operation: 'deleteDocument'
+          }));
         }
-        
-        let errorMessage = 'Failed to delete document';
-        if (error instanceof Error) {
-          if (error.message.includes('404')) {
-            errorMessage = 'Document not found or already deleted.';
-          } else if (error.message.includes('403') || error.message.includes('unauthorized')) {
-            errorMessage = 'You do not have permission to delete this document.';
-          } else if (error.message.includes('500')) {
-            errorMessage = 'Server error. Please try again later.';
-          } else if (error.message.includes('network') || error.message.includes('Network')) {
-            errorMessage = 'Network error. Please check your connection.';
-          }
-        }
-        
-        showToast(errorMessage, 'error');
+        showToast(getErrorMessage(error, 'delete'), 'error');
       }
     }
   }, [showToast]);
