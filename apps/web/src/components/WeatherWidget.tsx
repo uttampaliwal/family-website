@@ -21,26 +21,26 @@ const WeatherWidget: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
 
+  const handleLocationSuccess = useCallback((position: GeolocationPosition) => {
+    setLocation({
+      lat: position.coords.latitude,
+      lon: position.coords.longitude,
+    });
+  }, []);
+
+  const handleLocationError = useCallback(() => {
+    setError('Unable to get location. Please enable location services.');
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
-    // Get user's location
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
-          });
-        },
-        () => {
-          setError('Unable to get location. Please enable location services.');
-          setLoading(false);
-        }
-      );
+      navigator.geolocation.getCurrentPosition(handleLocationSuccess, handleLocationError);
     } else {
       setError('Geolocation is not supported by your browser');
       setLoading(false);
     }
-  }, []);
+  }, [handleLocationSuccess, handleLocationError]);
 
   const fetchWeather = useCallback(async (lat: number, lon: number) => {
     try {

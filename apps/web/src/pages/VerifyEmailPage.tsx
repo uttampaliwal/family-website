@@ -22,56 +22,54 @@ const VerifyEmailPage: React.FC = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const hasVerified = useRef(false);
 
-  const verifyEmail = useCallback(async (token: string) => {
-      try {
-        const xsrfToken = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1];
+  const getXsrfToken = () => {
+    return document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1];
+  };
 
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': xsrfToken || '',
-          },
-          body: JSON.stringify({ token }),
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-          setMessage(data.message || MESSAGES.SUCCESS);
-          setTimeout(() => {
-            navigate('/login');
-          }, REDIRECT_DELAY);
-        } else {
-          if (response.status === 400) {
-            setMessage(data.message || MESSAGES.BAD_REQUEST);
-          } else if (response.status === 500) {
-            setMessage(MESSAGES.SERVER_ERROR);
-          } else {
-            setMessage(data.message || MESSAGES.UNEXPECTED_ERROR);
-          }
-          setIsError(true);
-        }
-      } catch (error) {
-        // Structured error logging with context
-        const errorInfo = {
-          message: error instanceof Error ? error.message : import.meta.env.VITE_ERROR_UNKNOWN || 'Unknown error',
-          type: error instanceof TypeError ? import.meta.env.VITE_ERROR_NETWORK || 'NetworkError' : import.meta.env.VITE_ERROR_UNKNOWN_TYPE || 'UnknownError',
-          timestamp: new Date().toISOString(),
-          operation: import.meta.env.VITE_OPERATION_EMAIL_VERIFY || 'emailVerification',
-          token: token ? import.meta.env.VITE_TOKEN_PRESENT || 'present' : import.meta.env.VITE_TOKEN_MISSING || 'missing'
-        };
-        console.error('Error during email verification:', JSON.stringify(errorInfo));
-        
-        if (error instanceof TypeError) {
-          setMessage(MESSAGES.NETWORK_ERROR);
-        } else if (error instanceof Error && error.name === 'AbortError') {
-          setMessage(MESSAGES.CANCELLED);
-        } else {
-          setMessage(MESSAGES.GENERIC_ERROR);
-        }
-        setIsError(true);
-      }
+  const handleVerificationSuccess = useCallback((data: any) => {
+    setMessage(data.message || MESSAGES.SUCCESS);
+    setTimeout(() => navigate('/login'), REDIRECT_DELAY);
   }, [navigate]);
+
+  const handleVerificationError = (response: Response, data: any) => {
+    const errorMessages = {
+      400: data.message || MESSAGES.BAD_REQUEST,
+      500: MESSAGES.SERVER_ERROR,
+      default: data.message || MESSAGES.UNEXPECTED_ERROR
+    };
+    setMessage(errorMessages[response.status as keyof typeof errorMessages] || errorMessages.default);
+    setIsError(true);
+  };
+
+  const verifyEmail = useCallback(async (token: string) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': getXsrfToken() || '',
+        },
+        body: JSON.stringify({ token }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        handleVerificationSuccess(data);
+      } else {
+        handleVerificationError(response, data);
+      }
+    } catch (error) {
+      if (error instanceof TypeError) {
+        setMessage(MESSAGES.NETWORK_ERROR);
+      } else if (error instanceof Error && error.name === 'AbortError') {
+        setMessage(MESSAGES.CANCELLED);
+      } else {
+        setMessage(MESSAGES.GENERIC_ERROR);
+      }
+      setIsError(true);
+    }
+  }, [handleVerificationSuccess]);
 
   useEffect(() => {
     const token = searchParams.get('token');
