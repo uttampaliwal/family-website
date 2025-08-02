@@ -151,7 +151,7 @@ export const updateDocument = async (req: Request, res: Response) => {
     document.content = content || document.content;
     
     await document.save();
-    res.status(200).json(document);
+    const sanitizedFileName = String(document.fileName || 'download').replace(/[^a-zA-Z0-9_.-]/g, '_');
   } catch (error) {
     console.error('Error updating document:', error);
     res.status(500).json({ message: 'Server error' });
@@ -255,7 +255,7 @@ export const shareDocument = async (req: Request, res: Response) => {
     }
 
     // Verify target user exists
-    const targetUser = await User.findOne({ username: username });
+        const targetUser = await User.findOne({ username: String(username) });
     if (!targetUser) {
       return res.status(404).json({ message: 'Target user not found' });
     }

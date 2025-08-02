@@ -158,7 +158,7 @@ export const addEvent = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
 
-    let userData = await UserData.findOne({ userId });
+    let userData = await UserData.findOne({ userId: String(userId) });
     
     if (!userData) {
       userData = new UserData({ userId, events: [eventData] });
@@ -196,7 +196,7 @@ export const addPhoto = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
 
-    let userData = await UserData.findOne({ userId });
+    let userData = await UserData.findOne({ userId: String(userId) });
     
     if (!userData) {
       userData = new UserData({ userId, photos: [photoData] });
@@ -234,7 +234,7 @@ export const addTask = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
 
-    let userData = await UserData.findOne({ userId: userId });
+    let userData = await UserData.findOne({ userId: String(userId) });
     
     if (!userData) {
       userData = new UserData({ userId, tasks: [taskData] });
@@ -276,7 +276,7 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
       relationship: rawContactData.relationship
     });
 
-    let userData = await UserData.findOne({ userId: userId });
+    let userData = await UserData.findOne({ userId: String(userId) });
     
     if (!userData) {
       userData = new UserData({ userId: String(userId), emergencyContacts: [contactData] });
