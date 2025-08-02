@@ -69,7 +69,7 @@ services:
       - "5173:5173"
     depends_on:
       api:
-        # This ensures the web service only starts after the api service is fully healthy.
+        # Wait for API to be healthy before starting
         condition: service_healthy
     networks:
       - family-website-network
