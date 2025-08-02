@@ -314,7 +314,7 @@ export const addTask = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Error adding task:', error);
-    res.status(500).json({ message: 'Server error', error: (error as Error).message || String(error) });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

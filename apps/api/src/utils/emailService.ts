@@ -20,7 +20,15 @@ interface EmailOptions {
 export const sendEmail = async (options: EmailOptions) => {
   try {
     // Sanitize HTML content to prevent XSS
-    const sanitizedHtml = String(options.html || '').replace(/<script[^>]*>.*?<\/script>/gi, '').replace(/javascript:/gi, '').replace(/on\w+\s*=/gi, '');
+    const sanitizedHtml = String(options.html || '')
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
     
     await transporter.sendMail({
       from: process.env.EMAIL_USER, // Sender address
@@ -49,6 +57,6 @@ export const sendEmail = async (options: EmailOptions) => {
       timestamp: new Date().toISOString()
     };
     console.error(sanitizeLog(JSON.stringify(errorData)));
-    throw new Error(`Failed to send email to ${options.to}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error('Failed to send email');
   }
 };
