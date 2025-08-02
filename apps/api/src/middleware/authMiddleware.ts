@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { AuthRequest } from '../types/auth';
 
-interface AuthRequest extends Request {
-  user?: { id: string; username: string; email: string; };
-}
+
 
 /**
  * Authentication middleware that verifies JWT tokens from request headers
@@ -14,7 +13,7 @@ interface AuthRequest extends Request {
  */
 export default function (req: AuthRequest, res: Response, next: NextFunction) {
   // Get token from header
-  const token = req.header('x-auth-token');
+  const token = (req.headers as any)['x-auth-token'] as string;
 
   // Check if not token
   if (!token) {

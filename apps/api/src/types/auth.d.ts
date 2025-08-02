@@ -52,3 +52,7 @@ export interface UserProfile {
   phoneNumber?: string | null;
   gender?: string;
 }
+
+export interface AuthRequest extends Request {
+  user?: { id: string; username: string; email: string; };
+}
