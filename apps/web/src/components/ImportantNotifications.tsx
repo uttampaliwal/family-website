@@ -116,10 +116,10 @@ const ImportantNotifications: React.FC = () => {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  {notification.title}
+                  {sanitizeString(notification.title)}
                 </h3>
                 <p className="mt-1 text-gray-700 dark:text-gray-300">
-                  {notification.message}
+                  {sanitizeString(notification.message)}
                 </p>
                 <time className="block mt-2 text-sm text-gray-500 dark:text-gray-400">
                   {new Date(notification.timestamp).toLocaleString()}
@@ -132,7 +132,7 @@ const ImportantNotifications: React.FC = () => {
                   rel="noopener noreferrer"
                   target={notification.action.url.startsWith('http') ? '_blank' : '_self'}
                 >
-                  {notification.action.label}
+                  {sanitizeString(notification.action.label)}
                   <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>

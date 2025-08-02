@@ -13,14 +13,24 @@ const validateId = (id: string): string => {
   if (!id || typeof id !== 'string' || id.trim() === '') {
     throw new Error('Document ID is required');
   }
-  return String(id).trim();
+  // Sanitize to prevent NoSQL injection and validate ObjectId format
+  const sanitized = String(id).trim().replace(/[{}$]/g, '');
+  if (sanitized === '' || !/^[a-f\d]{24}$/i.test(sanitized)) {
+    throw new Error('Invalid document ID format');
+  }
+  return sanitized;
 };
 
 const validateUsername = (username: string): string => {
   if (!username || typeof username !== 'string' || username.trim() === '') {
     throw new Error('Username is required');
   }
-  return String(username).trim();
+  // Sanitize to prevent NoSQL injection
+  const sanitized = String(username).trim().replace(/[{}$]/g, '');
+  if (sanitized === '') {
+    throw new Error('Invalid username format');
+  }
+  return sanitized;
 };
 
 export interface User {
@@ -45,13 +55,17 @@ export interface Document {
 
 // Get all documents
 export const getDocuments = async (): Promise<Document[]> => {
-  const response = await api.get(API_ENDPOINTS.DOCUMENTS);
-  
-  if (!response.data || !Array.isArray(response.data)) {
-    throw new Error('Invalid documents data received');
+  try {
+    const response = await api.get(API_ENDPOINTS.DOCUMENTS);
+    
+    if (!response.data || !Array.isArray(response.data)) {
+      throw new Error('Invalid documents data received');
+    }
+    
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch documents');
   }
-  
-  return response.data;
 };
 
 // Get a single document

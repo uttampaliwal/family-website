@@ -121,9 +121,11 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
 
   try {
     // Prevent NoSQL injection by ensuring identifier is treated as a string literal
-    const sanitizedIdentifier = typeof emailOrUsername === 'string' ? emailOrUsername.replace(/[{}$]/g, '') : String(emailOrUsername);
+    if (typeof emailOrUsername !== 'string') {
+      return res.status(400).json({ message: 'Invalid email or username format' });
+    }
     const user = await User.findOne({
-      $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
     });
     if (!user) {
       return res.status(400).json({ message: 'No account found with that email or username. Please register.' });
@@ -232,9 +234,11 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
 
   try {
     // Sanitize input to prevent NoSQL injection
-    const sanitizedIdentifier = typeof emailOrUsername === 'string' ? emailOrUsername.replace(/[{}$]/g, '') : String(emailOrUsername);
+    if (typeof emailOrUsername !== 'string') {
+      return res.status(400).json({ message: 'Invalid email or username format' });
+    }
     const user = await User.findOne({
-      $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
     });
 
     if (!user) {
@@ -292,6 +296,9 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
       }
     );
 
+    if (!refreshTokenSecret) {
+      throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
+    }
     const newRefreshToken = jwt.sign(
       { 
         id: user.id,
@@ -353,7 +360,7 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
     const { username } = req.params;
     const { name, dob, mobileNumber, gender } = req.body;
 
-    const user = await User.findOne({ username: String(username) });
+    const user = await User.findOne({ username: username });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
@@ -377,7 +384,10 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
   const { email } = req.body;
 
   try {
-    const user = await User.findOne({ email: String(email) });
+    if (typeof email !== 'string') {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+    const user = await User.findOne({ email: email });
     if (!user) {
       return res.status(404).json({ message: 'User with that email does not exist.' });
     }
@@ -418,7 +428,7 @@ export const resetPassword = async (req: Request<{ token?: string }, any, ResetP
   const token = tokenFromParams || tokenFromBody;
   const { password } = req.body;
   
-  if (!token) {
+  if (!token || typeof token !== 'string') {
     return res.status(400).json({ message: 'Password reset token is required.' });
   }
   

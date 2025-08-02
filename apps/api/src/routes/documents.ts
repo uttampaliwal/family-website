@@ -15,8 +15,6 @@ import path from 'path';
 
 const router = express.Router();
 
-
-
 // Apply authentication middleware to all routes
 router.use(authMiddleware);
 
