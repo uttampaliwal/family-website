@@ -136,7 +136,6 @@ export const updateDocument = async (req: Request, res: Response) => {
       _id: req.params.id,
       owner: String(req.user.id)
     });
-
     if (!document) {
       return res.status(404).json({ message: 'Document not found or you do not have permission to edit' });
     }
@@ -181,6 +180,10 @@ export const downloadFile = async (req: Request, res: Response) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid document ID' });
     }
 
     const document = await Document.findOne({
@@ -240,12 +243,12 @@ export const shareDocument = async (req: Request, res: Response) => {
 
     const { username } = req.body;
     
-    if (!username) {
+    if (!username || typeof username !== 'string') {
       return res.status(400).json({ message: 'Username is required' });
     }
 
     // Verify target user exists
-    const targetUser = await User.findOne({ username });
+    const targetUser = await User.findOne({ username: username });
     if (!targetUser) {
       return res.status(404).json({ message: 'Target user not found' });
     }
@@ -253,6 +256,10 @@ export const shareDocument = async (req: Request, res: Response) => {
     // Prevent sharing with yourself
     if (targetUser._id.toString() === String(req.user.id)) {
       return res.status(400).json({ message: 'Cannot share document with yourself' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid document ID' });
     }
 
     const document = await Document.findOne({

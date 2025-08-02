@@ -7,7 +7,7 @@ echoerr() { if [[ $WAITFORIT_QUIET -ne 1 ]]; then echo "$@" | tr -d '\r' 1>&2; f
 
 usage()
 {
-    cat <<USAGE | tr -d '\r' >&2
+    cat <<EOF | tr -d '\r' >&2
 Usage:
     $WAITFORIT_cmdname host:port [-s] [-t timeout] [-- command args]
     -h HOST | --host=HOST       Host or IP under test
@@ -18,7 +18,7 @@ Usage:
     -t TIMEOUT | --timeout=TIMEOUT
                                 Timeout in seconds, zero for no timeout
     -- COMMAND ARGS             Execute command with args after the test finishes
-USAGE
+EOF
     exit 1
 }
 
