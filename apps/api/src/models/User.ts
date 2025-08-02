@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Email is required'],
     unique: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email address'],
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please provide a valid email address'],
     trim: true,
     lowercase: true
   },
@@ -25,8 +25,8 @@ const UserSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     validate: {
-      validator: function(v: string) {
-        return !v || /^[+]?[1-9]\d{1,14}$/.test(v);
+      validator: function(phoneNumber: string) {
+        return !phoneNumber || /^[+]?[1-9]\d{1,14}$/.test(phoneNumber);
       },
       message: 'Please provide a valid phone number'
     }
@@ -43,8 +43,10 @@ const UserSchema = new mongoose.Schema({
   gender: {
     type: String,
     required: true,
-    enum: ['male', 'female', 'other'],
-    message: 'Gender must be male, female, or other'
+    enum: {
+      values: ['male', 'female', 'other'],
+      message: 'Gender must be male, female, or other'
+    }
   },
   verificationToken: {
     type: String,
