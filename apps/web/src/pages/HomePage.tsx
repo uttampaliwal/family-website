@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense, lazy, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import ComponentSkeleton from '../components/ComponentSkeleton';
 

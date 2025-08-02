@@ -17,8 +17,8 @@ export interface UserProfile {
   email: string;
   name?: string;
   dob?: string;
+  mobileNumber?: string | null;
   gender?: string;
-  phoneNumber?: string;
 }
 
 export interface RegisterRequest {

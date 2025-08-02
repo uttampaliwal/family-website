@@ -3,7 +3,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   dob: string;
-  phoneNumber?: string;
+  mobileNumber?: string;
   username: string;
   gender: string;
 }
@@ -49,6 +49,6 @@ export interface UserProfile {
   email: string;
   name?: string;
   dob?: string;
-  phoneNumber?: string | null; // Changed to allow null
+  mobileNumber?: string | null;
   gender?: string;
 }

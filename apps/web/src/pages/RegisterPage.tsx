@@ -135,8 +135,6 @@ const RegisterPage: React.FC = () => {
         }
       } else {
         showToast('Registration failed. Please try again.', 'error');
-      } else {
-        showToast('An unexpected error occurred. Please try again.', 'error');
       }
     } finally {
       setLoading(false);

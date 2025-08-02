@@ -31,7 +31,7 @@ const WeatherWidget: React.FC = () => {
             lon: position.coords.longitude,
           });
         },
-        (err) => {
+        () => {
           setError('Unable to get location. Please enable location services.');
           setLoading(false);
         }
