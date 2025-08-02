@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { sanitizeLog } from '../utils/logSanitizer';
 
 const router = express.Router();
 
@@ -62,7 +63,7 @@ router.get('/dynamic-feed', (req: Request, res: Response) => {
       endpoint: '/dynamic-feed',
       method: 'GET'
     };
-    console.error('Error fetching dynamic feed:', JSON.stringify(errorInfo));
+    console.error('Error fetching dynamic feed:', sanitizeLog(JSON.stringify(errorInfo)));
     res.status(500).json({ message: 'Failed to retrieve feed data' });
   }
 });

@@ -10,6 +10,7 @@ import feedRoutes from './routes/feed';
 import healthRoutes from './routes/health';
 import documentRoutes from './routes/documents'; // Import document routes
 import { errorHandler } from './middleware/errorHandler';
+import { sanitizeLog } from './utils/logSanitizer';
 import { generateCsrfToken, validateCsrfToken } from './middleware/csrf';
 
 // --- 1. Environment Setup ---
@@ -50,7 +51,7 @@ const connectDb = async () => {
       family: 4,
     });
   } catch (error) {
-    console.error('Initial MongoDB connection failed:', error);
+    console.error('Initial MongoDB connection failed:', sanitizeLog(String(error)));
     // If we can't connect at startup, the application is not viable.
     process.exit(1);
   }
@@ -126,7 +127,7 @@ const startServer = async () => {
         console.log('MongoDB connection closed.');
         process.exit(0);
       }).catch((err) => {
-        console.error('Error closing MongoDB connection:', err);
+        console.error('Error closing MongoDB connection:', sanitizeLog(err.message || err));
         process.exit(1);
       });
     });

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { useToast } from '../hooks/useToast';
+import api from '../api/axios'; // Import the configured axios instance
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,17 +13,10 @@ const ForgotPasswordPage: React.FC = () => {
     showToast('', 'info'); // Clear previous messages
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await api.post('/api/auth/forgot-password', { email });
+      const data = response.data;
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response.status === 200) {
         showToast(data.message, 'success');
       } else {
         showToast(data.message || 'Something went wrong', 'error');

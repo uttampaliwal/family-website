@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { sendEmail } from '../utils/emailService';
 import User from '../models/User';
 import { RegisterRequest, LoginRequest, VerifyEmailRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, AuthResponse, UserProfile } from '../types/auth';
+import { sanitizeLog } from '../utils/logSanitizer';
 
 const jwtSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
@@ -121,7 +122,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
     });
 
     res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: htmlEncode(user.username) });
-  } catch (err) {
+  } catch (err: unknown) {
     const sanitizedError = {
       message: err instanceof Error ? err.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
       email: String(email).replace(/[\n\r\t]/g, ''),
@@ -222,7 +223,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
 
     res.json({ message: 'Logged in successfully', accessToken: accessToken, username: htmlEncode(user.username) });
   } catch (err: any) {
-    console.error('Login error:', err);
+        console.error('Login error:', sanitizeLog((err as Error).message || String(err)));
     res.status(500).json({ message: 'An error occurred during login.' });
   }
 };
@@ -247,7 +248,7 @@ export const verifyEmail = async (req: Request<any, any, VerifyEmailRequest>, re
     await user.save();
 
     res.status(200).json({ message: 'Email verified successfully! You can now sign in.' });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Email verification error:', err);
     res.status(500).json({ message: 'Email verification failed. Please try again later.' });
   }
@@ -288,7 +289,7 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
     });
 
     res.status(200).json({ message: 'Verification email sent successfully. Please check your inbox.' });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Resend verification email error:', err);
     res.status(500).json({ message: 'Failed to resend verification email. Please try again later.' });
   }
@@ -354,7 +355,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
     });
     res.status(200).json({ accessToken: newAccessToken, message: 'Token refreshed successfully.' });
     
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Refresh token error:', err);
     res.status(403).json({ message: 'Invalid or expired refresh token.' });
   }
@@ -456,7 +457,7 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
     });
 
     res.status(200).json({ message: 'Password reset link sent to your email.' });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Forgot password error:', err);
     res.status(500).json({ message: 'Error sending password reset email.' });
   }
@@ -503,7 +504,7 @@ export const resetPassword = async (req: Request<{ token?: string }, any, ResetP
     });
 
     res.status(200).json({ message: 'Your password has been updated.' });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Reset password error:', err);
     res.status(500).json({ message: 'Error resetting password.' });
   }
@@ -532,8 +533,8 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
     });
 
     res.status(200).json({ message: 'Logged out successfully.' });
-  } catch (err) {
-    console.error('Logout error:', err);
+  } catch (err: unknown) {
+    console.error('Logout error:', sanitizeLog((err as Error).message || String(err)));
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

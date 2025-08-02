@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
+import { sanitizeLog } from '../utils/logSanitizer';
 
 // Since we can't install multer, let's create a simple middleware
 type FileUploadMiddleware = (req: Request, res: Response, next: NextFunction) => void;
@@ -11,11 +12,11 @@ if (!fs.existsSync(uploadDir)) {
   try {
     fs.mkdirSync(uploadDir, { recursive: true });
   } catch (error) {
-    console.error('Error creating upload directory:', {
+    console.error('Error creating upload directory:', sanitizeLog(JSON.stringify({
       message: error instanceof Error ? error.message : 'Unknown error',
       path: uploadDir,
       timestamp: new Date().toISOString()
-    });
+    })));
     throw new Error('Failed to create upload directory');
   }
 }

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { isHttpError } from 'http-errors';
+import { sanitizeLog } from '../utils/logSanitizer';
 
 /**
  * A custom error interface to ensure statusCode is available.
@@ -55,7 +56,14 @@ export const errorHandler = (
     try {
       res.status(statusCode).json(errorResponse);
     } catch (responseError) {
-      console.error('Failed to send error response:', responseError instanceof Error ? responseError.message : 'Unknown error');
+      console.error('Failed to send error response:', sanitizeLog(responseError instanceof Error ? responseError.message : 'Unknown error'));
+      // Fallback: send a basic text response
+      try {
+        res.status(500).send('Internal Server Error');
+      } catch {
+        // Last resort: end the response
+        res.end();
+      }
     }
   }
 };

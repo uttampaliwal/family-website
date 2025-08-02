@@ -2,6 +2,18 @@ import { Request, Response } from 'express';
 import UserData from '../models/UserData';
 import User from '../models/User';
 import mongoose from 'mongoose';
+import { sanitizeLog } from '../utils/logSanitizer';
+
+// Helper function to HTML-encode a string
+const htmlEncode = (str: string) => {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};
 
 // Type definitions
 interface Event {
@@ -41,7 +53,7 @@ interface EmergencyContact {
 
 // Sanitization utilities
 const sanitizeString = (input: unknown): string => 
-  String(input ?? '').replace(/[^\p{L}\p{N}\s.,-]/gu, '');
+  htmlEncode(String(input ?? '').replace(/[^\p{L}\p{N}\s.,-]/gu, ''));
 
 const sanitizeEvent = (event: Event): Event => ({
   title: sanitizeString(event.title),
@@ -101,9 +113,9 @@ export const getUserData = async (req: Request, res: Response) => {
     };
     
     res.status(200).json(sanitizedUserData);
-  } catch (error) {
+  } catch (error: unknown) {
     const sanitizedError = {
-      message: error instanceof Error ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
+      message: (error instanceof Error) ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
       userId: String(req.params.userId || '').replace(/[<>"'&\n\r\t]/g, ''),
       timestamp: new Date().toISOString(),
       operation: 'getUserData'
@@ -155,9 +167,9 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
     };
     
     res.status(200).json({ message: 'User data updated successfully', userData: sanitizedUserData });
-  } catch (error) {
+  } catch (error: unknown) {
     const sanitizedError = {
-      message: error instanceof Error ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
+      message: (error instanceof Error) ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
       userId: String(req.params.userId).replace(/[\n\r\t]/g, ''),
       timestamp: new Date().toISOString(),
       operation: 'createOrUpdateUserData'
@@ -202,9 +214,9 @@ export const addEvent = async (req: Request, res: Response) => {
       message: 'Event added successfully', 
       event: sanitizedEvent 
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error adding event:', error);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error: (error as Error).message || String(error) });
   }
 };
 
@@ -244,9 +256,9 @@ export const addPhoto = async (req: Request, res: Response) => {
       message: 'Photo added successfully', 
       photo: sanitizedPhoto 
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error adding photo:', error);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error: (error as Error).message || String(error) });
   }
 };
 
@@ -289,9 +301,9 @@ export const addTask = async (req: Request, res: Response) => {
       message: 'Task added successfully', 
       task: sanitizedTask 
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error adding task:', error);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error: (error as Error).message || String(error) });
   }
 };
 
@@ -337,8 +349,8 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
       message: 'Emergency contact added successfully', 
       contact: sanitizedContact 
     });
-  } catch (error) {
-    console.error('Error adding emergency contact:', error);
-    res.status(500).json({ message: 'Server error', error });
+  } catch (error: unknown) {
+    console.error('Error adding emergency contact:', sanitizeLog((error as Error).message || String(error)));
+    res.status(500).json({ message: 'Server error', error: (error as Error).message || String(error) });
   }
 };

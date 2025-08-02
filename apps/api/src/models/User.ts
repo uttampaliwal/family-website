@@ -68,8 +68,11 @@ const UserSchema = new mongoose.Schema({
   lockUntil: { type: Number },
 });
 
-// Index for faster lookups
+// Indexes for faster lookups
 UserSchema.index({ email: 1 });
 UserSchema.index({ username: 1 });
+UserSchema.index({ verificationToken: 1 });
+UserSchema.index({ resetPasswordToken: 1 });
+UserSchema.index({ lockUntil: 1 }, { sparse: true });
 
 export default mongoose.model('User', UserSchema);

@@ -9,6 +9,11 @@ interface ShareDocumentModalProps {
   onSuccess: () => void;
 }
 
+// Simple client-side log sanitization
+const sanitizeClientLog = (input: unknown): string => {
+  return String(input ?? '').replace(/[\n\r\t]/g, '');
+};
+
 const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({ 
   documentId, 
   isOpen, 
@@ -24,8 +29,8 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   const handleShareError = (error: unknown) => {
     const errorInfo = {
       message: error instanceof Error ? error.message : 'Unknown error',
-      documentId: documentId,
-      username: username,
+      documentId: sanitizeClientLog(documentId),
+      username: sanitizeClientLog(username),
       timestamp: new Date().toISOString(),
       operation: 'shareDocument'
     };
