@@ -55,8 +55,10 @@ const ImportantNotifications: React.FC = () => {
             errorMessage = 'You do not have permission to view notifications.';
           } else if (error.message.includes('500')) {
             errorMessage = 'Server error. Please try again later.';
-          } else if (error.message.includes('network') || error.message.includes('Network')) {
+          } else if (error.message.includes('network') || error.message.includes('Network') || error.message.includes('fetch')) {
             errorMessage = 'Network error. Please check your connection.';
+          } else {
+            errorMessage = 'An unexpected error occurred. Please try again.';
           }
         }
         
@@ -117,10 +119,10 @@ const ImportantNotifications: React.FC = () => {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  {sanitizeString(notification.title)}
+                  {notification.title}
                 </h3>
                 <p className="mt-1 text-gray-700 dark:text-gray-300">
-                  {sanitizeString(notification.message)}
+                  {notification.message}
                 </p>
                 <time className="block mt-2 text-sm text-gray-500 dark:text-gray-400">
                   {new Date(notification.timestamp).toLocaleString()}
@@ -128,12 +130,12 @@ const ImportantNotifications: React.FC = () => {
               </div>
               {notification.action && (
                 <a
-                  href={/^https?:\/\//.test(notification.action.url) ? sanitizeString(notification.action.url) : '#'}
+                  href={/^https?:\/\//.test(notification.action.url) ? notification.action.url : '#'}
                   className="ml-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white dark:bg-gray-800 text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700"
                   rel="noopener noreferrer"
                   target={notification.action.url.startsWith('http') ? '_blank' : '_self'}
                 >
-                  {sanitizeString(notification.action.label)}
+                  {notification.action.label}
                   <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>

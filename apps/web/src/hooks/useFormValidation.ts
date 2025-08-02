@@ -9,27 +9,30 @@ export const useFormValidation = () => {
     if (trimmedEmail.length === 0 || trimmedEmail.length > 254) {
       return false;
     }
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+    return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(trimmedEmail);
   }, []);
 
   const validatePassword = useCallback((password: string) => {
     const errors: string[] = [];
     if (password.length < 8) {
-      errors.push('at least 8 characters long');
+      errors.push('At least 8 characters long');
     }
     if (!/[A-Z]/.test(password)) {
-      errors.push('at least one uppercase letter');
+      errors.push('At least one uppercase letter');
     }
     if (!/[a-z]/.test(password)) {
-      errors.push('at least one lowercase letter');
+      errors.push('At least one lowercase letter');
     }
     if (!/[0-9]/.test(password)) {
-      errors.push('at least one number');
+      errors.push('At least one number');
     }
     if (!/[^A-Za-z0-9]/.test(password)) {
-      errors.push('at least one special character');
+      errors.push('At least one special character');
     }
-    return errors;
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }, []);
 
   return { validateEmail, validatePassword };

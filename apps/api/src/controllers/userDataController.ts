@@ -271,7 +271,7 @@ export const addTask = async (req: Request, res: Response) => {
     let userData = await UserData.findOne({ userId: String(userId) });
     
     if (!userData) {
-      userData = new UserData({ userId, tasks: [taskData] });
+      userData = new UserData({ userId: String(userId), tasks: [taskData] }); // CWE-943: userId is validated as ObjectId, preventing injection.
     } else {
       userData.tasks.push(taskData);
     }

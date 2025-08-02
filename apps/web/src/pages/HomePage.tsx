@@ -57,8 +57,10 @@ const HomePage: React.FC = () => {
           setError('Feed service not available. Please try again later.');
         } else if (error instanceof Error && error.message.includes('500')) {
           setError('Server error. Please try again later.');
+        } else if (error instanceof Error && error.message.includes('403')) {
+          setError('Access denied. Please check your permissions.');
         } else {
-          setError('Failed to load feed data. Please try again later.');
+          setError('An unexpected error occurred. Please try again later.');
         }
       } finally {
         setLoading(false);

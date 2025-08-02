@@ -1,11 +1,21 @@
-#!/usr/bin/env bash
-# Use this script to test if a given TCP host/port are available
 
-WAITFORIT_cmdname=$(echo "${0##*/}" | tr -d '\r')
+#!/bin/sh
+# wait-for-it.sh
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-echoerr() { if [[ $WAITFORIT_QUIET -ne 1 ]]; then echo "$@" | tr -d '\r' 1>&2; fi }
+set -e
 
-usage()
+WAITFORIT_cmdname=$(basename $0)
+WAITFORIT
+_HOST=""WAITFORIT_PORT=""
+WAITFORIT_TIMEOUT=15
+WAITFORIT_STRICT=0
+WAITFORIT_CHILD=0
+WAITFORIT_QUIET=0
+WAITFORIT_CLI=()
+WAITFORIT_ISBUSY=0
+
 {
     cat <<EOF | tr -d '\r' >&2
 Usage:

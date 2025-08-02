@@ -30,6 +30,34 @@ const RegisterPage: React.FC = () => {
   const { validateEmail, validatePassword } = useFormValidation();
   const { showToast } = useToast();
 
+  const validateStep2 = useCallback(() => {
+    if (!email || !username || !password || !confirmPassword) {
+      showToast('Please fill in all required fields for Account Information.', 'error');
+      if (!email) emailRef.current?.focus();
+      else if (!username) usernameRef.current?.focus();
+      else if (!password) passwordRef.current?.focus();
+      else if (!confirmPassword) confirmPasswordRef.current?.focus();
+      return false;
+    }
+    if (password !== confirmPassword) {
+      showToast('Confirm password should be same as password.', 'error');
+      confirmPasswordRef.current?.focus();
+      return false;
+    }
+    if (!validateEmail(email)) {
+      showToast('Please enter a valid email address.', 'error');
+      emailRef.current?.focus();
+      return false;
+    }
+    const passwordValidationResult = validatePassword(password);
+    if (passwordValidationResult.errors && passwordValidationResult.errors.length > 0) {
+      showToast(`Password must contain: ${passwordValidationResult.errors.join(', ')}`, 'error');
+      passwordRef.current?.focus();
+      return false;
+    }
+    return true;
+  }, [email, username, password, confirmPassword, validateEmail, validatePassword, showToast]);
+
   const handleNext = useCallback(() => {
     showToast('', 'info'); // Clear previous messages
     if (step === 1) {
@@ -39,25 +67,7 @@ const RegisterPage: React.FC = () => {
         return;
       }
     } else if (step === 2) {
-      if (!email || !username || !password || !confirmPassword) {
-        showToast('Please fill in all required fields for Account Information.', 'error');
-        if (!email) emailRef.current?.focus();
-        else if (!username) usernameRef.current?.focus();
-        else if (!password) passwordRef.current?.focus();
-        else if (!confirmPassword) confirmPasswordRef.current?.focus();
-        return;
-      }
-      if (password !== confirmPassword) {
-        showToast('Confirm password should be same as password.', 'error');
-        confirmPasswordRef.current?.focus();
-        return;
-      }
-      const passwordErrors = validatePassword(password);
-      if (passwordErrors.length > 0) {
-        showToast(`Password must contain: ${passwordErrors.join(', ')}.`, 'error');
-        passwordRef.current?.focus();
-        return;
-      }
+      if (!validateStep2()) return;
     }
     setStep(step + 1);
   }, [step, name, dob, gender, email, username, password, confirmPassword, validatePassword, showToast]);
@@ -98,8 +108,8 @@ const RegisterPage: React.FC = () => {
       }
       
       const passwordErrors = validatePassword(password);
-      if (passwordErrors.length > 0) {
-        showToast(`Password must contain: ${passwordErrors.join(', ')}.`, 'error');
+      if (passwordErrors.errors && passwordErrors.errors.length > 0) {
+        showToast(`Password must contain: ${passwordErrors.errors.join(', ')}.`, 'error');
         passwordRef.current?.focus();
         setLoading(false);
         return;

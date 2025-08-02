@@ -2,7 +2,7 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-  dob: string;
+  dateOfBirth: string;
   phoneNumber?: string;
   username: string;
   gender: 'male' | 'female' | 'other';
@@ -48,7 +48,7 @@ export interface UserProfile {
   username: string;
   email: string;
   name?: string;
-  dob?: string;
+  dateOfBirth?: string;
   phoneNumber?: string | null;
   gender?: string;
 }

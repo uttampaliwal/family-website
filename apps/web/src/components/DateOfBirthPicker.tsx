@@ -29,15 +29,15 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
   useEffect(() => {
     try {
       if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        const [y, m, d] = value.split('-');
-        const parsedMonth = parseInt(m, 10);
-        const parsedDay = parseInt(d, 10);
+        const [year, month, day] = value.split('-');
+        const parsedMonth = parseInt(month, 10);
+        const parsedDay = parseInt(day, 10);
         
         if (isNaN(parsedMonth) || isNaN(parsedDay) || parsedMonth < 1 || parsedMonth > 12 || parsedDay < 1 || parsedDay > 31) {
           throw new Error('Invalid date values');
         }
         
-        setYear(y);
+        setYear(year);
         setMonth(parsedMonth.toString());
         setDay(parsedDay.toString());
       } else {

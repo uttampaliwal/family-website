@@ -62,8 +62,13 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
           type="tel"
           id="mobileNumber"
           value={mobileNumber}
-          onChange={(e) => setMobileNumber(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value.replace(/[^+\d\s()-]/g, '');
+            setMobileNumber(value);
+          }}
           disabled={loading}
+          pattern="[+]?[0-9\s()-]{10,15}"
+          title="Please enter a valid phone number (10-15 digits)"
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>

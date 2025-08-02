@@ -32,7 +32,7 @@ const htmlEncode = (str: string) => {
 };
 
 export const register = async (req: Request<any, any, RegisterRequest>, res: Response<AuthResponse>) => {
-  const { name, email, password, dob, username, phoneNumber } = req.body;
+  const { name, email, password, dateOfBirth, username, phoneNumber } = req.body;
   const gender = req.body.gender as 'male' | 'female' | 'other';
 
   if (gender && !['male', 'female', 'other'].includes(gender)) {
@@ -67,7 +67,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       name,
       email,
       password: hashedPassword,
-      dob,
+      dateOfBirth,
       phoneNumber,      username,
       gender,
       verificationToken,
@@ -209,7 +209,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      Buffer.from(refreshTokenSecret, 'hex'),
+      refreshTokenSecret,
       { 
         expiresIn: '7d',
         algorithm: 'HS512',
@@ -309,7 +309,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
     if (!refreshTokenSecret) {
       throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
     }
-    const decoded: any = jwt.verify(refreshToken, refreshTokenSecret!);
+    const decoded: any = jwt.verify(refreshToken, refreshTokenSecret);
     const user = await User.findById(String(decoded.id));
 
     if (!user || !user.refreshTokens.includes(refreshToken)) {
@@ -325,7 +325,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString('hex')
       }, 
-      Buffer.from(jwtSecret, 'hex'), 
+      jwtSecret, 
       { 
         expiresIn: '15m',
         algorithm: 'HS512',
@@ -382,7 +382,8 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
       ...user.toObject(),
       name: htmlEncode(user.name || ''),
       username: htmlEncode(user.username || ''),
-      email: htmlEncode(user.email || '')
+      email: htmlEncode(user.email || ''),
+      dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : undefined,
     };
     
     res.status(200).json(sanitizedUser);
@@ -395,7 +396,7 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
 export const updateUserProfile = async (req: Request<{ username: string }, any, UserProfile>, res: Response<AuthResponse>) => {
   try {
     const { username } = req.params;
-    const { name, dob, phoneNumber } = req.body;
+    const { name, dateOfBirth, phoneNumber } = req.body;
     const gender = req.body.gender as 'male' | 'female' | 'other';
 
     if (gender && !['male', 'female', 'other'].includes(gender)) {
@@ -409,8 +410,8 @@ export const updateUserProfile = async (req: Request<{ username: string }, any, 
     }
 
     user.name = name || user.name;
-    if (dob) {
-      user.dateOfBirth = new Date(dob);
+    if (dateOfBirth) {
+      user.dateOfBirth = new Date(dateOfBirth);
     }
     user.phoneNumber = phoneNumber || user.phoneNumber;
     user.gender = gender || user.gender;
@@ -502,7 +503,7 @@ export const resetPassword = async (req: Request<{ token?: string }, any, ResetP
       to: user.email,
       subject: 'Your password has been changed',
       html: `<p>Hello,</p>
-             <p>This is a confirmation that the password for your account has just been changed.</p>`,
+             <p>This is a confirmation that the password for your account ${htmlEncode(user.email)} has just been changed.</p>`,
     });
 
     res.status(200).json({ message: 'Your password has been updated.' });
@@ -520,7 +521,7 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
   }
 
   try {
-    const decoded: any = jwt.verify(refreshToken, refreshTokenSecret);
+    const decoded: any = jwt.verify(refreshToken, Buffer.from(refreshTokenSecret, 'hex'));
     const user = await User.findById(String(decoded.id));
 
     if (user) {

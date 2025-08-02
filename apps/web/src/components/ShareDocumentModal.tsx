@@ -21,6 +21,34 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
 
   if (!isOpen) return null;
 
+  const handleShareError = (error: unknown) => {
+    const errorInfo = {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      documentId: documentId,
+      username: username,
+      timestamp: new Date().toISOString(),
+      operation: 'shareDocument'
+    };
+    console.error('Error sharing document:', JSON.stringify(errorInfo));
+    
+    let errorMessage = 'Failed to share document';
+    if (error instanceof Error) {
+      if (error.message.includes('404') || error.message.includes('not found')) {
+        errorMessage = 'User not found. Please check the username.';
+      } else if (error.message.includes('403') || error.message.includes('unauthorized')) {
+        errorMessage = 'You do not have permission to share this document.';
+      } else if (error.message.includes('400') || error.message.includes('already shared')) {
+        errorMessage = 'Document is already shared with this user.';
+      } else if (error.message.includes('500')) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (error.message.includes('network') || error.message.includes('Network')) {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+    }
+    
+    showToast(errorMessage, 'error');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -38,32 +66,7 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
       onSuccess();
       onClose();
     } catch (error) {
-      // Structured error logging with context
-      const errorInfo = {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        documentId: documentId,
-        username: username,
-        timestamp: new Date().toISOString(),
-        operation: 'shareDocument'
-      };
-      console.error('Error sharing document:', JSON.stringify(errorInfo));
-      
-      let errorMessage = 'Failed to share document';
-      if (error instanceof Error) {
-        if (error.message.includes('404') || error.message.includes('not found')) {
-          errorMessage = 'User not found. Please check the username.';
-        } else if (error.message.includes('403') || error.message.includes('unauthorized')) {
-          errorMessage = 'You do not have permission to share this document.';
-        } else if (error.message.includes('400') || error.message.includes('already shared')) {
-          errorMessage = 'Document is already shared with this user.';
-        } else if (error.message.includes('500')) {
-          errorMessage = 'Server error. Please try again later.';
-        } else if (error.message.includes('network') || error.message.includes('Network')) {
-          errorMessage = 'Network error. Please check your connection.';
-        }
-      }
-      
-      showToast(errorMessage, 'error');
+      handleShareError(error);
     } finally {
       setLoading(false);
     }
