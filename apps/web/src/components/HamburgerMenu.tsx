@@ -9,6 +9,10 @@ interface HamburgerMenuProps {
 
 function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  
+  const sanitizeUsername = (name: string | null) => {
+    return name ? String(name).replace(/[<>"'&]/g, '') : 'User';
+  };
 
   return (
     <div className="md:hidden">
@@ -53,17 +57,11 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
               
               {isLoggedIn ? (
                 <Link 
-                  to={`/profile/${username ? String(username).replace(/[<>"'&]/g, '') : 'user'}`} 
+                  to={`/profile/${sanitizeUsername(username).toLowerCase()}`} 
                   className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                  onClick={() => {
-                    try {
-                      setIsOpen(false);
-                    } catch (error) {
-                      console.error('Error closing menu:', error);
-                    }
-                  }}
+                  onClick={() => setIsOpen(false)}
                 >
-                  {username ? String(username).replace(/[<>"'&]/g, '') : 'User'}
+                  {sanitizeUsername(username)}
                 </Link>
               ) : (
                 <>

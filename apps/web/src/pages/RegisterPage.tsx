@@ -119,7 +119,7 @@ const RegisterPage: React.FC = () => {
     showToast('Attempting to register...', 'info');
 
     try {
-      const response = await api.post<AuthResponse>('/api/auth/register', {
+      const response = await api.post<AuthResponse>(`${import.meta.env.VITE_API_BASE_URL || ''}/api/auth/register`, {
         name: name, email: email, password: password, dob: dob, mobileNumber: mobileNumber, username: username, gender: gender
       } as RegisterRequest);
 

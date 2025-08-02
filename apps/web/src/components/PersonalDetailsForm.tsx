@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Button from './Button';
 import CustomSelect from './CustomSelect';
 import DateOfBirthPicker from './DateOfBirthPicker';
+
+
 
 interface PersonalDetailsFormProps {
   name: string;
@@ -31,6 +33,10 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
   nameRef,
   handleNext,
   }) => {
+  const handleMobileNumberChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^+\d\s()-]/g, '');
+    setMobileNumber(value);
+  }, [setMobileNumber]);
   return (
     <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
       <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Personal Details</h2>
@@ -62,10 +68,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
           type="tel"
           id="mobileNumber"
           value={mobileNumber}
-          onChange={(e) => {
-            const value = e.target.value.replace(/[^+\d\s()-]/g, '');
-            setMobileNumber(value);
-          }}
+          onChange={handleMobileNumberChange}
           disabled={loading}
           pattern="[+]?[0-9\s()-]{10,15}"
           title="Please enter a valid phone number (10-15 digits)"

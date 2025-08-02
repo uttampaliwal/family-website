@@ -6,14 +6,6 @@ import { sendEmail } from '../utils/emailService';
 import User from '../models/User';
 import { AuthRequest, RegisterRequest, LoginRequest, VerifyEmailRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, AuthResponse, UserProfile } from '../types/auth';
 
-function sanitizeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-}
-
 const jwtSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
 

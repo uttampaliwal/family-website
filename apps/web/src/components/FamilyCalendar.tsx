@@ -89,8 +89,8 @@ const FamilyCalendar: React.FC = () => {
     });
   }, [events]);
 
-  const days = useMemo(() => getDaysInMonth(selectedDate), [getDaysInMonth, selectedDate]);
-  const weekDays = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], []);
+  const calendarDays = useMemo(() => getDaysInMonth(selectedDate), [getDaysInMonth, selectedDate]);
+  const weekdayLabels = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], []);
 
   if (loading) {
     return (
@@ -180,7 +180,7 @@ const FamilyCalendar: React.FC = () => {
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
         {/* Week days header */}
-        {weekDays.map((day) => (
+        {weekdayLabels.map((day) => (
           <div
             key={day}
             className="p-2 text-center text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800"
@@ -190,7 +190,7 @@ const FamilyCalendar: React.FC = () => {
         ))}
 
         {/* Calendar days */}
-        {days.map(({ date, isCurrentMonth }, index) => {
+        {calendarDays.map(({ date, isCurrentMonth }, index) => {
           const dayEvents = getEventsForDate(date);
           return (
             <div
