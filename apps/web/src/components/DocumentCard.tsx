@@ -10,6 +10,8 @@ interface DocumentCardProps {
 const MAX_CONTENT_PREVIEW_LENGTH = 150;
 
 const DocumentCard: React.FC<DocumentCardProps> = ({ doc, onDelete }) => {
+  const ownerName = typeof doc.owner === 'object' ? doc.owner.name : 'You';
+  
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="p-6">
@@ -27,7 +29,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ doc, onDelete }) => {
           Last updated: {doc.formattedDate}
         </p>
         <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-          Owner: {typeof doc.owner === 'object' ? doc.owner.name : 'You'}
+          Owner: {ownerName}
         </p>
         <div className="h-24 overflow-hidden text-gray-600 dark:text-gray-400 text-sm mb-4">
           {doc.content.substring(0, MAX_CONTENT_PREVIEW_LENGTH)}

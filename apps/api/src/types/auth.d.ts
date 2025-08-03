@@ -56,6 +56,6 @@ export interface UserProfile {
   name?: string;
   dateOfBirth?: string;
   phoneNumber?: string | null;
-  gender?: string;
+  gender?: Gender;
 }
 

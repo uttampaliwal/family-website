@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 interface Tool {
@@ -62,7 +62,7 @@ const ANIMATION_CONFIG = {
 } as const;
 
 const FamilyTools: React.FC = () => {
-  const handleToolClick = (link: string) => {
+  const handleToolClick = useCallback((link: string) => {
     if (!link || typeof link !== 'string') {
       console.error('Invalid link provided:', link);
       return;
@@ -75,7 +75,7 @@ const FamilyTools: React.FC = () => {
       // Fallback: try using window.open as alternative
       window.open(link, '_self');
     }
-  };
+  }, []);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

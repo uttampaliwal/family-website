@@ -10,12 +10,12 @@ const ROUTES = {
   PROFILE: '/profile'
 } as const;
 
-const EXCLUDED_PATHS = [ROUTES.LOGIN as string, ROUTES.REGISTER as string];
+const EXCLUDED_PATHS = [ROUTES.LOGIN, ROUTES.REGISTER];
 
 const AuthButtons: React.FC = () => {
   const location = useLocation();
   const { isLoggedIn, username } = useAuth();
-  const showAuthButtons = !EXCLUDED_PATHS.includes(location.pathname);
+  const showAuthButtons = !EXCLUDED_PATHS.includes(location.pathname as typeof EXCLUDED_PATHS[number]);
 
   const renderAuthenticatedButtons = () => (
     <Link to={ROUTES.PROFILE}>
