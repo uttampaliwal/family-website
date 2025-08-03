@@ -30,12 +30,14 @@ const LoginPage: React.FC = () => {
       } as LoginRequest);
 
       const data = response.data;
-      if (response.status === 200 && data.username) {
+      if (data.username) {
         localStorage.setItem('accessToken', data.accessToken || '');
         const userResponse = await api.get<UserProfile>(`/api/auth/profile/${data.username}`);
         login(userResponse.data);
         showToast(data.message || 'Login successful!', 'success');
         navigate(`/profile/${data.username}`);
+      } else {
+        throw new Error('Invalid response: missing username');
       }
     } catch (error) {
       // Structured error logging with context
@@ -88,12 +90,8 @@ const LoginPage: React.FC = () => {
         identifier,
       } as ResendVerificationRequest);
       const data = response.data;
-      if (response.status === 200) {
-        showToast(data.message || 'Verification email sent successfully!', 'success');
-        setShowResendButton(false);
-      } else {
-        showToast(data.message || 'Failed to resend verification email.', 'error');
-      }
+      showToast(data.message || 'Verification email sent successfully!', 'success');
+      setShowResendButton(false);
     } catch (error) {
       // Structured error logging with context
       const errorInfo = {

@@ -9,9 +9,13 @@ interface ShareDocumentModalProps {
   onSuccess: () => void;
 }
 
-// Simple client-side log sanitization
+// Enhanced client-side log sanitization to prevent log injection
 const sanitizeClientLog = (input: unknown): string => {
-  return String(input ?? '').replace(/[\n\r\t\x00-\x1f\x7f-\x9f<>"'&]/g, '');
+  return String(input ?? '')
+    .replace(/[\n\r\t\x00-\x1f\x7f-\x9f]/g, '') // Remove control characters
+    .replace(/[<>"'&]/g, '') // Remove HTML/XML characters
+    .replace(/[{}\[\]]/g, '') // Remove JSON structure characters
+    .substring(0, 200); // Limit length to prevent log flooding
 };
 
 const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({ 

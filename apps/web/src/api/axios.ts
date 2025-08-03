@@ -51,13 +51,15 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 // Helper function to handle token refresh and retry
-async function handleTokenRefresh(originalRequest: any) {
+async function handleTokenRefresh(originalRequest: any & { _retry?: boolean }) {
   originalRequest._retry = true;
   
   const newAccessToken = await refreshAccessToken();
   if (newAccessToken) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, newAccessToken);
-    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+    // Sanitize token to prevent XSS
+    const sanitizedToken = String(newAccessToken).replace(/[<>"'&]/g, '');
+    localStorage.setItem(ACCESS_TOKEN_KEY, sanitizedToken);
+    originalRequest.headers.Authorization = `Bearer ${sanitizedToken}`;
     return api(originalRequest);
   }
   throw new Error('Failed to refresh token');
@@ -94,6 +96,7 @@ function handleAuthFailure() {
     localStorage.removeItem(USERNAME_KEY);
   } catch (error) {
     console.error('Failed to clear localStorage:', error);
+    // Continue execution as this is not critical
   }
   
   try {
@@ -105,7 +108,8 @@ function handleAuthFailure() {
     // Fallback: try to redirect to root
     try {
       window.location.href = ROOT_PATH;
-    } catch {
+    } catch (fallbackError) {
+      console.error('Failed to redirect to root:', fallbackError);
       // Last resort: reload the page
       window.location.reload();
     }

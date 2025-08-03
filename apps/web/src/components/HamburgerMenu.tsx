@@ -11,7 +11,10 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   
   const sanitizeUsername = (name: string | null) => {
-    return name ? String(name).replace(/[<>"'&]/g, '') : 'User';
+    if (!name || typeof name !== 'string') {
+      return 'User';
+    }
+    return String(name).replace(/[<>"'&]/g, '');
   };
 
   return (

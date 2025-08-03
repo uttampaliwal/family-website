@@ -61,7 +61,7 @@ const DocumentEditPage: React.FC = () => {
     navigate('/documents');
   }, [navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!title.trim() || !content.trim()) {
@@ -111,7 +111,7 @@ const DocumentEditPage: React.FC = () => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [title, content, file, isNewDocument, id, navigate, showToast]);
 
   if (loading) {
     return (

@@ -106,7 +106,7 @@ const UserProfilePage: React.FC = () => {
       // Only send the fields that are editable
       const updateData = {
         name: profileState.editableProfile.name,
-        dob: profileState.editableProfile.dob,
+        dateOfBirth: profileState.editableProfile.dateOfBirth,
         mobileNumber: profileState.editableProfile.mobileNumber,
         gender: profileState.editableProfile.gender,
       };
@@ -185,7 +185,7 @@ const UserProfilePage: React.FC = () => {
             <div>
               <label htmlFor="dob" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
               <DateOfBirthPicker
-                value={profileState.editableProfile?.dob || ''}
+                value={profileState.editableProfile?.dateOfBirth || ''}
                 onChange={handleDateChange}
               />
             </div>
@@ -224,7 +224,7 @@ const UserProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-gray-700 dark:text-gray-300">
             <p><strong>Name:</strong> {profileState.userProfile.name || 'N/A'}</p>
             <p><strong>Email:</strong> {profileState.userProfile.email}</p>
-            <p><strong>Date of Birth:</strong> {profileState.userProfile.dob || 'N/A'}</p>
+            <p><strong>Date of Birth:</strong> {profileState.userProfile.dateOfBirth || 'N/A'}</p>
             <p><strong>Mobile Number:</strong> {profileState.userProfile.mobileNumber || 'N/A'}</p>
             <p><strong>Gender:</strong> {profileState.userProfile.gender || 'N/A'}</p>
           </div>

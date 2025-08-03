@@ -17,7 +17,9 @@ const getInitialAuthState = () => {
       return { isLoggedIn: true, user, username: user.username };
     }
   } catch (error) {
-    console.error('Error reading auth state from localStorage:', error);
+    if (import.meta.env.DEV) {
+      console.error('Error reading auth state from localStorage:', error);
+    }
   }
   return { isLoggedIn: false, user: null, username: null };
 };

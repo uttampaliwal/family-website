@@ -65,11 +65,12 @@ export const getDocumentById = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid document ID' });
     }
 
+    const sanitizedUserId = String(req.user.id);
     const document = await Document.findOne({
       _id: documentId,
       $or: [
-        { owner: String(req.user.id) },
-        { sharedWith: String(req.user.id) }
+        { owner: sanitizedUserId },
+        { sharedWith: sanitizedUserId }
       ]
     })
 
@@ -159,10 +160,13 @@ export const updateDocument = async (req: Request, res: Response) => {
 
     const { title, content } = req.body;
     
+    const sanitizedDocumentId = String(req.params.id);
+    const sanitizedUserId = String(req.user.id);
+    
     // Find document and verify ownership
     const document = await Document.findOne({
-      _id: req.params.id,
-      owner: String(req.user.id)
+      _id: sanitizedDocumentId,
+      owner: sanitizedUserId
     });
     if (!document) {
       return res.status(404).json({ message: 'Document not found or you do not have permission to edit' });
@@ -295,9 +299,9 @@ export const shareDocument = async (req: Request, res: Response) => {
     // Validate and sanitize username input to prevent NoSQL injection
     const sanitizedUsername = String(username).trim();
     
-    // Additional validation to prevent NoSQL injection
-    const usernamePattern = /^[a-zA-Z0-9_.-]+$/;
-    if (!usernamePattern.test(sanitizedUsername)) {
+    // Additional validation to prevent NoSQL injection using literal regex
+    const SAFE_USERNAME_PATTERN = /^[a-zA-Z0-9_.-]+$/;
+    if (!SAFE_USERNAME_PATTERN.test(sanitizedUsername)) {
       return res.status(400).json({ message: 'Invalid username format' });
     }
     

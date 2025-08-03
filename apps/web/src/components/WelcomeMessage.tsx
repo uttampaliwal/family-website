@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 const getGreeting = () => {
@@ -10,11 +10,7 @@ const getGreeting = () => {
 
 const WelcomeMessage: React.FC = () => {
   const { user } = useAuth();
-  const [greeting, setGreeting] = useState('');
-
-  useEffect(() => {
-    setGreeting(getGreeting());
-  }, []);
+  const greeting = getGreeting();
 
   return (
     <div className="text-center my-8">

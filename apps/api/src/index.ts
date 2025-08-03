@@ -60,7 +60,14 @@ const connectDb = async () => {
 // Set up Mongoose event listeners for ongoing connection management.
 // These will log events after the initial connection is established.
 mongoose.connection.on('connected', () => {
-  console.log('MongoDB connected successfully.');
+  const logEntry = {
+    level: 'INFO',
+    message: 'MongoDB connected successfully',
+    timestamp: new Date().toISOString(),
+    component: 'database',
+    operation: 'connection'
+  };
+  console.log(JSON.stringify(logEntry));
 });
 
 mongoose.connection.on('error', (err) => {
@@ -113,29 +120,50 @@ const startServer = async () => {
     console.log(`API server listening on port ${portNumber}`);
   });
 
-  // Implement graceful shutdown to properly close resources.
+  // Implement graceful shutdown with timeout to properly close resources
   const gracefulShutdown = (signal: string) => {
     const sanitizedSignal = sanitizeLog(String(signal));
     console.log(`\n${sanitizedSignal} received. Shutting down gracefully...`);
+    
+    // Set timeout to force exit if graceful shutdown takes too long
+    const shutdownTimeout = setTimeout(() => {
+      console.error('Graceful shutdown timeout. Forcing exit.');
+      process.exit(1);
+    }, 10000); // 10 seconds timeout
+    
     server.close((err) => {
       if (err) {
-        console.error('Error closing HTTP server:', err);
+        console.error('Error closing HTTP server:', sanitizeLog(err.message || String(err)));
       } else {
         console.log('HTTP server closed.');
       }
+      
       mongoose.connection.close(false).then(() => {
         console.log('MongoDB connection closed.');
+        clearTimeout(shutdownTimeout);
         process.exit(0);
       }).catch((err) => {
-        console.error('Error closing MongoDB connection:', sanitizeLog(err.message || err));
+        console.error('Error closing MongoDB connection:', sanitizeLog(err.message || String(err)));
+        clearTimeout(shutdownTimeout);
         process.exit(1);
       });
     });
   };
 
-  // Listen for termination signals (e.g., from `docker compose down`).
+  // Listen for termination signals (e.g., from `docker compose down`)
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  
+  // Handle uncaught exceptions and unhandled rejections
+  process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', sanitizeLog(err.message || String(err)));
+    gracefulShutdown('UNCAUGHT_EXCEPTION');
+  });
+  
+  process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection:', sanitizeLog(String(reason)));
+    gracefulShutdown('UNHANDLED_REJECTION');
+  });
 };
 
 // --- 5. Run the Application ---

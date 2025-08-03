@@ -143,8 +143,9 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     if (typeof emailOrUsername !== 'string') {
       return res.status(400).json({ message: 'Invalid email or username format' });
     }
+    const sanitizedIdentifier = String(emailOrUsername);
     const user = await User.findOne({
-      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+      $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
     if (!user) {
       return res.status(400).json({ message: 'No account found with that email or username. Please register.' });

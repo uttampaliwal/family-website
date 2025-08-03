@@ -23,7 +23,9 @@ const VerifyEmailPage: React.FC = () => {
   const hasVerified = useRef(false);
 
   const getXsrfToken = () => {
-    return document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1];
+    const cookies = document.cookie.split('; ');
+    const xsrfCookie = cookies.find(row => row.startsWith('XSRF-TOKEN='));
+    return xsrfCookie?.split('=')[1];
   };
 
   const handleVerificationSuccess = useCallback((data: any) => {
@@ -32,12 +34,29 @@ const VerifyEmailPage: React.FC = () => {
   }, [navigate]);
 
   const handleVerificationError = (response: Response, data: any) => {
-    const errorMessages = {
-      400: data.message || MESSAGES.BAD_REQUEST,
-      500: MESSAGES.SERVER_ERROR,
-      default: data.message || MESSAGES.UNEXPECTED_ERROR
-    };
-    setMessage(errorMessages[response.status as keyof typeof errorMessages] || errorMessages.default);
+    let errorMessage: string;
+    
+    switch (response.status) {
+      case 400:
+        errorMessage = data.message || MESSAGES.BAD_REQUEST;
+        break;
+      case 401:
+      case 403:
+        errorMessage = 'Invalid or expired verification token.';
+        break;
+      case 404:
+        errorMessage = 'Verification token not found.';
+        break;
+      case 500:
+      case 502:
+      case 503:
+        errorMessage = MESSAGES.SERVER_ERROR;
+        break;
+      default:
+        errorMessage = data.message || MESSAGES.UNEXPECTED_ERROR;
+    }
+    
+    setMessage(errorMessage);
     setIsError(true);
   };
 
