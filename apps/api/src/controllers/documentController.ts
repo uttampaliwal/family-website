@@ -126,10 +126,10 @@ export const createDocument = async (req: Request, res: Response) => {
       const file = (req as any).file;
       const baseUrl = process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
       
-      documentData.fileUrl = `${baseUrl}/uploads/${file.filename}`;
-      documentData.fileName = file.originalname;
-      documentData.fileType = file.mimetype;
-      documentData.fileSize = file.size;
+      documentData.fileUrl = String(baseUrl) + '/uploads/' + String(file.filename);
+      documentData.fileName = String(file.originalname);
+      documentData.fileType = String(file.mimetype);
+      documentData.fileSize = Number(file.size);
     }
 
     const newDocument = new Document(documentData);
@@ -165,8 +165,8 @@ export const updateDocument = async (req: Request, res: Response) => {
     
     // Find document and verify ownership
     const document = await Document.findOne({
-      _id: sanitizedDocumentId,
-      owner: sanitizedUserId
+      _id: String(req.params.id),
+      owner: String(req.user.id)
     });
     if (!document) {
       return res.status(404).json({ message: 'Document not found or you do not have permission to edit' });
@@ -265,7 +265,7 @@ export const downloadFile = async (req: Request, res: Response) => {
 
     // Set headers for file download
     const sanitizedFileName = String(document.fileName || 'download').replace(/[^a-zA-Z0-9_.-]/g, '_');
-    res.setHeader('Content-Disposition', `attachment; filename="${sanitizedFileName}"`); 
+    res.setHeader('Content-Disposition', `attachment; filename="${htmlEncode(sanitizedFileName)}"`); 
     res.setHeader('Content-Type', document.fileType || 'application/octet-stream');
 
     // Stream the file
@@ -306,7 +306,7 @@ export const shareDocument = async (req: Request, res: Response) => {
     }
     
     // Verify target user exists using parameterized query to prevent NoSQL injection
-    const targetUser = await User.findOne({ username: sanitizedUsername });
+    const targetUser = await User.findOne({ username: { $eq: sanitizedUsername } });
     if (!targetUser) {
       return res.status(404).json({ message: 'Target user not found' });
     }
@@ -322,7 +322,7 @@ export const shareDocument = async (req: Request, res: Response) => {
     }
 
     const document = await Document.findOne({
-      _id: documentId,
+      _id: String(documentId),
       owner: String(req.user.id)
     });
 

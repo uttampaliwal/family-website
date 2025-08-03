@@ -42,7 +42,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
     if (typeof username !== 'string') {
       return res.status(400).json({ message: 'Invalid username format' });
     }
-    user = await User.findOne({ username: username });
+    user = await User.findOne({ username: String(username) });
     if (user) {
       return res.status(400).json({ message: 'Username is already taken. Please choose another.' });
     }
@@ -131,6 +131,10 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
   }
 };
 
+const sanitizeForQuery = (input: string) => {
+  return input.replace(/[^a-zA-Z0-9@.]/g, '');
+};
+
 export const login = async (req: Request<any, any, LoginRequest>, res: Response<AuthResponse>) => {
   const { emailOrUsername, password } = req.body;
 
@@ -139,7 +143,7 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     if (typeof emailOrUsername !== 'string') {
       return res.status(400).json({ message: 'Invalid email or username format' });
     }
-    const sanitizedIdentifier = String(emailOrUsername);
+    const sanitizedIdentifier = sanitizeForQuery(emailOrUsername);
     const user = await User.findOne({
       $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
