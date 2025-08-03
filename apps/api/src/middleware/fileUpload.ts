@@ -49,23 +49,33 @@ const PLACEHOLDER_FILE = {
 const createFileUploadMiddleware = {
   single: (fieldName: string): FileUploadMiddleware => {
     return (req: Request, res: Response, next: NextFunction) => {
-      // Skip file processing if no file uploaded
-      if (!req.body[fieldName]) {
-        return next();
+      try {
+        // Skip file processing if no file uploaded
+        if (!req.body[fieldName]) {
+          return next();
+        }
+        
+        // Validate file data
+        if (typeof req.body[fieldName] !== 'string') {
+          return res.status(400).json({ message: 'Invalid file data' });
+        }
+        
+        // Generate unique filename
+        const timestamp = Date.now();
+        const filename = `${timestamp}_${req.body[fieldName] || 'upload'}`;
+        
+        const uploadedFile: UploadedFile = {
+          filename,
+          originalname: req.body[fieldName] || 'unknown',
+          mimetype: 'application/octet-stream',
+          size: 0
+        };
+        req.file = uploadedFile;
+        next();
+      } catch (error) {
+        console.error('File upload error:', sanitizeLog((error as Error).message || String(error)));
+        res.status(500).json({ message: 'File upload failed' });
       }
-      
-      // Generate unique filename
-      const timestamp = Date.now();
-      const filename = `${timestamp}_${req.body[fieldName] || 'upload'}`;
-      
-      const uploadedFile: UploadedFile = {
-        filename,
-        originalname: req.body[fieldName] || 'unknown',
-        mimetype: 'application/octet-stream',
-        size: 0
-      };
-      req.file = uploadedFile;
-      next();
     };
   }
 };

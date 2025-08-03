@@ -252,7 +252,8 @@ export const addPhoto = async (req: Request, res: Response) => {
     const lastPhoto = userData.photos[userData.photos.length - 1];
     const sanitizedPhoto = {
       title: sanitizeString(lastPhoto.title),
-      description: sanitizeString(lastPhoto.description)
+      description: sanitizeString(lastPhoto.description),
+      caption: sanitizeString(lastPhoto.caption)
     };
     res.status(201).json({ 
       message: 'Photo added successfully', 
@@ -260,7 +261,7 @@ export const addPhoto = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Error adding photo:', error);
-    res.status(500).json({ message: 'Server error', error: htmlEncode((error as Error).message || String(error)) });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
