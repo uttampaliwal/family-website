@@ -1,4 +1,4 @@
-import express, { RequestHandler } from 'express';
+import express, { RequestHandler as ExpressRequestHandler } from 'express';
 
 import { 
   getUserData, 
@@ -9,7 +9,7 @@ import {
   addEmergencyContact 
 } from '../controllers/userDataController';
 import authMiddleware from '../middleware/authMiddleware';
-import { validateCsrfToken } from '../middleware/csrf';
+import { csrf } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -21,18 +21,18 @@ router.use(authMiddleware);
 router.get('/:userId', getUserData);
 
 // Create or update user data
-router.put('/:userId', validateCsrfToken as RequestHandler, createOrUpdateUserData);
+router.put('/:userId', csrf as ExpressRequestHandler, createOrUpdateUserData);
 
 // Add an event
-router.post('/:userId/events', validateCsrfToken as RequestHandler, addEvent);
+router.post('/:userId/events', csrf as ExpressRequestHandler, addEvent);
 
 // Add a photo
-router.post('/:userId/photos', validateCsrfToken as RequestHandler, addPhoto);
+router.post('/:userId/photos', csrf as ExpressRequestHandler, addPhoto);
 
 // Add a task
-router.post('/:userId/tasks', validateCsrfToken as RequestHandler, addTask);
+router.post('/:userId/tasks', csrf as ExpressRequestHandler, addTask);
 
 // Add an emergency contact
-router.post('/:userId/emergency-contacts', validateCsrfToken as RequestHandler, addEmergencyContact);
+router.post('/:userId/emergency-contacts', csrf as ExpressRequestHandler, addEmergencyContact);
 
 export default router;

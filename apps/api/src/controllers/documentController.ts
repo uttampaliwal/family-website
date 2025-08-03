@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import Document from '../models/Document';
 import User from '../models/User';
 import mongoose from 'mongoose';
@@ -18,7 +18,7 @@ const htmlEncode = (str: string) => {
 };
 
 // Get all documents for the logged-in user
-export const getDocuments = async (req: Request, res: Response) => {
+export const getDocuments = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -43,12 +43,12 @@ export const getDocuments = async (req: Request, res: Response) => {
     res.status(200).json(documents);
   } catch (error: unknown) {
     console.error('Error fetching documents:', error);
-    res.status(500).json({ message: 'Failed to retrieve documents' });
+    return res.status(500).json({ message: 'Failed to retrieve documents' });
   }
 };
 
 // Get a single document by ID
-export const getDocumentById = async (req: Request, res: Response) => {
+export const getDocumentById = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -87,12 +87,22 @@ export const getDocumentById = async (req: Request, res: Response) => {
     res.status(200).json(sanitizedDocument);
   } catch (error: unknown) {
     console.error('Error fetching document:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
+interface DocumentCreationData {
+  title: string;
+  content: string;
+  owner: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileType?: string;
+  fileSize?: number;
+}
+
 // Create a new document
-export const createDocument = async (req: Request, res: Response) => {
+export const createDocument = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -115,15 +125,14 @@ export const createDocument = async (req: Request, res: Response) => {
     const sanitizedContent = htmlEncode(content);
 
     // Create document object
-    const documentData: any = {
+    const documentData: DocumentCreationData = {
       title: sanitizedTitle,
       content: sanitizedContent,
       owner: req.user.id
     };
 
-    // Handle file upload if present
-    if ((req as any).file) {
-      const file = (req as any).file;
+    if (req.file) {
+      const file = req.file;
       const baseUrl = process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
       
       documentData.fileUrl = String(baseUrl) + '/uploads/' + String(file.filename);
@@ -137,12 +146,12 @@ export const createDocument = async (req: Request, res: Response) => {
     res.status(201).json(newDocument);
   } catch (error: unknown) {
     console.error('Error creating document:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
 // Update a document
-export const updateDocument = async (req: Request, res: Response) => {
+export const updateDocument = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -160,9 +169,6 @@ export const updateDocument = async (req: Request, res: Response) => {
 
     const { title, content } = req.body;
     
-    const sanitizedDocumentId = String(req.params.id);
-    const sanitizedUserId = String(req.user.id);
-    
     // Find document and verify ownership
     const document = await Document.findOne({
       _id: String(req.params.id),
@@ -177,15 +183,14 @@ export const updateDocument = async (req: Request, res: Response) => {
     document.content = content ? htmlEncode(content) : document.content;
     
     await document.save();
-    const sanitizedFileName = String(document.fileName || 'download').replace(/[^a-zA-Z0-9_.-]/g, '_');
   } catch (error: unknown) {
     console.error('Error updating document:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
 // Delete a document
-export const deleteDocument = async (req: Request, res: Response) => {
+export const deleteDocument = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -207,12 +212,12 @@ export const deleteDocument = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Document deleted successfully' });
   } catch (error: unknown) {
     console.error('Error deleting document:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
 // Download a document file
-export const downloadFile = async (req: Request, res: Response) => {
+export const downloadFile = async (req: ExpressRequest, res: ExpressResponse): Promise<void> => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -273,12 +278,12 @@ export const downloadFile = async (req: Request, res: Response) => {
     fileStream.pipe(res);
   } catch (error: unknown) {
     console.error('Error downloading file:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
 // Share a document with another user
-export const shareDocument = async (req: Request, res: Response) => {
+export const shareDocument = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -335,13 +340,13 @@ export const shareDocument = async (req: Request, res: Response) => {
     const alreadyShared = document.sharedWith.some(id => id.toString() === targetUserId.toString());
     
     if (!alreadyShared) {
-      document.sharedWith.push(targetUserId);
+      document.sharedWith.push(targetUserId as mongoose.Types.ObjectId);
       await document.save();
     }
 
     res.status(200).json({ message: 'Document shared successfully' });
   } catch (error: unknown) {
     console.error('Error sharing document:', sanitizeLog((error as Error).message || String(error)));
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
