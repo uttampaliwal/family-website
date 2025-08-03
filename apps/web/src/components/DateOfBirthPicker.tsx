@@ -5,12 +5,17 @@ import CustomSelect from './CustomSelect';
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] as const;
 const YEARS_TO_SHOW = 100;
 
-// Pre-calculate year options to avoid recalculation on every render
+// Pre-calculate options to avoid recalculation on every render
 const currentYear = new Date().getFullYear();
 const yearOptions = [{ value: '', label: 'Year' }, ...Array.from({ length: YEARS_TO_SHOW }, (_, i) => {
   const year = currentYear - i;
   return { value: year.toString(), label: year.toString() };
 })];
+
+const dayOptions = [{ value: '', label: 'Day' }, ...Array.from({ length: 31 }, (_, i) => ({ 
+  value: (i + 1).toString(), 
+  label: (i + 1).toString() 
+}))];
 
 interface DateOfBirthPickerProps {
   value: string;
@@ -85,11 +90,7 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
     }
   }, [day, month, year, onChange, value]); // `value` is a dependency to ensure the comparison is always up-to-date.
 
-  // Memoize options to prevent re-calculation on every render.
-  const dayOptions = useMemo(() => {
-    const days = Array.from({ length: 31 }, (_, i) => ({ value: (i + 1).toString(), label: (i + 1).toString() }));
-    return [{ value: '', label: 'Day' }, ...days];
-  }, []);
+  // dayOptions is now pre-calculated outside the component
 
   const monthOptions = useMemo(() => {
     const months = Array.from({ length: 12 }, (_, i) => ({ value: (i + 1).toString(), label: MONTH_NAMES[i] }));

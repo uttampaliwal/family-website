@@ -13,22 +13,18 @@ export const useFormValidation = () => {
   }, []);
 
   const validatePassword = useCallback((password: string) => {
-    const errors: string[] = [];
-    if (password.length < 8) {
-      errors.push('At least 8 characters long');
-    }
-    if (!/[A-Z]/.test(password)) {
-      errors.push('At least one uppercase letter');
-    }
-    if (!/[a-z]/.test(password)) {
-      errors.push('At least one lowercase letter');
-    }
-    if (!/[0-9]/.test(password)) {
-      errors.push('At least one number');
-    }
-    if (!/[^A-Za-z0-9]/.test(password)) {
-      errors.push('At least one special character');
-    }
+    const validationRules = [
+      { test: (p: string) => p.length >= 8, message: 'At least 8 characters long' },
+      { test: (p: string) => /[A-Z]/.test(p), message: 'At least one uppercase letter' },
+      { test: (p: string) => /[a-z]/.test(p), message: 'At least one lowercase letter' },
+      { test: (p: string) => /[0-9]/.test(p), message: 'At least one number' },
+      { test: (p: string) => /[^A-Za-z0-9]/.test(p), message: 'At least one special character' }
+    ];
+    
+    const errors = validationRules
+      .filter(rule => !rule.test(password))
+      .map(rule => rule.message);
+    
     return {
       isValid: errors.length === 0,
       errors

@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { sendEmail } from '../utils/emailService';
 import User from '../models/User';
-import { RegisterRequest, LoginRequest, VerifyEmailRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, AuthResponse, UserProfile } from '../types/auth';
+import { RegisterRequest, LoginRequest, VerifyEmailRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, AuthResponse, UserProfile, Gender } from '../types/auth';
 import { sanitizeLog } from '../utils/logSanitizer';
 
 const jwtSecret = process.env.JWT_SECRET as string;
@@ -26,11 +26,7 @@ const htmlEncode = (str: string) => {
 
 export const register = async (req: Request<any, any, RegisterRequest>, res: Response<AuthResponse>) => {
   const { name, email, password, dateOfBirth, username, phoneNumber } = req.body;
-  const gender = req.body.gender as 'male' | 'female' | 'other';
-
-  if (gender && !['male', 'female', 'other'].includes(gender)) {
-    return res.status(400).json({ message: 'Invalid gender specified. Must be male, female, or other.' });
-  }
+  const gender = req.body.gender as Gender;
 
   try {
     // Sanitize email input to prevent NoSQL injection
@@ -124,9 +120,9 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
     res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: htmlEncode(user.username) });
   } catch (err: unknown) {
     const sanitizedError = {
-      message: err instanceof Error ? err.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
-      email: String(email).replace(/[\n\r\t]/g, ''),
-      username: String(username).replace(/[\n\r\t]/g, ''),
+      message: err instanceof Error ? sanitizeLog(err.message) : 'Unknown error',
+      email: sanitizeLog(String(email)),
+      username: sanitizeLog(String(username)),
       timestamp: new Date().toISOString(),
       operation: 'register'
     };
@@ -172,7 +168,6 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
       await user.save();
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-
     user.loginAttempts = 0;
     user.lockUntil = undefined;
     await user.save();
@@ -243,7 +238,6 @@ export const verifyEmail = async (req: Request<any, any, VerifyEmailRequest>, re
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired verification token.' });
     }
-
     user.isVerified = true;
     user.verificationToken = undefined;
     await user.save();
@@ -274,11 +268,10 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
-
     if (user.isVerified) {
       return res.status(400).json({ message: 'Email already verified. Please log in.' });
     }
-
+    
     const verificationToken = user.verificationToken;
 
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
@@ -302,7 +295,6 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
   if (!refreshToken) {
     return res.status(401).json({ message: 'No refresh token provided.' });
   }
-
   try {
     if (!refreshTokenSecret) {
       throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
@@ -313,7 +305,6 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
     if (!user || !user.refreshTokens.includes(refreshToken)) {
       return res.status(403).json({ message: 'Invalid refresh token.' });
     }
-
     if (!jwtSecret) {
       throw new Error('JWT_SECRET environment variable is not configured');
     }
@@ -371,7 +362,6 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
-
     // Sanitize user data before returning to prevent XSS
     const sanitizedUser = {
       id: user._id,
@@ -380,7 +370,7 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
       email: htmlEncode(user.email || ''),
       dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : undefined,
       phoneNumber: user.phoneNumber ? htmlEncode(user.phoneNumber) : undefined,
-      gender: user.gender,
+      gender: user.gender as Gender,
       isVerified: user.isVerified,
     };
     
@@ -391,43 +381,7 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
   }
 };
 
-export const updateUserProfile = async (req: Request<{ username: string }, any, UserProfile>, res: Response<AuthResponse>) => {
-  try {
-    const { username } = req.params;
-    const { name, dateOfBirth, phoneNumber } = req.body;
-    const gender = req.body.gender as 'male' | 'female' | 'other';
 
-    // Sanitize username to prevent NoSQL injection
-    if (typeof username !== 'string' || !username.trim()) {
-      return res.status(400).json({ message: 'Invalid username format' });
-    }
-
-    if (gender && !['male', 'female', 'other'].includes(gender)) {
-      return res.status(400).json({ message: 'Invalid gender specified. Must be male, female, or other.' });
-    }
-
-    const sanitizedUsername = String(username).trim();
-    const user = await User.findOne({ username: sanitizedUsername });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    user.name = name || user.name;
-    if (dateOfBirth) {
-      user.dateOfBirth = new Date(dateOfBirth);
-    }
-    user.phoneNumber = phoneNumber || user.phoneNumber;
-    user.gender = gender || user.gender;
-
-    await user.save();
-
-    res.status(200).json({ message: 'Profile updated successfully.' });
-  } catch (err: any) {
-    console.error('Error updating user profile:', err);
-    res.status(500).json({ message: 'Failed to update profile.' });
-  }
-};
 
 export const forgotPassword = async (req: Request<any, any, ForgotPasswordRequest>, res: Response<AuthResponse>) => {
   const { email } = req.body;
@@ -440,7 +394,6 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
     if (!user) {
       return res.status(404).json({ message: 'User with that email does not exist.' });
     }
-
     // Generate a secure random token and hash it for storage
     const resetToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
@@ -493,7 +446,6 @@ export const resetPassword = async (req: Request<{ token?: string }, any, ResetP
     if (!user) {
       return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
     }
-
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
@@ -523,7 +475,6 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
   if (!refreshToken) {
     return res.status(204).json({ message: 'No refresh token found.' });
   }
-
   try {
     const decoded: any = jwt.verify(refreshToken, Buffer.from(refreshTokenSecret, 'hex'));
     const userId = String(decoded.id);
@@ -533,7 +484,6 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
       user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
       await user.save();
     }
-
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -550,4 +500,9 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
     });
     res.status(200).json({ message: 'Logged out successfully (token invalid).' });
   }
+};
+
+export const updateUserProfile = async (req: Request, res: Response) => {
+  // TODO: Implement user profile update logic
+  res.status(501).json({ message: 'Not Implemented' });
 };

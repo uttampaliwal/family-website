@@ -120,7 +120,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={refs.passwordRef}
-          autoComplete="new-password"
+          autoComplete={`new-password-${Date.now()}`}
           className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
         />
         <button
