@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { Request, Response, NextFunction } from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
 
 // Helper function to HTML-encode a string
 const htmlEncode = (str: string) => {
@@ -61,7 +61,7 @@ export const resetPasswordSchema = Joi.object({
 
 // Validation middleware factory
 export const validate = (schema: Joi.ObjectSchema) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
     const { error } = schema.validate(req.body, { abortEarly: false });
 
     if (error) {

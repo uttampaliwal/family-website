@@ -1,4 +1,4 @@
-import express, { RequestHandler } from 'express';
+import express, { RequestHandler as ExpressRequestHandler } from 'express';
 
 import { 
   getDocuments, 
@@ -10,7 +10,7 @@ import {
   downloadFile
 } from '../controllers/documentController';
 import authMiddleware from '../middleware/authMiddleware';
-import { validateCsrfToken } from '../middleware/csrf';
+import { csrf } from '../middleware/auth';
 import upload from '../middleware/fileUpload';
 import path from 'path';
 
@@ -26,16 +26,16 @@ router.get('/', getDocuments);
 router.get('/:id', getDocumentById);
 
 // Create a new document
-router.post('/', validateCsrfToken as RequestHandler, upload.single('file'), createDocument);
+router.post('/', csrf as ExpressRequestHandler, upload.single('file'), createDocument);
 
 // Update a document
-router.put('/:id', validateCsrfToken as RequestHandler, updateDocument);
+router.put('/:id', csrf as ExpressRequestHandler, updateDocument);
 
 // Delete a document
-router.delete('/:id', validateCsrfToken as RequestHandler, deleteDocument);
+router.delete('/:id', csrf as ExpressRequestHandler, deleteDocument);
 
 // Share a document
-router.post('/:id/share', validateCsrfToken as RequestHandler, shareDocument);
+router.post('/:id/share', csrf as ExpressRequestHandler, shareDocument);
 
 // Download a document file
 router.get('/:id/download', downloadFile);

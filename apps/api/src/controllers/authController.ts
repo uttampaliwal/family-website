@@ -24,7 +24,7 @@ const htmlEncode = (str: string) => {
     .replace(/\//g, '&#x2F;');
 };
 
-export const register = async (req: Request<any, any, RegisterRequest>, res: Response<AuthResponse>) => {
+export const register = async (req: ExpressRequest<Record<string, never>, Record<string, never>, RegisterRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
   const { name, email, password, dateOfBirth, username, phoneNumber } = req.body;
   const gender = req.body.gender as Gender;
 
@@ -127,7 +127,7 @@ export const register = async (req: Request<any, any, RegisterRequest>, res: Res
       operation: 'register'
     };
     console.error('Registration error:', JSON.stringify(sanitizedError));
-    res.status(500).json({ message: 'Registration failed. Please try again later.' });
+    return res.status(500).json({ message: 'Registration failed. Please try again later.' });
   }
 };
 
@@ -135,7 +135,7 @@ const sanitizeForQuery = (input: string) => {
   return input.replace(/[^a-zA-Z0-9@.]/g, '');
 };
 
-export const login = async (req: Request<any, any, LoginRequest>, res: Response<AuthResponse>) => {
+export const login = async (req: ExpressRequest<Record<string, never>, Record<string, never>, LoginRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
   const { emailOrUsername, password } = req.body;
 
   try {
@@ -152,8 +152,6 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     }
 
     if (user.lockUntil && user.lockUntil > Date.now()) {
-      const timeLeft = Math.ceil((user.lockUntil - Date.now()) / (1000 * 60));
-      const sanitizedTimeLeft = Math.max(0, Math.floor(Number(timeLeft) || 0));
       return res.status(403).json({ message: 'Account is temporarily locked. Please try again later.' });
     }
 
@@ -222,13 +220,13 @@ export const login = async (req: Request<any, any, LoginRequest>, res: Response<
     });
 
     res.json({ message: 'Logged in successfully', accessToken: accessToken, username: htmlEncode(user.username) });
-  } catch (err: any) {
+  } catch (err) {
         console.error('Login error:', sanitizeLog((err as Error).message || String(err)));
-    res.status(500).json({ message: 'An error occurred during login.' });
+    return res.status(500).json({ message: 'An error occurred during login.' });
   }
 };
 
-export const verifyEmail = async (req: Request<any, any, VerifyEmailRequest>, res: Response<AuthResponse>) => {
+export const verifyEmail = async (req: ExpressRequest<Record<string, never>, Record<string, never>, VerifyEmailRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
   const { token } = req.body;
 
   try {
@@ -249,11 +247,11 @@ export const verifyEmail = async (req: Request<any, any, VerifyEmailRequest>, re
     res.status(200).json({ message: 'Email verified successfully! You can now sign in.' });
   } catch (err: unknown) {
     console.error('Email verification error:', err);
-    res.status(500).json({ message: 'Email verification failed. Please try again later.' });
+    return res.status(500).json({ message: 'Email verification failed. Please try again later.' });
   }
 };
 
-export const resendVerification = async (req: Request<any, any, ResendVerificationRequest>, res: Response<AuthResponse>) => {
+export const resendVerification = async (req: ExpressRequest<Record<string, never>, Record<string, never>, ResendVerificationRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
   const { emailOrUsername } = req.body;
 
   try {
@@ -289,11 +287,11 @@ export const resendVerification = async (req: Request<any, any, ResendVerificati
     res.status(200).json({ message: 'Verification email sent successfully. Please check your inbox.' });
   } catch (err: unknown) {
     console.error('Resend verification email error:', err);
-    res.status(500).json({ message: 'Failed to resend verification email. Please try again later.' });
+    return res.status(500).json({ message: 'Failed to resend verification email. Please try again later.' });
   }
 };
 
-export const refreshToken = async (req: Request, res: Response<AuthResponse>) => {
+export const refreshToken = async (req: ExpressRequest, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
@@ -303,7 +301,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
     if (!refreshTokenSecret) {
       throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
     }
-    const decoded: any = jwt.verify(refreshToken, Buffer.from(refreshTokenSecret, 'hex'));
+        const decoded = jwt.verify(refreshToken, Buffer.from(refreshTokenSecret, 'hex')) as { id: string };
     const user = await User.findById(String(decoded.id));
 
     if (!user || !user.refreshTokens.includes(refreshToken)) {
@@ -353,11 +351,11 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
     
   } catch (err: unknown) {
     console.error('Refresh token error:', err);
-    res.status(403).json({ message: 'Invalid or expired refresh token.' });
+    return res.status(403).json({ message: 'Invalid or expired refresh token.' });
   }
 };
 
-export const getUserProfile = async (req: Request<{ username: string }>, res: Response<UserProfile | AuthResponse>) => {
+export const getUserProfile = async (req: ExpressRequest<{ username: string }>, res: ExpressResponse<UserProfile | AuthResponse>): Promise<ExpressResponse<UserProfile | AuthResponse>> => {
   try {
     // Prevent NoSQL injection by using exact string comparison
     const username = String(req.params.username);
@@ -379,15 +377,15 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
     };
     
     res.status(200).json(sanitizedUser);
-  } catch (err: any) {
+  } catch (err) {
     console.error('Error fetching user profile:', err);
-    res.status(500).json({ message: 'Server error. Please try again later.' });
+    return res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
 
 
 
-export const forgotPassword = async (req: Request<any, any, ForgotPasswordRequest>, res: Response<AuthResponse>) => {
+export const forgotPassword = async (req: ExpressRequest<Record<string, never>, Record<string, never>, ForgotPasswordRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
   const { email } = req.body;
 
   try {
@@ -423,11 +421,11 @@ export const forgotPassword = async (req: Request<any, any, ForgotPasswordReques
     res.status(200).json({ message: 'Password reset link sent to your email.' });
   } catch (err: unknown) {
     console.error('Forgot password error:', err);
-    res.status(500).json({ message: 'Error sending password reset email.' });
+    return res.status(500).json({ message: 'Error sending password reset email.' });
   }
 };
 
-export const resetPassword = async (req: Request<{ token?: string }, any, ResetPasswordRequest>, res: Response<AuthResponse>) => {
+export const resetPassword = async (req: ExpressRequest<{ token?: string }, Record<string, never>, ResetPasswordRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
   // Get token from either params or body
   const tokenFromParams = req.params.token;
   const tokenFromBody = req.body.token;
@@ -469,18 +467,18 @@ export const resetPassword = async (req: Request<{ token?: string }, any, ResetP
     res.status(200).json({ message: 'Your password has been updated.' });
   } catch (err: unknown) {
     console.error('Reset password error:', err);
-    res.status(500).json({ message: 'Error resetting password.' });
+    return res.status(500).json({ message: 'Error resetting password.' });
   }
 };
 
-export const logout = async (req: Request, res: Response<AuthResponse>) => {
+export const logout = async (req: ExpressRequest, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
     return res.status(204).json({ message: 'No refresh token found.' });
   }
   try {
-    const decoded: any = jwt.verify(refreshToken, Buffer.from(refreshTokenSecret, 'hex'));
+        const decoded = jwt.verify(refreshToken, Buffer.from(refreshTokenSecret, 'hex')) as { id: string };
     const userId = String(decoded.id);
     const user = await User.findById(userId);
 
@@ -502,11 +500,11 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-    res.status(200).json({ message: 'Logged out successfully (token invalid).' });
+    return res.status(200).json({ message: 'Logged out successfully (token invalid).' });
   }
 };
 
-export const updateUserProfile = async (req: Request, res: Response) => {
+export const updateUserProfile = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
   // TODO: Implement user profile update logic
-  res.status(501).json({ message: 'Not Implemented' });
+  return res.status(501).json({ message: 'Not Implemented' });
 };

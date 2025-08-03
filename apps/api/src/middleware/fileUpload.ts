@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { sanitizeLog } from '../utils/logSanitizer';
@@ -12,16 +12,14 @@ interface UploadedFile {
 }
 
 // Extend Request interface to include file property
-declare global {
-  namespace Express {
-    interface Request {
-      file?: UploadedFile;
-    }
+declare module 'express-serve-static-core' {
+  interface Request {
+    file?: UploadedFile;
   }
 }
 
 // Since we can't install multer, let's create a simple middleware
-type FileUploadMiddleware = (req: Request, res: Response, next: NextFunction) => void;
+type FileUploadMiddleware = (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => void;
 
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, '../../uploads');
@@ -38,17 +36,12 @@ if (!fs.existsSync(uploadDir)) {
   }
 }
 
-// Constants for placeholder file properties
-const PLACEHOLDER_FILE = {
-  FILENAME: 'placeholder.txt',
-  MIMETYPE: 'text/plain',
-  SIZE: 0
-} as const;
+
 
 // File upload middleware implementation
 const createFileUploadMiddleware = {
   single: (fieldName: string): FileUploadMiddleware => {
-    return (req: Request, res: Response, next: NextFunction) => {
+    return (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
       try {
         // Skip file processing if no file uploaded
         if (!req.body[fieldName]) {

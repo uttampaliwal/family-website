@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
 import { isHttpError } from 'http-errors';
 import { sanitizeLog } from '../utils/logSanitizer';
 
@@ -10,13 +10,7 @@ interface AppError extends Error {
   statusCode?: number;
 }
 
-export const errorHandler = (
-  err: AppError,
-  req: Request,
-  res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction
-) => {
+export const errorHandler = (err: Error, req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
   // In development, or for non-http errors, log the full error
   if (process.env.NODE_ENV !== 'production' || !isHttpError(err)) {
     const sanitizedError = {

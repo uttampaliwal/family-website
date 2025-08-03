@@ -1,4 +1,4 @@
-import express, { Express, RequestHandler } from 'express';
+import express, { Express as ExpressApp, RequestHandler as ExpressRequestHandler } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -11,7 +11,8 @@ import healthRoutes from './routes/health';
 import documentRoutes from './routes/documents'; // Import document routes
 import { errorHandler } from './middleware/errorHandler';
 import { sanitizeLog } from './utils/logSanitizer';
-import { generateCsrfToken, validateCsrfToken } from './middleware/csrf';
+import { generateCsrfToken } from './middleware/csrfGenerator';
+import { csrf } from './middleware/auth';
 
 // --- 1. Environment Setup ---
 
@@ -83,7 +84,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 // --- 3. Express Application Setup ---
-const app: Express = express();
+const app: ExpressApp = express();
 
 // Enable CORS (Cross-Origin Resource Sharing) for requests from your frontend.
 app.use(
@@ -97,8 +98,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(generateCsrfToken as RequestHandler);
-app.use(validateCsrfToken as RequestHandler);
+app.use(generateCsrfToken as ExpressRequestHandler);
+app.use(csrf as ExpressRequestHandler);
 
 // API routes.
 app.use('/api/auth', authRoutes);

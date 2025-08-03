@@ -1,6 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
 
 
 
@@ -10,9 +9,8 @@ import crypto from 'crypto';
  * @param res - Express response object
  * @param next - Express next function to continue middleware chain
  */
-export default function (req: Request, res: Response, next: NextFunction) {
-  // Get token from header
-  const token = (req.headers as any)['x-auth-token'] as string;
+export default function (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) {
+  const token = req.headers['x-auth-token'] as string;
 
   // Check if not token
   if (!token) {

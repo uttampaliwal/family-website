@@ -1,10 +1,10 @@
-import express, { RequestHandler } from 'express';
+import express, { RequestHandler as ExpressRequestHandler } from 'express';
 import rateLimit from 'express-rate-limit';
 
 import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout, updateUserProfile } from '../controllers/authController';
 import { validate, registerSchema, loginSchema, verifyEmailSchema, resendVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from '../middleware/validate';
 
-import { validateCsrfToken } from '../middleware/csrf';
+import { csrf } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -22,19 +22,19 @@ const loginLimiter = rateLimit({
 });
 
 // Register Route
-router.post('/register', validateCsrfToken as RequestHandler, authLimiter, validate(registerSchema), register);
+router.post('/register', csrf as ExpressRequestHandler, authLimiter, validate(registerSchema), register);
 
 // Sign In Route
-router.post('/login', validateCsrfToken as RequestHandler, loginLimiter, validate(loginSchema), login);
+router.post('/login', csrf as ExpressRequestHandler, loginLimiter, validate(loginSchema), login);
 
 // Verify Email Route
-router.post('/verify-email', validateCsrfToken as RequestHandler, validate(verifyEmailSchema), verifyEmail);
+router.post('/verify-email', csrf as ExpressRequestHandler, validate(verifyEmailSchema), verifyEmail);
 
 // Resend Verification Email Route
-router.post('/resend-verification', validateCsrfToken as RequestHandler, validate(resendVerificationSchema), resendVerification);
+router.post('/resend-verification', csrf as ExpressRequestHandler, validate(resendVerificationSchema), resendVerification);
 
 // Refresh Token Route
-router.post('/refresh-token', validateCsrfToken as RequestHandler, refreshToken); // CWE-352: Addressed by validateCsrfToken. CWE-1275: Not applicable to this route.
+router.post('/refresh-token', csrf as ExpressRequestHandler, refreshToken); // CWE-352: Addressed by validateCsrfToken. CWE-1275: Not applicable to this route.
 
 // Get User Profile by Username
 router.get('/profile/:username', (req, res, next) => {
@@ -46,18 +46,18 @@ router.get('/profile/:username', (req, res, next) => {
 });
 
 // Update User Profile by Username
-router.put('/profile/:username', validateCsrfToken as RequestHandler, updateUserProfile);
+router.put('/profile/:username', csrf as ExpressRequestHandler, updateUserProfile);
 
 // Forgot Password Route
-router.post('/forgot-password', validateCsrfToken as RequestHandler, validate(forgotPasswordSchema), forgotPassword);
+router.post('/forgot-password', csrf as ExpressRequestHandler, validate(forgotPasswordSchema), forgotPassword);
 
 // Reset Password Route
-router.post('/reset-password/:token', validateCsrfToken as RequestHandler, validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password/:token', csrf as ExpressRequestHandler, validate(resetPasswordSchema), resetPassword);
 
 // Reset Password Route with token in body
-router.post('/reset-password', validateCsrfToken as RequestHandler, validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password', csrf as ExpressRequestHandler, validate(resetPasswordSchema), resetPassword);
 
 // Logout Route
-router.post('/logout', validateCsrfToken as RequestHandler, logout);
+router.post('/logout', csrf as ExpressRequestHandler, logout);
 
 export default router;
