@@ -5,6 +5,12 @@ import type { Document } from '../api/documents';
 import { useToast } from '../hooks/useToast';
 import DocumentCard from '../components/DocumentCard';
 
+// Utility function to format date
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+};
+
 // Utility function to handle document operation errors
 const getErrorMessage = (error: unknown, operation: 'fetch' | 'delete'): string => {
   if (!(error instanceof Error)) return `Failed to ${operation} document${operation === 'fetch' ? 's' : ''}`;
@@ -72,10 +78,7 @@ const DocumentsPage: React.FC = () => {
     }
   }, [showToast]);
 
-  const formatDate = useCallback((dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-  }, []);
+
 
   const handleNewDocument = useCallback(() => {
     navigate('/documents/new');

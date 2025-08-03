@@ -63,10 +63,17 @@ const ANIMATION_CONFIG = {
 
 const FamilyTools: React.FC = () => {
   const handleToolClick = (link: string) => {
+    if (!link || typeof link !== 'string') {
+      console.error('Invalid link provided:', link);
+      return;
+    }
+    
     try {
       window.location.href = link;
     } catch (error) {
       console.error('Error navigating to tool:', error);
+      // Fallback: try using window.open as alternative
+      window.open(link, '_self');
     }
   };
 

@@ -35,15 +35,6 @@ interface Task {
   assignedTo?: mongoose.Types.ObjectId[];
 }
 
-interface Event {
-  title: string;
-  description?: string | null;
-  date: Date;
-  location?: string | null;
-  participants?: mongoose.Types.ObjectId[];
-  createdAt: Date;
-}
-
 interface EmergencyContact {
   name: string;
   phoneNumber: string;
@@ -126,8 +117,8 @@ export const getUserData = async (req: Request, res: Response) => {
     res.status(200).json(sanitizedUserData);
   } catch (error: unknown) {
     const sanitizedError = {
-      message: (error instanceof Error) ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
-      userId: String(req.params.userId || '').replace(/[<>"'&\n\r\t]/g, ''),
+      message: (error instanceof Error) ? htmlEncode(error.message.replace(/[\n\r\t]/g, '')) : 'Unknown error',
+      userId: htmlEncode(String(req.params.userId || '').replace(/[\n\r\t]/g, '')),
       timestamp: new Date().toISOString(),
       operation: 'getUserData'
     };
@@ -180,8 +171,8 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'User data updated successfully', userData: sanitizedUserData });
   } catch (error: unknown) {
     const sanitizedError = {
-      message: (error instanceof Error) ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
-      userId: String(req.params.userId).replace(/[\n\r\t]/g, ''),
+      message: (error instanceof Error) ? htmlEncode(error.message.replace(/[\n\r\t]/g, '')) : 'Unknown error',
+      userId: htmlEncode(String(req.params.userId).replace(/[\n\r\t]/g, '')),
       timestamp: new Date().toISOString(),
       operation: 'createOrUpdateUserData'
     };
@@ -227,7 +218,7 @@ export const addEvent = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Error adding event:', error);
-    res.status(500).json({ message: 'Server error', error: (error as Error).message || String(error) });
+    res.status(500).json({ message: 'Server error', error: htmlEncode((error as Error).message || String(error)) });
   }
 };
 
@@ -269,7 +260,7 @@ export const addPhoto = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Error adding photo:', error);
-    res.status(500).json({ message: 'Server error', error: (error as Error).message || String(error) });
+    res.status(500).json({ message: 'Server error', error: htmlEncode((error as Error).message || String(error)) });
   }
 };
 
@@ -356,6 +347,6 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Error adding emergency contact:', sanitizeLog((error as Error).message || String(error)));
-    res.status(500).json({ message: 'Server error', error: (error as Error).message || String(error) });
+    res.status(500).json({ message: 'Server error', error: htmlEncode((error as Error).message || String(error)) });
   }
 };

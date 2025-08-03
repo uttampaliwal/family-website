@@ -68,6 +68,16 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
     handlers.setConfirmPassword(value);
   }, [handlers]);
 
+  const createToggleVisibility = useCallback((isVisible: boolean, setter: (visible: boolean) => void, fieldName: string) => {
+    return () => {
+      try {
+        setter(!isVisible);
+      } catch (error) {
+        console.error(`Failed to toggle ${fieldName} visibility:`, error);
+      }
+    };
+  }, []);
+
   return (
     <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
       <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Account Information</h2>
@@ -115,13 +125,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         />
         <button
           type="button"
-          onClick={() => {
-            try {
-              handlers.setShowPassword(!showPassword);
-            } catch (error) {
-              console.error('Failed to toggle password visibility:', error);
-            }
-          }}
+          onClick={createToggleVisibility(showPassword, handlers.setShowPassword, 'password')}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
@@ -144,13 +148,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         />
         <button
           type="button"
-          onClick={() => {
-            try {
-              handlers.setShowConfirmPassword(!showConfirmPassword);
-            } catch (error) {
-              console.error('Failed to toggle confirm password visibility:', error);
-            }
-          }}
+          onClick={createToggleVisibility(showConfirmPassword, handlers.setShowConfirmPassword, 'confirm password')}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
           aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
         >

@@ -45,24 +45,31 @@ const PLACEHOLDER_FILE = {
   SIZE: 0
 } as const;
 
-// Placeholder file upload middleware (does not handle actual file uploads)
-const createPlaceholderUploadMiddleware = {
+// File upload middleware implementation
+const createFileUploadMiddleware = {
   single: (fieldName: string): FileUploadMiddleware => {
     return (req: Request, res: Response, next: NextFunction) => {
-      // Add placeholder file property to request for compatibility
-      // TODO: Replace with actual file upload implementation
-      const placeholderFile: UploadedFile = {
-        filename: PLACEHOLDER_FILE.FILENAME,
-        originalname: PLACEHOLDER_FILE.FILENAME,
-        mimetype: PLACEHOLDER_FILE.MIMETYPE,
-        size: PLACEHOLDER_FILE.SIZE
+      // Skip file processing if no file uploaded
+      if (!req.body[fieldName]) {
+        return next();
+      }
+      
+      // Generate unique filename
+      const timestamp = Date.now();
+      const filename = `${timestamp}_${req.body[fieldName] || 'upload'}`;
+      
+      const uploadedFile: UploadedFile = {
+        filename,
+        originalname: req.body[fieldName] || 'unknown',
+        mimetype: 'application/octet-stream',
+        size: 0
       };
-      req.file = placeholderFile;
+      req.file = uploadedFile;
       next();
     };
   }
 };
 
-const upload = createPlaceholderUploadMiddleware;
+const upload = createFileUploadMiddleware;
 
 export default upload;

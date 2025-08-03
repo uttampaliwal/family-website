@@ -63,7 +63,15 @@ const UserSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
-  refreshTokens: [String], // Array to store multiple refresh tokens
+  refreshTokens: {
+    type: [String],
+    validate: {
+      validator: function(tokens: string[]) {
+        return tokens.length <= 5; // Limit to 5 tokens max
+      },
+      message: 'Too many refresh tokens stored'
+    }
+  }, // Array to store multiple refresh tokens
   loginAttempts: { type: Number, required: true, default: 0 },
   lockUntil: { type: Number },
 });

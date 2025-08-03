@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 
 interface CustomSelectProps {
   id?: string;
@@ -39,7 +39,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find((option) => option.value === value);
+  const selectedOption = useMemo(() => options.find((option) => option.value === value), [options, value]);
   const buttonClasses = `${STYLES.button.base} ${disabled ? STYLES.button.disabled : STYLES.button.enabled}`;
 
   const handleOptionClick = (optionValue: string) => {

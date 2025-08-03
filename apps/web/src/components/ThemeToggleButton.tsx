@@ -21,14 +21,16 @@ const SunIcon = () => (
   </svg>
 );
 
+const getInitialTheme = () => {
+  try {
+    return localStorage.getItem('theme') || 'light';
+  } catch {
+    return 'light';
+  }
+};
+
 const ThemeToggleButton: React.FC = () => {
-  const [theme, setTheme] = useState(() => {
-    try {
-      return localStorage.getItem('theme') || 'light';
-    } catch {
-      return 'light';
-    }
-  });
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -39,8 +41,8 @@ const ThemeToggleButton: React.FC = () => {
     }
     try {
       localStorage.setItem('theme', theme);
-    } catch {
-      // Silently fail if localStorage is not available
+    } catch (error) {
+      console.warn('Failed to save theme to localStorage:', error);
     }
   }, [theme]);
 

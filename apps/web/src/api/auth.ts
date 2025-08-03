@@ -11,7 +11,7 @@ export const resetPassword = async (data: ResetPasswordRequest): Promise<AuthRes
   }
   
   const minPasswordLength = parseInt(import.meta.env.VITE_MIN_PASSWORD_LENGTH || import.meta.env.VITE_DEFAULT_MIN_PASSWORD_LENGTH || import.meta.env.VITE_PASSWORD_MIN_LENGTH || '8', 10);
-  if (!data.password || typeof data.password !== 'string' || data.password.length < minPasswordLength) {
+  if (!data.password || typeof data.password !== 'string' || data.password.trim() === '' || data.password.length < minPasswordLength) { 
     throw new Error('Valid password is required');
   }
   
@@ -23,9 +23,12 @@ export const resetPassword = async (data: ResetPasswordRequest): Promise<AuthRes
     }
     
     return response.data;
-  } catch (error: any) {
-    if (error.response?.data?.message) {
-      throw new Error(error.response.data.message);
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      if (axiosError.response?.data?.message) {
+        throw new Error(axiosError.response.data.message);
+      }
     }
     throw new Error('Failed to reset password');
   }

@@ -6,8 +6,10 @@ function RouteFocusManager() {
   const mainContentRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // Find the main content area
-    mainContentRef.current = document.querySelector('main');
+    // Find the main content area using multiple selectors for better reliability
+    mainContentRef.current = document.querySelector('main') || 
+                             document.querySelector('[role="main"]') || 
+                             document.querySelector('#main-content');
 
     // On route change, focus the main content area
     if (mainContentRef.current) {

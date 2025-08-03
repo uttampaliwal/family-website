@@ -8,7 +8,6 @@ export interface AuthResponse {
   accessToken?: string;
   username?: string;
   user?: UserProfile;
-  error?: ErrorResponse;
 }
 
 export interface UserProfile {
@@ -16,7 +15,7 @@ export interface UserProfile {
   username: string;
   email: string;
   name?: string;
-  dob?: string;
+  dateOfBirth?: string;
   phoneNumber?: string | null;
   mobileNumber?: string | null;
   gender?: string;
@@ -26,7 +25,7 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-  dob: string;
+  dateOfBirth: string;
   phoneNumber?: string;
   username: string;
   gender: string;

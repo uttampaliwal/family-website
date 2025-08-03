@@ -56,13 +56,37 @@ export const errorHandler = (
     try {
       res.status(statusCode).json(errorResponse);
     } catch (responseError) {
-      console.error('Failed to send error response:', sanitizeLog(responseError instanceof Error ? responseError.message : 'Unknown error'));
+      const errorLog = {
+        level: 'ERROR',
+        message: 'Failed to send JSON error response',
+        error: sanitizeLog(responseError instanceof Error ? responseError.message : String(responseError)),
+        timestamp: new Date().toISOString()
+      };
+      console.error(JSON.stringify(errorLog));
+      
       // Fallback: send a basic text response
       try {
         res.status(500).send('Internal Server Error');
-      } catch {
+      } catch (fallbackError) {
+        const fallbackLog = {
+          level: 'CRITICAL',
+          message: 'Failed to send fallback error response',
+          error: sanitizeLog(fallbackError instanceof Error ? fallbackError.message : String(fallbackError)),
+          timestamp: new Date().toISOString()
+        };
+        console.error(JSON.stringify(fallbackLog));
+        
         // Last resort: end the response
-        res.end();
+        try {
+          res.end();
+        } catch (endError) {
+          console.error(JSON.stringify({
+            level: 'FATAL',
+            message: 'Failed to end response',
+            error: sanitizeLog(endError instanceof Error ? endError.message : String(endError)),
+            timestamp: new Date().toISOString()
+          }));
+        }
       }
     }
   }

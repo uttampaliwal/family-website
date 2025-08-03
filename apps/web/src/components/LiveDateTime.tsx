@@ -7,6 +7,23 @@ const ClockIcon = () => (
   </svg>
 );
 
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
+const formatTime = (date: Date) => {
+  return date.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+};
+
 const LiveDateTime: React.FC = () => {
   const [dateTime, setDateTime] = useState(new Date());
 
@@ -20,22 +37,7 @@ const LiveDateTime: React.FC = () => {
     };
   }, []);
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString(undefined, {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-  };
 
   return (
     <div className="flex items-center space-x-2 text-white font-sans">

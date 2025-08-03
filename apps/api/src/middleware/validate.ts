@@ -68,10 +68,11 @@ export const validate = (schema: Joi.ObjectSchema) => {
       const categorizedErrors = error.details.map((err) => {
         const sanitizedMessage = htmlEncode(String(err.message));
         const sanitizedField = htmlEncode(String(err.path.join('.')));
+        const sanitizedType = htmlEncode(String(err.type));
         return {
           field: sanitizedField,
           message: sanitizedMessage,
-          type: err.type
+          type: sanitizedType
         };
       });
       

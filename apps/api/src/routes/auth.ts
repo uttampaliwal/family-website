@@ -22,7 +22,7 @@ const loginLimiter = rateLimit({
 });
 
 // Register Route
-router.post('/register', authLimiter, validate(registerSchema), validateCsrfToken as RequestHandler, register);
+router.post('/register', validateCsrfToken as RequestHandler, authLimiter, validate(registerSchema), register);
 
 // Sign In Route
 router.post('/login', validateCsrfToken as RequestHandler, loginLimiter, validate(loginSchema), login);

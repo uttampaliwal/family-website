@@ -8,7 +8,7 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-  dateOfBirth: string;
+  dateOfBirth: string; // ISO date string (YYYY-MM-DD)
   phoneNumber?: string;
   username: string;
   gender: Gender;
