@@ -9,12 +9,13 @@ import jwt from 'jsonwebtoken';
  * @param res - Express response object
  * @param next - Express next function to continue middleware chain
  */
-export default function (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) {
+export default function (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction): void {
   const token = req.headers['x-auth-token'] as string;
 
   // Check if not token
   if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
+    res.status(401).json({ message: 'No token, authorization denied' });
+    return;
   }
 
   // Verify token
@@ -31,8 +32,8 @@ export default function (req: ExpressRequest, res: ExpressResponse, next: Expres
     
     // Validate decoded token structure
     if (!decoded || typeof decoded !== 'object' || !decoded.id || typeof decoded.id !== 'string' || !decoded.username || typeof decoded.username !== 'string' || !decoded.email || typeof decoded.email !== 'string') {
-
-      return res.status(401).json({ message: 'Token is not valid' });
+      res.status(401).json({ message: 'Token is not valid' });
+      return;
     }
     
     req.user = { id: decoded.id, username: decoded.username, email: decoded.email };
@@ -50,5 +51,6 @@ export default function (req: ExpressRequest, res: ExpressResponse, next: Expres
     process.stderr.write(`[ERROR] ${new Date().toISOString()} - Auth middleware error: ${JSON.stringify(sanitizedError)}\n`);
     
     res.status(401).json({ message: 'Token is not valid' });
+    return;
   }
 }

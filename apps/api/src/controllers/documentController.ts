@@ -40,8 +40,7 @@ export const getDocuments = async (req: Request, res: Response) => {
     .populate('sharedWith', 'username name') // Populate shared users information
     .sort({ updatedAt: -1 });
 
-    res.status(200).json(documents);
-    return;
+    return res.status(200).json(documents);
   } catch (error: unknown) {
     console.error('Error fetching documents:', error);
     return res.status(500).json({ message: 'Failed to retrieve documents' });
@@ -85,8 +84,7 @@ export const getDocumentById = async (req: Request, res: Response) => {
       title: String(document.title || '').replace(/[<>"'&]/g, ''),
       content: String(document.content || '').replace(/[<>"'&]/g, '')
     };
-    res.status(200).json(sanitizedDocument);
-    return;
+    return res.status(200).json(sanitizedDocument);
   } catch (error: unknown) {
     console.error('Error fetching document:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -145,8 +143,7 @@ export const createDocument = async (req: Request, res: Response) => {
 
     const newDocument = new Document(documentData);
     await newDocument.save();
-    res.status(201).json(newDocument);
-    return;
+    return res.status(201).json(newDocument);
   } catch (error: unknown) {
     console.error('Error creating document:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -186,8 +183,7 @@ export const updateDocument = async (req: Request, res: Response) => {
     document.content = content ? htmlEncode(content) : document.content;
     
     await document.save();
-    res.status(200).json(document);
-    return;
+    return res.status(200).json(document);
   } catch (error: unknown) {
     console.error('Error updating document:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -214,8 +210,7 @@ export const deleteDocument = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Document not found or you do not have permission to delete' });
     }
 
-    res.status(200).json({ message: 'Document deleted successfully' });
-    return;
+    return res.status(200).json({ message: 'Document deleted successfully' });
   } catch (error: unknown) {
     console.error('Error deleting document:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -270,6 +265,7 @@ export const downloadFile = async (req: Request, res: Response) => {
     // Stream the file
     const fileStream = fs.createReadStream(filePath);
     fileStream.pipe(res);
+    return;
   } catch (error: unknown) {
     console.error('Error downloading file:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -338,8 +334,7 @@ export const shareDocument = async (req: Request, res: Response) => {
       await document.save();
     }
 
-    res.status(200).json({ message: 'Document shared successfully' });
-    return;
+    return res.status(200).json({ message: 'Document shared successfully' });
   } catch (error: unknown) {
     console.error('Error sharing document:', sanitizeLog((error as Error).message || String(error)));
     return res.status(500).json({ message: 'Server error' });

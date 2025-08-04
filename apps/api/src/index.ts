@@ -1,4 +1,5 @@
 import express, { Express } from 'express';
+import helmet from 'helmet';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -97,6 +98,7 @@ app.use(
 // Middleware to parse JSON request bodies.
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
 
 app.use(generateCsrfToken);
 app.use(csrf);
