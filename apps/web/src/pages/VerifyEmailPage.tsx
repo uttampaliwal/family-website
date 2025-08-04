@@ -28,12 +28,12 @@ const VerifyEmailPage: React.FC = () => {
     return xsrfCookie?.split('=')[1];
   };
 
-  const handleVerificationSuccess = useCallback((data: any) => {
+  const handleVerificationSuccess = useCallback((data: { message?: string }) => {
     setMessage(data.message || MESSAGES.SUCCESS);
     setTimeout(() => navigate('/login'), REDIRECT_DELAY);
   }, [navigate]);
 
-  const handleVerificationError = (response: Response, data: any) => {
+  const handleVerificationError = (response: Response, data: { message?: string }) => {
     let errorMessage: string;
     
     switch (response.status) {

@@ -89,7 +89,7 @@ const DocumentsPage: React.FC = () => {
       ...doc,
       formattedDate: formatDate(doc.updatedAt)
     }));
-  }, [documents, formatDate]);
+  }, [documents]);
 
   if (loading) {
     return (

@@ -1,7 +1,7 @@
 import { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
 import crypto from 'crypto';
 
-const validateCsrfToken = (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction): ExpressResponse<any> | void => {
+const validateCsrfToken = (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction): ExpressResponse<{ message: string }> | void => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return next();
   }
@@ -16,7 +16,7 @@ const validateCsrfToken = (req: ExpressRequest, res: ExpressResponse, next: Expr
   next();
 };
 
-export const csrf = (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction): ExpressResponse<any> | void => {
+export const csrf = (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction): ExpressResponse<{ message: string }> | void => {
   if (validateCsrfToken(req, res, next)) {
     return next();
   }

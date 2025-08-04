@@ -1,4 +1,4 @@
-import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import { Request, Response } from 'express';
 import Document from '../models/Document';
 import User from '../models/User';
 import mongoose from 'mongoose';
@@ -18,7 +18,7 @@ const htmlEncode = (str: string) => {
 };
 
 // Get all documents for the logged-in user
-export const getDocuments = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
+export const getDocuments = async (req: Request, res: Response) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -41,6 +41,7 @@ export const getDocuments = async (req: ExpressRequest, res: ExpressResponse): P
     .sort({ updatedAt: -1 });
 
     res.status(200).json(documents);
+    return;
   } catch (error: unknown) {
     console.error('Error fetching documents:', error);
     return res.status(500).json({ message: 'Failed to retrieve documents' });
@@ -48,7 +49,7 @@ export const getDocuments = async (req: ExpressRequest, res: ExpressResponse): P
 };
 
 // Get a single document by ID
-export const getDocumentById = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
+export const getDocumentById = async (req: Request, res: Response) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -85,6 +86,7 @@ export const getDocumentById = async (req: ExpressRequest, res: ExpressResponse)
       content: String(document.content || '').replace(/[<>"'&]/g, '')
     };
     res.status(200).json(sanitizedDocument);
+    return;
   } catch (error: unknown) {
     console.error('Error fetching document:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -102,7 +104,7 @@ interface DocumentCreationData {
 }
 
 // Create a new document
-export const createDocument = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
+export const createDocument = async (req: Request, res: Response) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -144,6 +146,7 @@ export const createDocument = async (req: ExpressRequest, res: ExpressResponse):
     const newDocument = new Document(documentData);
     await newDocument.save();
     res.status(201).json(newDocument);
+    return;
   } catch (error: unknown) {
     console.error('Error creating document:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -151,7 +154,7 @@ export const createDocument = async (req: ExpressRequest, res: ExpressResponse):
 };
 
 // Update a document
-export const updateDocument = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
+export const updateDocument = async (req: Request, res: Response) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -183,6 +186,8 @@ export const updateDocument = async (req: ExpressRequest, res: ExpressResponse):
     document.content = content ? htmlEncode(content) : document.content;
     
     await document.save();
+    res.status(200).json(document);
+    return;
   } catch (error: unknown) {
     console.error('Error updating document:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -190,7 +195,7 @@ export const updateDocument = async (req: ExpressRequest, res: ExpressResponse):
 };
 
 // Delete a document
-export const deleteDocument = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
+export const deleteDocument = async (req: Request, res: Response) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -210,6 +215,7 @@ export const deleteDocument = async (req: ExpressRequest, res: ExpressResponse):
     }
 
     res.status(200).json({ message: 'Document deleted successfully' });
+    return;
   } catch (error: unknown) {
     console.error('Error deleting document:', error);
     return res.status(500).json({ message: 'Server error' });
@@ -217,22 +223,10 @@ export const deleteDocument = async (req: ExpressRequest, res: ExpressResponse):
 };
 
 // Download a document file
-export const downloadFile = async (req: ExpressRequest, res: ExpressResponse): Promise<void> => {
+export const downloadFile = async (req: Request, res: Response) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid document ID' });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid document ID' });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid document ID' });
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -283,7 +277,7 @@ export const downloadFile = async (req: ExpressRequest, res: ExpressResponse): P
 };
 
 // Share a document with another user
-export const shareDocument = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
+export const shareDocument = async (req: Request, res: Response) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -345,6 +339,7 @@ export const shareDocument = async (req: ExpressRequest, res: ExpressResponse): 
     }
 
     res.status(200).json({ message: 'Document shared successfully' });
+    return;
   } catch (error: unknown) {
     console.error('Error sharing document:', sanitizeLog((error as Error).message || String(error)));
     return res.status(500).json({ message: 'Server error' });

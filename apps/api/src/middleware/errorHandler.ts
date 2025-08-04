@@ -1,4 +1,4 @@
-import { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import { isHttpError } from 'http-errors';
 import { sanitizeLog } from '../utils/logSanitizer';
 
@@ -6,11 +6,7 @@ import { sanitizeLog } from '../utils/logSanitizer';
  * A custom error interface to ensure statusCode is available.
  * This is optional but good practice.
  */
-interface AppError extends Error {
-  statusCode?: number;
-}
-
-export const errorHandler = (err: Error, req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
+export const errorHandler = (err: Error, req: ExpressRequest, res: ExpressResponse) => {
   // In development, or for non-http errors, log the full error
   if (process.env.NODE_ENV !== 'production' || !isHttpError(err)) {
     const sanitizedError = {

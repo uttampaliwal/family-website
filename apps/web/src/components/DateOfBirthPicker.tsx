@@ -51,7 +51,7 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
         setMonth('');
         setDay('');
       }
-    } catch (error) {
+    } catch {
       // Reset to empty state on parse error
       setYear('');
       setMonth('');
@@ -84,7 +84,7 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
           onChange(formattedDate);
         }
       }
-    } catch (error) {
+    } catch {
       // Silently handle formatting errors to prevent crashes
       return;
     }

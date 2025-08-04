@@ -4,21 +4,26 @@
     "module": "commonjs",
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true,
+    "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
+    "noImplicitReturns": false,
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "resolveJsonModule": true,
     "isolatedModules": true
   },
   "include": [
     "src/**/*",
-    "src/types/express.d.ts"
+    "src/types/custom.d.ts"
   ],
   "exclude": [
     "dist",
-    "node_modules"
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }

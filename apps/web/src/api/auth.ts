@@ -1,5 +1,7 @@
 import api from './axios';
+import type { AxiosError } from 'axios';
 import type { AuthResponse, ResetPasswordRequest, ForgotPasswordRequest } from '../types/api';
+
 
 export const resetPassword = async (data: ResetPasswordRequest): Promise<AuthResponse> => {
   if (!data || typeof data !== 'object') {
@@ -24,11 +26,9 @@ export const resetPassword = async (data: ResetPasswordRequest): Promise<AuthRes
     
     return response.data;
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
-      if (axiosError.response?.data?.message) {
-        throw new Error(axiosError.response.data.message);
-      }
+    const axiosError = error as AxiosError<{ message?: string }>;
+    if (axiosError.response?.data?.message) {
+      throw new Error(axiosError.response.data.message);
     }
     throw new Error('Failed to reset password');
   }
@@ -56,10 +56,12 @@ export const forgotPassword = async (data: ForgotPasswordRequest): Promise<AuthR
     }
     
     return response.data;
-  } catch (error: any) {
-    if (error.response?.data?.message) {
-      throw new Error(error.response.data.message);
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError<{ message?: string }>;
+    if (axiosError.response?.data?.message) {
+      throw new Error(axiosError.response.data.message);
     }
     throw new Error('Failed to send password reset email');
   }
 };
+

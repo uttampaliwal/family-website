@@ -1,5 +1,9 @@
-import axios from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
 import type { AuthResponse } from '../types/api';
+
+interface RetryAxiosRequestConfig extends AxiosRequestConfig {
+  _retry?: boolean;
+}
 
 // Constants for better maintainability
 const TOKEN_EXPIRED_STATUS = 403;
@@ -51,7 +55,7 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 // Helper function to handle token refresh and retry
-async function handleTokenRefresh(originalRequest: any & { _retry?: boolean }) {
+async function handleTokenRefresh(originalRequest: RetryAxiosRequestConfig) {
   originalRequest._retry = true;
   
   const newAccessToken = await refreshAccessToken();
@@ -59,6 +63,9 @@ async function handleTokenRefresh(originalRequest: any & { _retry?: boolean }) {
     // Sanitize token to prevent XSS
     const sanitizedToken = String(newAccessToken).replace(/[<>"'&]/g, '');
     localStorage.setItem(ACCESS_TOKEN_KEY, sanitizedToken);
+    if (!originalRequest.headers) {
+      originalRequest.headers = {};
+    }
     originalRequest.headers.Authorization = `Bearer ${sanitizedToken}`;
     return api(originalRequest);
   }

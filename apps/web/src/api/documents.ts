@@ -67,7 +67,7 @@ export const getDocuments = async (): Promise<Document[]> => {
     }
     
     return response.data;
-  } catch (error) {
+  } catch {
     throw new Error('Failed to fetch documents');
   }
 };
