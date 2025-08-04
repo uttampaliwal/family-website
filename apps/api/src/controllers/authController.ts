@@ -34,7 +34,8 @@ export const register = async (req: Request<Record<string, never>, Record<string
     if (typeof email !== 'string') {
       return res.status(400).json({ message: 'Invalid email format' });
     }
-    let user = await User.findOne({ email: String(email) });
+    const sanitizedEmail = sanitizeForQuery(email);
+    let user = await User.findOne({ email: sanitizedEmail });
     if (user) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
@@ -43,7 +44,8 @@ export const register = async (req: Request<Record<string, never>, Record<string
     if (typeof username !== 'string') {
       return res.status(400).json({ message: 'Invalid username format' });
     }
-    user = await User.findOne({ username: String(username) });
+    const sanitizedUsername = sanitizeForQuery(username);
+    user = await User.findOne({ username: sanitizedUsername });
     if (user) {
       return res.status(400).json({ message: 'Username is already taken. Please choose another.' });
     }
@@ -393,32 +395,35 @@ export const forgotPassword = async (req: Request<Record<string, never>, Record<
     if (typeof email !== 'string') {
       return res.status(400).json({ message: 'Invalid email format' });
     }
-    const user = await User.findOne({ email: email });
-    if (!user) {
-      return res.status(404).json({ message: 'User with that email does not exist.' });
-    }
-    // Generate a secure random token and hash it for storage
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
+    const sanitizedEmail = sanitizeForQuery(email);
+    const user = await User.findOne({ email: sanitizedEmail });
 
-    await user.save();
+    // If user exists, proceed with token generation and email sending
+    if (user) {
+      // Generate a secure random token and hash it for storage
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+      
+      user.resetPasswordToken = hashedToken;
+      user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
 
-    // Send the unhashed token to the user via email
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password`;
+      await user.save();
 
-    await sendEmail({
-      to: user.email,
-      subject: 'Password Reset Request',
-      html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+      // Send the unhashed token to the user via email
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password`;
+
+      await sendEmail({
+        to: user.email,
+        subject: 'Password Reset Request',
+        html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
              <p>Please visit the password reset page and enter your reset code:</p>
              <p><a href="${htmlEncode(resetUrl)}">Reset Password</a></p>
              <p>Your reset code: <strong>${htmlEncode(resetToken)}</strong></p>
              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
-    });
+      });
+    }
 
+    // Always return a generic success message to prevent user enumeration
     return res.status(200).json({ message: 'Password reset link sent to your email.' });
   } catch (err: unknown) {
     console.error('Forgot password error:', err);

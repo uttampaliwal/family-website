@@ -24,10 +24,8 @@ export const getDocuments = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Verify user exists
-    const user = await User.findById(String(req.user.id));
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
     }
 
     const documents = await Document.find({
@@ -78,11 +76,10 @@ export const getDocumentById = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    // Sanitize document data before returning
     const sanitizedDocument = {
       ...document.toObject(),
-      title: String(document.title || '').replace(/[<>"'&]/g, ''),
-      content: String(document.content || '').replace(/[<>"'&]/g, '')
+      title: htmlEncode(document.title || ''),
+      content: htmlEncode(document.content || '')
     };
     return res.status(200).json(sanitizedDocument);
   } catch (error: unknown) {
@@ -153,14 +150,8 @@ export const createDocument = async (req: Request, res: Response) => {
 // Update a document
 export const updateDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
+    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user.id)) {
       return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Verify user exists
-    const user = await User.findById(String(req.user.id));
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -178,7 +169,6 @@ export const updateDocument = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Document not found or you do not have permission to edit' });
     }
 
-    // Update document
     document.title = title ? htmlEncode(title) : document.title;
     document.content = content ? htmlEncode(content) : document.content;
     
@@ -193,7 +183,7 @@ export const updateDocument = async (req: Request, res: Response) => {
 // Delete a document
 export const deleteDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
+    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user.id)) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
@@ -258,7 +248,7 @@ export const downloadFile = async (req: Request, res: Response) => {
     }
 
     // Set headers for file download
-    const sanitizedFileName = String(document.fileName || 'download').replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const sanitizedFileName = String(document.fileName || 'download').substring(0, 255).replace(/[^a-zA-Z0-9_.-]/g, '_');
     res.setHeader('Content-Disposition', `attachment; filename="${htmlEncode(sanitizedFileName)}"`); 
     res.setHeader('Content-Type', document.fileType || 'application/octet-stream');
 
@@ -275,14 +265,8 @@ export const downloadFile = async (req: Request, res: Response) => {
 // Share a document with another user
 export const shareDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
+    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user.id)) {
       return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Verify current user exists
-    const currentUser = await User.findById(String(req.user.id));
-    if (!currentUser) {
-      return res.status(404).json({ message: 'User not found' });
     }
 
     const { username } = req.body;
@@ -295,7 +279,7 @@ export const shareDocument = async (req: Request, res: Response) => {
     const sanitizedUsername = String(username).trim();
     
     // Additional validation to prevent NoSQL injection using literal regex
-    const SAFE_USERNAME_PATTERN = /^[a-zA-Z0-9_.-]+$/;
+    const SAFE_USERNAME_PATTERN = /^[a-zA-Z0-9_.-]{3,30}$/;
     if (!SAFE_USERNAME_PATTERN.test(sanitizedUsername)) {
       return res.status(400).json({ message: 'Invalid username format' });
     }
