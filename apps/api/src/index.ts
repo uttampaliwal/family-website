@@ -1,4 +1,4 @@
-import express, { Express as ExpressApp, RequestHandler as ExpressRequestHandler } from 'express';
+import express, { Express } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -84,7 +84,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 // --- 3. Express Application Setup ---
-const app: ExpressApp = express();
+const app: Express = express();
 
 // Enable CORS (Cross-Origin Resource Sharing) for requests from your frontend.
 app.use(
@@ -98,8 +98,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(generateCsrfToken as ExpressRequestHandler);
-app.use(csrf as ExpressRequestHandler);
+app.use(generateCsrfToken);
+app.use(csrf);
 
 // API routes.
 app.use('/api/auth', authRoutes);

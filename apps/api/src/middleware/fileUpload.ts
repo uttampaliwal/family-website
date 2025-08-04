@@ -11,12 +11,7 @@ interface UploadedFile {
   size: number;
 }
 
-// Extend Request interface to include file property
-declare module 'express-serve-static-core' {
-  interface Request {
-    file?: UploadedFile;
-  }
-}
+// The file property is already declared in custom.d.ts
 
 // Since we can't install multer, let's create a simple middleware
 type FileUploadMiddleware = (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => void;

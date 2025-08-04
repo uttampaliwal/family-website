@@ -71,7 +71,7 @@ const RegisterPage: React.FC = () => {
       if (!validateStep2()) return;
     }
     setStep(step + 1);
-  }, [step, name, dateOfBirth, gender, email, username, password, confirmPassword, validatePassword, showToast]);
+  }, [step, name, dateOfBirth, gender, validateStep2, showToast]);
 
   const handlePrevious = useCallback(() => {
     showToast('', 'info'); // Clear previous messages
@@ -157,7 +157,7 @@ const RegisterPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [name, email, password, confirmPassword, dateOfBirth, mobileNumber, username, gender, step, validateEmail, validatePassword, showToast]);
+  }, [name, email, password, confirmPassword, dateOfBirth, mobileNumber, username, gender, step, validateEmail, validatePassword, showToast, navigate]);
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">

@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -24,7 +25,7 @@ const htmlEncode = (str: string) => {
     .replace(/\//g, '&#x2F;');
 };
 
-export const register = async (req: ExpressRequest<Record<string, never>, Record<string, never>, RegisterRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
+export const register = async (req: Request<Record<string, never>, Record<string, never>, RegisterRequest>, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   const { name, email, password, dateOfBirth, username, phoneNumber } = req.body;
   const gender = req.body.gender as Gender;
 
@@ -73,10 +74,10 @@ export const register = async (req: ExpressRequest<Record<string, never>, Record
     });
 
       if (!jwtSecret) {
-        throw new Error('JWT_SECRET environment variable is not configured');
+        return res.status(500).json({ message: 'Server error: JWT_SECRET not configured.' });
       }
       if (!refreshTokenSecret) {
-        throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
+        return res.status(500).json({ message: 'Server error: REFRESH_TOKEN_SECRET not configured.' });
       }
       const accessToken = jwt.sign(
       {
@@ -117,7 +118,7 @@ export const register = async (req: ExpressRequest<Record<string, never>, Record
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: htmlEncode(user.username) });
+    return res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', accessToken: accessToken, username: htmlEncode(user.username) });
   } catch (err: unknown) {
     const sanitizedError = {
       message: err instanceof Error ? sanitizeLog(err.message) : 'Unknown error',
@@ -135,7 +136,7 @@ const sanitizeForQuery = (input: string) => {
   return input.replace(/[^a-zA-Z0-9@.]/g, '');
 };
 
-export const login = async (req: ExpressRequest<Record<string, never>, Record<string, never>, LoginRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
+export const login = async (req: Request<Record<string, never>, Record<string, never>, LoginRequest>, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   const { emailOrUsername, password } = req.body;
 
   try {
@@ -175,7 +176,7 @@ export const login = async (req: ExpressRequest<Record<string, never>, Record<st
     await user.save();
 
     if (!jwtSecret) {
-      throw new Error('JWT_SECRET environment variable is not configured');
+      return res.status(500).json({ message: 'Server error: JWT_SECRET not configured.' });
     }
     const accessToken = jwt.sign(
       { 
@@ -192,7 +193,7 @@ export const login = async (req: ExpressRequest<Record<string, never>, Record<st
       }
     );
     if (!refreshTokenSecret) {
-      throw new Error('REFRESH_TOKEN_SECRET environment variable is not configured');
+      return res.status(500).json({ message: 'Server error: REFRESH_TOKEN_SECRET not configured.' });
     }
     const refreshToken = jwt.sign(
       { 
@@ -219,14 +220,14 @@ export const login = async (req: ExpressRequest<Record<string, never>, Record<st
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({ message: 'Logged in successfully', accessToken: accessToken, username: htmlEncode(user.username) });
+    return res.json({ message: 'Logged in successfully', accessToken: accessToken, username: htmlEncode(user.username) });
   } catch (err) {
         console.error('Login error:', sanitizeLog((err as Error).message || String(err)));
     return res.status(500).json({ message: 'An error occurred during login.' });
   }
 };
 
-export const verifyEmail = async (req: ExpressRequest<Record<string, never>, Record<string, never>, VerifyEmailRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
+export const verifyEmail = async (req: Request<Record<string, never>, Record<string, never>, VerifyEmailRequest>, res: Response<AuthResponse>) => {
   const { token } = req.body;
 
   try {
@@ -245,13 +246,14 @@ export const verifyEmail = async (req: ExpressRequest<Record<string, never>, Rec
     await user.save();
 
     res.status(200).json({ message: 'Email verified successfully! You can now sign in.' });
+    return;
   } catch (err: unknown) {
     console.error('Email verification error:', err);
     return res.status(500).json({ message: 'Email verification failed. Please try again later.' });
   }
 };
 
-export const resendVerification = async (req: ExpressRequest<Record<string, never>, Record<string, never>, ResendVerificationRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
+export const resendVerification = async (req: Request<Record<string, never>, Record<string, never>, ResendVerificationRequest>, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   const { emailOrUsername } = req.body;
 
   try {
@@ -291,7 +293,7 @@ export const resendVerification = async (req: ExpressRequest<Record<string, neve
   }
 };
 
-export const refreshToken = async (req: ExpressRequest, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
+export const refreshToken = async (req: Request, res: Response<AuthResponse>) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
@@ -308,7 +310,7 @@ export const refreshToken = async (req: ExpressRequest, res: ExpressResponse<Aut
       return res.status(403).json({ message: 'Invalid refresh token.' });
     }
     if (!jwtSecret) {
-      throw new Error('JWT_SECRET environment variable is not configured');
+      return res.status(500).json({ message: 'Server error: JWT_SECRET not configured.' });
     }
     const newAccessToken = jwt.sign(
       { 
@@ -348,6 +350,7 @@ export const refreshToken = async (req: ExpressRequest, res: ExpressResponse<Aut
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.status(200).json({ accessToken: newAccessToken, message: 'Token refreshed successfully.' });
+    return;
     
   } catch (err: unknown) {
     console.error('Refresh token error:', err);
@@ -355,7 +358,7 @@ export const refreshToken = async (req: ExpressRequest, res: ExpressResponse<Aut
   }
 };
 
-export const getUserProfile = async (req: ExpressRequest<{ username: string }>, res: ExpressResponse<UserProfile | AuthResponse>): Promise<ExpressResponse<UserProfile | AuthResponse>> => {
+export const getUserProfile = async (req: Request<{ username: string }>, res: Response<UserProfile | AuthResponse>) => {
   try {
     // Prevent NoSQL injection by using exact string comparison
     const username = String(req.params.username);
@@ -377,6 +380,7 @@ export const getUserProfile = async (req: ExpressRequest<{ username: string }>, 
     };
     
     res.status(200).json(sanitizedUser);
+    return;
   } catch (err) {
     console.error('Error fetching user profile:', err);
     return res.status(500).json({ message: 'Server error. Please try again later.' });
@@ -385,7 +389,7 @@ export const getUserProfile = async (req: ExpressRequest<{ username: string }>, 
 
 
 
-export const forgotPassword = async (req: ExpressRequest<Record<string, never>, Record<string, never>, ForgotPasswordRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
+export const forgotPassword = async (req: Request<Record<string, never>, Record<string, never>, ForgotPasswordRequest>, res: Response<AuthResponse>) => {
   const { email } = req.body;
 
   try {
@@ -419,13 +423,14 @@ export const forgotPassword = async (req: ExpressRequest<Record<string, never>, 
     });
 
     res.status(200).json({ message: 'Password reset link sent to your email.' });
+    return;
   } catch (err: unknown) {
     console.error('Forgot password error:', err);
     return res.status(500).json({ message: 'Error sending password reset email.' });
   }
 };
 
-export const resetPassword = async (req: ExpressRequest<{ token?: string }, Record<string, never>, ResetPasswordRequest>, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
+export const resetPassword = async (req: Request<{ token?: string }, Record<string, never>, ResetPasswordRequest>, res: Response<AuthResponse>) => {
   // Get token from either params or body
   const tokenFromParams = req.params.token;
   const tokenFromBody = req.body.token;
@@ -465,13 +470,14 @@ export const resetPassword = async (req: ExpressRequest<{ token?: string }, Reco
     });
 
     res.status(200).json({ message: 'Your password has been updated.' });
+    return;
   } catch (err: unknown) {
     console.error('Reset password error:', err);
     return res.status(500).json({ message: 'Error resetting password.' });
   }
 };
 
-export const logout = async (req: ExpressRequest, res: ExpressResponse<AuthResponse>): Promise<ExpressResponse<AuthResponse>> => {
+export const logout = async (req: Request, res: Response<AuthResponse>) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
@@ -493,6 +499,7 @@ export const logout = async (req: ExpressRequest, res: ExpressResponse<AuthRespo
     });
 
     res.status(200).json({ message: 'Logged out successfully.' });
+    return;
   } catch (err: unknown) {
     console.error('Logout error:', sanitizeLog((err as Error).message || String(err)));
     res.clearCookie('refreshToken', {
@@ -504,7 +511,7 @@ export const logout = async (req: ExpressRequest, res: ExpressResponse<AuthRespo
   }
 };
 
-export const updateUserProfile = async (req: ExpressRequest, res: ExpressResponse): Promise<ExpressResponse<any>> => {
+export const updateUserProfile = async (req: Request, res: Response): Promise<Response<AuthResponse>> => {
   // TODO: Implement user profile update logic
   return res.status(501).json({ message: 'Not Implemented' });
 };

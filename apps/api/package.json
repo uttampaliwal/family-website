@@ -2,6 +2,7 @@
   "name": "api",
   "version": "0.2.2",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch --tsconfig ./tsconfig.json -r dotenv/config ./src/index.ts",
     "build": "tsc --build",
@@ -29,7 +30,7 @@
   "devDependencies": {
     "@eslint/js": "^8.57.1",
     "@types/cookie-parser": "^1.4.9",
-    "@types/express": "^4.17.21",
+    
     "@types/http-errors": "^2.0.4",
     "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.2",
