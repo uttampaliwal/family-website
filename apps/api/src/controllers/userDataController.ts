@@ -114,7 +114,7 @@ export const getUserData = async (req: Request, res: Response) => {
       })),
       emergencyContacts: userData.emergencyContacts?.map(sanitizeContact)
     };
-    res.status(200).json(sanitizedUserData);
+    return res.status(200).json(sanitizedUserData);
   } catch (error: unknown) {
     const sanitizedError = {
       message: (error instanceof Error) ? htmlEncode(error.message.replace(/[\n\r\t]/g, '')) : 'Unknown error',
@@ -123,7 +123,7 @@ export const getUserData = async (req: Request, res: Response) => {
       operation: 'getUserData'
     };
     console.error('Error fetching user data:', JSON.stringify(sanitizedError));
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -168,7 +168,7 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
       emergencyContacts: userData.emergencyContacts?.map(sanitizeContact)
     };
     
-    res.status(200).json({ message: 'User data updated successfully', userData: sanitizedUserData });
+    return res.status(200).json({ message: 'User data updated successfully', userData: sanitizedUserData });
   } catch (error: unknown) {
     const sanitizedError = {
       message: (error instanceof Error) ? htmlEncode(error.message.replace(/[\n\r\t]/g, '')) : 'Unknown error',
@@ -177,7 +177,7 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
       operation: 'createOrUpdateUserData'
     };
     console.error('Error updating user data:', JSON.stringify(sanitizedError));
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -212,13 +212,13 @@ export const addEvent = async (req: Request, res: Response) => {
     const lastEvent = userData.events[userData.events.length - 1];
     const sanitizedEvent = sanitizeEvent(lastEvent);
     
-    res.status(201).json({ 
+    return res.status(201).json({ 
       message: 'Event added successfully', 
       event: sanitizedEvent 
     });
   } catch (error: unknown) {
     console.error('Error adding event:', error);
-    res.status(500).json({ message: 'Server error', error: htmlEncode((error as Error).message || String(error)) });
+    return res.status(500).json({ message: 'Server error', error: htmlEncode((error as Error).message || String(error)) });
   }
 };
 
@@ -255,13 +255,13 @@ export const addPhoto = async (req: Request, res: Response) => {
       description: sanitizeString(lastPhoto.description),
       caption: sanitizeString(lastPhoto.caption)
     };
-    res.status(201).json({ 
+    return res.status(201).json({ 
       message: 'Photo added successfully', 
       photo: sanitizedPhoto 
     });
   } catch (error: unknown) {
     console.error('Error adding photo:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -300,13 +300,13 @@ export const addTask = async (req: Request, res: Response) => {
     const lastTask = userData.tasks[userData.tasks.length - 1];
     const sanitizedTask = sanitizeTask(lastTask);
     
-    res.status(201).json({ 
+    return res.status(201).json({ 
       message: 'Task added successfully', 
       task: sanitizedTask 
     });
   } catch (error: unknown) {
     console.error('Error adding task:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -342,12 +342,12 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
     const lastContact = userData.emergencyContacts[userData.emergencyContacts.length - 1];
     const sanitizedContact = sanitizeContact(lastContact);
     
-    res.status(201).json({ 
+    return res.status(201).json({ 
       message: 'Emergency contact added successfully', 
       contact: sanitizedContact 
     });
   } catch (error: unknown) {
     console.error('Error adding emergency contact:', sanitizeLog((error as Error).message || String(error)));
-    res.status(500).json({ message: 'Server error', error: htmlEncode((error as Error).message || String(error)) });
+    return res.status(500).json({ message: 'Server error', error: htmlEncode((error as Error).message || String(error)) });
   }
 };

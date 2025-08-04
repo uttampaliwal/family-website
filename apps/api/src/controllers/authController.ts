@@ -227,7 +227,7 @@ export const login = async (req: Request<Record<string, never>, Record<string, n
   }
 };
 
-export const verifyEmail = async (req: Request<Record<string, never>, Record<string, never>, VerifyEmailRequest>, res: Response<AuthResponse>) => {
+export const verifyEmail = async (req: Request<Record<string, never>, Record<string, never>, VerifyEmailRequest>, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   const { token } = req.body;
 
   try {
@@ -245,8 +245,7 @@ export const verifyEmail = async (req: Request<Record<string, never>, Record<str
     user.verificationToken = undefined;
     await user.save();
 
-    res.status(200).json({ message: 'Email verified successfully! You can now sign in.' });
-    return;
+    return res.status(200).json({ message: 'Email verified successfully! You can now sign in.' });
   } catch (err: unknown) {
     console.error('Email verification error:', err);
     return res.status(500).json({ message: 'Email verification failed. Please try again later.' });
@@ -286,14 +285,14 @@ export const resendVerification = async (req: Request<Record<string, never>, Rec
       html: `<p>Please click the link below to verify your email address:</p><p><a href="${htmlEncode(verificationUrl)}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
     });
 
-    res.status(200).json({ message: 'Verification email sent successfully. Please check your inbox.' });
+    return res.status(200).json({ message: 'Verification email sent successfully. Please check your inbox.' });
   } catch (err: unknown) {
     console.error('Resend verification email error:', err);
     return res.status(500).json({ message: 'Failed to resend verification email. Please try again later.' });
   }
 };
 
-export const refreshToken = async (req: Request, res: Response<AuthResponse>) => {
+export const refreshToken = async (req: Request, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
@@ -349,8 +348,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    res.status(200).json({ accessToken: newAccessToken, message: 'Token refreshed successfully.' });
-    return;
+    return res.status(200).json({ accessToken: newAccessToken, message: 'Token refreshed successfully.' });
     
   } catch (err: unknown) {
     console.error('Refresh token error:', err);
@@ -358,7 +356,7 @@ export const refreshToken = async (req: Request, res: Response<AuthResponse>) =>
   }
 };
 
-export const getUserProfile = async (req: Request<{ username: string }>, res: Response<UserProfile | AuthResponse>) => {
+export const getUserProfile = async (req: Request<{ username: string }>, res: Response<UserProfile | AuthResponse>): Promise<Response<UserProfile | AuthResponse>> => {
   try {
     // Prevent NoSQL injection by using exact string comparison
     const username = String(req.params.username);
@@ -379,8 +377,7 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
       isVerified: user.isVerified,
     };
     
-    res.status(200).json(sanitizedUser);
-    return;
+    return res.status(200).json(sanitizedUser);
   } catch (err) {
     console.error('Error fetching user profile:', err);
     return res.status(500).json({ message: 'Server error. Please try again later.' });
@@ -389,7 +386,7 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
 
 
 
-export const forgotPassword = async (req: Request<Record<string, never>, Record<string, never>, ForgotPasswordRequest>, res: Response<AuthResponse>) => {
+export const forgotPassword = async (req: Request<Record<string, never>, Record<string, never>, ForgotPasswordRequest>, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   const { email } = req.body;
 
   try {
@@ -422,15 +419,14 @@ export const forgotPassword = async (req: Request<Record<string, never>, Record<
              <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
     });
 
-    res.status(200).json({ message: 'Password reset link sent to your email.' });
-    return;
+    return res.status(200).json({ message: 'Password reset link sent to your email.' });
   } catch (err: unknown) {
     console.error('Forgot password error:', err);
     return res.status(500).json({ message: 'Error sending password reset email.' });
   }
 };
 
-export const resetPassword = async (req: Request<{ token?: string }, Record<string, never>, ResetPasswordRequest>, res: Response<AuthResponse>) => {
+export const resetPassword = async (req: Request<{ token?: string }, Record<string, never>, ResetPasswordRequest>, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   // Get token from either params or body
   const tokenFromParams = req.params.token;
   const tokenFromBody = req.body.token;
@@ -469,15 +465,14 @@ export const resetPassword = async (req: Request<{ token?: string }, Record<stri
              <p>This is a confirmation that the password for your account ${htmlEncode(user.email)} has just been changed.</p>`,
     });
 
-    res.status(200).json({ message: 'Your password has been updated.' });
-    return;
+    return res.status(200).json({ message: 'Your password has been updated.' });
   } catch (err: unknown) {
     console.error('Reset password error:', err);
     return res.status(500).json({ message: 'Error resetting password.' });
   }
 };
 
-export const logout = async (req: Request, res: Response<AuthResponse>) => {
+export const logout = async (req: Request, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
@@ -498,8 +493,7 @@ export const logout = async (req: Request, res: Response<AuthResponse>) => {
       sameSite: 'strict',
     });
 
-    res.status(200).json({ message: 'Logged out successfully.' });
-    return;
+    return res.status(200).json({ message: 'Logged out successfully.' });
   } catch (err: unknown) {
     console.error('Logout error:', sanitizeLog((err as Error).message || String(err)));
     res.clearCookie('refreshToken', {

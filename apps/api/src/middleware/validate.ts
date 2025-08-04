@@ -61,7 +61,7 @@ export const resetPasswordSchema = Joi.object({
 
 // Validation middleware factory
 export const validate = (schema: Joi.ObjectSchema) => {
-  return (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
+  return (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction): void => {
     const { error } = schema.validate(req.body, { abortEarly: false });
 
     if (error) {
@@ -71,11 +71,12 @@ export const validate = (schema: Joi.ObjectSchema) => {
         type: htmlEncode(String(err.type || '')),
       }));
       
-      return res.status(400).json({ 
+      res.status(400).json({ 
         message: 'Validation failed', 
         errors: categorizedErrors,
         errorCount: categorizedErrors.length
       });
+      return;
     }
     next();
   };
