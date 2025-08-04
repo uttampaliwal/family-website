@@ -34,7 +34,7 @@ router.post('/verify-email', csrf as ExpressRequestHandler, validate(verifyEmail
 router.post('/resend-verification', csrf as ExpressRequestHandler, validate(resendVerificationSchema), resendVerification);
 
 // Refresh Token Route
-router.post('/refresh-token', csrf as ExpressRequestHandler, refreshToken); // CWE-352: Addressed by validateCsrfToken. CWE-1275: Not applicable to this route.
+router.post('/refresh-token', csrf as ExpressRequestHandler, refreshToken);
 
 // Get User Profile by Username
 router.get('/profile/:username', (req, res, next) => {
