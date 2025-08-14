@@ -1,20 +1,8 @@
-import { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
+import { Request as ExpressRequest } from 'express';
+import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { sanitizeLog } from '../utils/logSanitizer';
-
-// File interface for type safety
-interface UploadedFile {
-  filename: string;
-  originalname: string;
-  mimetype: string;
-  size: number;
-}
-
-// The file property is already declared in custom.d.ts
-
-// Since we can't install multer, let's create a simple middleware
-type FileUploadMiddleware = (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => void;
 
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, '../../uploads');
@@ -31,43 +19,50 @@ if (!fs.existsSync(uploadDir)) {
   }
 }
 
+// Configure Multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
 
+// File filter to allow only specific file types
+const fileFilter = (req: ExpressRequest, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedMimes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain',
+    'text/csv',
+    'application/zip',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/bmp',
+    'image/webp',
+    'image/svg+xml'
+  ];
 
-// File upload middleware implementation
-const createFileUploadMiddleware = {
-  single: (fieldName: string): FileUploadMiddleware => {
-    return (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
-      try {
-        // Skip file processing if no file uploaded
-        if (!req.body[fieldName]) {
-          return next();
-        }
-        
-        // Validate file data
-        if (typeof req.body[fieldName] !== 'string') {
-          return res.status(400).json({ message: 'Invalid file data' });
-        }
-        
-        // Generate unique filename
-        const timestamp = Date.now();
-        const filename = `${timestamp}_${req.body[fieldName] || 'upload'}`;
-        
-        const uploadedFile: UploadedFile = {
-          filename,
-          originalname: req.body[fieldName] || 'unknown',
-          mimetype: 'application/octet-stream',
-          size: 0
-        };
-        req.file = uploadedFile;
-        next();
-      } catch (error) {
-        console.error('File upload error:', sanitizeLog((error as Error).message || String(error)));
-        res.status(500).json({ message: 'File upload failed' });
-      }
-    };
+  if (allowedMimes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type. Only PDF, Word, Excel, Text, CSV, ZIP, and image files are allowed.'));
   }
 };
 
-const upload = createFileUploadMiddleware;
+// Configure Multer upload
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 1024 * 1024 * 5 // 5 MB file size limit
+  }
+});
 
 export default upload;
