@@ -6,14 +6,14 @@ import cookieParser from 'cookie-parser';
 
 // Assuming your routes and middleware are structured as per your documentation.
 // Node.js ES Modules require the full file extension in relative imports.
-import authRoutes from './routes/auth';
-import feedRoutes from './routes/feed';
-import healthRoutes from './routes/health';
-import documentRoutes from './routes/documents'; // Import document routes
-import { errorHandler } from './middleware/errorHandler';
-import { sanitizeLog } from './utils/logSanitizer';
-import { generateCsrfToken } from './middleware/csrfGenerator';
-import { csrf } from './middleware/auth';
+import authRoutes from './routes/auth.js';
+import feedRoutes from './routes/feed.js';
+import healthRoutes from './routes/health.js';
+import documentRoutes from './routes/documents.js'; // Import document routes
+import { errorHandler } from './middleware/errorHandler.js';
+import { sanitizeLog } from './utils/logSanitizer.js';
+
+import { csrfProtection } from './middleware/csrfGenerator.js';
 
 // --- 1. Environment Setup ---
 
@@ -100,13 +100,13 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
 
-app.use(generateCsrfToken);
-app.use(csrf);
-
 // API routes.
+app.use('/api', healthRoutes); // Mount the health check route
+
+app.use(csrfProtection);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/feed', feedRoutes);
-app.use('/api', healthRoutes); // Mount the health check route
 app.use('/api/documents', documentRoutes); // Mount the documents routes
 
 

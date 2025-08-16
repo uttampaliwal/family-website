@@ -1,21 +1,12 @@
 import { Request, Response } from 'express';
-import Document from '../models/Document';
-import User from '../models/User';
+import Document from '../models/Document.js';
+import User from '../models/User.js';
 import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
-import { sanitizeLog } from '../utils/logSanitizer';
+import { sanitizeLog } from '../utils/logSanitizer.js';
 
-// Helper function to HTML-encode a string
-const htmlEncode = (str: string) => {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
-};
+import { htmlEncode } from '../utils/sanitization.js';
 
 // Get all documents for the logged-in user
 export const getDocuments = async (req: Request, res: Response) => {
@@ -129,13 +120,13 @@ export const createDocument = async (req: Request, res: Response) => {
     };
 
     if (req.file) {
-      const file = req.file;
+      const file = req.file as Express.Multer.File;
       const baseUrl = process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
       
-      documentData.fileUrl = String(baseUrl) + '/uploads/' + String(file.filename);
-      documentData.fileName = String(file.originalname);
-      documentData.fileType = String(file.mimetype);
-      documentData.fileSize = Number(file.size);
+      documentData.fileUrl = `${baseUrl}/uploads/${file.filename}`;
+      documentData.fileName = file.originalname;
+      documentData.fileType = file.mimetype;
+      documentData.fileSize = file.size;
     }
 
     const newDocument = new Document(documentData);

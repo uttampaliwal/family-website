@@ -1,19 +1,10 @@
 import { Request, Response } from 'express';
-import UserData from '../models/UserData';
-import User from '../models/User';
+import UserData from '../models/UserData.js';
+import User from '../models/User.js';
 import mongoose from 'mongoose';
-import { sanitizeLog } from '../utils/logSanitizer';
+import { sanitizeLog } from '../utils/logSanitizer.js';
 
-// Helper function to HTML-encode a string
-const htmlEncode = (str: string) => {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
-};
+import { htmlEncode } from '../utils/sanitization.js';
 
 // Type definitions
 interface Event {

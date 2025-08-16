@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { useToast } from '../hooks/useToast';
 import { resetPassword as resetPasswordApi } from '../api/auth';
-import type { ResetPasswordRequest } from '../types/api';
+
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -60,10 +60,10 @@ const ResetPasswordPage: React.FC = () => {
       }
       
       // Create the request payload
-      const resetPasswordData: ResetPasswordRequest = { token: token.trim(), password };
+      
       
       // Call the API function
-      const response = await resetPasswordApi(resetPasswordData);
+      const response = await resetPasswordApi(password, token);
       
       if (!response || typeof response !== 'object') {
         throw new Error('Invalid response from server');

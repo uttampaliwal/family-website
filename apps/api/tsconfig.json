@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "commonjs",
+    "module": "esnext",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -15,8 +15,7 @@
     "isolatedModules": true
   },
   "include": [
-    "src/**/*",
-    "src/types/custom.d.ts"
+    "src/**/*"
   ],
   "exclude": [
     "dist",

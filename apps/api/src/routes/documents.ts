@@ -1,4 +1,4 @@
-import express, { RequestHandler as ExpressRequestHandler } from 'express';
+import express from 'express';
 
 import { 
   getDocuments, 
@@ -8,10 +8,10 @@ import {
   deleteDocument,
   shareDocument,
   downloadFile
-} from '../controllers/documentController';
-import authMiddleware from '../middleware/authMiddleware';
-import { csrf } from '../middleware/auth';
-import upload from '../middleware/fileUpload';
+} from '../controllers/documentController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import { csrfProtection } from '../middleware/csrfGenerator.js';
+import upload from '../middleware/fileUpload.js';
 import path from 'path';
 
 const router = express.Router();
@@ -26,19 +26,24 @@ router.get('/', getDocuments);
 router.get('/:id', getDocumentById);
 
 // Create a new document
-router.post('/', csrf as ExpressRequestHandler, upload.single('file'), createDocument);
+router.post('/', ...csrfProtection, upload.single('file'), createDocument);
 
 // Update a document
-router.put('/:id', csrf as ExpressRequestHandler, updateDocument);
+router.put('/:id', ...csrfProtection, updateDocument);
 
 // Delete a document
-router.delete('/:id', csrf as ExpressRequestHandler, deleteDocument);
+router.delete('/:id', ...csrfProtection, deleteDocument);
 
 // Share a document
-router.post('/:id/share', csrf as ExpressRequestHandler, shareDocument);
+router.post('/:id/share', ...csrfProtection, shareDocument);
 
 // Download a document file
 router.get('/:id/download', downloadFile);
+
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Serve static files from uploads directory
 router.use('/uploads', express.static(path.join(__dirname, '../../uploads')));

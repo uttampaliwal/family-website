@@ -1,67 +1,125 @@
+import axios from 'axios';
 import api from './axios';
-import type { AxiosError } from 'axios';
-import type { AuthResponse, ResetPasswordRequest, ForgotPasswordRequest } from '../types/api';
+
+// --- COPIED INTERFACE DEFINITIONS START ---
+export interface ErrorResponse {
+  message: string;
+  details?: string;
+}
+
+export interface AuthResponse {
+  message: string;
+  accessToken?: string;
+  username?: string;
+  user?: UserProfile;
+}
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  email: string;
+  name?: string;
+  dateOfBirth?: string;
+  phoneNumber?: string | null;
+  mobileNumber?: string | null;
+  gender?: string;
+}
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+  dateOfBirth: string;
+  phoneNumber?: string;
+  username: string;
+  gender: string;
+}
+
+export interface LoginRequest {
+  identifier: string;
+  password: string;
+}
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface ResendVerificationRequest {
+  identifier: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token?: string;
+  password: string;
+  confirmPassword?: string;
+}
+// --- COPIED INTERFACE DEFINITIONS END ---
 
 
-export const resetPassword = async (data: ResetPasswordRequest): Promise<AuthResponse> => {
-  if (!data || typeof data !== 'object') {
-    throw new Error('Reset password data is required');
+const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || 'accessToken';
+const USERNAME_KEY = import.meta.env.VITE_USERNAME_KEY || 'username';
+
+export const register = async (data: RegisterRequest): Promise<UserProfile> => {
+  const response = await api.post<UserProfile>('/auth/register', data);
+  return response.data;
+};
+
+export const login = async (data: LoginRequest): Promise<AuthResponse> => {
+  const response = await api.post<AuthResponse>('/auth/login', data);
+  if (response.data.accessToken) {
+    if (response.data.user) {
+      localStorage.setItem(ACCESS_TOKEN_KEY, response.data.accessToken);
+      localStorage.setItem(USERNAME_KEY, response.data.user.username);
+    } else {
+      console.error('Login successful, but user data is missing from response.');
+    }
   }
-  
-  if (!data.token || typeof data.token !== 'string' || data.token.trim() === '') {
-    throw new Error('Reset token is required');
-  }
-  
-  const minPasswordLength = parseInt(import.meta.env.VITE_MIN_PASSWORD_LENGTH || import.meta.env.VITE_DEFAULT_MIN_PASSWORD_LENGTH || import.meta.env.VITE_PASSWORD_MIN_LENGTH || '8', 10);
-  if (!data.password || typeof data.password !== 'string' || data.password.trim() === '' || data.password.length < minPasswordLength) { 
-    throw new Error('Valid password is required');
-  }
-  
+  return response.data;
+};
+
+export const logout = async (): Promise<void> => {
   try {
-    const response = await api.post<AuthResponse>('/api/auth/reset-password', data);
-    
-    if (!response.data || typeof response.data !== 'object') {
-      throw new Error('Invalid response from server');
-    }
-    
-    return response.data;
-  } catch (error: unknown) {
-    const axiosError = error as AxiosError<{ message?: string }>;
-    if (axiosError.response?.data?.message) {
-      throw new Error(axiosError.response.data.message);
-    }
-    throw new Error('Failed to reset password');
+    await api.post('/auth/logout');
+  } catch (error) {
+    console.error('Logout failed, proceeding to clear local data.', error);
+  } finally {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(USERNAME_KEY);
   }
 };
 
-export const forgotPassword = async (data: ForgotPasswordRequest): Promise<AuthResponse> => {
-  if (!data || typeof data !== 'object') {
-    throw new Error('Forgot password data is required');
-  }
-  
-  if (!data.email || typeof data.email !== 'string' || data.email.trim() === '') {
-    throw new Error('Valid email is required');
-  }
-  
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(data.email.trim())) {
-    throw new Error('Valid email is required');
-  }
-  
+export const forgotPassword = async (email: string) => {
   try {
-    const response = await api.post<AuthResponse>('/api/auth/forgot-password', data);
-    
-    if (!response.data || typeof response.data !== 'object') {
-      throw new Error('Invalid response from server');
-    }
-    
+    const response = await api.post('/auth/forgot-password', { email });
     return response.data;
-  } catch (error: unknown) {
-    const axiosError = error as AxiosError<{ message?: string }>;
-    if (axiosError.response?.data?.message) {
-      throw new Error(axiosError.response.data.message);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Failed to send password reset link.');
     }
-    throw new Error('Failed to send password reset email');
+    throw new Error('An unexpected error occurred.');
   }
 };
 
+export const resetPassword = async (password: string, token: string) => {
+  const response = await api.post(`/auth/reset-password/${token}`, { password });
+  return response.data;
+};
+
+export const verifyEmail = async (token: string) => {
+  const response = await api.get(`/auth/verify-email/${token}`);
+  return response.data;
+};
+
+export const fetchUserProfile = async (username: string): Promise<UserProfile> => {
+  const response = await api.get<UserProfile>(`/auth/profile/${username}`);
+  return response.data;
+};
+
+export const updateUserProfile = async (username: string, data: Partial<UserProfile>): Promise<UserProfile> => {
+  const response = await api.put<UserProfile>(`/auth/profile/${username}`, data);
+  return response.data;
+};

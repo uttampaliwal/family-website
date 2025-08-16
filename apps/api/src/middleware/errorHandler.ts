@@ -1,6 +1,6 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import { isHttpError } from 'http-errors';
-import { sanitizeLog } from '../utils/logSanitizer';
+import { sanitizeLog } from '../utils/logSanitizer.js';
 
 /**
  * A custom error interface to ensure statusCode is available.

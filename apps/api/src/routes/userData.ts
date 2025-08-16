@@ -1,4 +1,4 @@
-import express, { RequestHandler as ExpressRequestHandler } from 'express';
+import express from 'express';
 
 import { 
   getUserData, 
@@ -7,9 +7,9 @@ import {
   addPhoto, 
   addTask, 
   addEmergencyContact 
-} from '../controllers/userDataController';
-import authMiddleware from '../middleware/authMiddleware';
-import { csrf } from '../middleware/auth';
+} from '../controllers/userDataController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import { csrfProtection } from '../middleware/csrfGenerator.js';
 
 const router = express.Router();
 
@@ -21,18 +21,18 @@ router.use(authMiddleware);
 router.get('/:userId', getUserData);
 
 // Create or update user data
-router.put('/:userId', csrf as ExpressRequestHandler, createOrUpdateUserData);
+router.put('/:userId', ...csrfProtection, createOrUpdateUserData);
 
 // Add an event
-router.post('/:userId/events', csrf as ExpressRequestHandler, addEvent);
+router.post('/:userId/events', ...csrfProtection, addEvent);
 
 // Add a photo
-router.post('/:userId/photos', csrf as ExpressRequestHandler, addPhoto);
+router.post('/:userId/photos', ...csrfProtection, addPhoto);
 
 // Add a task
-router.post('/:userId/tasks', csrf as ExpressRequestHandler, addTask);
+router.post('/:userId/tasks', ...csrfProtection, addTask);
 
 // Add an emergency contact
-router.post('/:userId/emergency-contacts', csrf as ExpressRequestHandler, addEmergencyContact);
+router.post('/:userId/emergency-contacts', ...csrfProtection, addEmergencyContact);
 
 export default router;

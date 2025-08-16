@@ -1,10 +1,13 @@
+import { fileURLToPath } from 'url';
 import { Request as ExpressRequest } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { sanitizeLog } from '../utils/logSanitizer';
+import { sanitizeLog } from '../utils/logSanitizer.js';
 
 // Create uploads directory if it doesn't exist
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const uploadDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadDir)) {
   try {

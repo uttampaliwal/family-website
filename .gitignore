@@ -35,7 +35,7 @@ yarn-error.log*
 
 # Custom additions
 docs
-
+GEMINI_PROJECT_SUMMARY.md
 *.log
 .turbo/
 commit_message.txt
