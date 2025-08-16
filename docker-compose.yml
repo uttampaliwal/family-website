@@ -28,10 +28,16 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile
+      dockerfile: apps/api/Dockerfile
     container_name: family-website-api
     ports:
       - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health-check"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     environment:
       PORT: 3000
       JWT_SECRET: ${JWT_SECRET}
@@ -41,45 +47,29 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
     env_file:
       - ./.env
-    # Override the default command to force Node.js to prefer IPv4 for DNS resolution.
-    # This is a recommended fix for connection timeout issues in Node.js v18+ on Docker.
-    # The path /app/dist/index.js is confirmed from the application's error logs.
-    command: ["node", "--dns-result-order=ipv4first", "dist/index.js"]
-
     depends_on:
       mongo:
         condition: service_healthy
     networks:
       - family-website-network
-    healthcheck: # This uses curl, which is installed in the Dockerfile.production
-      # This check assumes you have a health endpoint at /api/health in your API
-      test: ["CMD", "curl", "--fail", "http://localhost:3000/api/health"]
-      interval: 15s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
   web:
     build:
       context: .
-      dockerfile: ./apps/web/Dockerfile
-      args:
-        # This build-time argument is passed to the Dockerfile to be used by Vite.
-        VITE_API_BASE_URL: http://localhost:3000
+      dockerfile: apps/web/Dockerfile
     container_name: family-website-web
     ports:
-      - "5173:5173"
+      - "80:5173"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     depends_on:
       api:
-        # Wait for API to be healthy before starting
         condition: service_healthy
     networks:
       - family-website-network
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:5173"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
 volumes:
   mongo-data:

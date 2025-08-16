@@ -1,36 +1,43 @@
-# syntax=docker/dockerfile:1
-
-# --- Base Stage ---
-FROM node:20-alpine AS base
+# Stage 1: Prune the monorepo to get only the files needed for the 'api' app.
+FROM node:20-alpine AS pruner
 WORKDIR /app
-RUN apk add --no-cache libc6-compat
+RUN npm install -g turbo
 
-# --- Builder Stage ---
-FROM base as builder
-WORKDIR /app
-COPY package.json package-lock.json* turbo.json ./
-COPY apps/api/package.json ./apps/api/
-COPY apps/web/package.json ./apps/web/
-COPY tsconfig.json ./
-RUN npm ci
 COPY . .
-RUN npx turbo run build --filter=./apps/api
+RUN turbo prune --scope=api --docker
 
-# --- Runner Stage ---
-FROM node:20-alpine as runner
+# Stage 2: Build the application
+FROM node:20-alpine AS builder
 WORKDIR /app
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 expressjs
+RUN npm install -g turbo
+
+# Copy the pruned files from the 'pruner' stage.
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/package-lock.json ./package-lock.json
+
+# Install dependencies.
+RUN npm ci
+
+# Copy the pruned source code.
+COPY --from=pruner /app/out/full/ .
+COPY . .
+
+# Build the 'api' application.
+RUN turbo run build --filter=api
+
+# Stage 3: Production Image
+FROM node:20-alpine AS production
+WORKDIR /app
 RUN apk add --no-cache curl
-COPY package.json package-lock.json* ./
-COPY apps/api/package.json ./apps/api/
-COPY apps/web/package.json ./apps/web/
-RUN npm ci --omit=dev --filter=api
 
-COPY --from=builder /app/apps/api/dist ./dist
+# Copy only the necessary files from the builder stage.
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
+COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
-RUN mkdir -p /app/uploads && chown expressjs:nodejs /app/uploads
+# Install production dependencies
+RUN npm ci --omit=dev
 
-USER expressjs
-EXPOSE 3000
-CMD ["node", "dist/index.js"]
+# Set the runtime command
+CMD ["node", "apps/api/dist/index.js"]

@@ -2,7 +2,7 @@
   "name": "family-website",
   "version": "0.2.2",
   "private": true,
-  "packageManager": "npm@10.8.2",
+  "packageManager": "npm@11.5.2",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -11,19 +11,11 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "npm test --workspace=api && npm test --workspace=web"
   },
   "devDependencies": {
     "prettier": "^3.3.3",
-    "turbo": "^2.5.5"
-  },
-  "dependencies": {
-    "@types/react": "^19.1.8",
-    "helmet": "^8.1.0",
-    "react": "^19.1.0"
-  },
-  "overrides": {
-    "express": "^4.19.2",
-    "@types/express": "^4.17.21"
+    "turbo": "^2.5.6"
   }
 }

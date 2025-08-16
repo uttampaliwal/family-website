@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { sanitizeLog } from './logSanitizer';
+import { sanitizeLog } from './logSanitizer.js';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',

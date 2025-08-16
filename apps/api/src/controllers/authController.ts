@@ -3,10 +3,10 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { sendEmail } from '../utils/emailService';
-import User from '../models/User';
+import { sendEmail } from '../utils/emailService.js';
+import User from '../models/User.js';
 import { RegisterRequest, LoginRequest, VerifyEmailRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, AuthResponse, UserProfile, Gender } from '../types/auth';
-import { sanitizeLog } from '../utils/logSanitizer';
+import { sanitizeLog } from '../utils/logSanitizer.js';
 
 const jwtSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
@@ -14,16 +14,7 @@ const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
-// Helper function to HTML-encode a string
-const htmlEncode = (str: string) => {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
-};
+import { htmlEncode } from '../utils/sanitization.js';
 
 export const register = async (req: Request<Record<string, never>, Record<string, never>, RegisterRequest>, res: Response<AuthResponse>): Promise<Response<AuthResponse>> => {
   const { name, email, password, dateOfBirth, username, phoneNumber } = req.body;
@@ -162,7 +153,10 @@ export const login = async (req: Request<Record<string, never>, Record<string, n
       return res.status(400).json({ message: 'Please verify your email before logging in.' });
     }
 
-    const isMatch = await bcrypt.compare(String(password), user.password);
+    // For debugging: inspect the data before comparison
+    console.log(`[DEBUG] Comparing password from request (length: ${password.length}) with stored hash (length: ${user.password.length})`);
+
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       user.loginAttempts = (user.loginAttempts || 0) + 1;
       if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
@@ -368,8 +362,8 @@ export const getUserProfile = async (req: Request<{ username: string }>, res: Re
       return res.status(404).json({ message: 'User not found.' });
     }
     // Sanitize user data before returning to prevent XSS
-    const sanitizedUser = {
-      id: user._id,
+    const sanitizedUser: UserProfile = {
+      id: user._id.toString(),
       name: htmlEncode(user.name || ''),
       username: htmlEncode(user.username || ''),
       email: htmlEncode(user.email || ''),
@@ -511,6 +505,47 @@ export const logout = async (req: Request, res: Response<AuthResponse>): Promise
 };
 
 export const updateUserProfile = async (req: Request, res: Response): Promise<Response<AuthResponse>> => {
-  // TODO: Implement user profile update logic
-  return res.status(501).json({ message: 'Not Implemented' });
+  const { username } = req.params;
+  const { name, dateOfBirth, phoneNumber, gender } = req.body;
+
+  if (!req.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  // Ensure the user making the request is the user being updated
+  if (req.user.username !== username) {
+    return res.status(403).json({ message: 'Forbidden: You can only update your own profile.' });
+  }
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Update fields if they are provided in the request body
+    if (name) user.name = name;
+    if (dateOfBirth) user.dateOfBirth = dateOfBirth;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (gender) user.gender = gender as Gender;
+
+    await user.save();
+
+    const userProfile: UserProfile = {
+      id: user._id.toString(),
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : undefined,
+      phoneNumber: user.phoneNumber,
+      gender: user.gender as Gender,
+      isVerified: user.isVerified,
+    };
+
+    return res.status(200).json({ message: 'Profile updated successfully', userProfile });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    return res.status(500).json({ message: 'Error updating user profile.' });
+  }
 };

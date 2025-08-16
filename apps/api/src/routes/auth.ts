@@ -1,10 +1,10 @@
-import express, { RequestHandler as ExpressRequestHandler } from 'express';
+import express from 'express';
 import rateLimit from 'express-rate-limit';
 
-import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout, updateUserProfile } from '../controllers/authController';
-import { validate, registerSchema, loginSchema, verifyEmailSchema, resendVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from '../middleware/validate';
-
-import { csrf } from '../middleware/auth';
+import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout, updateUserProfile } from '../controllers/authController.js';
+import { validate, registerSchema, loginSchema, verifyEmailSchema, resendVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from '../middleware/validate.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import { csrfProtection } from '../middleware/csrfGenerator.js';
 
 const router = express.Router();
 
@@ -21,20 +21,26 @@ const loginLimiter = rateLimit({
   message: 'Too many login attempts from this IP, please try again after 15 minutes',
 });
 
+const authActionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Max 10 requests per 15 minutes per IP for other auth actions
+  message: 'Too many requests for this action from your IP, please try again after 15 minutes',
+});
+
 // Register Route
-router.post('/register', csrf as ExpressRequestHandler, authLimiter, validate(registerSchema), register);
+router.post('/register', ...csrfProtection, authLimiter, validate(registerSchema), register);
 
 // Sign In Route
-router.post('/login', csrf as ExpressRequestHandler, loginLimiter, validate(loginSchema), login);
+router.post('/login', ...csrfProtection, loginLimiter, validate(loginSchema), login);
 
 // Verify Email Route
-router.post('/verify-email', csrf as ExpressRequestHandler, validate(verifyEmailSchema), verifyEmail);
+router.post('/verify-email', ...csrfProtection, authActionLimiter, validate(verifyEmailSchema), verifyEmail);
 
 // Resend Verification Email Route
-router.post('/resend-verification', csrf as ExpressRequestHandler, validate(resendVerificationSchema), resendVerification);
+router.post('/resend-verification', ...csrfProtection, authActionLimiter, validate(resendVerificationSchema), resendVerification);
 
 // Refresh Token Route
-router.post('/refresh-token', csrf as ExpressRequestHandler, refreshToken);
+router.post('/refresh-token', ...csrfProtection, authActionLimiter, refreshToken);
 
 // Get User Profile by Username
 router.get('/profile/:username', (req, res, next) => {
@@ -46,18 +52,18 @@ router.get('/profile/:username', (req, res, next) => {
 });
 
 // Update User Profile by Username
-router.put('/profile/:username', csrf as ExpressRequestHandler, updateUserProfile);
+router.put('/profile/:username', ...csrfProtection, authMiddleware, authActionLimiter, updateUserProfile);
 
 // Forgot Password Route
-router.post('/forgot-password', csrf as ExpressRequestHandler, validate(forgotPasswordSchema), forgotPassword);
+router.post('/forgot-password', ...csrfProtection, authActionLimiter, validate(forgotPasswordSchema), forgotPassword);
 
 // Reset Password Route
-router.post('/reset-password/:token', csrf as ExpressRequestHandler, validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password/:token', ...csrfProtection, authActionLimiter, validate(resetPasswordSchema), resetPassword);
 
 // Reset Password Route with token in body
-router.post('/reset-password', csrf as ExpressRequestHandler, validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password', ...csrfProtection, authActionLimiter, validate(resetPasswordSchema), resetPassword);
 
 // Logout Route
-router.post('/logout', csrf as ExpressRequestHandler, logout);
+router.post('/logout', ...csrfProtection, authActionLimiter, logout);
 
 export default router;

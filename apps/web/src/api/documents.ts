@@ -88,15 +88,12 @@ export const getDocumentById = async (id: string): Promise<Document> => {
 export const createDocument = async (title: string, content: string, file?: File): Promise<Document> => {
   if (!title?.trim()) throw new Error('Title is required');
   
-  if (!file) {
-    const response = await api.post(API_ENDPOINTS.DOCUMENTS, { title, content });
-    return response.data;
-  }
-  
   const formData = new FormData();
   formData.append('title', title);
   formData.append('content', content);
-  formData.append('file', file);
+  if (file) {
+    formData.append('file', file);
+  }
   
   const response = await api.post(API_ENDPOINTS.DOCUMENTS, formData, {
     headers: { 'Content-Type': CONTENT_TYPES.MULTIPART_FORM_DATA }

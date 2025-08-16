@@ -6,7 +6,7 @@ interface RetryAxiosRequestConfig extends AxiosRequestConfig {
 }
 
 // Constants for better maintainability
-const TOKEN_EXPIRED_STATUS = 403;
+
 const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || 'accessToken';
 const USERNAME_KEY = import.meta.env.VITE_USERNAME_KEY || 'username';
 const LOGIN_PATH = import.meta.env.VITE_LOGIN_PATH || '/login';
@@ -15,22 +15,18 @@ const ROOT_PATH = '/';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true, // Important for sending HttpOnly cookies
+  xsrfCookieName: 'XSRF-TOKEN', // The name of the cookie to use as a value for the XSRF token
+  xsrfHeaderName: 'X-XSRF-TOKEN', // The name of the HTTP header to send the XSRF token in
 });
 
-// Request interceptor to attach access token
+// Request interceptor to attach JWT access token
 api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-
-    // Add X-XSRF-TOKEN header from cookie
-    const xsrfToken = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1];
-    if (xsrfToken) {
-      config.headers['X-XSRF-TOKEN'] = xsrfToken;
-    }
-
+    // Axios will now handle the XSRF token automatically based on the config above.
     return config;
   },
   (error) => {
@@ -81,7 +77,9 @@ api.interceptors.response.use(
     }
     
     const originalRequest = error.config;
-    const isTokenExpired = error.response.status === TOKEN_EXPIRED_STATUS;
+    // This logic should specifically check for a 401 Unauthorized for token expiry,
+    // not a 403 Forbidden, which is now correctly used for CSRF errors.
+    const isTokenExpired = error.response.status === 401; 
     const isFirstRetry = !originalRequest._retry;
     
     if (isTokenExpired && isFirstRetry) {

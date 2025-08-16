@@ -9,7 +9,7 @@ const TOAST_STYLES = {
   info: 'bg-blue-500',
 } as const;
 
-const BASE_CLASSES = 'fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300';
+const BASE_CLASSES = 'fixed top-4 left-1/2 -translate-x-1/2 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300 z-50';
 
 interface ToastProps {
   message: string;

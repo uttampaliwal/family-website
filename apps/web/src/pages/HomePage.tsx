@@ -1,24 +1,11 @@
-import React, { useEffect, useState, Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import ComponentSkeleton from '../components/ComponentSkeleton';
 
 // Lazy loaded components for better performance
 const FamilyCalendar = lazy(() => import('../components/FamilyCalendar'));
 const WeatherWidget = lazy(() => import('../components/WeatherWidget'));
-const ImportantNotifications = lazy(() => import('../components/ImportantNotifications'));
 const FamilyTools = lazy(() => import('../components/FamilyTools'));
-
-interface FeedItem {
-  id: string;
-  type: string;
-  title: string;
-  description: string;
-  imageUrl?: string;
-  link?: string;
-  timestamp: string;
-  priority?: 'high' | 'medium' | 'low';
-  category?: string;
-}
 
 interface ActivityItem {
   id: string;
@@ -38,47 +25,6 @@ const recentActivity: ActivityItem[] = [
 ];
 
 const HomePage: React.FC = () => {
-  const [feed, setFeed] = useState<FeedItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchFeedData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/feed/dynamic-feed`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: FeedItem[] = await response.json();
-        setFeed(data);
-      } catch (error: unknown) {
-        if (error instanceof TypeError && error.message.includes('fetch')) {
-          setError('Network error. Please check your internet connection.');
-        } else if (error instanceof Error && error.message.includes('404')) {
-          setError('Feed service not available. Please try again later.');
-        } else if (error instanceof Error && error.message.includes('500')) {
-          setError('Server error. Please try again later.');
-        } else if (error instanceof Error && error.message.includes('403')) {
-          setError('Access denied. Please check your permissions.');
-        } else {
-          setError('An unexpected error occurred. Please try again later.');
-        }
-      } finally {
-        setLoading(false);
-      }
-  };
-
-  useEffect(() => {
-    fetchFeedData();
-  }, []);
-
-  if (loading) {
-    return <div className="text-center mt-[50px]">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center mt-[50px] text-red-500">Error: {error}</div>;
-  }
-
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
       <motion.div 
@@ -173,7 +119,7 @@ const HomePage: React.FC = () => {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 card-hover">
               <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Important Updates</h2>
               <Suspense fallback={<ComponentSkeleton rows={3} height="h-24" />}>
-                <ImportantNotifications />
+                
               </Suspense>
             </div>
           </div>
@@ -197,56 +143,6 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Family Feed */}
-        <section>
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Family Updates</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {feed.map((item) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col card-hover ${
-                  item.priority === 'high' ? 'border-l-4 border-red-500' :
-                  item.priority === 'medium' ? 'border-l-4 border-yellow-500' : ''
-                }`}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{item.title}</h3>
-                  {item.category && (
-                    <span className="px-3 py-1 text-sm rounded-full gradient-bg text-white shadow-sm">
-                      {item.category}
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-4 flex-grow">{item.description}</p>
-                {item.imageUrl && (
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.title} 
-                    className="w-full h-48 object-cover rounded-xl mb-4 shadow-md"
-                    loading="lazy"
-                  />
-                )}
-                {item.link && (
-                  <a 
-                    href={item.link}
-                    className="inline-flex items-center gradient-text font-medium mt-auto"
-                  >
-                    Learn More
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </a>
-                )}
-                <time className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  {new Date(item.timestamp).toLocaleDateString()}
-                </time>
-              </motion.div>
-            ))}
-          </div>
-        </section>
       </motion.div>
     </div>
   );

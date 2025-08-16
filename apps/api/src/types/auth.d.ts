@@ -51,11 +51,13 @@ export interface AuthResponse {
 }
 
 export interface UserProfile {
+  id: string;
   username: string;
   email: string;
   name?: string;
   dateOfBirth?: string;
   phoneNumber?: string | null;
   gender?: Gender;
+  isVerified?: boolean;
 }
 
