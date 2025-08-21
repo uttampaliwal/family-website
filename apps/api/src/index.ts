@@ -99,6 +99,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
+app.set('trust proxy', 1); // Trust the Nginx proxy for correct IP identification
 
 // API routes.
 app.use('/api', healthRoutes); // Mount the health check route

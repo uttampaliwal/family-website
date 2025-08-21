@@ -20,7 +20,15 @@ This project is a monorepo managed by Turborepo. It consists of two main package
 
 ## Getting Started
 
-For detailed instructions on how to set up and run this project locally, please see the [Project Documentation](./PROJECT_DOCS.md).
+This project uses Docker Compose for easy setup and local development.
+
+1.  **Ensure Docker is Running:** Make sure Docker Desktop (or your Docker environment) is running.
+2.  **Start the Application:** From the project root, run `docker-compose up -d --build`. This will build the images, create the containers, and start the services in the background.
+3.  **Access the Application:**
+    *   **Frontend:** Open your browser and navigate to `http://localhost:80/`.
+    *   **Backend API:** The API is accessible at `http://localhost:3000/api/`.
+
+For more detailed instructions, including environment variable setup and troubleshooting, please see the [Project Documentation](./PROJECT_DOCS.md).
 
 ## Contributing
 

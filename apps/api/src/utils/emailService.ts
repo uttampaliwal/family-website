@@ -56,7 +56,8 @@ export const sendEmail = async (options: EmailOptions) => {
       error: error instanceof Error ? error.message.replace(/[\n\r\t]/g, '') : 'Unknown error',
       timestamp: new Date().toISOString()
     };
-    console.error(sanitizeLog(JSON.stringify(errorData)));
+    console.error(sanitizeLog(JSON.stringify(errorData, null, 2)));
+    console.error('Full error object:', error);
     throw new Error('Failed to send email');
   }
 };

@@ -90,14 +90,17 @@ Create a `.env` file in the project root directory (`family-website/`) with the 
 
 ```dotenv
 PORT=3000
-MONGO_URI=mongodb://<your_mongo_username>:<your_mongo_password>@mongo:27017/familywebsite?authSource=admin
-MONGO_INITDB_ROOT_USERNAME=<your_mongo_username>
-MONGO_INITDB_ROOT_PASSWORD=<your_mongo_password>
-EMAIL_USER=<your_email@example.com>
-EMAIL_PASS=<your_email_password>
-JWT_SECRET=<your_jwt_secret_key>
-REFRESH_TOKEN_SECRET=<your_refresh_token_secret_key>
-FRONTEND_URL=http://localhost:5173
+MONGO_URI=mongodb://root:password@mongo:27017/family-website?authSource=admin
+MONGO_INITDB_ROOT_USERNAME=root
+MONGO_INITDB_ROOT_PASSWORD=password
+MONGO_APP_USERNAME=uttam
+MONGO_APP_PASSWORD=uttam232002
+EMAIL_USER=uttam232002@gmail.com
+EMAIL_PASS=xgqg ymez dtzd brke
+JWT_SECRET=your-super-secret-jwt-key-that-is-long-and-random
+REFRESH_TOKEN_SECRET=another-super-secret-refresh-key-that-is-also-long-and-random
+FRONTEND_URL=http://localhost:80
+GEMINI_API_KEY=AIzaSyApuaplQvFz7mBcA7GIT0IhfjCZOVVR4Cs
 ```
 
 **Note:** The `MONGO_URI` here is for the API service running inside Docker. When running the API development server directly (outside Docker), the `MONGO_URI` in `apps/api/.env` should be `mongodb://<your_mongo_username>:<your_mongo_password>@localhost:27017/familywebsite?authSource=admin`.
@@ -135,8 +138,8 @@ docker compose ps
 
 3.  **Access the application:**
 
-    *   **Frontend:** `http://localhost:5173/`
-    *   **API (health check):** `http://localhost:3000/api/health`
+    *   **Frontend:** `http://localhost:80/`
+    *   **API (health check):** `http://localhost:3000/api/health-check`
 
 ### 4.6. Running Development Servers (Optional - Outside Docker)
 
@@ -330,6 +333,23 @@ This section addresses common issues encountered during the setup and operation 
 ## 9. Development Logs and Decisions
 
 This section chronicles significant issues encountered during the development of the `family-website` project and the decisions made to resolve them. It serves as a historical record of the project's evolution.
+
+### 9.0. Recent Enhancements and Fixes (August 2025)
+
+This section details recent significant improvements and bug fixes implemented to enhance the project's stability, maintainability, and adherence to modern development practices.
+
+*   **Issue:** Docker containers (API and Web) were not consistently reporting as `healthy` due to missing `curl` in their images and incorrect health check configurations.
+    *   **Decision:** Added `curl` to `apps/api/Dockerfile` and `apps/web/Dockerfile`. Corrected health check URLs and port mappings in `docker-compose.yml` to align with Nginx configuration and API routes.
+*   **Issue:** The API service failed to start with `ReferenceError: exports is not defined in ES module scope` after `type: module` was added to `package.json`.
+    *   **Decision:** Configured `apps/api/tsconfig.json` to compile to `esnext` modules. Refactored `__dirname` usage in `apps/api/src/middleware/fileUpload.ts` and `apps/api/src/routes/documents.ts` to use `import.meta.url` for ES module compatibility.
+*   **Issue:** The API service experienced `res.status is not a function` errors, particularly affecting health checks, due to an improperly implemented global CSRF middleware.
+    *   **Decision:** Rewrote the CSRF middleware in `apps/api/src/middleware/csrfGenerator.ts` to correctly chain `generateCsrfToken` and `validateCsrfToken` as proper Express middleware. Updated all relevant API route files (`index.ts`, `auth.ts`, `documents.ts`, `userData.ts`) to use the new `csrfProtection` middleware array. The health check route was explicitly mounted before the CSRF middleware to prevent interference.
+*   **Issue:** Mongoose logs showed warnings about `Duplicate schema index` for fields like `email`, `username`, and `verificationToken`.
+    *   **Decision:** Removed redundant `UserSchema.index()` calls in `apps/api/src/models/User.ts` as `unique: true` already implicitly creates the necessary unique indexes.
+*   **Issue:** ESLint reported `no-unused-vars` errors for `ExpressRequestHandler` in API route files after refactoring.
+    *   **Decision:** Removed the unused `ExpressRequestHandler` import from `apps/api/src/routes/auth.ts`, `apps/api/src/routes/documents.ts`, and `apps/api/src/routes/userData.ts`.
+*   **Issue:** A `MODULE_TYPELESS_PACKAGE_JSON` warning appeared during linting, indicating Node.js was guessing the module type for `eslint.config.js`.
+    *   **Decision:** Added `"type": "module"` to `apps/api/package.json` to explicitly declare the package as an ES module, resolving the warning and improving module resolution performance.
 
 ### 9.1. Initial Setup and Dockerization
 
