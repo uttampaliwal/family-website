@@ -5,6 +5,8 @@ services:
     volumes:
       - mongo-data:/data/db
     command: mongod --bind_ip 0.0.0.0
+    ports:
+      - "27017:27017"
     restart: unless-stopped
     networks:
       - family-website-network
@@ -16,19 +18,14 @@ services:
       timeout: 10s    # The check must complete within 10 seconds
       retries: 3      # Retry 3 times before failing
       start_period: 30s # A more reasonable 30-second grace period
-    
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-family_website}
-      MONGO_APP_USERNAME: ${MONGO_APP_USERNAME}
-      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD}
     env_file:
       - ./.env
   api:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+      args:
+        - TURBO_TELEMETRY_DISABLED=${TURBO_TELEMETRY_DISABLED:-1}
     container_name: family-website-api
     ports:
       - "3000:3000"
@@ -38,15 +35,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    environment:
-      PORT: 3000
-      JWT_SECRET: ${JWT_SECRET}
-      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
-      EMAIL_USER: ${EMAIL_USER}
-      EMAIL_PASS: ${EMAIL_PASS}
-      FRONTEND_URL: ${FRONTEND_URL}
     env_file:
       - ./.env
+      - ./apps/api/.env
     depends_on:
       mongo:
         condition: service_healthy
@@ -56,6 +47,8 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        - TURBO_TELEMETRY_DISABLED=${TURBO_TELEMETRY_DISABLED:-1}
     container_name: family-website-web
     ports:
       - "80:5173"

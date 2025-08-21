@@ -14,7 +14,7 @@ const RegisterPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [dateOfBirth, setDateOfBirth] = useState<string>('');
+  const [dob, setDob] = useState<string>('');
   const [mobileNumber, setMobileNumber] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [gender, setGender] = useState<string>('');
@@ -62,7 +62,7 @@ const RegisterPage: React.FC = () => {
   const handleNext = useCallback(() => {
     showToast('', 'info'); // Clear previous messages
     if (step === 1) {
-      if (!name || !dateOfBirth || !gender) {
+      if (!name || !dob || !gender) {
         showToast('Please fill in all required fields for Personal Details.', 'error');
         if (!name) nameRef.current?.focus();
         return;
@@ -71,7 +71,7 @@ const RegisterPage: React.FC = () => {
       if (!validateStep2()) return;
     }
     setStep(step + 1);
-  }, [step, name, dateOfBirth, gender, validateStep2, showToast]);
+  }, [step, name, dob, gender, validateStep2, showToast]);
 
   const handlePrevious = useCallback(() => {
     showToast('', 'info'); // Clear previous messages
@@ -121,7 +121,7 @@ const RegisterPage: React.FC = () => {
 
     try {
       const response = await api.post<AuthResponse>(`${import.meta.env.VITE_API_BASE_URL || ''}/api/auth/register`, {
-        name: name, email: email, password: password, dateOfBirth: dateOfBirth, mobileNumber: mobileNumber, username: username, gender: gender
+                name: name, email: email, password: password, dob: dob, mobileNumber: mobileNumber, username: username, gender: gender
       } as RegisterRequest);
 
       const data = response.data;
@@ -157,7 +157,7 @@ const RegisterPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [name, email, password, confirmPassword, dateOfBirth, mobileNumber, username, gender, step, validateEmail, validatePassword, showToast, navigate]);
+  }, [name, email, password, confirmPassword, dob, mobileNumber, username, gender, step, validateEmail, validatePassword, showToast, navigate]);
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
@@ -215,20 +215,19 @@ const RegisterPage: React.FC = () => {
                 </div>
                 
                 <div>
-                  <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="dob" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date of Birth <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
-                    id="dateOfBirth"
-                    value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    id="dob"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
                     required
                     disabled={loading}
                     className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                   />
                 </div>
-                
                 <div>
                   <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Mobile Number
@@ -257,9 +256,9 @@ const RegisterPage: React.FC = () => {
                     className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                   >
                     <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Prefer not to say</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
                   </select>
                 </div>
                 

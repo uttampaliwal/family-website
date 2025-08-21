@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import healthRoutes from './health.js';
+import healthRoutes from './health';
 
 // Constants for better maintainability
 const HEALTH_ENDPOINT = '/health/health-check';
