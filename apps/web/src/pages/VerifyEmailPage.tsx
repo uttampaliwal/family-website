@@ -1,18 +1,31 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 // Constants for better maintainability
 const REDIRECT_DELAY = 3000;
 const MESSAGES = {
-  VERIFYING: import.meta.env.VITE_MSG_VERIFYING || 'Verifying your email...',
-  TOKEN_NOT_FOUND: import.meta.env.VITE_MSG_TOKEN_NOT_FOUND || 'Verification token not found.',
-  SUCCESS: import.meta.env.VITE_MSG_SUCCESS || 'Email verified successfully! You can now login.',
-  BAD_REQUEST: import.meta.env.VITE_MSG_BAD_REQUEST || 'Bad Request.',
-  SERVER_ERROR: import.meta.env.VITE_MSG_SERVER_ERROR || 'Server error. Please try again later.',
-  NETWORK_ERROR: import.meta.env.VITE_MSG_NETWORK_ERROR || 'Network error. Please check your internet connection or try again later.',
-  CANCELLED: import.meta.env.VITE_MSG_CANCELLED || 'Request was cancelled. Please try again.',
-  GENERIC_ERROR: import.meta.env.VITE_MSG_GENERIC_ERROR || 'An error occurred during verification. Please try again.',
-  UNEXPECTED_ERROR: import.meta.env.VITE_MSG_UNEXPECTED_ERROR || 'An unexpected error occurred.'
+  VERIFYING: import.meta.env.VITE_MSG_VERIFYING || "Verifying your email...",
+  TOKEN_NOT_FOUND:
+    import.meta.env.VITE_MSG_TOKEN_NOT_FOUND || "Verification token not found.",
+  SUCCESS:
+    import.meta.env.VITE_MSG_SUCCESS ||
+    "Email verified successfully! You can now login.",
+  BAD_REQUEST: import.meta.env.VITE_MSG_BAD_REQUEST || "Bad Request.",
+  SERVER_ERROR:
+    import.meta.env.VITE_MSG_SERVER_ERROR ||
+    "Server error. Please try again later.",
+  NETWORK_ERROR:
+    import.meta.env.VITE_MSG_NETWORK_ERROR ||
+    "Network error. Please check your internet connection or try again later.",
+  CANCELLED:
+    import.meta.env.VITE_MSG_CANCELLED ||
+    "Request was cancelled. Please try again.",
+  GENERIC_ERROR:
+    import.meta.env.VITE_MSG_GENERIC_ERROR ||
+    "An error occurred during verification. Please try again.",
+  UNEXPECTED_ERROR:
+    import.meta.env.VITE_MSG_UNEXPECTED_ERROR ||
+    "An unexpected error occurred.",
 } as const;
 
 const VerifyEmailPage: React.FC = () => {
@@ -23,29 +36,35 @@ const VerifyEmailPage: React.FC = () => {
   const hasVerified = useRef(false);
 
   const getXsrfToken = () => {
-    const cookies = document.cookie.split('; ');
-    const xsrfCookie = cookies.find(row => row.startsWith('XSRF-TOKEN='));
-    return xsrfCookie?.split('=')[1];
+    const cookies = document.cookie.split("; ");
+    const xsrfCookie = cookies.find((row) => row.startsWith("XSRF-TOKEN="));
+    return xsrfCookie?.split("=")[1];
   };
 
-  const handleVerificationSuccess = useCallback((data: { message?: string }) => {
-    setMessage(data.message || MESSAGES.SUCCESS);
-    setTimeout(() => navigate('/login'), REDIRECT_DELAY);
-  }, [navigate]);
+  const handleVerificationSuccess = useCallback(
+    (data: { message?: string }) => {
+      setMessage(data.message || MESSAGES.SUCCESS);
+      setTimeout(() => navigate("/login"), REDIRECT_DELAY);
+    },
+    [navigate],
+  );
 
-  const handleVerificationError = (response: Response, data: { message?: string }) => {
+  const handleVerificationError = (
+    response: Response,
+    data: { message?: string },
+  ) => {
     let errorMessage: string;
-    
+
     switch (response.status) {
       case 400:
         errorMessage = data.message || MESSAGES.BAD_REQUEST;
         break;
       case 401:
       case 403:
-        errorMessage = 'Invalid or expired verification token.';
+        errorMessage = "Invalid or expired verification token.";
         break;
       case 404:
-        errorMessage = 'Verification token not found.';
+        errorMessage = "Verification token not found.";
         break;
       case 500:
       case 502:
@@ -55,43 +74,49 @@ const VerifyEmailPage: React.FC = () => {
       default:
         errorMessage = data.message || MESSAGES.UNEXPECTED_ERROR;
     }
-    
+
     setMessage(errorMessage);
     setIsError(true);
   };
 
-  const verifyEmail = useCallback(async (token: string) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getXsrfToken() || '',
-        },
-        body: JSON.stringify({ token }),
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        handleVerificationSuccess(data);
-      } else {
-        handleVerificationError(response, data);
+  const verifyEmail = useCallback(
+    async (token: string) => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-XSRF-TOKEN": getXsrfToken() || "",
+            },
+            body: JSON.stringify({ token }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          handleVerificationSuccess(data);
+        } else {
+          handleVerificationError(response, data);
+        }
+      } catch (error) {
+        if (error instanceof TypeError) {
+          setMessage(MESSAGES.NETWORK_ERROR);
+        } else if (error instanceof Error && error.name === "AbortError") {
+          setMessage(MESSAGES.CANCELLED);
+        } else {
+          setMessage(MESSAGES.GENERIC_ERROR);
+        }
+        setIsError(true);
       }
-    } catch (error) {
-      if (error instanceof TypeError) {
-        setMessage(MESSAGES.NETWORK_ERROR);
-      } else if (error instanceof Error && error.name === 'AbortError') {
-        setMessage(MESSAGES.CANCELLED);
-      } else {
-        setMessage(MESSAGES.GENERIC_ERROR);
-      }
-      setIsError(true);
-    }
-  }, [handleVerificationSuccess]);
+    },
+    [handleVerificationSuccess],
+  );
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    const token = searchParams.get("token");
 
     if (!token) {
       setMessage(MESSAGES.TOKEN_NOT_FOUND);
@@ -110,9 +135,16 @@ const VerifyEmailPage: React.FC = () => {
   return (
     <div className="text-center">
       <h1 className="text-gray-800 dark:text-white">Email Verification</h1>
-      <p role="alert" className={`${isError ? 'text-red-500' : 'text-green-500'}`}>{message}</p>
-      {!isError && message.includes('successfully') && (
-        <p className="text-gray-700 dark:text-gray-300">Redirecting to login page...</p>
+      <p
+        role="alert"
+        className={`${isError ? "text-red-500" : "text-green-500"}`}
+      >
+        {message}
+      </p>
+      {!isError && message.includes("successfully") && (
+        <p className="text-gray-700 dark:text-gray-300">
+          Redirecting to login page...
+        </p>
       )}
     </div>
   );

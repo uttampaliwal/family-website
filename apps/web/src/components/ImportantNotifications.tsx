@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'warning' | 'urgent';
+  type: "info" | "warning" | "urgent";
   timestamp: string;
   action?: {
     label: string;
@@ -16,12 +15,12 @@ interface Notification {
 
 // Constants for better performance
 const NOTIFICATION_STYLES = {
-  urgent: 'bg-red-50 dark:bg-red-900/20 border-red-500',
-  warning: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500',
-  info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
+  urgent: "bg-red-50 dark:bg-red-900/20 border-red-500",
+  warning: "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500",
+  info: "bg-blue-50 dark:bg-blue-900/20 border-blue-500",
 } as const;
 
-const sanitizeString = (str: string) => String(str).replace(/[<>"'&]/g, '');
+const sanitizeString = (str: string) => String(str).replace(/[<>"'&]/g, "");
 
 const ImportantNotifications: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -31,7 +30,9 @@ const ImportantNotifications: React.FC = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/notifications/important`);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/notifications/important`,
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -40,36 +41,39 @@ const ImportantNotifications: React.FC = () => {
       } catch (error) {
         // Structured error logging with context
         const errorInfo = {
-          message: error instanceof Error ? error.message : 'Unknown error',
+          message: error instanceof Error ? error.message : "Unknown error",
           timestamp: new Date().toISOString(),
-          operation: 'fetchNotifications',
-          url: `${import.meta.env.VITE_API_BASE_URL}/api/notifications/important`
+          operation: "fetchNotifications",
+          url: `${import.meta.env.VITE_API_BASE_URL}/api/notifications/important`,
         };
-        console.error('Error fetching notifications:', JSON.stringify(errorInfo));
-        
+        console.error(
+          "Error fetching notifications:",
+          JSON.stringify(errorInfo),
+        );
+
         const getErrorMessage = (error: unknown): string => {
-          if (!(error instanceof Error)) return 'Failed to load notifications';
-          
+          if (!(error instanceof Error)) return "Failed to load notifications";
+
           const errorMap: Record<string, string> = {
-            '404': 'Notifications service not available.',
-            '403': 'You do not have permission to view notifications.',
-            '401': 'You do not have permission to view notifications.',
-            '500': 'Server error. Please try again later.',
-            'network': 'Network error. Please check your connection.',
-            'fetch': 'Network error. Please check your connection.'
+            "404": "Notifications service not available.",
+            "403": "You do not have permission to view notifications.",
+            "401": "You do not have permission to view notifications.",
+            "500": "Server error. Please try again later.",
+            network: "Network error. Please check your connection.",
+            fetch: "Network error. Please check your connection.",
           };
-          
+
           for (const [key, message] of Object.entries(errorMap)) {
             if (error.message.toLowerCase().includes(key.toLowerCase())) {
               return message;
             }
           }
-          
-          return 'An unexpected error occurred. Please try again.';
+
+          return "An unexpected error occurred. Please try again.";
         };
-        
+
         const errorMessage = getErrorMessage(error);
-        
+
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -79,19 +83,21 @@ const ImportantNotifications: React.FC = () => {
     fetchNotifications();
   }, []);
 
-  const getNotificationStyles = useCallback((type: Notification['type']) => {
+  const getNotificationStyles = useCallback((type: Notification["type"]) => {
     return NOTIFICATION_STYLES[type] || NOTIFICATION_STYLES.info;
   }, []);
 
   const sanitizedNotifications = useMemo(() => {
-    return notifications.map(notification => ({
+    return notifications.map((notification) => ({
       ...notification,
       title: sanitizeString(notification.title),
       message: sanitizeString(notification.message),
-      action: notification.action ? {
-        ...notification.action,
-        label: sanitizeString(notification.action.label)
-      } : undefined
+      action: notification.action
+        ? {
+            ...notification.action,
+            label: sanitizeString(notification.action.label),
+          }
+        : undefined,
     }));
   }, [notifications]);
 
@@ -99,7 +105,10 @@ const ImportantNotifications: React.FC = () => {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((n) => (
-          <div key={n} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
+          <div
+            key={n}
+            className="h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"
+          ></div>
         ))}
       </div>
     );
@@ -138,14 +147,32 @@ const ImportantNotifications: React.FC = () => {
               </div>
               {notification.action && (
                 <a
-                  href={/^https?:\/\//.test(notification.action.url) ? notification.action.url : '#'}
+                  href={
+                    /^https?:\/\//.test(notification.action.url)
+                      ? notification.action.url
+                      : "#"
+                  }
                   className="ml-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white dark:bg-gray-800 text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700"
                   rel="noopener noreferrer"
-                  target={notification.action.url.startsWith('http') ? '_blank' : '_self'}
+                  target={
+                    notification.action.url.startsWith("http")
+                      ? "_blank"
+                      : "_self"
+                  }
                 >
                   {notification.action.label}
-                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  <svg
+                    className="ml-1 w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </a>
               )}

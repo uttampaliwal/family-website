@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 
 function RouteFocusManager() {
   const location = useLocation();
@@ -7,9 +7,10 @@ function RouteFocusManager() {
 
   useEffect(() => {
     // Find the main content area using multiple selectors for better reliability
-    mainContentRef.current = document.querySelector('main') || 
-                             document.querySelector('[role="main"]') || 
-                             document.querySelector('#main-content');
+    mainContentRef.current =
+      document.querySelector("main") ||
+      document.querySelector('[role="main"]') ||
+      document.querySelector("#main-content");
 
     // On route change, focus the main content area
     if (mainContentRef.current) {

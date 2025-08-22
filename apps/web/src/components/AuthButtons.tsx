@@ -1,13 +1,13 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import Button from './Button';
-import { useAuth } from '../hooks/useAuth';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import Button from "./Button";
+import { useAuth } from "../hooks/useAuth";
 
 // Constants for better maintainability
 const ROUTES = {
-  LOGIN: '/login',
-  REGISTER: '/register',
-  PROFILE: '/profile'
+  LOGIN: "/login",
+  REGISTER: "/register",
+  PROFILE: "/profile",
 } as const;
 
 const EXCLUDED_PATHS = [ROUTES.LOGIN, ROUTES.REGISTER];
@@ -15,11 +15,13 @@ const EXCLUDED_PATHS = [ROUTES.LOGIN, ROUTES.REGISTER];
 const AuthButtons: React.FC = () => {
   const location = useLocation();
   const { isLoggedIn, username } = useAuth();
-  const showAuthButtons = !EXCLUDED_PATHS.includes(location.pathname as typeof EXCLUDED_PATHS[number]);
+  const showAuthButtons = !EXCLUDED_PATHS.includes(
+    location.pathname as (typeof EXCLUDED_PATHS)[number],
+  );
 
   const renderAuthenticatedButtons = () => (
     <Link to={ROUTES.PROFILE}>
-      <Button label={username || 'Profile'} />
+      <Button label={username || "Profile"} />
     </Link>
   );
 
@@ -38,7 +40,9 @@ const AuthButtons: React.FC = () => {
 
   return (
     <div className="text-center mt-5">
-      {isLoggedIn ? renderAuthenticatedButtons() : renderUnauthenticatedButtons()}
+      {isLoggedIn
+        ? renderAuthenticatedButtons()
+        : renderUnauthenticatedButtons()}
     </div>
   );
 };

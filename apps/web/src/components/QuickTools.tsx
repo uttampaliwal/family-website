@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 
 /* Commented out unused interface
 interface QuickAction {
@@ -87,100 +87,194 @@ const QuickTools: React.FC = () => {
 
   const recentActivity: ActivityItem[] = [
     {
-      id: '1',
-      title: 'Added new event',
-      time: '1 hour ago',
+      id: "1",
+      title: "Added new event",
+      time: "1 hour ago",
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 2V5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M16 2V5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M3.5 9.09H20.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M8 2V5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeMiterlimit="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 2V5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeMiterlimit="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M3.5 9.09H20.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeMiterlimit="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeMiterlimit="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-      )
+      ),
     },
     {
-      id: '2',
-      title: 'Shared family photo',
-      time: '2 hours ago',
+      id: "2",
+      title: "Shared family photo",
+      time: "2 hours ago",
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 10C10.1046 10 11 9.10457 11 8C11 6.89543 10.1046 6 9 6C7.89543 6 7 6.89543 7 8C7 9.10457 7.89543 10 9 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M2.67004 18.9501L7.60004 15.6401C8.39004 15.1101 9.53004 15.1701 10.24 15.7801L10.57 16.0701C11.35 16.7401 12.61 16.7401 13.39 16.0701L17.55 12.5001C18.33 11.8301 19.59 11.8301 20.37 12.5001L22 13.9001" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M9 10C10.1046 10 11 9.10457 11 8C11 6.89543 10.1046 6 9 6C7.89543 6 7 6.89543 7 8C7 9.10457 7.89543 10 9 10Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M2.67004 18.9501L7.60004 15.6401C8.39004 15.1101 9.53004 15.1701 10.24 15.7801L10.57 16.0701C11.35 16.7401 12.61 16.7401 13.39 16.0701L17.55 12.5001C18.33 11.8301 19.59 11.8301 20.37 12.5001L22 13.9001"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-      )
+      ),
     },
     {
-      id: '3',
-      title: 'Completed task',
-      time: '3 hours ago',
+      id: "3",
+      title: "Completed task",
+      time: "3 hours ago",
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12.37 8.88H17.62" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M6.38 8.88L7.13 9.63L9.38 7.38" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M12.37 15.88H17.62" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M6.38 15.88L7.13 16.63L9.38 14.38" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12.37 8.88H17.62"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M6.38 8.88L7.13 9.63L9.38 7.38"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M12.37 15.88H17.62"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M6.38 15.88L7.13 16.63L9.38 14.38"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-      )
-    }
+      ),
+    },
   ];
 
   // Constants for better maintainability
   const QUICK_ACTIONS = [
     {
-      id: 'add-event',
-      label: 'Add Event',
-      color: '#2196F3',
+      id: "add-event",
+      label: "Add Event",
+      color: "#2196F3",
       onClick: () => {
         try {
-          console.log('Add event functionality not yet implemented');
+          console.log("Add event functionality not yet implemented");
         } catch (error) {
-          console.error('Error in add event action:', error);
+          console.error("Error in add event action:", error);
         }
       },
-      delay: 0
+      delay: 0,
     },
     {
-      id: 'share-photo',
-      label: 'Share Photo',
-      color: '#00C853',
+      id: "share-photo",
+      label: "Share Photo",
+      color: "#00C853",
       onClick: () => {
         try {
-          console.log('Share photo functionality not yet implemented');
+          console.log("Share photo functionality not yet implemented");
         } catch (error) {
-          console.error('Error in share photo action:', error);
+          console.error("Error in share photo action:", error);
         }
       },
-      delay: 0.1
+      delay: 0.1,
     },
     {
-      id: 'add-task',
-      label: 'Add Task',
-      color: '#FFC107',
+      id: "add-task",
+      label: "Add Task",
+      color: "#FFC107",
       onClick: () => {
         try {
-          console.log('Add task functionality not yet implemented');
+          console.log("Add task functionality not yet implemented");
         } catch (error) {
-          console.error('Error in add task action:', error);
+          console.error("Error in add task action:", error);
         }
       },
-      delay: 0.2
+      delay: 0.2,
     },
     {
-      id: 'emergency',
-      label: 'Emergency',
-      color: '#F44336',
+      id: "emergency",
+      label: "Emergency",
+      color: "#F44336",
       onClick: () => {
         try {
-          console.log('Emergency functionality not yet implemented');
+          console.log("Emergency functionality not yet implemented");
         } catch (error) {
-          console.error('Error in emergency action:', error);
+          console.error("Error in emergency action:", error);
         }
       },
-      delay: 0.3
-    }
+      delay: 0.3,
+    },
   ];
 
   interface QuickAction {
@@ -207,21 +301,22 @@ const QuickTools: React.FC = () => {
 
   return (
     <div className="mb-8">
-      <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6">Quick Actions</h2>
+      <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6">
+        Quick Actions
+      </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {QUICK_ACTIONS.map((action) => (
           <QuickActionButton key={action.id} action={action} />
         ))}
       </div>
 
-      
       {/* Recent Activity */}
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Recent Activity
           </h3>
-          <button 
+          <button
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium"
             onClick={() => {
               // View all action
@@ -230,7 +325,7 @@ const QuickTools: React.FC = () => {
             View All
           </button>
         </div>
-        
+
         <div className="space-y-4">
           {recentActivity.map((item) => (
             <motion.div

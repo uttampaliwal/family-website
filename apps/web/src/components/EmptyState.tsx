@@ -1,5 +1,5 @@
-import React from 'react';
-import { sanitizeText } from '../utils/sanitization';
+import React from "react";
+import { sanitizeText } from "../utils/sanitization";
 
 interface EmptyStateProps {
   message: string;
@@ -8,7 +8,9 @@ interface EmptyStateProps {
 const EmptyState: React.FC<EmptyStateProps> = ({ message }) => {
   return (
     <div className="text-center py-12">
-      <p className="text-gray-500 dark:text-gray-400">{sanitizeText(message)}</p>
+      <p className="text-gray-500 dark:text-gray-400">
+        {sanitizeText(message)}
+      </p>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document as MongoDocument } from 'mongoose';
+import mongoose, { Schema, Document as MongoDocument } from "mongoose";
 
 export interface IDocument extends MongoDocument {
   title: string;
@@ -13,44 +13,49 @@ export interface IDocument extends MongoDocument {
   updatedAt: Date;
 }
 
-const DocumentSchema: Schema = new Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
+const DocumentSchema: Schema = new Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    sharedWith: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    fileUrl: {
+      type: String,
+    },
+    fileName: {
+      type: String,
+    },
+    fileType: {
+      type: String,
+    },
+    fileSize: {
+      type: Number,
+    },
   },
-  content: {
-    type: String,
-    required: true
+  {
+    timestamps: true,
   },
-  owner: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  sharedWith: [{
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  fileUrl: {
-    type: String
-  },
-  fileName: {
-    type: String
-  },
-  fileType: {
-    type: String
-  },
-  fileSize: {
-    type: Number
-  }
-}, {
-  timestamps: true
-});
+);
 
 // Create optimized compound indexes for efficient document retrieval
 DocumentSchema.index({ owner: 1, updatedAt: -1 });
 DocumentSchema.index({ sharedWith: 1, updatedAt: -1 }); // For shared documents
-DocumentSchema.index({ owner: 1, title: 'text' }); // Text index for title searches
+DocumentSchema.index({ owner: 1, title: "text" }); // Text index for title searches
 
-export default mongoose.model<IDocument>('Document', DocumentSchema);
+export default mongoose.model<IDocument>("Document", DocumentSchema);

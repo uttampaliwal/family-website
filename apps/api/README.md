@@ -24,12 +24,12 @@ To run the API locally, you will need to have Node.js and npm installed. You wil
 
 The API provides the following endpoints:
 
-*   `POST /api/auth/register`: Register a new user.
-*   `POST /api/auth/login`: Log in a user.
-*   `POST /api/auth/verify-email`: Verify a user's email address.
-*   `POST /api/auth/forgot-password`: Send a password reset email.
-*   `POST /api/auth/reset-password`: Reset a user's password.
-*   `GET /api/users/:id`: Get a user's profile.
-*   `PUT /api/users/:id`: Update a user's profile.
+- `POST /api/auth/register`: Register a new user.
+- `POST /api/auth/login`: Log in a user.
+- `POST /api/auth/verify-email`: Verify a user's email address.
+- `POST /api/auth/forgot-password`: Send a password reset email.
+- `POST /api/auth/reset-password`: Reset a user's password.
+- `GET /api/users/:id`: Get a user's profile.
+- `PUT /api/users/:id`: Update a user's profile.
 
 For more information about the API, please see the [Project Documentation](../../PROJECT_DOCS.md).

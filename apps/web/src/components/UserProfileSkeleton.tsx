@@ -1,5 +1,5 @@
-import React from 'react';
-import Skeleton from './Skeleton';
+import React from "react";
+import Skeleton from "./Skeleton";
 
 const UserProfileSkeleton: React.FC = () => {
   return (

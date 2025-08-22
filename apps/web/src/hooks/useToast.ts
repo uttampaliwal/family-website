@@ -1,7 +1,7 @@
-import { useContext } from 'react';
-import { ToastContext } from '../context/ToastContext';
+import { useContext } from "react";
+import { ToastContext } from "../context/ToastContext";
 
-const TOAST_CONTEXT_ERROR = 'useToast must be used within a ToastProvider';
+const TOAST_CONTEXT_ERROR = "useToast must be used within a ToastProvider";
 
 export const useToast = () => {
   const context = useContext(ToastContext);
