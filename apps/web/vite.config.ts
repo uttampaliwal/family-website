@@ -14,6 +14,7 @@ export default defineConfig({
   server: {
     host: SERVER_CONFIG.HOST,
     port: SERVER_CONFIG.PORT,
+    strictPort: true, // Force use of specified port, don't auto-increment
     proxy: {
       '/api': {
         target: 'http://localhost:3000',

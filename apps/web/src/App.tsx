@@ -45,13 +45,22 @@ function App() {
   }, [scrolled]);
 
   return (
-    <Router>
-      <ToastProvider>
-        <RouteFocusManager />
-        <div className="bg-background text-text-base" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="min-h-screen bg-background">
+      <Router>
+        <ToastProvider>
+          <RouteFocusManager />
+          <div className="bg-background text-text-base" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <header
             role="banner"
-            className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${scrolled ? 'shadow-xl py-2' : 'py-4'} border-b border-white/20 bg-surface/80 backdrop-blur-lg`}
+            className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${scrolled ? 'shadow-xl py-2' : 'py-4'} navbar-glass`}
+            style={{
+              background: 'rgba(210, 180, 140, 0.7)',
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+              borderBottom: '1px solid rgba(139, 69, 19, 0.3)',
+              boxShadow: '0 8px 32px rgba(139, 69, 19, 0.2)',
+              color: 'white'
+            }}
           >
             <div className="container mx-auto px-4 flex items-center justify-between">
               <div className="flex items-center">
@@ -73,7 +82,7 @@ function App() {
                 <div className="hidden md:flex items-center space-x-3">
                   <Link 
                     to="/" 
-                    className="px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors duration-200"
+                    className="px-4 py-2 rounded-lg hover:bg-white/20 transition-colors duration-200"
                   >
                     Home
                   </Link>
@@ -81,7 +90,7 @@ function App() {
                   {isLoggedIn && (
                     <Link 
                       to="/documents" 
-                      className="px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors duration-200"
+                      className="px-4 py-2 rounded-lg hover:bg-white/20 transition-colors duration-200"
                     >
                       Documents
                     </Link>
@@ -90,7 +99,7 @@ function App() {
                   {isLoggedIn && user ? (
                     <Link 
                       to={`/profile/${encodeURIComponent(user.username)}`}
-                      className="px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors duration-200"
+                      className="px-4 py-2 rounded-lg hover:bg-white/20 transition-colors duration-200"
                     >
                       {user.username}
                     </Link>
@@ -98,13 +107,13 @@ function App() {
                     <>
                       <Link 
                         to="/login" 
-                        className="px-4 py-2 rounded-lg bg-primary text-white font-medium shadow-md hover:bg-primary/80 transition-all duration-200 transform hover:scale-105"
+                        className="px-4 py-2 rounded-lg bg-teal-500 font-medium shadow-md hover:bg-teal-600 transition-all duration-200 transform hover:scale-105"
                       >
                         Login
                       </Link>
                       <Link 
                         to="/register" 
-                        className="px-4 py-2 rounded-lg bg-secondary text-text-base font-medium shadow-md hover:bg-secondary/80 transition-all duration-200 transform hover:scale-105"
+                        className="px-4 py-2 rounded-lg bg-amber-500 text-gray-800 font-medium shadow-md hover:bg-amber-600 transition-all duration-200 transform hover:scale-105"
                       >
                         Register
                       </Link>
@@ -225,9 +234,10 @@ function App() {
               </div>
             </div>
           </footer>
-        </div>
-      </ToastProvider>
-    </Router>
+          </div>
+        </ToastProvider>
+      </Router>
+    </div>
   );
 }
 

@@ -26,7 +26,15 @@ const recentActivity: ActivityItem[] = [
 
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark">
+    <div className="min-h-screen bg-background">
+      {/* Hero section with content behind navbar to show translucent effect */}
+      <div className="relative h-40 bg-gradient-to-r from-primary/30 to-secondary/30 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-5xl font-bold text-primary mb-2">Welcome to Your Family Portal</h1>
+          <p className="text-xl text-primary/70">This content shows through the translucent navbar above!</p>
+        </div>
+      </div>
+      
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -40,32 +48,43 @@ const HomePage: React.FC = () => {
           <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <motion.div 
-              whileHover={{ scale: 1.03 }}
-              className="bg-blue-500 text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer shadow-lg"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer card-float"
+              style={{
+                background: 'linear-gradient(135deg, rgb(139, 69, 19), rgba(139, 69, 19, 0.8))',
+                boxShadow: '0 8px 25px rgba(139, 69, 19, 0.3)'
+              }}
             >
               <span className="text-4xl mb-2">📅</span>
               <span className="font-medium">Add Event</span>
             </motion.div>
             
             <motion.div 
-              whileHover={{ scale: 1.03 }}
-              className="bg-green-500 text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer shadow-lg"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-secondary text-charcoal rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer card-float"
+              style={{ background: 'linear-gradient(135deg, rgb(var(--color-secondary)), rgba(var(--color-secondary), 0.8))' }}
             >
               <span className="text-4xl mb-2">📸</span>
               <span className="font-medium">Share Photo</span>
             </motion.div>
             
             <motion.div 
-              whileHover={{ scale: 1.03 }}
-              className="bg-yellow-500 text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer shadow-lg"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-accent text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer card-float"
+              style={{ background: 'linear-gradient(135deg, rgb(var(--color-accent)), rgba(var(--color-accent), 0.8))' }}
             >
               <span className="text-4xl mb-2">✅</span>
               <span className="font-medium">Add Task</span>
             </motion.div>
             
             <motion.div 
-              whileHover={{ scale: 1.03 }}
-              className="bg-red-500 text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer shadow-lg"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-error text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer card-float"
+              style={{ background: 'linear-gradient(135deg, rgb(var(--color-error)), rgba(var(--color-error), 0.8))' }}
             >
               <span className="text-4xl mb-2">🚨</span>
               <span className="font-medium">Emergency</span>
@@ -80,13 +99,14 @@ const HomePage: React.FC = () => {
             <button className="text-blue-600 dark:text-blue-400 font-medium hover:underline">View All</button>
           </div>
           
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-surface/50 backdrop-blur-sm rounded-xl shadow-lg p-6 card-float">
             {recentActivity.map((activity) => (
               <motion.div 
                 key={activity.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex items-center p-3 border-b last:border-b-0 border-gray-100 dark:border-gray-700"
+                whileHover={{ x: 5 }}
+                className="flex items-center p-3 border-b last:border-b-0 border-primary/10 rounded-lg hover:bg-background/30 transition-all duration-200"
               >
                 <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mr-4">
                   <span className="text-xl">{activity.icon}</span>
