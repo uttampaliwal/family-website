@@ -1,36 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 
-const MoonIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-  </svg>
-);
+import { useState, useEffect } from 'react';
+import { Sun, Moon } from 'lucide-react';
 
-const SunIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400">
-    <circle cx="12" cy="12" r="5"></circle>
-    <line x1="12" y1="1" x2="12" y2="3"></line>
-    <line x1="12" y1="21" x2="12" y2="23"></line>
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-    <line x1="1" y1="12" x2="3" y2="12"></line>
-    <line x1="21" y1="12" x2="23" y2="12"></line>
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-  </svg>
-);
-
-const getInitialTheme = () => {
-  try {
-    return localStorage.getItem('theme') || 'light';
-  } catch {
+const ThemeToggleButton = () => {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        return savedTheme;
+      }
+      // Also check for the system preference
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+    }
     return 'light';
-  }
-};
-
-const ThemeToggleButton: React.FC = () => {
-  const [theme, setTheme] = useState(getInitialTheme);
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -39,11 +24,7 @@ const ThemeToggleButton: React.FC = () => {
     } else {
       root.classList.remove('dark');
     }
-    try {
-      localStorage.setItem('theme', theme);
-    } catch (error) {
-      console.warn('Failed to save theme to localStorage:', error);
-    }
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -51,15 +32,13 @@ const ThemeToggleButton: React.FC = () => {
   };
 
   return (
-    <motion.button
+    <button
       onClick={toggleTheme}
-      className="w-10 h-10 rounded-full bg-surface shadow-md flex items-center justify-center focus:outline-none"
-      aria-label="Toggle theme"
-      whileTap={{ scale: 0.9 }}
-      whileHover={{ scale: 1.1 }}
+      className="p-2 rounded-full bg-surface/50 hover:bg-surface/80 focus:outline-none focus:ring-2 focus:ring-primary"
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
-      {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-    </motion.button>
+      {theme === 'light' ? <Moon className="h-6 w-6 text-primary" /> : <Sun className="h-6 w-6 text-primary" />}
+    </button>
   );
 };
 

@@ -1,0 +1,27 @@
+@layer base {
+  :root {
+    --color-background: 245 245 220; /* Beige */
+    --color-surface: 210 180 140; /* Tan */
+    --color-primary: 139 69 19; /* SaddleBrown */
+    --color-secondary: 255 215 0; /* Gold */
+    --color-accent: 255 99 71; /* Tomato */
+    --color-text-base: 54 69 79; /* Charcoal */
+    --color-text-muted: 112 128 144; /* SlateGray */
+    --color-success: 60 179 113; /* MediumSeaGreen */
+    --color-warning: 255 165 0; /* Orange */
+    --color-error: 220 20 60; /* Crimson */
+  }
+
+  .dark {
+    --color-background: 54 69 79; /* Charcoal */
+    --color-surface: 47 79 79; /* DarkSlateGray */
+    --color-primary: 210 180 140; /* Tan */
+    --color-secondary: 255 215 0; /* Gold */
+    --color-accent: 255 99 71; /* Tomato */
+    --color-text-base: 245 245 220; /* Beige */
+    --color-text-muted: 176 196 222; /* LightSteelBlue */
+    --color-success: 144 238 144; /* LightGreen */
+    --color-warning: 255 215 0; /* Gold */
+    --color-error: 240 128 128; /* LightCoral */
+  }
+}

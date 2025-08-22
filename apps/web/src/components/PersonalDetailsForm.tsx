@@ -106,6 +106,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
           }} 
           disabled={loading} 
           type="button" 
+          variant="primary"
         />
       </div>
     </div>

@@ -153,9 +153,6 @@ export const login = async (req: Request<Record<string, never>, Record<string, n
       return res.status(400).json({ message: 'Please verify your email before logging in.' });
     }
 
-    // For debugging: inspect the data before comparison
-    console.log(`[DEBUG] Comparing password from request (length: ${password.length}) with stored hash (length: ${user.password.length})`);
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       user.loginAttempts = (user.loginAttempts || 0) + 1;

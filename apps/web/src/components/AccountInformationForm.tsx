@@ -156,8 +156,8 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         </button>
       </div>
       <div className="text-right mt-6">
-        <Button label="Previous" onClick={handlers.handlePrevious} disabled={loading} className="mr-4" />
-        <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} />
+        <Button label="Previous" onClick={handlers.handlePrevious} disabled={loading} className="mr-4" variant="secondary" />
+        <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} variant="primary" />
       </div>
     </div>
   );

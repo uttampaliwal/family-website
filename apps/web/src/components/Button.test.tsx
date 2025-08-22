@@ -8,17 +8,16 @@ describe('Button', () => {
     expect(screen.getByText('Click Me')).toBeInTheDocument();
   });
 
-  it('applies primary styles when isPrimary is true', () => {
-    render(<Button label="Primary Button" isPrimary />);
+  it('applies primary styles when variant is primary', () => {
+    render(<Button label="Primary Button" variant="primary" />);
     const button = screen.getByText('Primary Button');
-    expect(button).toHaveClass('gradient-bg');
+    expect(button).toHaveClass('bg-gradient-primary');
     expect(button).toHaveClass('text-white');
   });
 
-  it('applies default styles when isPrimary is false or not provided', () => {
+  it('applies default styles when variant is default or not provided', () => {
     render(<Button label="Default Button" />);
     const button = screen.getByText('Default Button');
-    expect(button).toHaveClass('bg-gray-100');
-    expect(button).toHaveClass('text-gray-800');
+    expect(button).toHaveClass('bg-surface');
   });
 });

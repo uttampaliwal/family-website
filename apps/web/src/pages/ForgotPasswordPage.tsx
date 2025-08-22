@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { isAxiosError } from 'axios';
 import { useToast } from '../hooks/useToast';
-import api from '../api/axios'; // Import the configured axios instance
-
+import api from '../api/axios';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -49,15 +49,25 @@ const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-900">
-        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white">Forgot Password</h2>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Email address
-            </label>
-            <div className="mt-1">
+    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <div className="text-center mb-8">
+          <h1 className="font-cursive text-4xl md:text-5xl font-bold mb-2 gradient-text">Forgot Password</h1>
+          <p className="text-gray-600 dark:text-gray-400">Enter your email to reset your password</p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="h-2 gradient-bg"></div>
+          <form onSubmit={handleSubmit} className="p-8">
+            <div className="mb-6">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email address
+              </label>
               <input
                 id="email"
                 name="email"
@@ -66,26 +76,30 @@ const ForgotPasswordPage: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                placeholder="Enter your email"
               />
             </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Send Password Reset Link
-            </button>
-          </div>
-        </form>
-        <div className="text-sm text-center">
-          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Back to Login
-          </Link>
+            <div>
+              <button
+                type="submit"
+                className="w-full gradient-bg text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-md hover:opacity-90 transition-all duration-200"
+              >
+                Send Password Reset Link
+              </button>
+            </div>
+          </form>
         </div>
-      </div>
+        <div className="text-center mt-6">
+          <p className="text-gray-600 dark:text-gray-400">
+            Remember your password?{' '}
+            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
+              Back to Login
+            </Link>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 };

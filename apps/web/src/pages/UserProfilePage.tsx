@@ -212,8 +212,8 @@ const UserProfilePage: React.FC = () => {
             </div>
           </div>
           <div className="flex justify-center space-x-4 mt-6">
-            <Button label="Save Changes" onClick={handleSave} isPrimary={true} />
-            <Button label="Cancel" onClick={handleCancel} />
+            <Button label="Save Changes" onClick={handleSave} variant="primary" />
+            <Button label="Cancel" onClick={handleCancel} variant="secondary" />
           </div>
           <div className="text-center mt-4">
             <Button label="Change Password" onClick={() => navigate('/forgot-password')} />
@@ -230,9 +230,9 @@ const UserProfilePage: React.FC = () => {
           </div>
           <div className="flex justify-center space-x-4 mt-8">
             {authUsername === profileState.userProfile.username && (
-              <Button label="Edit Profile" onClick={handleEdit} isPrimary={true} />
+              <Button label="Edit Profile" onClick={handleEdit} variant="primary" />
             )}
-            <Button label="Logout" onClick={handleLogout} />
+            <Button label="Logout" onClick={handleLogout} variant="secondary" />
           </div>
         </div>
       )}
