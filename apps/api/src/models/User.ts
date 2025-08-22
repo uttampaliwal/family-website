@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -7,17 +7,20 @@ const UserSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: [true, "Email is required"],
     unique: true,
-    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please provide a valid email address'],
+    match: [
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      "Please provide a valid email address",
+    ],
     trim: true,
-    lowercase: true
+    lowercase: true,
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
-    minlength: [8, 'Password must be at least 8 characters long'],
-    maxlength: [128, 'Password cannot exceed 128 characters']
+    required: [true, "Password is required"],
+    minlength: [8, "Password must be at least 8 characters long"],
+    maxlength: [128, "Password cannot exceed 128 characters"],
   },
   dateOfBirth: {
     type: Date,
@@ -26,31 +29,34 @@ const UserSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     validate: {
-      validator: function(phoneNumber: string) {
-        if (!phoneNumber || phoneNumber.trim() === '') {
+      validator: function (phoneNumber: string) {
+        if (!phoneNumber || phoneNumber.trim() === "") {
           return true; // Allow empty/null values
         }
         return /^[+]?[1-9]\d{1,14}$/.test(phoneNumber.trim());
       },
-      message: 'Please provide a valid phone number'
-    }
+      message: "Please provide a valid phone number",
+    },
   },
   username: {
     type: String,
-    required: [true, 'Username is required'],
+    required: [true, "Username is required"],
     unique: true,
     trim: true,
-    minlength: [3, 'Username must be at least 3 characters long'],
-    maxlength: [30, 'Username cannot exceed 30 characters'],
-    match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores']
+    minlength: [3, "Username must be at least 3 characters long"],
+    maxlength: [30, "Username cannot exceed 30 characters"],
+    match: [
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores",
+    ],
   },
   gender: {
     type: String,
     required: true,
     enum: {
-      values: ['male', 'female', 'other'],
-      message: 'Gender must be male, female, or other'
-    }
+      values: ["male", "female", "other"],
+      message: "Gender must be male, female, or other",
+    },
   },
   verificationToken: {
     type: String,
@@ -66,11 +72,11 @@ const UserSchema = new mongoose.Schema({
   refreshTokens: {
     type: [String],
     validate: {
-      validator: function(tokens: string[]) {
+      validator: function (tokens: string[]) {
         return tokens.length <= 5; // Limit to 5 tokens max
       },
-      message: 'Too many refresh tokens stored'
-    }
+      message: "Too many refresh tokens stored",
+    },
   }, // Array to store multiple refresh tokens
   loginAttempts: { type: Number, required: true, default: 0 },
   lockUntil: { type: Number },
@@ -81,4 +87,4 @@ const UserSchema = new mongoose.Schema({
 UserSchema.index({ resetPasswordToken: 1 });
 UserSchema.index({ lockUntil: 1 }, { sparse: true });
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model("User", UserSchema);

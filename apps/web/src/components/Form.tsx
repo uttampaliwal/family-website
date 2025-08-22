@@ -1,9 +1,13 @@
-import React from 'react';
-import { useForm, FieldValues, Path, UseFormReturn } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { motion } from 'framer-motion';
-import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import React from "react";
+import { useForm, FieldValues, Path, UseFormReturn } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { motion } from "framer-motion";
+import {
+  ExclamationCircleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
 
 // Generic form props
 interface FormProps<T extends FieldValues> {
@@ -21,20 +25,20 @@ export function Form<T extends FieldValues>({
   onSubmit,
   defaultValues,
   children,
-  className = '',
+  className = "",
   isLoading = false,
 }: FormProps<T>) {
   const methods = useForm<T>({
     resolver: zodResolver(schema),
     defaultValues,
-    mode: 'onChange', // Validate on change for better UX
+    mode: "onChange", // Validate on change for better UX
   });
 
   const handleSubmit = async (data: T) => {
     try {
       await onSubmit(data);
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error("Form submission error:", error);
     }
   };
 
@@ -58,7 +62,7 @@ export function Form<T extends FieldValues>({
 interface InputFieldProps<T extends FieldValues> {
   name: Path<T>;
   label: string;
-  type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'date' | 'number';
+  type?: "text" | "email" | "password" | "tel" | "url" | "date" | "number";
   placeholder?: string;
   description?: string;
   required?: boolean;
@@ -71,14 +75,14 @@ interface InputFieldProps<T extends FieldValues> {
 export function InputField<T extends FieldValues>({
   name,
   label,
-  type = 'text',
+  type = "text",
   placeholder,
   description,
   required = false,
   disabled = false,
   autoComplete,
   methods,
-  className = '',
+  className = "",
 }: InputFieldProps<T>) {
   const [showPassword, setShowPassword] = React.useState(false);
   const {
@@ -87,16 +91,19 @@ export function InputField<T extends FieldValues>({
   } = methods;
 
   const error = errors[name];
-  const isPassword = type === 'password';
-  const inputType = isPassword && showPassword ? 'text' : type;
+  const isPassword = type === "password";
+  const inputType = isPassword && showPassword ? "text" : type;
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <label htmlFor={name} className="block text-sm font-medium text-text-base">
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-text-base"
+      >
         {label}
         {required && <span className="text-error ml-1">*</span>}
       </label>
-      
+
       <div className="relative">
         <input
           {...register(name)}
@@ -109,14 +116,15 @@ export function InputField<T extends FieldValues>({
             block w-full px-3 py-2 border rounded-md shadow-sm
             placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
             disabled:bg-surface disabled:text-text-muted disabled:cursor-not-allowed
-            ${error 
-              ? 'border-error focus:ring-error focus:border-error' 
-              : 'border-border hover:border-border-hover'
+            ${
+              error
+                ? "border-error focus:ring-error focus:border-error"
+                : "border-border hover:border-border-hover"
             }
-            ${isPassword ? 'pr-10' : ''}
+            ${isPassword ? "pr-10" : ""}
           `}
         />
-        
+
         {isPassword && (
           <button
             type="button"
@@ -172,7 +180,7 @@ export function TextareaField<T extends FieldValues>({
   disabled = false,
   rows = 4,
   methods,
-  className = '',
+  className = "",
 }: TextareaFieldProps<T>) {
   const {
     register,
@@ -183,11 +191,14 @@ export function TextareaField<T extends FieldValues>({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <label htmlFor={name} className="block text-sm font-medium text-text-base">
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-text-base"
+      >
         {label}
         {required && <span className="text-error ml-1">*</span>}
       </label>
-      
+
       <textarea
         {...register(name)}
         id={name}
@@ -198,9 +209,10 @@ export function TextareaField<T extends FieldValues>({
           block w-full px-3 py-2 border rounded-md shadow-sm resize-vertical
           placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
           disabled:bg-surface disabled:text-text-muted disabled:cursor-not-allowed
-          ${error 
-            ? 'border-error focus:ring-error focus:border-error' 
-            : 'border-border hover:border-border-hover'
+          ${
+            error
+              ? "border-error focus:ring-error focus:border-error"
+              : "border-border hover:border-border-hover"
           }
         `}
       />
@@ -240,12 +252,12 @@ export function SelectField<T extends FieldValues>({
   name,
   label,
   options,
-  placeholder = 'Select an option',
+  placeholder = "Select an option",
   description,
   required = false,
   disabled = false,
   methods,
-  className = '',
+  className = "",
 }: SelectFieldProps<T>) {
   const {
     register,
@@ -256,11 +268,14 @@ export function SelectField<T extends FieldValues>({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <label htmlFor={name} className="block text-sm font-medium text-text-base">
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-text-base"
+      >
         {label}
         {required && <span className="text-error ml-1">*</span>}
       </label>
-      
+
       <select
         {...register(name)}
         id={name}
@@ -269,9 +284,10 @@ export function SelectField<T extends FieldValues>({
           block w-full px-3 py-2 border rounded-md shadow-sm
           focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
           disabled:bg-surface disabled:text-text-muted disabled:cursor-not-allowed
-          ${error 
-            ? 'border-error focus:ring-error focus:border-error' 
-            : 'border-border hover:border-border-hover'
+          ${
+            error
+              ? "border-error focus:ring-error focus:border-error"
+              : "border-border hover:border-border-hover"
           }
         `}
       >
@@ -319,7 +335,7 @@ export function CheckboxField<T extends FieldValues>({
   required = false,
   disabled = false,
   methods,
-  className = '',
+  className = "",
 }: CheckboxFieldProps<T>) {
   const {
     register,
@@ -340,7 +356,7 @@ export function CheckboxField<T extends FieldValues>({
             className={`
               h-4 w-4 rounded border-border text-primary focus:ring-primary focus:ring-2
               disabled:cursor-not-allowed disabled:opacity-50
-              ${error ? 'border-error' : ''}
+              ${error ? "border-error" : ""}
             `}
           />
         </div>
@@ -349,9 +365,7 @@ export function CheckboxField<T extends FieldValues>({
             {label}
             {required && <span className="text-error ml-1">*</span>}
           </label>
-          {description && (
-            <p className="text-text-muted">{description}</p>
-          )}
+          {description && <p className="text-text-muted">{description}</p>}
         </div>
       </div>
 
@@ -381,7 +395,7 @@ export function SubmitButton({
   children,
   isLoading = false,
   disabled = false,
-  className = '',
+  className = "",
 }: SubmitButtonProps) {
   return (
     <button

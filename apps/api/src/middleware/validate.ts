@@ -1,26 +1,30 @@
-import Joi from 'joi';
-import { Request as ExpressRequest, Response as ExpressResponse, NextFunction as ExpressNextFunction } from 'express';
+import Joi from "joi";
+import {
+  Request as ExpressRequest,
+  Response as ExpressResponse,
+  NextFunction as ExpressNextFunction,
+} from "express";
 
-import { htmlEncode } from '../utils/sanitization.js';
+import { htmlEncode } from "../utils/sanitization.js";
 
 // Constants for validation patterns and messages
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
-const PASSWORD_ERROR_MESSAGE = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.';
+const PASSWORD_ERROR_MESSAGE =
+  "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
 
 // Joi Schemas for validation
 export const registerSchema = Joi.object({
   name: Joi.string().min(3).max(30).required(),
   email: Joi.string().email().required(),
-  password: Joi.string()
-    .pattern(PASSWORD_REGEX)
-    .required()
-    .messages({
-      'string.pattern.base': PASSWORD_ERROR_MESSAGE,
-    }),
+  password: Joi.string().pattern(PASSWORD_REGEX).required().messages({
+    "string.pattern.base": PASSWORD_ERROR_MESSAGE,
+  }),
   dob: Joi.string().isoDate().required(),
-  mobileNumber: Joi.string().pattern(/^[0-9]{10}$/).allow('', null),
+  mobileNumber: Joi.string()
+    .pattern(/^[0-9]{10}$/)
+    .allow("", null),
   username: Joi.string().alphanum().min(3).max(30).required(),
-  gender: Joi.string().valid('Male', 'Female', 'Prefer not to say').required(),
+  gender: Joi.string().valid("Male", "Female", "Prefer not to say").required(),
 });
 
 export const loginSchema = Joi.object({
@@ -42,30 +46,31 @@ export const forgotPasswordSchema = Joi.object({
 
 export const resetPasswordSchema = Joi.object({
   token: Joi.string().optional(), // Make token optional in the body since it might be in the URL params
-  password: Joi.string()
-    .pattern(PASSWORD_REGEX)
-    .required()
-    .messages({
-      'string.pattern.base': PASSWORD_ERROR_MESSAGE,
-    }),
+  password: Joi.string().pattern(PASSWORD_REGEX).required().messages({
+    "string.pattern.base": PASSWORD_ERROR_MESSAGE,
+  }),
 });
 
 // Validation middleware factory
 export const validate = (schema: Joi.ObjectSchema) => {
-  return (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction): void => {
+  return (
+    req: ExpressRequest,
+    res: ExpressResponse,
+    next: ExpressNextFunction,
+  ): void => {
     const { error } = schema.validate(req.body, { abortEarly: false });
 
     if (error) {
       const categorizedErrors = error.details.map((err) => ({
-        field: htmlEncode(String(err.path?.join('.') || '')),
-        message: htmlEncode(String(err.message || '')),
-        type: htmlEncode(String(err.type || '')),
+        field: htmlEncode(String(err.path?.join(".") || "")),
+        message: htmlEncode(String(err.message || "")),
+        type: htmlEncode(String(err.type || "")),
       }));
-      
-      res.status(400).json({ 
-        message: 'Validation failed', 
+
+      res.status(400).json({
+        message: "Validation failed",
         errors: categorizedErrors,
-        errorCount: categorizedErrors.length
+        errorCount: categorizedErrors.length,
       });
       return;
     }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
 
 interface WeatherData {
   temperature: number;
@@ -19,7 +19,9 @@ const WeatherWidget: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
+    null,
+  );
 
   const handleLocationSuccess = useCallback((position: GeolocationPosition) => {
     setLocation({
@@ -29,15 +31,18 @@ const WeatherWidget: React.FC = () => {
   }, []);
 
   const handleLocationError = useCallback(() => {
-    setError('Unable to get location. Please enable location services.');
+    setError("Unable to get location. Please enable location services.");
     setLoading(false);
   }, []);
 
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(handleLocationSuccess, handleLocationError);
+      navigator.geolocation.getCurrentPosition(
+        handleLocationSuccess,
+        handleLocationError,
+      );
     } else {
-      setError('Geolocation is not supported by your browser');
+      setError("Geolocation is not supported by your browser");
       setLoading(false);
     }
   }, [handleLocationSuccess, handleLocationError]);
@@ -45,7 +50,7 @@ const WeatherWidget: React.FC = () => {
   const fetchWeather = useCallback(async (lat: number, lon: number) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/weather?lat=${lat}&lon=${lon}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/weather?lat=${lat}&lon=${lon}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -54,17 +59,20 @@ const WeatherWidget: React.FC = () => {
       setWeather(data);
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message.includes('404')) {
-          setError('Weather service not available for your location');
-        } else if (error.message.includes('401') || error.message.includes('403')) {
-          setError('Weather service access denied');
-        } else if (error.message.includes('500')) {
-          setError('Weather service temporarily unavailable');
+        if (error.message.includes("404")) {
+          setError("Weather service not available for your location");
+        } else if (
+          error.message.includes("401") ||
+          error.message.includes("403")
+        ) {
+          setError("Weather service access denied");
+        } else if (error.message.includes("500")) {
+          setError("Weather service temporarily unavailable");
         } else {
           setError(`Weather error: ${error.message}`);
         }
       } else {
-        setError('Failed to load weather data');
+        setError("Failed to load weather data");
       }
     } finally {
       setLoading(false);
@@ -79,11 +87,11 @@ const WeatherWidget: React.FC = () => {
 
   const forecastWithFormattedDates = useMemo(() => {
     if (!weather) return [];
-    return weather.forecast.map(day => ({
+    return weather.forecast.map((day) => ({
       ...day,
       formattedDate: new Date(day.date).toLocaleDateString(undefined, {
-        weekday: 'short',
-      })
+        weekday: "short",
+      }),
     }));
   }, [weather]);
 

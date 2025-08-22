@@ -1,21 +1,40 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import CustomSelect from './CustomSelect';
+import React, { useState, useEffect, useMemo } from "react";
+import CustomSelect from "./CustomSelect";
 
 // Constants for better performance
-const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] as const;
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
 const YEARS_TO_SHOW = 100;
 
 // Pre-calculate options to avoid recalculation on every render
 const currentYear = new Date().getFullYear();
-const yearOptions = [{ value: '', label: 'Year' }, ...Array.from({ length: YEARS_TO_SHOW }, (_, i) => {
-  const year = currentYear - i;
-  return { value: year.toString(), label: year.toString() };
-})];
+const yearOptions = [
+  { value: "", label: "Year" },
+  ...Array.from({ length: YEARS_TO_SHOW }, (_, i) => {
+    const year = currentYear - i;
+    return { value: year.toString(), label: year.toString() };
+  }),
+];
 
-const dayOptions = [{ value: '', label: 'Day' }, ...Array.from({ length: 31 }, (_, i) => ({ 
-  value: (i + 1).toString(), 
-  label: (i + 1).toString() 
-}))];
+const dayOptions = [
+  { value: "", label: "Day" },
+  ...Array.from({ length: 31 }, (_, i) => ({
+    value: (i + 1).toString(),
+    label: (i + 1).toString(),
+  })),
+];
 
 interface DateOfBirthPickerProps {
   value: string;
@@ -23,39 +42,50 @@ interface DateOfBirthPickerProps {
   disabled?: boolean;
 }
 
-const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, disabled }) => {
+const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({
+  value,
+  onChange,
+  disabled,
+}) => {
   // Internal state for the dropdowns
-  const [day, setDay] = useState('');
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
+  const [day, setDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
 
   // Effect to sync component's internal state FROM the parent's `value` prop.
   // This runs only when the `value` prop from the parent changes.
   useEffect(() => {
     try {
       if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        const [year, month, day] = value.split('-');
+        const [year, month, day] = value.split("-");
         const parsedMonth = parseInt(month, 10);
         const parsedDay = parseInt(day, 10);
-        
-        if (isNaN(parsedMonth) || isNaN(parsedDay) || parsedMonth < 1 || parsedMonth > 12 || parsedDay < 1 || parsedDay > 31) {
-          throw new Error('Invalid date values');
+
+        if (
+          isNaN(parsedMonth) ||
+          isNaN(parsedDay) ||
+          parsedMonth < 1 ||
+          parsedMonth > 12 ||
+          parsedDay < 1 ||
+          parsedDay > 31
+        ) {
+          throw new Error("Invalid date values");
         }
-        
+
         setYear(year);
         setMonth(parsedMonth.toString());
         setDay(parsedDay.toString());
       } else {
         // If the parent's value is cleared or invalid, reset the internal state.
-        setYear('');
-        setMonth('');
-        setDay('');
+        setYear("");
+        setMonth("");
+        setDay("");
       }
     } catch {
       // Reset to empty state on parse error
-      setYear('');
-      setMonth('');
-      setDay('');
+      setYear("");
+      setMonth("");
+      setDay("");
     }
   }, [value]);
 
@@ -69,14 +99,14 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
         const dayNum = parseInt(day, 10);
         const monthNum = parseInt(month, 10);
         const yearNum = parseInt(year, 10);
-        
+
         if (isNaN(dayNum) || isNaN(monthNum) || isNaN(yearNum)) {
-          throw new Error('Invalid date components');
+          throw new Error("Invalid date components");
         }
-        
+
         // Format the date into YYYY-MM-DD string.
-        const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-        
+        const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+
         // *** THE CRITICAL FIX TO PREVENT INFINITE LOOPS ***
         // Only call the parent's onChange function if the newly constructed date
         // is different from the `value` prop we received. This breaks the update cycle.
@@ -93,22 +123,44 @@ const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({ value, onChange, 
   // dayOptions is now pre-calculated outside the component
 
   const monthOptions = useMemo(() => {
-    const months = Array.from({ length: 12 }, (_, i) => ({ value: (i + 1).toString(), label: MONTH_NAMES[i] }));
-    return [{ value: '', label: 'Month' }, ...months];
+    const months = Array.from({ length: 12 }, (_, i) => ({
+      value: (i + 1).toString(),
+      label: MONTH_NAMES[i],
+    }));
+    return [{ value: "", label: "Month" }, ...months];
   }, []);
-
-
 
   return (
     <div className="flex-1 flex items-center gap-2">
       <div className="flex-1">
-        <CustomSelect options={dayOptions} value={day} onChange={setDay} placeholder="Day" disabled={disabled} className="w-full" />
+        <CustomSelect
+          options={dayOptions}
+          value={day}
+          onChange={setDay}
+          placeholder="Day"
+          disabled={disabled}
+          className="w-full"
+        />
       </div>
       <div className="flex-1">
-        <CustomSelect options={monthOptions} value={month} onChange={setMonth} placeholder="Month" disabled={disabled} className="w-full" />
+        <CustomSelect
+          options={monthOptions}
+          value={month}
+          onChange={setMonth}
+          placeholder="Month"
+          disabled={disabled}
+          className="w-full"
+        />
       </div>
       <div className="flex-1">
-        <CustomSelect options={yearOptions} value={year} onChange={setYear} placeholder="Year" disabled={disabled} className="w-full" />
+        <CustomSelect
+          options={yearOptions}
+          value={year}
+          onChange={setYear}
+          placeholder="Year"
+          disabled={disabled}
+          className="w-full"
+        />
       </div>
     </div>
   );

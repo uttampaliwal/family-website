@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { motion } from "framer-motion";
 
 interface CalendarEvent {
   id: string;
@@ -18,7 +18,7 @@ const FamilyCalendar: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [view, setView] = useState<'month' | 'week' | 'day'>('month');
+  const [view, setView] = useState<"month" | "week" | "day">("month");
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -26,7 +26,7 @@ const FamilyCalendar: React.FC = () => {
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/calendar/events?month=${
             selectedDate.getMonth() + 1
-          }&year=${selectedDate.getFullYear()}`
+          }&year=${selectedDate.getFullYear()}`,
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -34,8 +34,8 @@ const FamilyCalendar: React.FC = () => {
         const data = await response.json();
         setEvents(data);
       } catch (error) {
-        console.error('Error fetching events:', error);
-        setError('Failed to load calendar events');
+        console.error("Error fetching events:", error);
+        setError("Failed to load calendar events");
       } finally {
         setLoading(false);
       }
@@ -81,16 +81,25 @@ const FamilyCalendar: React.FC = () => {
     return calendarDaysArray;
   }, []);
 
-  const getEventsForDate = useCallback((date: Date) => {
-    return events.filter((event) => {
-      const eventStart = new Date(event.startDate);
-      const eventEnd = new Date(event.endDate);
-      return date >= eventStart && date <= eventEnd;
-    });
-  }, [events]);
+  const getEventsForDate = useCallback(
+    (date: Date) => {
+      return events.filter((event) => {
+        const eventStart = new Date(event.startDate);
+        const eventEnd = new Date(event.endDate);
+        return date >= eventStart && date <= eventEnd;
+      });
+    },
+    [events],
+  );
 
-  const calendarDays = useMemo(() => getDaysInMonth(selectedDate), [getDaysInMonth, selectedDate]);
-  const weekdayLabels = useMemo(() => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], []);
+  const calendarDays = useMemo(
+    () => getDaysInMonth(selectedDate),
+    [getDaysInMonth, selectedDate],
+  );
+  const weekdayLabels = useMemo(
+    () => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    [],
+  );
 
   if (loading) {
     return (
@@ -126,9 +135,9 @@ const FamilyCalendar: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {selectedDate.toLocaleString('default', {
-              month: 'long',
-              year: 'numeric',
+            {selectedDate.toLocaleString("default", {
+              month: "long",
+              year: "numeric",
             })}
           </h3>
           <div className="flex space-x-2">
@@ -137,8 +146,8 @@ const FamilyCalendar: React.FC = () => {
                 setSelectedDate(
                   new Date(
                     selectedDate.getFullYear(),
-                    selectedDate.getMonth() - 1
-                  )
+                    selectedDate.getMonth() - 1,
+                  ),
                 )
               }
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -150,8 +159,8 @@ const FamilyCalendar: React.FC = () => {
                 setSelectedDate(
                   new Date(
                     selectedDate.getFullYear(),
-                    selectedDate.getMonth() + 1
-                  )
+                    selectedDate.getMonth() + 1,
+                  ),
                 )
               }
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -161,14 +170,14 @@ const FamilyCalendar: React.FC = () => {
           </div>
         </div>
         <div className="flex space-x-2">
-          {(['month', 'week', 'day'] as const).map((viewType) => (
+          {(["month", "week", "day"] as const).map((viewType) => (
             <button
               key={viewType}
               onClick={() => setView(viewType)}
               className={`px-3 py-1 rounded-lg ${
                 view === viewType
-                  ? 'bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? "bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
               }`}
             >
               {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
@@ -197,15 +206,15 @@ const FamilyCalendar: React.FC = () => {
               key={index}
               className={`min-h-[100px] p-2 ${
                 isCurrentMonth
-                  ? 'bg-white dark:bg-gray-800'
-                  : 'bg-gray-50 dark:bg-gray-900'
+                  ? "bg-white dark:bg-gray-800"
+                  : "bg-gray-50 dark:bg-gray-900"
               }`}
             >
               <div
                 className={`text-sm ${
                   isCurrentMonth
-                    ? 'text-gray-900 dark:text-white'
-                    : 'text-gray-400 dark:text-gray-600'
+                    ? "text-gray-900 dark:text-white"
+                    : "text-gray-400 dark:text-gray-600"
                 }`}
               >
                 {date.getDate()}
@@ -215,7 +224,7 @@ const FamilyCalendar: React.FC = () => {
                   <div
                     key={event.id}
                     className={`text-xs p-1 rounded truncate`}
-                    style={{ backgroundColor: event.color + '20' }}
+                    style={{ backgroundColor: event.color + "20" }}
                   >
                     {event.title}
                   </div>

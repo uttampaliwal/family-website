@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import Button from './Button';
+import React, { useCallback } from "react";
+import Button from "./Button";
 
 interface FormData {
   email: string;
@@ -42,47 +42,73 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
   showConfirmPassword,
   loading,
 }) => {
-  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value || '';
-    // Basic email format validation
-    if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      e.target.setCustomValidity('Please enter a valid email address');
-    } else {
-      e.target.setCustomValidity('');
-    }
-    handlers.setEmail(value);
-  }, [handlers]);
-
-  const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value || '';
-    handlers.setUsername(value);
-  }, [handlers]);
-
-  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value || '';
-    handlers.setPassword(value);
-  }, [handlers]);
-
-  const handleConfirmPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value || '';
-    handlers.setConfirmPassword(value);
-  }, [handlers]);
-
-  const createToggleVisibility = useCallback((isVisible: boolean, setter: (visible: boolean) => void, fieldName: string) => {
-    return () => {
-      try {
-        setter(!isVisible);
-      } catch (error) {
-        console.error(`Failed to toggle ${fieldName} visibility:`, error);
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value || "";
+      // Basic email format validation
+      if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        e.target.setCustomValidity("Please enter a valid email address");
+      } else {
+        e.target.setCustomValidity("");
       }
-    };
-  }, []);
+      handlers.setEmail(value);
+    },
+    [handlers],
+  );
+
+  const handleUsernameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value || "";
+      handlers.setUsername(value);
+    },
+    [handlers],
+  );
+
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value || "";
+      handlers.setPassword(value);
+    },
+    [handlers],
+  );
+
+  const handleConfirmPasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value || "";
+      handlers.setConfirmPassword(value);
+    },
+    [handlers],
+  );
+
+  const createToggleVisibility = useCallback(
+    (
+      isVisible: boolean,
+      setter: (visible: boolean) => void,
+      fieldName: string,
+    ) => {
+      return () => {
+        try {
+          setter(!isVisible);
+        } catch (error) {
+          console.error(`Failed to toggle ${fieldName} visibility:`, error);
+        }
+      };
+    },
+    [],
+  );
 
   return (
     <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
-      <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Account Information</h2>
+      <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">
+        Account Information
+      </h2>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-        <label htmlFor="email" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Email:</label>
+        <label
+          htmlFor="email"
+          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+        >
+          Email:
+        </label>
         <input
           type="email"
           id="email"
@@ -96,7 +122,12 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-        <label htmlFor="username" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Username:</label>
+        <label
+          htmlFor="username"
+          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+        >
+          Username:
+        </label>
         <input
           type="text"
           id="username"
@@ -110,9 +141,14 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
-        <label htmlFor="password" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Password:</label>
+        <label
+          htmlFor="password"
+          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+        >
+          Password:
+        </label>
         <input
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           id="password"
           value={formData.password}
           onChange={handlePasswordChange}
@@ -125,17 +161,26 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         />
         <button
           type="button"
-          onClick={createToggleVisibility(showPassword, handlers.setShowPassword, 'password')}
+          onClick={createToggleVisibility(
+            showPassword,
+            handlers.setShowPassword,
+            "password",
+          )}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
-          aria-label={showPassword ? 'Hide password' : 'Show password'}
+          aria-label={showPassword ? "Hide password" : "Show password"}
         >
-          {showPassword ? 'Hide' : 'Show'}
+          {showPassword ? "Hide" : "Show"}
         </button>
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
-        <label htmlFor="confirmPassword" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Confirm Password:</label>
+        <label
+          htmlFor="confirmPassword"
+          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+        >
+          Confirm Password:
+        </label>
         <input
-          type={showConfirmPassword ? 'text' : 'password'}
+          type={showConfirmPassword ? "text" : "password"}
           id="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleConfirmPasswordChange}
@@ -148,16 +193,35 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
         />
         <button
           type="button"
-          onClick={createToggleVisibility(showConfirmPassword, handlers.setShowConfirmPassword, 'confirm password')}
+          onClick={createToggleVisibility(
+            showConfirmPassword,
+            handlers.setShowConfirmPassword,
+            "confirm password",
+          )}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
-          aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+          aria-label={
+            showConfirmPassword
+              ? "Hide confirm password"
+              : "Show confirm password"
+          }
         >
-          {showConfirmPassword ? 'Hide' : 'Show'}
+          {showConfirmPassword ? "Hide" : "Show"}
         </button>
       </div>
       <div className="text-right mt-6">
-        <Button label="Previous" onClick={handlers.handlePrevious} disabled={loading} className="mr-4" variant="secondary" />
-        <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} variant="primary" />
+        <Button
+          label="Previous"
+          onClick={handlers.handlePrevious}
+          disabled={loading}
+          className="mr-4"
+          variant="secondary"
+        />
+        <Button
+          label={loading ? "Registering..." : "Register"}
+          type="submit"
+          disabled={loading}
+          variant="primary"
+        />
       </div>
     </div>
   );

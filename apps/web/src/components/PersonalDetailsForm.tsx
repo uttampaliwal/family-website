@@ -1,9 +1,7 @@
-import React, { useCallback } from 'react';
-import Button from './Button';
-import CustomSelect from './CustomSelect';
-import DateOfBirthPicker from './DateOfBirthPicker';
-
-
+import React, { useCallback } from "react";
+import Button from "./Button";
+import CustomSelect from "./CustomSelect";
+import DateOfBirthPicker from "./DateOfBirthPicker";
 
 interface PersonalDetailsFormProps {
   name: string;
@@ -17,7 +15,6 @@ interface PersonalDetailsFormProps {
   loading: boolean;
   nameRef: React.RefObject<HTMLInputElement | null>;
   handleNext: () => void;
-  
 }
 
 const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
@@ -32,16 +29,26 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
   loading,
   nameRef,
   handleNext,
-  }) => {
-  const handleMobileNumberChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^+\d\s()-]/g, '');
-    setMobileNumber(value);
-  }, [setMobileNumber]);
+}) => {
+  const handleMobileNumberChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.replace(/[^+\d\s()-]/g, "");
+      setMobileNumber(value);
+    },
+    [setMobileNumber],
+  );
   return (
     <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
-      <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">Personal Details</h2>
+      <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">
+        Personal Details
+      </h2>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-        <label htmlFor="name" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Name:</label>
+        <label
+          htmlFor="name"
+          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+        >
+          Name:
+        </label>
         <input
           type="text"
           id="name"
@@ -55,15 +62,21 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-        <label htmlFor="dob" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">DOB:</label>
-        <DateOfBirthPicker
-          value={dob}
-          onChange={setDob}
-          disabled={loading}
-        />
+        <label
+          htmlFor="dob"
+          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+        >
+          DOB:
+        </label>
+        <DateOfBirthPicker value={dob} onChange={setDob} disabled={loading} />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-        <label htmlFor="mobileNumber" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Mobile Number:</label>
+        <label
+          htmlFor="mobileNumber"
+          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+        >
+          Mobile Number:
+        </label>
         <input
           type="tel"
           id="mobileNumber"
@@ -76,13 +89,18 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
-        <label htmlFor="gender" className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300">Gender:</label>
+        <label
+          htmlFor="gender"
+          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+        >
+          Gender:
+        </label>
         <CustomSelect
           options={[
-            { value: '', label: 'Select Gender' },
-            { value: 'Male', label: 'Male' },
-            { value: 'Female', label: 'Female' },
-            { value: 'Prefer not to say', label: 'Prefer not to say' },
+            { value: "", label: "Select Gender" },
+            { value: "Male", label: "Male" },
+            { value: "Female", label: "Female" },
+            { value: "Prefer not to say", label: "Prefer not to say" },
           ]}
           value={gender}
           onChange={setGender}
@@ -92,8 +110,8 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
         />
       </div>
       <div className="text-right mt-6">
-        <Button 
-          label="Next" 
+        <Button
+          label="Next"
           onClick={() => {
             if (!name.trim()) {
               nameRef.current?.focus();
@@ -103,9 +121,9 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
               return;
             }
             handleNext();
-          }} 
-          disabled={loading} 
-          type="button" 
+          }}
+          disabled={loading}
+          type="button"
           variant="primary"
         />
       </div>

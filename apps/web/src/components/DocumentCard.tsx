@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import type { Document } from '../api/documents';
+import React from "react";
+import { Link } from "react-router-dom";
+import type { Document } from "../api/documents";
 
 interface DocumentCardProps {
   doc: Document & { formattedDate: string };
@@ -10,8 +10,8 @@ interface DocumentCardProps {
 const MAX_CONTENT_PREVIEW_LENGTH = 150;
 
 const DocumentCard: React.FC<DocumentCardProps> = ({ doc, onDelete }) => {
-  const ownerName = typeof doc.owner === 'object' ? doc.owner.name : 'You';
-  
+  const ownerName = typeof doc.owner === "object" ? doc.owner.name : "You";
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="p-6">
@@ -33,7 +33,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ doc, onDelete }) => {
         </p>
         <div className="h-24 overflow-hidden text-gray-600 dark:text-gray-400 text-sm mb-4">
           {doc.content.substring(0, MAX_CONTENT_PREVIEW_LENGTH)}
-          {doc.content.length > MAX_CONTENT_PREVIEW_LENGTH && '...'}
+          {doc.content.length > MAX_CONTENT_PREVIEW_LENGTH && "..."}
         </div>
       </div>
       <div className="bg-gray-50 dark:bg-gray-700 px-6 py-3 flex justify-between">

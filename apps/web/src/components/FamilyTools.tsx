@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { motion } from 'framer-motion';
+import React, { useCallback } from "react";
+import { motion } from "framer-motion";
 
 interface Tool {
   id: string;
@@ -11,69 +11,69 @@ interface Tool {
 
 const tools: Tool[] = [
   {
-    id: 'documents',
-    name: 'Family Documents',
-    description: 'Securely store and manage important family documents',
-    icon: '📄',
-    link: '/documents'
+    id: "documents",
+    name: "Family Documents",
+    description: "Securely store and manage important family documents",
+    icon: "📄",
+    link: "/documents",
   },
   {
-    id: 'expenses',
-    name: 'Expense Tracker',
-    description: 'Track and manage family expenses',
-    icon: '💰',
-    link: '/expenses'
+    id: "expenses",
+    name: "Expense Tracker",
+    description: "Track and manage family expenses",
+    icon: "💰",
+    link: "/expenses",
   },
   {
-    id: 'tasks',
-    name: 'Task Manager',
-    description: 'Organize and assign family tasks',
-    icon: '✅',
-    link: '/tasks'
+    id: "tasks",
+    name: "Task Manager",
+    description: "Organize and assign family tasks",
+    icon: "✅",
+    link: "/tasks",
   },
   {
-    id: 'photos',
-    name: 'Photo Gallery',
-    description: 'Share and preserve family memories',
-    icon: '📸',
-    link: '/photos'
+    id: "photos",
+    name: "Photo Gallery",
+    description: "Share and preserve family memories",
+    icon: "📸",
+    link: "/photos",
   },
   {
-    id: 'shopping',
-    name: 'Shopping List',
-    description: 'Collaborative family shopping list',
-    icon: '🛒',
-    link: '/shopping'
+    id: "shopping",
+    name: "Shopping List",
+    description: "Collaborative family shopping list",
+    icon: "🛒",
+    link: "/shopping",
   },
   {
-    id: 'emergency',
-    name: 'Emergency Info',
-    description: 'Quick access to emergency contacts and procedures',
-    icon: '🚨',
-    link: '/emergency'
-  }
+    id: "emergency",
+    name: "Emergency Info",
+    description: "Quick access to emergency contacts and procedures",
+    icon: "🚨",
+    link: "/emergency",
+  },
 ];
 
 // Constants for better maintainability
 const ANIMATION_CONFIG = {
   duration: 0.3,
   delayMultiplier: 0.1,
-  hoverScale: 1.03
+  hoverScale: 1.03,
 } as const;
 
 const FamilyTools: React.FC = () => {
   const handleToolClick = useCallback((link: string) => {
-    if (!link || typeof link !== 'string') {
-      console.error('Invalid link provided:', link);
+    if (!link || typeof link !== "string") {
+      console.error("Invalid link provided:", link);
       return;
     }
-    
+
     try {
       window.location.href = link;
     } catch (error) {
-      console.error('Error navigating to tool:', error);
+      console.error("Error navigating to tool:", error);
       // Fallback: try using window.open as alternative
-      window.open(link, '_self');
+      window.open(link, "_self");
     }
   }, []);
 
@@ -84,7 +84,10 @@ const FamilyTools: React.FC = () => {
           key={tool.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: ANIMATION_CONFIG.duration, delay: index * ANIMATION_CONFIG.delayMultiplier }}
+          transition={{
+            duration: ANIMATION_CONFIG.duration,
+            delay: index * ANIMATION_CONFIG.delayMultiplier,
+          }}
           whileHover={{ scale: ANIMATION_CONFIG.hoverScale }}
           className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 cursor-pointer"
           onClick={() => handleToolClick(tool.link)}
@@ -97,9 +100,7 @@ const FamilyTools: React.FC = () => {
               {tool.name}
             </h3>
           </div>
-          <p className="text-gray-600 dark:text-gray-300">
-            {tool.description}
-          </p>
+          <p className="text-gray-600 dark:text-gray-300">{tool.description}</p>
           <div className="mt-4 flex justify-end">
             <button
               className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 

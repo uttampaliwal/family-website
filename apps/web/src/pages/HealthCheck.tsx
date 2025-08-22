@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 const HealthCheck = () => {
   useEffect(() => {
     // This is just a placeholder component for the health check route
-    document.title = 'Health Check';
+    document.title = "Health Check";
   }, []);
 
   return (

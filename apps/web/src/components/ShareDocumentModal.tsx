@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { shareDocument } from '../api/documents';
-import { useToast } from '../hooks/useToast';
+import React, { useState } from "react";
+import { shareDocument } from "../api/documents";
+import { useToast } from "../hooks/useToast";
 
 interface ShareDocumentModalProps {
   documentId: string;
@@ -11,20 +11,20 @@ interface ShareDocumentModalProps {
 
 // Enhanced client-side log sanitization to prevent log injection
 const sanitizeClientLog = (input: unknown): string => {
-  return String(input ?? '')
-    .replace(/[\n\r\t]/g, '') // Remove newlines, carriage returns, tabs
-    .replace(/[<>&"'/]/g, '') // Remove HTML/XML characters
-    .replace(/[[\]{}]/g, '') // Remove JSON structure characters
+  return String(input ?? "")
+    .replace(/[\n\r\t]/g, "") // Remove newlines, carriage returns, tabs
+    .replace(/[<>&"'/]/g, "") // Remove HTML/XML characters
+    .replace(/[[\]{}]/g, "") // Remove JSON structure characters
     .substring(0, 200); // Limit length to prevent log flooding
 };
 
-const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({ 
-  documentId, 
-  isOpen, 
+const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
+  documentId,
+  isOpen,
   onClose,
-  onSuccess
+  onSuccess,
 }) => {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
 
@@ -33,58 +33,64 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   const handleShareError = (error: unknown) => {
     try {
       const errorInfo = {
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: error instanceof Error ? error.message : "Unknown error",
         documentId: sanitizeClientLog(documentId),
         username: sanitizeClientLog(username),
         timestamp: new Date().toISOString(),
-        operation: 'shareDocument'
+        operation: "shareDocument",
       };
-      console.error('Error sharing document:', JSON.stringify(errorInfo));
+      console.error("Error sharing document:", JSON.stringify(errorInfo));
     } catch (logError) {
-      console.error('Failed to log share error:', logError);
+      console.error("Failed to log share error:", logError);
     }
-    
-    let errorMessage = 'Failed to share document';
+
+    let errorMessage = "Failed to share document";
     try {
       if (error instanceof Error) {
         const message = error.message.toLowerCase();
-        if (message.includes('404') || message.includes('not found')) {
-          errorMessage = 'User not found. Please check the username.';
-        } else if (message.includes('403') || message.includes('unauthorized')) {
-          errorMessage = 'You do not have permission to share this document.';
-        } else if (message.includes('400') || message.includes('already shared')) {
-          errorMessage = 'Document is already shared with this user.';
-        } else if (message.includes('500')) {
-          errorMessage = 'Server error. Please try again later.';
-        } else if (message.includes('network')) {
-          errorMessage = 'Network error. Please check your connection.';
+        if (message.includes("404") || message.includes("not found")) {
+          errorMessage = "User not found. Please check the username.";
+        } else if (
+          message.includes("403") ||
+          message.includes("unauthorized")
+        ) {
+          errorMessage = "You do not have permission to share this document.";
+        } else if (
+          message.includes("400") ||
+          message.includes("already shared")
+        ) {
+          errorMessage = "Document is already shared with this user.";
+        } else if (message.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else if (message.includes("network")) {
+          errorMessage = "Network error. Please check your connection.";
         }
       }
     } catch (parseError) {
-      console.error('Failed to parse error message:', parseError);
+      console.error("Failed to parse error message:", parseError);
     }
-    
+
     try {
-      showToast(errorMessage, 'error');
+      showToast(errorMessage, "error");
     } catch (toastError) {
-      console.error('Failed to show error toast:', toastError);
+      console.error("Failed to show error toast:", toastError);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!username.trim()) {
-      showToast('Please enter a username', 'error');
+      showToast("Please enter a username", "error");
       return;
     }
 
     setLoading(true);
-    
+
     try {
       await shareDocument(documentId, username);
-      showToast('Document shared successfully', 'success');
-      setUsername('');
+      showToast("Document shared successfully", "success");
+      setUsername("");
       onSuccess();
       onClose();
     } catch (error) {
@@ -97,11 +103,16 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Share Document</h2>
-        
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+          Share Document
+        </h2>
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="username" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+            <label
+              htmlFor="username"
+              className="block text-gray-700 dark:text-gray-300 font-medium mb-2"
+            >
               Username
             </label>
             <input
@@ -114,7 +125,7 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
               required
             />
           </div>
-          
+
           <div className="flex justify-end space-x-4">
             <button
               type="button"
@@ -128,7 +139,7 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
               disabled={loading}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             >
-              {loading ? 'Sharing...' : 'Share'}
+              {loading ? "Sharing..." : "Share"}
             </button>
           </div>
         </form>

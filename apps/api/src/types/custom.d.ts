@@ -1,5 +1,3 @@
-
-
 declare global {
   namespace Express {
     interface Request {
@@ -19,7 +17,7 @@ declare global {
         path?: string;
         buffer?: Buffer;
       };
-      cookies: { [key: string]: string; };
+      cookies: { [key: string]: string };
     }
   }
 }

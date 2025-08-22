@@ -1,13 +1,33 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getDocumentById, createDocument, updateDocument } from '../api/documents';
-import { useToast } from '../hooks/useToast';
+import React, { useState, useEffect, useCallback, memo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getDocumentById,
+  createDocument,
+  updateDocument,
+} from "../api/documents";
+import { useToast } from "../hooks/useToast";
 
 const LoadingSpinner = memo(() => (
   <span className="flex items-center">
-    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    <svg
+      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
     </svg>
     Saving...
   </span>
@@ -15,12 +35,12 @@ const LoadingSpinner = memo(() => (
 
 const DocumentEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const isNewDocument = id === 'new';
+  const isNewDocument = id === "new";
   const navigate = useNavigate();
   const { showToast } = useToast();
-  
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(!isNewDocument);
   const [saving, setSaving] = useState(false);
@@ -28,15 +48,15 @@ const DocumentEditPage: React.FC = () => {
   useEffect(() => {
     const fetchDocument = async () => {
       if (isNewDocument) return;
-      
+
       try {
         const document = await getDocumentById(id!);
         setTitle(document.title);
         setContent(document.content);
       } catch (error) {
-        console.error('Error fetching document:', error);
-        showToast('Failed to load document', 'error');
-        navigate('/documents');
+        console.error("Error fetching document:", error);
+        showToast("Failed to load document", "error");
+        navigate("/documents");
       } finally {
         setLoading(false);
       }
@@ -45,73 +65,101 @@ const DocumentEditPage: React.FC = () => {
     fetchDocument();
   }, [id, isNewDocument, navigate, showToast]);
 
-  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  }, []);
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTitle(e.target.value);
+    },
+    [],
+  );
 
-  const handleContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
-  }, []);
+  const handleContentChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setContent(e.target.value);
+    },
+    [],
+  );
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFile(e.target.files ? e.target.files[0] : null);
-  }, []);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFile(e.target.files ? e.target.files[0] : null);
+    },
+    [],
+  );
 
   const handleCancel = useCallback(() => {
-    navigate('/documents');
+    navigate("/documents");
   }, [navigate]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!title.trim() || !content.trim()) {
-      showToast('Title and content are required', 'error');
-      return;
-    }
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    setSaving(true);
-    
-    try {
-      if (isNewDocument) {
-        await createDocument(title, content, file || undefined);
-        showToast('Document created successfully', 'success');
-      } else {
-        await updateDocument(id!, title, content);
-        showToast('Document updated successfully', 'success');
+      if (!title.trim() || !content.trim()) {
+        showToast("Title and content are required", "error");
+        return;
       }
-      navigate('/documents');
-    } catch (error) {
-      // Structured error logging with context
-      const errorMessage = error && typeof error === 'object' && 'message' in error ? String(error.message) : 'Unknown error';
-      const errorInfo = {
-        message: errorMessage,
-        documentId: isNewDocument ? 'new' : id,
-        title: title,
-        timestamp: new Date().toISOString(),
-        operation: isNewDocument ? 'createDocument' : 'updateDocument'
-      };
-      console.error('Error saving document:', JSON.stringify(errorInfo));
-      
-      let displayMessage = 'Failed to save document';
-      if (errorMessage) {
-        if (errorMessage.includes('403') || errorMessage.includes('unauthorized')) {
-          displayMessage = 'You do not have permission to save this document.';
-        } else if (errorMessage.includes('413') || errorMessage.includes('too large')) {
-          displayMessage = 'File is too large. Please choose a smaller file.';
-        } else if (errorMessage.includes('400') || errorMessage.includes('validation')) {
-          displayMessage = 'Invalid document data. Please check your input.';
-        } else if (errorMessage.includes('500')) {
-          displayMessage = 'Server error. Please try again later.';
-        } else if (errorMessage.includes('network') || errorMessage.includes('Network')) {
-          displayMessage = 'Network error. Please check your connection.';
+
+      setSaving(true);
+
+      try {
+        if (isNewDocument) {
+          await createDocument(title, content, file || undefined);
+          showToast("Document created successfully", "success");
+        } else {
+          await updateDocument(id!, title, content);
+          showToast("Document updated successfully", "success");
         }
+        navigate("/documents");
+      } catch (error) {
+        // Structured error logging with context
+        const errorMessage =
+          error && typeof error === "object" && "message" in error
+            ? String(error.message)
+            : "Unknown error";
+        const errorInfo = {
+          message: errorMessage,
+          documentId: isNewDocument ? "new" : id,
+          title: title,
+          timestamp: new Date().toISOString(),
+          operation: isNewDocument ? "createDocument" : "updateDocument",
+        };
+        console.error("Error saving document:", JSON.stringify(errorInfo));
+
+        let displayMessage = "Failed to save document";
+        if (errorMessage) {
+          if (
+            errorMessage.includes("403") ||
+            errorMessage.includes("unauthorized")
+          ) {
+            displayMessage =
+              "You do not have permission to save this document.";
+          } else if (
+            errorMessage.includes("413") ||
+            errorMessage.includes("too large")
+          ) {
+            displayMessage = "File is too large. Please choose a smaller file.";
+          } else if (
+            errorMessage.includes("400") ||
+            errorMessage.includes("validation")
+          ) {
+            displayMessage = "Invalid document data. Please check your input.";
+          } else if (errorMessage.includes("500")) {
+            displayMessage = "Server error. Please try again later.";
+          } else if (
+            errorMessage.includes("network") ||
+            errorMessage.includes("Network")
+          ) {
+            displayMessage = "Network error. Please check your connection.";
+          }
+        }
+
+        showToast(displayMessage, "error");
+      } finally {
+        setSaving(false);
       }
-      
-      showToast(displayMessage, 'error');
-    } finally {
-      setSaving(false);
-    }
-  }, [title, content, file, isNewDocument, id, navigate, showToast]);
+    },
+    [title, content, file, isNewDocument, id, navigate, showToast],
+  );
 
   if (loading) {
     return (
@@ -125,12 +173,18 @@ const DocumentEditPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">
-          {isNewDocument ? 'Create New Document' : 'Edit Document'}
+          {isNewDocument ? "Create New Document" : "Edit Document"}
         </h1>
-        
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+        >
           <div className="mb-4">
-            <label htmlFor="title" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+            <label
+              htmlFor="title"
+              className="block text-gray-700 dark:text-gray-300 font-medium mb-2"
+            >
               Title
             </label>
             <input
@@ -143,9 +197,12 @@ const DocumentEditPage: React.FC = () => {
               required
             />
           </div>
-          
+
           <div className="mb-6">
-            <label htmlFor="content" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+            <label
+              htmlFor="content"
+              className="block text-gray-700 dark:text-gray-300 font-medium mb-2"
+            >
               Content
             </label>
             <textarea
@@ -157,9 +214,12 @@ const DocumentEditPage: React.FC = () => {
               required
             />
           </div>
-          
+
           <div className="mb-6">
-            <label htmlFor="file" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+            <label
+              htmlFor="file"
+              className="block text-gray-700 dark:text-gray-300 font-medium mb-2"
+            >
               Attach File (Optional)
             </label>
             <input
@@ -172,7 +232,7 @@ const DocumentEditPage: React.FC = () => {
               Supported formats: PDF, Word, Excel, Text, CSV, ZIP, Images
             </p>
           </div>
-          
+
           <div className="flex justify-end space-x-4">
             <button
               type="button"
@@ -186,7 +246,7 @@ const DocumentEditPage: React.FC = () => {
               disabled={saving}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             >
-              {saving ? <LoadingSpinner /> : 'Save Document'}
+              {saving ? <LoadingSpinner /> : "Save Document"}
             </button>
           </div>
         </form>

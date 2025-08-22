@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 
 interface ComponentSkeletonProps {
   rows?: number;
@@ -8,16 +8,18 @@ interface ComponentSkeletonProps {
 
 const ComponentSkeleton: React.FC<ComponentSkeletonProps> = ({
   rows = 3,
-  height = 'h-32',
-  className = ''
+  height = "h-32",
+  className = "",
 }) => {
-  const skeletonItems = useMemo(() => 
-    Array.from({ length: rows }, (_, index) => (
-      <div
-        key={`skeleton-${index}`}
-        className={`${height} bg-gray-200 dark:bg-gray-700 rounded-lg`}
-      />
-    )), [rows, height]
+  const skeletonItems = useMemo(
+    () =>
+      Array.from({ length: rows }, (_, index) => (
+        <div
+          key={`skeleton-${index}`}
+          className={`${height} bg-gray-200 dark:bg-gray-700 rounded-lg`}
+        />
+      )),
+    [rows, height],
   );
 
   return (
