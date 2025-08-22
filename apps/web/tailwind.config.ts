@@ -29,6 +29,13 @@ const config: Config = {
         success: withOpacity('--color-success'),
         warning: withOpacity('--color-warning'),
         error: withOpacity('--color-error'),
+        // Add fallback colors for immediate visibility
+        'beige': '#F5F5DC',
+        'tan': '#D2B48C',
+        'saddle-brown': '#8B4513',
+        'gold': '#FFD700',
+        'tomato': '#FF6347',
+        'charcoal': '#36454F',
       },
       backgroundImage: {
         'gradient-primary': 'linear-gradient(to right, var(--color-primary), var(--color-secondary))',

@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   font-family: 'Poppins', 'Inter', sans-serif;
@@ -29,10 +27,12 @@ a:hover {
   opacity: 0.8;
 }
 
-html, body {
+html, body, #root {
   margin: 0;
+  padding: 0;
   width: 100%;
   height: 100%;
+  min-height: 100vh;
 }
 
 body {
@@ -43,6 +43,219 @@ body {
     radial-gradient(circle at 25% 25%, rgba(var(--color-primary), 0.05) 0%, transparent 50%),
     radial-gradient(circle at 75% 75%, rgba(var(--color-secondary), 0.05) 0%, transparent 50%);
   background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* Restore proper styling with CSS classes */
+.btn {
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: rgb(var(--color-primary));
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  background-color: rgba(var(--color-primary), 0.9);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: rgb(var(--color-secondary));
+  color: rgb(var(--color-text-base));
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(var(--color-secondary), 0.9);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.card {
+  background-color: rgb(var(--color-surface));
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(var(--color-primary), 0.2);
+  border-radius: 0.5rem;
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-text-base));
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: rgb(var(--color-primary));
+  box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.1);
+}
+
+.nav-link {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: rgb(var(--color-text-base));
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.nav-link:hover {
+  background-color: rgba(var(--color-primary), 0.1);
+  color: rgb(var(--color-primary));
+}
+
+/* ✨ MODERN ENHANCEMENTS - Glass Morphism & Animations */
+
+/* 🌟 Glossy/Translucent Navbar (Glass Morphism) */
+.navbar-glass {
+  background: rgba(var(--color-surface), 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(var(--color-primary), 0.2);
+  box-shadow: 0 8px 32px rgba(var(--color-primary), 0.15);
+}
+
+/* 🎭 Enhanced Card Animations */
+.card-float {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card-float:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(var(--color-primary), 0.2);
+}
+
+/* ⚡ Modern Button Effects */
+.btn-modern {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, 
+    rgb(var(--color-primary)), 
+    rgba(var(--color-primary), 0.8)
+  );
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 25px rgba(var(--color-primary), 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(var(--color-primary), 0.4);
+  filter: brightness(1.1);
+}
+
+.btn-modern::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: width 0.6s, height 0.6s;
+  transform: translate(-50%, -50%);
+}
+
+.btn-modern:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* 🌈 Gradient Text Effects */
+.text-gradient {
+  background: linear-gradient(135deg, 
+    rgb(var(--color-primary)), 
+    rgb(var(--color-secondary))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+/* 🌊 Fluid Typography */
+.fluid-text-xl {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 1.2;
+}
+
+.fluid-text-lg {
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.3;
+}
+
+/* ✨ Enhanced Shadows */
+:root {
+  --shadow-soft: 0 4px 20px rgba(var(--color-primary), 0.1);
+  --shadow-medium: 0 8px 30px rgba(var(--color-primary), 0.15);
+  --shadow-strong: 0 15px 50px rgba(var(--color-primary), 0.25);
+  --shadow-glow: 0 0 30px rgba(var(--color-secondary), 0.3);
+}
+
+/* Ensure proper box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Container classes for proper layout */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
 }
 
 .font-cursive {
