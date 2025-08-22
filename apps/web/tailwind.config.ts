@@ -30,6 +30,10 @@ const config: Config = {
         warning: withOpacity('--color-warning'),
         error: withOpacity('--color-error'),
       },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(to right, var(--color-primary), var(--color-secondary))',
+        'gradient-accent': 'linear-gradient(to right, var(--color-accent), var(--color-primary))',
+      },
       fontFamily: {
         sans: ['Inter', 'Avenir', 'Helvetica', 'Arial', 'sans-serif'],
         serif: ['Merriweather', 'serif'], // Example serif font

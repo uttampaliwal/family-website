@@ -1,69 +1,130 @@
 import express from 'express';
-import rateLimit from 'express-rate-limit';
-
 import { register, login, verifyEmail, resendVerification, refreshToken, getUserProfile, forgotPassword, resetPassword, logout, updateUserProfile } from '../controllers/authController.js';
 import { validate, registerSchema, loginSchema, verifyEmailSchema, resendVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from '../middleware/validate.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import { csrfProtection } from '../middleware/csrfGenerator.js';
+import { authRateLimit, passwordResetRateLimit } from '../middleware/security.js';
+import { logger } from '../utils/logger.js';
 
 const router = express.Router();
 
-// Rate limiting for authentication routes
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Max 100 requests per 15 minutes per IP
-  message: 'Too many requests from this IP, please try again after 15 minutes',
-});
+// Enhanced logging middleware for auth routes
+const authLogger = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const startTime = Date.now();
+  
+  res.on('finish', () => {
+    const duration = Date.now() - startTime;
+    const logData = {
+      method: req.method,
+      url: req.url,
+      statusCode: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      success: res.statusCode < 400
+    };
+    
+    if (res.statusCode >= 400) {
+      logger.warn(logData, 'Authentication request failed');
+    } else {
+      logger.info(logData, 'Authentication request completed');
+    }
+  });
+  
+  next();
+};
 
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Max 5 login attempts per 15 minutes per IP
-  message: 'Too many login attempts from this IP, please try again after 15 minutes',
-});
+// Apply auth logging to all routes
+router.use(authLogger);
 
-const authActionLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Max 10 requests per 15 minutes per IP for other auth actions
-  message: 'Too many requests for this action from your IP, please try again after 15 minutes',
-});
+// Register Route - Enhanced with validation and rate limiting
+router.post('/register', 
+  ...csrfProtection, 
+  authRateLimit, 
+  validate(registerSchema), 
+  register
+);
 
-// Register Route
-router.post('/register', ...csrfProtection, authLimiter, validate(registerSchema), register);
-
-// Sign In Route
-router.post('/login', ...csrfProtection, loginLimiter, validate(loginSchema), login);
+// Sign In Route - Strict rate limiting for login attempts
+router.post('/login', 
+  ...csrfProtection, 
+  authRateLimit, 
+  validate(loginSchema), 
+  login
+);
 
 // Verify Email Route
-router.post('/verify-email', ...csrfProtection, authActionLimiter, validate(verifyEmailSchema), verifyEmail);
+router.post('/verify-email', 
+  ...csrfProtection, 
+  authRateLimit, 
+  validate(verifyEmailSchema), 
+  verifyEmail
+);
 
 // Resend Verification Email Route
-router.post('/resend-verification', ...csrfProtection, authActionLimiter, validate(resendVerificationSchema), resendVerification);
+router.post('/resend-verification', 
+  ...csrfProtection, 
+  authRateLimit, 
+  validate(resendVerificationSchema), 
+  resendVerification
+);
 
 // Refresh Token Route
-router.post('/refresh-token', ...csrfProtection, authActionLimiter, refreshToken);
+router.post('/refresh-token', 
+  ...csrfProtection, 
+  authRateLimit, 
+  refreshToken
+);
 
-// Get User Profile by Username
-router.get('/profile/:username', (req, res, next) => {
-  try {
-    getUserProfile(req, res);
-  } catch (error) {
-    next(error);
+// Get User Profile by Username - Public endpoint with basic rate limiting
+router.get('/profile/:username', 
+  authRateLimit,
+  (req: express.Request<{ username: string }>, res, next) => {
+    try {
+      getUserProfile(req, res);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
-// Update User Profile by Username
-router.put('/profile/:username', ...csrfProtection, authMiddleware, authActionLimiter, updateUserProfile);
+// Update User Profile by Username - Requires authentication
+router.put('/profile/:username', 
+  ...csrfProtection, 
+  authMiddleware, 
+  authRateLimit, 
+  updateUserProfile
+);
 
-// Forgot Password Route
-router.post('/forgot-password', ...csrfProtection, authActionLimiter, validate(forgotPasswordSchema), forgotPassword);
+// Forgot Password Route - Very strict rate limiting
+router.post('/forgot-password', 
+  ...csrfProtection, 
+  passwordResetRateLimit, 
+  validate(forgotPasswordSchema), 
+  forgotPassword
+);
 
-// Reset Password Route
-router.post('/reset-password/:token', ...csrfProtection, authActionLimiter, validate(resetPasswordSchema), resetPassword);
+// Reset Password Route with token in URL
+router.post('/reset-password/:token', 
+  ...csrfProtection, 
+  passwordResetRateLimit, 
+  validate(resetPasswordSchema), 
+  resetPassword
+);
 
 // Reset Password Route with token in body
-router.post('/reset-password', ...csrfProtection, authActionLimiter, validate(resetPasswordSchema), resetPassword);
+router.post('/reset-password', 
+  ...csrfProtection, 
+  passwordResetRateLimit, 
+  validate(resetPasswordSchema), 
+  resetPassword
+);
 
 // Logout Route
-router.post('/logout', ...csrfProtection, authActionLimiter, logout);
+router.post('/logout', 
+  ...csrfProtection, 
+  authRateLimit, 
+  logout
+);
 
 export default router;

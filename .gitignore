@@ -40,10 +40,12 @@ GEMINI_PROJECT_SUMMARY.md
 .turbo/
 commit_message.txt
 .zencoder/
+acli.exe
 .amazonq/
 packages/tests/
 docker-compose.prod.yml
 .gemini
 commit_message.txt
 .env
+.env.example
 prompt_message

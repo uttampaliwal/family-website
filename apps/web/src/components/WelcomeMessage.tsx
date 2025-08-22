@@ -14,7 +14,7 @@ const WelcomeMessage: React.FC = () => {
 
   return (
     <div className="text-center my-8">
-      <h1 className="text-4xl font-bold gradient-text">
+      <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-primary">
         {greeting}, {user?.name || 'Guest'}!
       </h1>
       <p className="text-lg text-text-muted mt-2">Welcome to the family portal.</p>

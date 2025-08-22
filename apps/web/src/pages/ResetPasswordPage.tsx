@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { isAxiosError } from 'axios';
 import { useToast } from '../hooks/useToast';
 import { resetPassword as resetPasswordApi } from '../api/auth';
-
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -14,7 +14,6 @@ const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   
-  // Get token from either route params or query params
   const queryToken = new URLSearchParams(location.search).get('token');
   const token = routeToken || queryToken;
 
@@ -37,7 +36,7 @@ const ResetPasswordPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast('', 'info'); // Clear previous messages
+    showToast('', 'info');
     setLoading(true);
 
     if (password !== confirmPassword) {
@@ -54,15 +53,10 @@ const ResetPasswordPage: React.FC = () => {
     }
 
     try {
-      // Validate token exists
       if (!token || token.trim() === '') {
         throw new Error('Reset token is missing or invalid');
       }
       
-      // Create the request payload
-      
-      
-      // Call the API function
       const response = await resetPasswordApi(password, token);
       
       if (!response || typeof response !== 'object') {
@@ -112,7 +106,12 @@ const ResetPasswordPage: React.FC = () => {
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-md">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
         <div className="text-center mb-8">
           <h1 className="font-cursive text-4xl md:text-5xl font-bold mb-2 gradient-text">Reset Password</h1>
           <p className="text-gray-600 dark:text-gray-400">Enter your new password below</p>
@@ -178,13 +177,13 @@ const ResetPasswordPage: React.FC = () => {
             </button>
             
             <div className="text-center mt-6">
-              <a href="/login" className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
+              <Link to="/login" className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
                 Back to Login
-              </a>
+              </Link>
             </div>
           </form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

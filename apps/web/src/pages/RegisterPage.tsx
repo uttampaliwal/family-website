@@ -168,7 +168,7 @@ const RegisterPage: React.FC = () => {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <h1 className="font-cursive text-4xl md:text-5xl font-bold mb-2 gradient-text">Create Account</h1>
+          <h1 className="font-cursive text-4xl md:text-5xl font-bold mb-2" style={{ backgroundImage: 'linear-gradient(45deg, oklch(var(--color-primary)), oklch(var(--color-accent)))', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Create Account</h1>
           <p className="text-gray-600 dark:text-gray-400">Join our family portal today</p>
         </div>
         

@@ -26,10 +26,10 @@ const AuthButtons: React.FC = () => {
   const renderUnauthenticatedButtons = () => (
     <>
       <Link to={ROUTES.LOGIN}>
-        <Button label="Login" />
+        <Button label="Login" variant="secondary" />
       </Link>
       <Link to={ROUTES.REGISTER}>
-        <Button label="Register" className="ml-2.5" isPrimary={true} />
+        <Button label="Register" className="ml-2.5" variant="primary" />
       </Link>
     </>
   );
