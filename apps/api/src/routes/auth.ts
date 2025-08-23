@@ -63,6 +63,15 @@ const authLogger = (
 // Apply auth logging to all routes
 router.use(authLogger);
 
+// CSRF Token endpoint - GET request to generate and return CSRF token
+router.get("/csrf-token", ...csrfProtection, (req, res) => {
+  // The CSRF token is already set in the cookie by the middleware
+  res.json({
+    message: "CSRF token generated",
+    token: req.cookies?.["XSRF-TOKEN"] || null,
+  });
+});
+
 // Register Route - Enhanced with validation and rate limiting
 router.post(
   "/register",

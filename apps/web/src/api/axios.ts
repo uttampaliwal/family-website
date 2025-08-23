@@ -19,14 +19,30 @@ const api = axios.create({
   xsrfHeaderName: "X-XSRF-TOKEN", // The name of the HTTP header to send the XSRF token in
 });
 
-// Request interceptor to attach JWT access token
+// Request interceptor to attach JWT access token and handle CSRF token
 api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-    // Axios will now handle the XSRF token automatically based on the config above.
+
+    // Manual CSRF token handling for better reliability
+    const csrfToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("XSRF-TOKEN="))
+      ?.split("=")[1];
+
+    if (csrfToken && config.method !== "get") {
+      config.headers["X-XSRF-TOKEN"] = csrfToken;
+      console.log(
+        "[CSRF] Token attached to request:",
+        csrfToken.substring(0, 10) + "...",
+      );
+    } else if (config.method !== "get") {
+      console.warn("[CSRF] No CSRF token found in cookies for non-GET request");
+    }
+
     return config;
   },
   (error) => {
