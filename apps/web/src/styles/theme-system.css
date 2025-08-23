@@ -1,5 +1,26 @@
 /* 🎨 UNIFIED THEME SYSTEM - COMPREHENSIVE BUTTON & COMPONENT STYLES */
 
+/* 🔔 Toast Notification Styles */
+.toast-success {
+  background-color: rgb(var(--color-toast-success));
+  border-color: rgb(var(--color-toast-success));
+}
+
+.toast-error {
+  background-color: rgb(var(--color-toast-error));
+  border-color: rgb(var(--color-toast-error));
+}
+
+.toast-info {
+  background-color: rgb(var(--color-toast-info));
+  border-color: rgb(var(--color-toast-info));
+}
+
+.toast-warning {
+  background-color: rgb(var(--color-toast-warning));
+  border-color: rgb(var(--color-toast-warning));
+}
+
 /* 🎯 Enhanced Button System with Consistent Styling */
 .btn {
   display: inline-flex;

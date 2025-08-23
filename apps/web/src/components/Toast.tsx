@@ -2,19 +2,41 @@ import React, { useEffect, useState } from "react";
 import { sanitizeText } from "../utils/sanitization";
 
 // Constants for better maintainability
-const TOAST_DURATION = 3000;
+const TOAST_DURATION = 4000;
+
+// Toast styles aligned with unified theme system
 const TOAST_STYLES = {
-  success: "bg-success",
-  error: "bg-error",
-  info: "bg-info",
+  success: "text-white border-2 shadow-lg toast-success",
+  error: "text-white border-2 shadow-lg toast-error",
+  info: "text-white border-2 shadow-lg toast-info",
+  warning: "text-white border-2 shadow-lg toast-warning",
 } as const;
 
-const BASE_CLASSES =
-  "fixed top-4 left-1/2 -translate-x-1/2 p-4 rounded-lg shadow-lg text-on-primary transition-opacity duration-300 z-50";
+// Enhanced base classes with better styling and animations
+const BASE_CLASSES = `
+  relative
+  min-w-[320px] max-w-[480px] 
+  p-4 rounded-xl 
+  backdrop-blur-sm
+  transition-all duration-500 ease-in-out
+  transform
+  font-medium
+  flex items-center gap-3
+`
+  .replace(/\s+/g, " ")
+  .trim();
+
+// Toast icons for better visual feedback
+const TOAST_ICONS = {
+  success: "✅",
+  error: "❌",
+  info: "ℹ️",
+  warning: "⚠️",
+} as const;
 
 interface ToastProps {
   message: string;
-  type: "success" | "error" | "info";
+  type: "success" | "error" | "info" | "warning";
   onClose: () => void;
   duration?: number;
 }
@@ -25,24 +47,70 @@ const Toast: React.FC<ToastProps> = ({
   onClose,
   duration = TOAST_DURATION,
 }) => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Trigger entrance animation
+    const showTimer = setTimeout(() => setIsVisible(true), 50);
+
+    // Auto-hide timer
+    const hideTimer = setTimeout(() => {
       setIsVisible(false);
-      onClose();
+      // Remove from DOM after animation
+      setTimeout(() => {
+        setShouldRender(false);
+        onClose();
+      }, 500);
     }, duration);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
   }, [onClose, duration]);
 
-  const bgColor = TOAST_STYLES[type];
+  const handleClick = () => {
+    setIsVisible(false);
+    setTimeout(() => {
+      setShouldRender(false);
+      onClose();
+    }, 500);
+  };
 
-  if (!isVisible) return null;
+  if (!shouldRender) return null;
+
+  const styleClasses = TOAST_STYLES[type];
+  const icon = TOAST_ICONS[type];
+
+  // Animation classes
+  const animationClasses = isVisible
+    ? "translate-x-0 opacity-100 scale-100"
+    : "translate-x-full opacity-0 scale-95";
 
   return (
-    <div className={`${BASE_CLASSES} ${bgColor}`} role="alert">
-      {sanitizeText(message)}
+    <div
+      className={`${BASE_CLASSES} ${styleClasses} ${animationClasses} cursor-pointer hover:scale-105`}
+      role="alert"
+      onClick={handleClick}
+      aria-live="polite"
+    >
+      <span className="text-xl flex-shrink-0" aria-hidden="true">
+        {icon}
+      </span>
+      <div className="flex-1 text-sm leading-relaxed">
+        {sanitizeText(message)}
+      </div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleClick();
+        }}
+        className="flex-shrink-0 text-white/80 hover:text-white text-lg font-bold ml-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+        aria-label="Close notification"
+      >
+        ×
+      </button>
     </div>
   );
 };

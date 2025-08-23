@@ -1,6 +1,44 @@
 import { z } from "zod";
 import { logger } from "../utils/logger.js";
 
+// Helper function to detect if running in Docker
+const isRunningInDocker = (): boolean => {
+  // Check for Docker-specific environment indicators
+  return !!(
+    process.env.DOCKER_CONTAINER ||
+    process.env.KUBERNETES_SERVICE_HOST ||
+    process.env.HOSTNAME?.includes("docker") ||
+    process.env.HOSTNAME?.includes("container")
+  );
+};
+
+// Helper function to get the appropriate MongoDB host
+const getMongoHost = (): string => {
+  // If MONGO_HOST is explicitly set, use it
+  if (process.env.MONGO_HOST) {
+    return process.env.MONGO_HOST;
+  }
+
+  // Auto-detect based on environment
+  return isRunningInDocker() ? "mongo" : "localhost";
+};
+
+// Helper function to build MongoDB URI
+const buildMongoUri = (): string => {
+  const host = getMongoHost();
+  const database = "family-website";
+
+  // For Docker environment, use authentication
+  if (host === "mongo") {
+    const username = process.env.MONGO_INITDB_ROOT_USERNAME || "root";
+    const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
+    return `mongodb://${username}:${password}@${host}:27017/${database}?authSource=admin`;
+  }
+
+  // For local development, try without authentication first
+  return `mongodb://${host}:27017/${database}`;
+};
+
 // Define the environment schema using Zod
 const envSchema = z.object({
   // Server Configuration
@@ -20,7 +58,19 @@ const envSchema = z.object({
   // Database Configuration
   MONGO_URI: z
     .string()
-    .url("MONGO_URI must be a valid MongoDB connection string"),
+    .optional()
+    .transform(() => {
+      // Always build URI dynamically to respect MONGO_HOST
+      return buildMongoUri();
+    })
+    .refine((uri) => {
+      try {
+        new URL(uri);
+        return uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+      } catch {
+        return false;
+      }
+    }, "MONGO_URI must be a valid MongoDB connection string"),
 
   // JWT Configuration
   JWT_SECRET: z
@@ -71,12 +121,17 @@ export const validateEnvironment = (): Environment => {
   try {
     const env = envSchema.parse(process.env);
 
+    const mongoHost = getMongoHost();
+    const isDocker = isRunningInDocker();
+
     logger.info(
       {
         nodeEnv: env.NODE_ENV,
         port: env.PORT,
         logLevel: env.LOG_LEVEL,
-        hasMongoUri: !!env.MONGO_URI,
+        mongoHost,
+        isDocker,
+        mongoUri: env.MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"), // Hide credentials in logs
         hasJwtSecret: !!env.JWT_SECRET,
         hasRefreshTokenSecret: !!env.REFRESH_TOKEN_SECRET,
         hasFrontendUrl: !!env.FRONTEND_URL,
