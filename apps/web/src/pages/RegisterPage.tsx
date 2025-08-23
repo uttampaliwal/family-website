@@ -223,58 +223,47 @@ const RegisterPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+    <div className="auth-container">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="auth-card"
       >
         <div className="text-center mb-8">
-          <h1
-            className="font-cursive text-4xl md:text-5xl font-bold mb-2"
-            style={{
-              backgroundImage:
-                "linear-gradient(45deg, oklch(var(--color-primary)), oklch(var(--color-accent)))",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-            }}
-          >
+          <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
             Create Account
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Join our family portal today
-          </p>
+          <p className="text-muted">Join our family portal today</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="h-2 gradient-bg"></div>
+        <div className="auth-form">
+          <div className="auth-header"></div>
 
           {/* Progress indicator */}
-          <div className="px-8 pt-6">
+          <div className="p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 1 ? "gradient-bg text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"}`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 1 ? "bg-primary text-on-primary" : "bg-surface text-muted"}`}
                 >
                   1
                 </div>
                 <span
-                  className={`ml-2 text-sm ${step === 1 ? "text-gray-800 dark:text-white font-medium" : "text-gray-500 dark:text-gray-400"}`}
+                  className={`ml-2 text-sm ${step === 1 ? "text-base font-medium" : "text-muted"}`}
                 >
                   Personal Details
                 </span>
               </div>
-              <div className="flex-1 mx-4 h-1 bg-gray-200 dark:bg-gray-700"></div>
+              <div className="flex-1 mx-4 h-1 bg-border"></div>
               <div className="flex items-center">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 2 ? "gradient-bg text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"}`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 2 ? "bg-primary text-on-primary" : "bg-surface text-muted"}`}
                 >
                   2
                 </div>
                 <span
-                  className={`ml-2 text-sm ${step === 2 ? "text-gray-800 dark:text-white font-medium" : "text-gray-500 dark:text-gray-400"}`}
+                  className={`ml-2 text-sm ${step === 2 ? "text-base font-medium" : "text-muted"}`}
                 >
                   Account Info
                 </span>
@@ -288,9 +277,9 @@ const RegisterPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-base mb-2"
                   >
-                    Full Name <span className="text-red-500">*</span>
+                    Full Name <span className="text-error">*</span>
                   </label>
                   <input
                     type="text"
@@ -300,7 +289,7 @@ const RegisterPage: React.FC = () => {
                     required
                     disabled={loading}
                     ref={nameRef}
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="input"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -308,9 +297,9 @@ const RegisterPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="dob"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-base mb-2"
                   >
-                    Date of Birth <span className="text-red-500">*</span>
+                    Date of Birth <span className="text-error">*</span>
                   </label>
                   <input
                     type="date"
@@ -319,13 +308,13 @@ const RegisterPage: React.FC = () => {
                     onChange={(e) => setDob(e.target.value)}
                     required
                     disabled={loading}
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="input"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="mobileNumber"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-base mb-2"
                   >
                     Mobile Number
                   </label>
@@ -335,7 +324,7 @@ const RegisterPage: React.FC = () => {
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value)}
                     disabled={loading}
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="input"
                     placeholder="Enter your mobile number"
                   />
                 </div>
@@ -343,9 +332,9 @@ const RegisterPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="gender"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-base mb-2"
                   >
-                    Gender <span className="text-red-500">*</span>
+                    Gender <span className="text-error">*</span>
                   </label>
                   <select
                     id="gender"
@@ -353,7 +342,7 @@ const RegisterPage: React.FC = () => {
                     onChange={(e) => setGender(e.target.value)}
                     required
                     disabled={loading}
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="input"
                   >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
@@ -367,7 +356,7 @@ const RegisterPage: React.FC = () => {
                     type="button"
                     onClick={handleNext}
                     disabled={loading}
-                    className="w-full gradient-bg text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-md hover:opacity-90 transition-all duration-200"
+                    className="btn btn-primary w-full"
                   >
                     Next
                   </button>
@@ -380,9 +369,9 @@ const RegisterPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-base mb-2"
                   >
-                    Email <span className="text-red-500">*</span>
+                    Email <span className="text-error">*</span>
                   </label>
                   <input
                     type="email"
@@ -392,7 +381,7 @@ const RegisterPage: React.FC = () => {
                     required
                     disabled={loading}
                     ref={emailRef}
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="input"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -400,9 +389,9 @@ const RegisterPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="username"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-base mb-2"
                   >
-                    Username <span className="text-red-500">*</span>
+                    Username <span className="text-error">*</span>
                   </label>
                   <input
                     type="text"
@@ -412,7 +401,7 @@ const RegisterPage: React.FC = () => {
                     required
                     disabled={loading}
                     ref={usernameRef}
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="input"
                     placeholder="Choose a username"
                   />
                 </div>
@@ -420,9 +409,9 @@ const RegisterPage: React.FC = () => {
                 <div className="relative">
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-base mb-2"
                   >
-                    Password <span className="text-red-500">*</span>
+                    Password <span className="text-error">*</span>
                   </label>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -432,13 +421,13 @@ const RegisterPage: React.FC = () => {
                     required
                     disabled={loading}
                     ref={passwordRef}
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 pr-10"
+                    className="input pr-10"
                     placeholder="Enter password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-[38px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
+                    className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none"
                     aria-label={
                       showPassword ? "Hide password" : "Show password"
                     }
@@ -478,9 +467,9 @@ const RegisterPage: React.FC = () => {
                 <div className="relative">
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-base mb-2"
                   >
-                    Confirm Password <span className="text-red-500">*</span>
+                    Confirm Password <span className="text-error">*</span>
                   </label>
                   <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -490,13 +479,13 @@ const RegisterPage: React.FC = () => {
                     required
                     disabled={loading}
                     ref={confirmPasswordRef}
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 pr-10"
+                    className="input pr-10"
                     placeholder="Confirm your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-[38px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
+                    className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none"
                     aria-label={
                       showConfirmPassword ? "Hide password" : "Show password"
                     }
@@ -544,19 +533,19 @@ const RegisterPage: React.FC = () => {
                     type="button"
                     onClick={handlePrevious}
                     disabled={loading}
-                    className="w-1/2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
+                    className="btn btn-secondary w-1/2"
                   >
                     Back
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-1/2 gradient-bg text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-md hover:opacity-90 transition-all duration-200 flex items-center justify-center"
+                    className="btn btn-primary w-1/2"
                   >
                     {loading ? (
                       <>
                         <svg
-                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          className="animate-spin -ml-1 mr-3 h-5 w-5"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -568,12 +557,12 @@ const RegisterPage: React.FC = () => {
                             r="10"
                             stroke="currentColor"
                             strokeWidth="4"
-                          ></circle>
+                          />
                           <path
                             className="opacity-75"
                             fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
+                          />
                         </svg>
                         Registering...
                       </>
@@ -588,11 +577,11 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div className="text-center mt-6">
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+              className="font-medium text-primary hover:text-secondary transition-colors"
             >
               Sign in
             </Link>

@@ -97,7 +97,7 @@ const DocumentViewPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -108,10 +108,7 @@ const DocumentViewPage: React.FC = () => {
         <p className="text-xl text-gray-600 dark:text-gray-400">
           Document not found
         </p>
-        <Link
-          to="/documents"
-          className="mt-4 inline-block text-blue-600 hover:text-blue-800 dark:text-blue-400"
-        >
+        <Link to="/documents" className="mt-4 inline-block link">
           Back to Documents
         </Link>
       </div>
@@ -126,22 +123,16 @@ const DocumentViewPage: React.FC = () => {
             {document.title}
           </h1>
           <div className="flex space-x-3">
-            <Link
-              to={`/documents/edit/${id}`}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
+            <Link to={`/documents/edit/${id}`} className="btn btn-primary">
               Edit
             </Link>
             <button
               onClick={() => setIsShareModalOpen(true)}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              className="btn btn-success"
             >
               Share
             </button>
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-            >
+            <button onClick={handleDelete} className="btn btn-error">
               Delete
             </button>
           </div>
@@ -193,7 +184,7 @@ const DocumentViewPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => downloadFile(document._id)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="btn btn-primary"
                   >
                     Download
                   </button>
@@ -204,10 +195,7 @@ const DocumentViewPage: React.FC = () => {
         </div>
 
         <div className="mt-6">
-          <Link
-            to="/documents"
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 flex items-center"
-          >
+          <Link to="/documents" className="link flex items-center">
             <svg
               className="w-5 h-5 mr-2"
               fill="none"

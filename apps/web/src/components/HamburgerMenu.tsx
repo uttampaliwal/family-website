@@ -21,7 +21,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
     <div className="md:hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg text-white hover:bg-white/10 transition-colors duration-200 focus:outline-none"
+        className="p-2 rounded-lg text-base hover:bg-surface/20 transition-colors duration-200 focus:outline-none"
         aria-label="Menu"
       >
         <svg
@@ -47,7 +47,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-16 right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden"
+            className="absolute top-16 right-0 w-48 card rounded-lg shadow-xl z-50 overflow-hidden"
           >
             <div className="h-1 w-full gradient-bg"></div>
             <div className="py-2">

@@ -11,7 +11,7 @@ const ClockIcon = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="text-white/80"
+    className="text-base opacity-80"
   >
     <circle cx="12" cy="12" r="10"></circle>
     <polyline points="12 6 12 12 16 14"></polyline>
@@ -49,7 +49,7 @@ const LiveDateTime: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex items-center space-x-2 text-white font-sans">
+    <div className="flex items-center space-x-2 text-base font-sans">
       <ClockIcon />
       <div>
         <div className="text-sm font-medium">{formatDate(dateTime)}</div>

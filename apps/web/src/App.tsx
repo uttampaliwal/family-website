@@ -22,6 +22,7 @@ const HealthCheck = lazy(() => import("./pages/HealthCheck"));
 const DocumentsPage = lazy(() => import("./pages/DocumentsPage"));
 const DocumentEditPage = lazy(() => import("./pages/DocumentEditPage"));
 const DocumentViewPage = lazy(() => import("./pages/DocumentViewPage"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 
 import LiveDateTime from "./components/LiveDateTime";
 
@@ -60,14 +61,6 @@ function App() {
             <header
               role="banner"
               className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${scrolled ? "shadow-xl py-2" : "py-4"} navbar-glass`}
-              style={{
-                background: "rgba(210, 180, 140, 0.7)",
-                backdropFilter: "blur(15px)",
-                WebkitBackdropFilter: "blur(15px)",
-                borderBottom: "1px solid rgba(139, 69, 19, 0.3)",
-                boxShadow: "0 8px 32px rgba(139, 69, 19, 0.2)",
-                color: "white",
-              }}
             >
               <div className="container mx-auto px-4 flex items-center justify-between">
                 <div className="flex items-center">
@@ -81,7 +74,7 @@ function App() {
                     </div>
                     <div className="ml-3 hidden sm:block">
                       <span className="text-3xl font-extrabold tracking-wide">
-                        Family <span className="text-yellow-300">Website</span>
+                        Family <span className="text-secondary">Website</span>
                       </span>
                     </div>
                   </Link>
@@ -89,18 +82,12 @@ function App() {
 
                 <div className="flex items-center">
                   <div className="hidden md:flex items-center space-x-3">
-                    <Link
-                      to="/"
-                      className="px-4 py-2 rounded-lg hover:bg-white/20 transition-colors duration-200"
-                    >
+                    <Link to="/" className="nav-link">
                       Home
                     </Link>
 
                     {isLoggedIn && (
-                      <Link
-                        to="/documents"
-                        className="px-4 py-2 rounded-lg hover:bg-white/20 transition-colors duration-200"
-                      >
+                      <Link to="/documents" className="nav-link">
                         Documents
                       </Link>
                     )}
@@ -108,22 +95,16 @@ function App() {
                     {isLoggedIn && user ? (
                       <Link
                         to={`/profile/${encodeURIComponent(user.username)}`}
-                        className="px-4 py-2 rounded-lg hover:bg-white/20 transition-colors duration-200"
+                        className="nav-link"
                       >
                         {user.username}
                       </Link>
                     ) : (
                       <>
-                        <Link
-                          to="/login"
-                          className="px-4 py-2 rounded-lg bg-teal-500 font-medium shadow-md hover:bg-teal-600 transition-all duration-200 transform hover:scale-105"
-                        >
+                        <Link to="/login" className="btn btn-primary">
                           Login
                         </Link>
-                        <Link
-                          to="/register"
-                          className="px-4 py-2 rounded-lg bg-amber-500 text-gray-800 font-medium shadow-md hover:bg-amber-600 transition-all duration-200 transform hover:scale-105"
-                        >
+                        <Link to="/register" className="btn btn-secondary">
                           Register
                         </Link>
                       </>
@@ -157,7 +138,7 @@ function App() {
             >
               <ErrorBoundary
                 fallback={
-                  <div className="text-center p-8 text-red-600">
+                  <div className="text-center p-8 text-error">
                     <h2 className="text-xl font-semibold mb-2">
                       Something went wrong
                     </h2>
@@ -166,7 +147,7 @@ function App() {
                     </p>
                     <button
                       onClick={() => window.location.reload()}
-                      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      className="btn btn-primary"
                     >
                       Reload Page
                     </button>
@@ -189,7 +170,7 @@ function App() {
                   fallback={
                     <div className="w-full h-64 flex items-center justify-center">
                       <div className="animate-pulse flex flex-col items-center">
-                        <div className="h-12 w-12 rounded-full bg-blue-400 mb-4"></div>
+                        <div className="h-12 w-12 rounded-full bg-primary mb-4"></div>
                         <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
                       </div>
                     </div>
@@ -255,6 +236,10 @@ function App() {
                         </ProtectedRoute>
                       }
                     />
+                    <Route
+                      path="/privacy-policy"
+                      element={<PrivacyPolicyPage />}
+                    />
                   </Routes>
                 </Suspense>
               </ErrorBoundary>
@@ -272,12 +257,12 @@ function App() {
                     reserved.
                   </p>
                   <div className="flex space-x-4 mt-4 md:mt-0">
-                    <a
-                      href="#"
+                    <Link
+                      to="/privacy-policy"
                       className="hover:text-primary transition-colors"
                     >
                       Privacy Policy
-                    </a>
+                    </Link>
                     <a
                       href="#"
                       className="hover:text-primary transition-colors"

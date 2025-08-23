@@ -106,7 +106,7 @@ const DocumentsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -119,7 +119,7 @@ const DocumentsPage: React.FC = () => {
         </h1>
         <button
           onClick={handleNewDocument}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center"
+          className="btn btn-primary flex items-center"
         >
           <svg
             className="w-5 h-5 mr-2"
@@ -144,10 +144,7 @@ const DocumentsPage: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-300">
             You don't have any documents yet.
           </p>
-          <button
-            onClick={handleNewDocument}
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg"
-          >
+          <button onClick={handleNewDocument} className="mt-4 btn btn-primary">
             Create Your First Document
           </button>
         </div>

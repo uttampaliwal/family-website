@@ -103,14 +103,11 @@ const FamilyCalendar: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="h-96 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg animate-pulse">
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+      <div className="h-96 card animate-pulse">
+        <div className="h-8 bg-surface rounded w-1/3 mb-4"></div>
         <div className="grid grid-cols-7 gap-4">
           {Array.from({ length: 35 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-24 bg-gray-200 dark:bg-gray-700 rounded"
-            ></div>
+            <div key={i} className="h-24 bg-surface rounded"></div>
           ))}
         </div>
       </div>
@@ -119,8 +116,8 @@ const FamilyCalendar: React.FC = () => {
 
   if (error) {
     return (
-      <div className="h-96 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-        <p className="text-red-500 dark:text-red-400">{error}</p>
+      <div className="h-96 card">
+        <p className="text-error">{error}</p>
       </div>
     );
   }
@@ -129,12 +126,12 @@ const FamilyCalendar: React.FC = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg"
+      className="card"
     >
       {/* Calendar Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-xl font-semibold text-base">
             {selectedDate.toLocaleString("default", {
               month: "long",
               year: "numeric",

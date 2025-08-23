@@ -1,27 +1,64 @@
 @layer base {
+  /* 🌅 UNIFIED EARTHY FAMILY THEME SYSTEM */
+  /* Two sides of the same coin - warm, welcoming, and connected */
+  
   :root {
-    --color-background: 245 245 220; /* Beige */
-    --color-surface: 210 180 140; /* Tan */
-    --color-primary: 139 69 19; /* SaddleBrown */
-    --color-secondary: 255 215 0; /* Gold */
-    --color-accent: 255 99 71; /* Tomato */
-    --color-text-base: 54 69 79; /* Charcoal */
-    --color-text-muted: 112 128 144; /* SlateGray */
-    --color-success: 60 179 113; /* MediumSeaGreen */
-    --color-warning: 255 165 0; /* Orange */
-    --color-error: 220 20 60; /* Crimson */
+    /* 🌾 Light Mode - Morning Warmth */
+    --color-background: 252 248 240; /* Warm Cream */
+    --color-surface: 240 230 210; /* Soft Linen */
+    --color-primary: 139 69 19; /* Rich Saddle Brown */
+    --color-secondary: 218 165 32; /* Warm Goldenrod */
+    --color-accent: 205 133 63; /* Peru/Terracotta */
+    --color-text-base: 62 39 35; /* Dark Chocolate */
+    --color-text-muted: 101 67 33; /* Medium Brown */
+    --color-success: 107 142 35; /* Olive Green */
+    --color-warning: 255 140 0; /* Dark Orange */
+    --color-error: 178 34 34; /* Fire Brick */
+    --color-info: 70 130 180; /* Steel Blue */
+    
+    /* 🎨 Additional semantic colors */
+    --color-border: 210 180 140; /* Tan border */
+    --color-input: 248 245 240; /* Input background */
+    --color-muted-foreground: 120 113 108; /* Muted text */
+  }
+
+  .light {
+    /* 🌅 Light Mode - Warm Morning Coffee */
+    --color-background: 252 248 240; /* Warm Cream */
+    --color-surface: 240 230 210; /* Soft Linen */
+    --color-primary: 139 69 19; /* Rich Saddle Brown */
+    --color-secondary: 218 165 32; /* Warm Goldenrod */
+    --color-accent: 205 133 63; /* Peru/Terracotta */
+    --color-text-base: 62 39 35; /* Dark Chocolate - High contrast */
+    --color-text-muted: 101 67 33; /* Medium Brown - Readable */
+    --color-success: 107 142 35; /* Olive Green */
+    --color-warning: 255 140 0; /* Dark Orange */
+    --color-error: 178 34 34; /* Fire Brick */
+    --color-info: 70 130 180; /* Steel Blue */
+    --color-border: 210 180 140; /* Tan border */
+    --color-input: 248 245 240; /* Input background */
+    --color-muted-foreground: 120 113 108; /* Muted text */
+    --color-text-on-primary: 252 248 240; /* Cream text on dark backgrounds */
+    --color-text-readable: 62 39 35; /* Always readable text */
   }
 
   .dark {
-    --color-background: 54 69 79; /* Charcoal */
-    --color-surface: 47 79 79; /* DarkSlateGray */
-    --color-primary: 210 180 140; /* Tan */
-    --color-secondary: 255 215 0; /* Gold */
-    --color-accent: 255 99 71; /* Tomato */
-    --color-text-base: 245 245 220; /* Beige */
-    --color-text-muted: 176 196 222; /* LightSteelBlue */
-    --color-success: 144 238 144; /* LightGreen */
-    --color-warning: 255 215 0; /* Gold */
-    --color-error: 240 128 128; /* LightCoral */
+    /* 🌙 Dark Mode - Cozy Evening Fireplace */
+    --color-background: 40 35 31; /* Deep Espresso */
+    --color-surface: 54 47 42; /* Rich Coffee */
+    --color-primary: 218 165 32; /* Warm Gold (inverted from secondary) */
+    --color-secondary: 205 133 63; /* Warm Terracotta */
+    --color-accent: 255 140 0; /* Warm Orange Glow */
+    --color-text-base: 245 240 235; /* Warm Cream Text - High contrast */
+    --color-text-muted: 200 190 180; /* Soft Beige - Readable */
+    --color-success: 144 238 144; /* Soft Green */
+    --color-warning: 255 193 7; /* Amber */
+    --color-error: 255 107 107; /* Soft Red */
+    --color-info: 135 206 235; /* Sky Blue */
+    --color-border: 101 67 33; /* Dark Brown border */
+    --color-input: 54 47 42; /* Input background */
+    --color-muted-foreground: 160 150 140; /* Muted text */
+    --color-text-on-primary: 40 35 31; /* Dark text on light backgrounds */
+    --color-text-readable: 245 240 235; /* Always readable text */
   }
 }

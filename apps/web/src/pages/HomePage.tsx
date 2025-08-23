@@ -67,60 +67,41 @@ const HomePage: React.FC = () => {
 
         {/* Quick Actions */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-            Quick Actions
-          </h2>
+          <h2 className="text-2xl font-bold mb-6 text-base">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              className="text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer card-float"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgb(139, 69, 19), rgba(139, 69, 19, 0.8))",
-                boxShadow: "0 8px 25px rgba(139, 69, 19, 0.3)",
-              }}
+              className="tool-item"
             >
-              <span className="text-4xl mb-2">📅</span>
+              <span className="tool-icon text-4xl mb-2">📅</span>
               <span className="font-medium">Add Event</span>
             </motion.div>
 
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-secondary text-charcoal rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer card-float"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgb(var(--color-secondary)), rgba(var(--color-secondary), 0.8))",
-              }}
+              className="tool-item"
             >
-              <span className="text-4xl mb-2">📸</span>
+              <span className="tool-icon text-4xl mb-2">📸</span>
               <span className="font-medium">Share Photo</span>
             </motion.div>
 
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-accent text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer card-float"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgb(var(--color-accent)), rgba(var(--color-accent), 0.8))",
-              }}
+              className="tool-item"
             >
-              <span className="text-4xl mb-2">✅</span>
+              <span className="tool-icon text-4xl mb-2">✅</span>
               <span className="font-medium">Add Task</span>
             </motion.div>
 
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-error text-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer card-float"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgb(var(--color-error)), rgba(var(--color-error), 0.8))",
-              }}
+              className="tool-item"
             >
-              <span className="text-4xl mb-2">🚨</span>
+              <span className="tool-icon text-4xl mb-2">🚨</span>
               <span className="font-medium">Emergency</span>
             </motion.div>
           </div>
@@ -129,12 +110,8 @@ const HomePage: React.FC = () => {
         {/* Recent Activity */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-              Recent Activity
-            </h2>
-            <button className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
-              View All
-            </button>
+            <h2 className="text-2xl font-bold text-base">Recent Activity</h2>
+            <button className="btn btn-ghost font-medium">View All</button>
           </div>
 
           <div className="bg-surface/50 backdrop-blur-sm rounded-xl shadow-lg p-6 card-float">
@@ -146,16 +123,12 @@ const HomePage: React.FC = () => {
                 whileHover={{ x: 5 }}
                 className="flex items-center p-3 border-b last:border-b-0 border-primary/10 rounded-lg hover:bg-background/30 transition-all duration-200"
               >
-                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mr-4">
-                  <span className="text-xl">{activity.icon}</span>
+                <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center mr-4">
+                  <span className="text-xl text-primary">{activity.icon}</span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {activity.title}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {activity.time}
-                  </p>
+                  <p className="font-medium text-base">{activity.title}</p>
+                  <p className="text-sm text-muted">{activity.time}</p>
                 </div>
               </motion.div>
             ))}
@@ -165,12 +138,8 @@ const HomePage: React.FC = () => {
         {/* Family Tools Grid */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-              Family Tools
-            </h2>
-            <button className="px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90 transition-opacity duration-200 shadow-md">
-              Customize Tools
-            </button>
+            <h2 className="text-2xl font-bold text-base">Family Tools</h2>
+            <button className="btn btn-secondary">Customize Tools</button>
           </div>
           <Suspense fallback={<ComponentSkeleton rows={2} height="h-48" />}>
             <FamilyTools />
@@ -180,8 +149,8 @@ const HomePage: React.FC = () => {
         {/* Important Notifications & Weather */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 card-hover">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+            <div className="card">
+              <h2 className="text-2xl font-bold mb-6 text-base">
                 Important Updates
               </h2>
               <Suspense
@@ -190,8 +159,8 @@ const HomePage: React.FC = () => {
             </div>
           </div>
           <div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 card-hover">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+            <div className="card">
+              <h2 className="text-2xl font-bold mb-6 text-base">
                 Local Weather
               </h2>
               <Suspense fallback={<ComponentSkeleton rows={1} height="h-64" />}>
@@ -203,10 +172,8 @@ const HomePage: React.FC = () => {
 
         {/* Family Calendar */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-            Family Calendar
-          </h2>
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 card-hover">
+          <h2 className="text-2xl font-bold mb-6 text-base">Family Calendar</h2>
+          <div className="card">
             <Suspense fallback={<ComponentSkeleton rows={1} height="h-96" />}>
               <FamilyCalendar />
             </Suspense>

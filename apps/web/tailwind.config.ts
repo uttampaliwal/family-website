@@ -16,6 +16,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Theme system colors
         background: withOpacity("--color-background"),
         surface: withOpacity("--color-surface"),
         primary: withOpacity("--color-primary"),
@@ -23,22 +24,24 @@ const config: Config = {
         accent: withOpacity("--color-accent"),
         "text-base": withOpacity("--color-text-base"),
         "text-muted": withOpacity("--color-text-muted"),
+        "text-light": withOpacity("--color-text-light"),
         success: withOpacity("--color-success"),
         warning: withOpacity("--color-warning"),
         error: withOpacity("--color-error"),
-        // Add fallback colors for immediate visibility
-        beige: "#F5F5DC",
-        tan: "#D2B48C",
-        "saddle-brown": "#8B4513",
-        gold: "#FFD700",
-        tomato: "#FF6347",
-        charcoal: "#36454F",
+        info: withOpacity("--color-info"),
       },
       backgroundImage: {
-        "gradient-primary":
-          "linear-gradient(to right, var(--color-primary), var(--color-secondary))",
-        "gradient-accent":
-          "linear-gradient(to right, var(--color-accent), var(--color-primary))",
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-accent": "var(--gradient-accent)",
+        "gradient-surface": "var(--gradient-surface)",
+        "gradient-text": "var(--gradient-text)",
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+        glow: "var(--shadow-glow)",
       },
       fontFamily: {
         sans: ["Inter", "Avenir", "Helvetica", "Arial", "sans-serif"],

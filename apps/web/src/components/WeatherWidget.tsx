@@ -97,12 +97,12 @@ const WeatherWidget: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="h-full bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg animate-pulse">
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
-        <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+      <div className="h-full card animate-pulse">
+        <div className="h-8 bg-surface rounded w-1/2 mb-4"></div>
+        <div className="h-16 bg-surface rounded mb-4"></div>
         <div className="space-y-2">
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+          <div className="h-4 bg-surface rounded w-3/4"></div>
+          <div className="h-4 bg-surface rounded w-1/2"></div>
         </div>
       </div>
     );
@@ -110,8 +110,8 @@ const WeatherWidget: React.FC = () => {
 
   if (error) {
     return (
-      <div className="h-full bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-        <p className="text-red-500 dark:text-red-400">{error}</p>
+      <div className="h-full card">
+        <p className="text-error">{error}</p>
       </div>
     );
   }
@@ -122,11 +122,11 @@ const WeatherWidget: React.FC = () => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="h-full bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg"
+      className="h-full card"
     >
       {/* Current Weather */}
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        <h3 className="text-xl font-semibold text-base mb-2">
           Current Weather
         </h3>
         <div className="flex items-center">

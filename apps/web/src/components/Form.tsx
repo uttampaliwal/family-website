@@ -114,8 +114,8 @@ export function InputField<T extends FieldValues>({
           autoComplete={autoComplete}
           className={`
             block w-full px-3 py-2 border rounded-md shadow-sm
-            placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
-            disabled:bg-surface disabled:text-text-muted disabled:cursor-not-allowed
+            placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+            disabled:bg-surface disabled:text-muted disabled:cursor-not-allowed
             ${
               error
                 ? "border-error focus:ring-error focus:border-error"
@@ -129,7 +129,7 @@ export function InputField<T extends FieldValues>({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-text-base"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted hover:text-base"
           >
             {showPassword ? (
               <EyeSlashIcon className="h-5 w-5" />

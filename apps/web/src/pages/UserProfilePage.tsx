@@ -176,7 +176,7 @@ const UserProfilePage: React.FC = () => {
 
   if (profileState.error) {
     return (
-      <div className="text-center mt-8 text-red-500">
+      <div className="text-center mt-8 text-error">
         Error: {profileState.error}
       </div>
     );

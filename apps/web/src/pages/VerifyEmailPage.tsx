@@ -135,10 +135,7 @@ const VerifyEmailPage: React.FC = () => {
   return (
     <div className="text-center">
       <h1 className="text-gray-800 dark:text-white">Email Verification</h1>
-      <p
-        role="alert"
-        className={`${isError ? "text-red-500" : "text-green-500"}`}
-      >
+      <p role="alert" className={`${isError ? "text-error" : "text-success"}`}>
         {message}
       </p>
       {!isError && message.includes("successfully") && (

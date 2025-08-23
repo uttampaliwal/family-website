@@ -21,15 +21,15 @@ interface CustomSelectProps {
 const STYLES = {
   container: "relative",
   button: {
-    base: "flex-1 p-3 rounded-xl border text-left cursor-pointer flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500",
-    enabled: "bg-gray-800 border-gray-700 text-white",
-    disabled: "bg-gray-700 cursor-not-allowed text-gray-400",
+    base: "flex-1 p-3 rounded-xl border text-left cursor-pointer flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-primary",
+    enabled: "bg-input border-border text-base",
+    disabled: "bg-surface cursor-not-allowed text-muted",
   },
   dropdown:
-    "absolute z-10 w-full bg-gray-900 border border-gray-700 rounded-md mt-1 max-h-60 overflow-auto shadow-lg",
-  option: "p-3 cursor-pointer hover:bg-gray-700 text-gray-100",
-  optionBorder: "border-b border-gray-800",
-  arrow: "ml-2 text-gray-400",
+    "absolute z-10 w-full bg-surface border border-border rounded-md mt-1 max-h-60 overflow-auto shadow-lg",
+  option: "p-3 cursor-pointer hover:bg-primary hover:text-on-primary text-base",
+  optionBorder: "border-b border-border",
+  arrow: "ml-2 text-muted",
 } as const;
 
 const DROPDOWN_ARROW = "▼";
