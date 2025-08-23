@@ -61,29 +61,30 @@ const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+    <div className="auth-container">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="auth-card"
       >
-        <div className="text-center mb-8">
-          <h1 className="font-cursive text-4xl md:text-5xl font-bold mb-2 gradient-text">
-            Forgot Password
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Enter your email to reset your password
-          </p>
-        </div>
+        <div className="auth-header"></div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="h-2 gradient-bg"></div>
-          <form onSubmit={handleSubmit} className="p-8">
+        <div className="auth-form">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
+              Forgot Password
+            </h1>
+            <p className="text-muted">
+              Enter your email to reset your password
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-base mb-2"
               >
                 Email address
               </label>
@@ -95,31 +96,29 @@ const ForgotPasswordPage: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="input"
                 placeholder="Enter your email"
               />
             </div>
 
             <div>
-              <button
-                type="submit"
-                className="w-full gradient-bg text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-md hover:opacity-90 transition-all duration-200"
-              >
+              <button type="submit" className="btn btn-primary w-full">
                 Send Password Reset Link
               </button>
             </div>
           </form>
-        </div>
-        <div className="text-center mt-6">
-          <p className="text-gray-600 dark:text-gray-400">
-            Remember your password?{" "}
-            <Link
-              to="/login"
-              className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
-            >
-              Back to Login
-            </Link>
-          </p>
+
+          <div className="text-center mt-6">
+            <p className="text-muted">
+              Remember your password?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-primary hover:text-secondary transition-colors"
+              >
+                Back to Login
+              </Link>
+            </p>
+          </div>
         </div>
       </motion.div>
     </div>

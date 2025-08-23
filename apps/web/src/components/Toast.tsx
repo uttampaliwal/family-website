@@ -4,13 +4,13 @@ import { sanitizeText } from "../utils/sanitization";
 // Constants for better maintainability
 const TOAST_DURATION = 3000;
 const TOAST_STYLES = {
-  success: "bg-green-500",
-  error: "bg-red-500",
-  info: "bg-blue-500",
+  success: "bg-success",
+  error: "bg-error",
+  info: "bg-info",
 } as const;
 
 const BASE_CLASSES =
-  "fixed top-4 left-1/2 -translate-x-1/2 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300 z-50";
+  "fixed top-4 left-1/2 -translate-x-1/2 p-4 rounded-lg shadow-lg text-on-primary transition-opacity duration-300 z-50";
 
 interface ToastProps {
   message: string;

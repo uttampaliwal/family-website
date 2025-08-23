@@ -132,7 +132,7 @@ const ResetPasswordPage: React.FC = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
-                New Password <span className="text-red-500">*</span>
+                New Password <span className="text-error">*</span>
               </label>
               <input
                 id="password"
@@ -152,7 +152,7 @@ const ResetPasswordPage: React.FC = () => {
                 htmlFor="confirm-password"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
-                Confirm New Password <span className="text-red-500">*</span>
+                Confirm New Password <span className="text-error">*</span>
               </label>
               <input
                 id="confirm-password"

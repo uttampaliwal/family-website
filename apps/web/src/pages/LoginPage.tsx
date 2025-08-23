@@ -16,6 +16,7 @@ const LoginPage: React.FC = () => {
   const [identifier, setIdentifier] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [showResendButton, setShowResendButton] = useState<boolean>(false);
@@ -151,38 +152,28 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+    <div className="auth-container">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="auth-card"
       >
-        <div className="text-center mb-8">
-          <h1
-            className="font-cursive text-4xl md:text-5xl font-bold mb-2"
-            style={{
-              backgroundImage:
-                "linear-gradient(45deg, oklch(var(--color-primary)), oklch(var(--color-accent)))",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-            }}
-          >
-            Welcome Back
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Sign in to continue to your account
-          </p>
-        </div>
+        <div className="auth-header"></div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="h-2 gradient-bg"></div>
-          <form onSubmit={handleSubmit} className="p-8">
+        <div className="auth-form">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
+              Welcome Back
+            </h1>
+            <p className="text-muted">Sign in to continue to your account</p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label
                 htmlFor="identifier"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-base mb-2"
               >
                 Email or Username
               </label>
@@ -193,7 +184,7 @@ const LoginPage: React.FC = () => {
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="input"
                 placeholder="Enter your email or username"
               />
             </div>
@@ -201,7 +192,7 @@ const LoginPage: React.FC = () => {
             <div className="mb-6 relative">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-base mb-2"
               >
                 Password
               </label>
@@ -212,13 +203,13 @@ const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 pr-10"
+                className="input pr-10"
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
+                className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
@@ -259,11 +250,13 @@ const LoginPage: React.FC = () => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                  className="ml-2 block text-sm text-base"
                 >
                   Remember me
                 </label>
@@ -271,7 +264,7 @@ const LoginPage: React.FC = () => {
 
               <Link
                 to="/forgot-password"
-                className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+                className="text-sm font-medium text-primary hover:text-secondary transition-colors"
               >
                 Forgot password?
               </Link>
@@ -280,12 +273,12 @@ const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full gradient-bg text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-md hover:opacity-90 transition-all duration-200 flex items-center justify-center"
+              className="btn btn-primary w-full"
             >
               {loading ? (
                 <>
                   <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    className="animate-spin -ml-1 mr-3 h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -297,12 +290,12 @@ const LoginPage: React.FC = () => {
                       r="10"
                       stroke="currentColor"
                       strokeWidth="4"
-                    ></circle>
+                    />
                     <path
                       className="opacity-75"
                       fill="currentColor"
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
+                    />
                   </svg>
                   Signing in...
                 </>
@@ -313,28 +306,28 @@ const LoginPage: React.FC = () => {
           </form>
 
           {showResendButton && (
-            <div className="px-8 pb-6 -mt-2">
+            <div className="mt-4">
               <button
                 onClick={handleResendVerification}
                 disabled={loading}
-                className="w-full text-center text-primary-600 dark:text-primary-400 hover:underline font-medium"
+                className="btn btn-ghost w-full"
               >
                 Resend Verification Email
               </button>
             </div>
           )}
-        </div>
 
-        <div className="text-center mt-6">
-          <p className="text-gray-600 dark:text-gray-400">
-            Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
-            >
-              Sign up now
-            </Link>
-          </p>
+          <div className="text-center mt-6">
+            <p className="text-muted">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="font-medium text-primary hover:text-secondary transition-colors"
+              >
+                Sign up now
+              </Link>
+            </p>
+          </div>
         </div>
       </motion.div>
     </div>

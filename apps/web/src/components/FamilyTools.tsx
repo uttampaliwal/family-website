@@ -89,16 +89,14 @@ const FamilyTools: React.FC = () => {
             delay: index * ANIMATION_CONFIG.delayMultiplier,
           }}
           whileHover={{ scale: ANIMATION_CONFIG.hoverScale }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 cursor-pointer"
+          className="card cursor-pointer"
           onClick={() => handleToolClick(tool.link)}
         >
           <div className="flex items-center mb-4">
             <span className="text-4xl mr-4" role="img" aria-label={tool.name}>
               {tool.icon}
             </span>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              {tool.name}
-            </h3>
+            <h3 className="text-xl font-semibold text-base">{tool.name}</h3>
           </div>
           <p className="text-gray-600 dark:text-gray-300">{tool.description}</p>
           <div className="mt-4 flex justify-end">

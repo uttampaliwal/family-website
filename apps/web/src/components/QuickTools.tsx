@@ -288,22 +288,20 @@ const QuickTools: React.FC = () => {
   const QuickActionButton = ({ action }: { action: QuickAction }) => (
     <motion.button
       onClick={action.onClick}
-      className="text-white p-6 flex flex-col items-center justify-center h-[120px] rounded-lg border-none outline-none"
-      style={{ backgroundColor: action.color }}
+      className="tool-item"
       whileHover={{ scale: 1.03 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: action.delay }}
     >
+      <span className="tool-icon text-4xl mb-2">📝</span>
       <span className="text-sm font-medium">{action.label}</span>
     </motion.button>
   );
 
   return (
     <div className="mb-8">
-      <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6">
-        Quick Actions
-      </h2>
+      <h2 className="text-3xl font-bold text-base mb-6">Quick Actions</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {QUICK_ACTIONS.map((action) => (
           <QuickActionButton key={action.id} action={action} />
@@ -313,11 +311,9 @@ const QuickTools: React.FC = () => {
       {/* Recent Activity */}
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Recent Activity
-          </h3>
+          <h3 className="text-lg font-semibold text-base">Recent Activity</h3>
           <button
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium"
+            className="btn btn-ghost text-sm"
             onClick={() => {
               // View all action
             }}
@@ -333,18 +329,14 @@ const QuickTools: React.FC = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
+              className="card flex items-center"
             >
-              <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300">
+              <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-primary">
                 {item.icon}
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {item.title}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {item.time}
-                </p>
+                <p className="text-sm font-medium text-base">{item.title}</p>
+                <p className="text-xs text-muted">{item.time}</p>
               </div>
             </motion.div>
           ))}
