@@ -23,9 +23,15 @@ const generateCsrfToken = (
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
-    console.log("[CSRF] XSRF-TOKEN cookie generated and set.");
+    console.log(
+      "[CSRF] XSRF-TOKEN cookie generated and set:",
+      csrfToken.substring(0, 10) + "...",
+    );
   } else {
-    console.log("[CSRF] XSRF-TOKEN cookie already exists.");
+    console.log(
+      "[CSRF] XSRF-TOKEN cookie already exists:",
+      req.cookies["XSRF-TOKEN"].substring(0, 10) + "...",
+    );
   }
   // Pass control to the next middleware.
   next();
@@ -98,3 +104,6 @@ const validateCsrfToken = (
 // Export an array of the middleware functions.
 // When used with app.use(), Express will execute them in sequence.
 export const csrfProtection = [generateCsrfToken, validateCsrfToken];
+
+// Export individual middleware functions for specific use cases
+export { generateCsrfToken, validateCsrfToken };

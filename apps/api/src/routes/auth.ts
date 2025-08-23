@@ -21,7 +21,10 @@ import {
   resetPasswordSchema,
 } from "../middleware/validate.js";
 import authMiddleware from "../middleware/authMiddleware.js";
-import { csrfProtection } from "../middleware/csrfGenerator.js";
+import {
+  csrfProtection,
+  generateCsrfToken,
+} from "../middleware/csrfGenerator.js";
 import {
   authRateLimit,
   passwordResetRateLimit,
@@ -64,7 +67,7 @@ const authLogger = (
 router.use(authLogger);
 
 // CSRF Token endpoint - GET request to generate and return CSRF token
-router.get("/csrf-token", ...csrfProtection, (req, res) => {
+router.get("/csrf-token", generateCsrfToken, (req, res) => {
   // The CSRF token is already set in the cookie by the middleware
   res.json({
     message: "CSRF token generated",

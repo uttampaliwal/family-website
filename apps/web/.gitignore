@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 .env
-apps\web\src\styles\README.md
+apps/web/src/styles/README.md

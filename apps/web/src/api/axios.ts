@@ -35,12 +35,6 @@ api.interceptors.request.use(
 
     if (csrfToken && config.method !== "get") {
       config.headers["X-XSRF-TOKEN"] = csrfToken;
-      console.log(
-        "[CSRF] Token attached to request:",
-        csrfToken.substring(0, 10) + "...",
-      );
-    } else if (config.method !== "get") {
-      console.warn("[CSRF] No CSRF token found in cookies for non-GET request");
     }
 
     return config;
@@ -60,7 +54,6 @@ async function refreshAccessToken(): Promise<string | null> {
     );
     return response.data.accessToken || null;
   } catch (error) {
-    console.error("Unable to refresh token:", error);
     handleAuthFailure();
     throw error;
   }
@@ -115,8 +108,7 @@ function handleAuthFailure() {
   try {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(USERNAME_KEY);
-  } catch (error) {
-    console.error("Failed to clear localStorage:", error);
+  } catch {
     // Continue execution as this is not critical
   }
 
@@ -124,13 +116,11 @@ function handleAuthFailure() {
     const isValidPath = LOGIN_PATH.startsWith("/") && !LOGIN_PATH.includes("<");
     const redirectPath = isValidPath ? LOGIN_PATH : ROOT_PATH;
     window.location.replace(redirectPath);
-  } catch (error) {
-    console.error("Failed to redirect:", error);
+  } catch {
     // Fallback: try to redirect to root
     try {
       window.location.href = ROOT_PATH;
-    } catch (fallbackError) {
-      console.error("Failed to redirect to root:", fallbackError);
+    } catch {
       // Last resort: reload the page
       window.location.reload();
     }

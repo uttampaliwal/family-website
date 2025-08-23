@@ -10,16 +10,8 @@ const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const { showToast } = useToast();
 
-  const handleForgotPasswordError = (error: unknown, email: string) => {
-    console.error(
-      "Forgot password error:",
-      JSON.stringify({
-        message: error instanceof Error ? error.message : "Unknown error",
-        email: email,
-        timestamp: new Date().toISOString(),
-        operation: "forgotPassword",
-      }),
-    );
+  const handleForgotPasswordError = (error: unknown) => {
+    // Handle error without console logging for production
 
     if (error instanceof TypeError && error.message.includes("fetch")) {
       showToast(
@@ -60,7 +52,7 @@ const ForgotPasswordPage: React.FC = () => {
 
       showToast(data.message, "success");
     } catch (error) {
-      handleForgotPasswordError(error, email);
+      handleForgotPasswordError(error);
     }
   };
 

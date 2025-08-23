@@ -52,15 +52,6 @@ const LoginPage: React.FC = () => {
         throw new Error("Invalid response: missing username");
       }
     } catch (error) {
-      // Structured error logging with context
-      const errorInfo = {
-        message: error instanceof Error ? error.message : "Unknown error",
-        identifier: identifier,
-        timestamp: new Date().toISOString(),
-        operation: "userLogin",
-      };
-      console.error("Error during login:", JSON.stringify(errorInfo));
-
       let errorMessage = "An unexpected error occurred. Please try again.";
 
       if (isAxiosError(error)) {
@@ -119,18 +110,6 @@ const LoginPage: React.FC = () => {
       );
       setShowResendButton(false);
     } catch (error) {
-      // Structured error logging with context
-      const errorInfo = {
-        message: error instanceof Error ? error.message : "Unknown error",
-        identifier: identifier,
-        timestamp: new Date().toISOString(),
-        operation: "resendVerification",
-      };
-      console.error(
-        "Error resending verification email:",
-        JSON.stringify(errorInfo),
-      );
-
       let errorMessage =
         "An error occurred while resending verification email.";
 
