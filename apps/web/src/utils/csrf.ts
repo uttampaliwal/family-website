@@ -9,17 +9,13 @@ export const ensureCsrfToken = async (): Promise<void> => {
     ?.split("=")[1];
 
   if (existingToken) {
-    console.log("[CSRF] Token already exists");
     return;
   }
 
   try {
     // Make a GET request to generate CSRF token
-    console.log("[CSRF] Fetching CSRF token...");
     await api.get("/api/auth/csrf-token");
-    console.log("[CSRF] Token fetched successfully");
-  } catch (error) {
-    console.error("[CSRF] Failed to fetch token:", error);
+  } catch {
     throw new Error("Failed to initialize CSRF protection");
   }
 };

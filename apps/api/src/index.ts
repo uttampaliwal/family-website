@@ -159,7 +159,7 @@ app.use(generalRateLimit);
 app.use("/api", healthRoutes);
 
 // CSRF protection for state-changing operations
-app.use(csrfProtection);
+// Removed global CSRF protection - now applied per route for better control
 
 // API routes with enhanced logging
 app.use("/api/auth", authRoutes);

@@ -49,7 +49,7 @@ commit_message.txt
 .env
 .env.example
 example.txt
-apps\web\src\styles\README.md
+apps/web/src/styles/README.md
 PRIVACY_POLICY_IMPLEMENTATION.md
 frontend_styling_log.md
 styling_fixes_summary.md
