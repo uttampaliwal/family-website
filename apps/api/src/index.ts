@@ -166,8 +166,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/documents", documentRoutes);
 
-// 404 handler for unmatched routes
-app.use("*", (req, res) => {
+// 404 handler for unmatched routes - Fixed for path-to-regexp compatibility
+app.use((req, res) => {
   logger.warn(
     {
       method: req.method,

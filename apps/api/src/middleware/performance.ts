@@ -45,15 +45,23 @@ export const performanceMonitor = (
       );
     }
 
-    // Add performance headers
-    res.setHeader("X-Response-Time", `${responseTime.toFixed(2)}ms`);
-    res.setHeader(
-      "X-Memory-Usage",
-      `${(endMemory.heapUsed / 1024 / 1024).toFixed(2)}MB`,
-    );
+    // Call original end method first
+    const result = originalEnd.call(this, chunk, encoding);
 
-    // Call original end method
-    return originalEnd.call(this, chunk, encoding);
+    // Add performance headers only if headers haven't been sent
+    if (!res.headersSent) {
+      try {
+        res.setHeader("X-Response-Time", `${responseTime.toFixed(2)}ms`);
+        res.setHeader(
+          "X-Memory-Usage",
+          `${(endMemory.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+        );
+      } catch {
+        // Headers already sent, ignore
+      }
+    }
+
+    return result;
   };
 
   next();
