@@ -6,6 +6,7 @@ import { useFormValidation } from "../hooks/useFormValidation";
 import type { RegisterRequest, AuthResponse } from "../types/api";
 import { isAxiosError } from "axios";
 import { useToast } from "../hooks/useToast";
+import { ensureCsrfToken } from "../utils/csrf";
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>("");
@@ -148,6 +149,9 @@ const RegisterPage: React.FC = () => {
       showToast("Attempting to register...", "info");
 
       try {
+        // Ensure CSRF token is available before making the request
+        await ensureCsrfToken();
+
         const response = await api.post<AuthResponse>(
           `${import.meta.env.VITE_API_BASE_URL || ""}/api/auth/register`,
           {

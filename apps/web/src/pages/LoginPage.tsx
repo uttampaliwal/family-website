@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import api from "../api/axios";
+import { ensureCsrfToken } from "../utils/csrf";
 import type {
   LoginRequest,
   AuthResponse,
@@ -30,6 +31,9 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
+      // Ensure CSRF token is available before making the request
+      await ensureCsrfToken();
+
       const response = await api.post<AuthResponse>("/api/auth/login", {
         identifier,
         password,

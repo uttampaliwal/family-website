@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { isAxiosError } from "axios";
 import { useToast } from "../hooks/useToast";
 import api from "../api/axios";
+import { ensureCsrfToken } from "../utils/csrf";
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -48,9 +49,12 @@ const ForgotPasswordPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast("", "info");
+    showToast("Sending password reset email...", "info");
 
     try {
+      // Ensure CSRF token is available before making the request
+      await ensureCsrfToken();
+
       const response = await api.post("/api/auth/forgot-password", { email });
       const data = response.data;
 
