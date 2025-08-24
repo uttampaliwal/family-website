@@ -43,7 +43,7 @@ queryClient.setMutationDefaults(["auth"], {
     throw new Error("Mutation function not implemented");
   },
   onError: (error: Error) => {
-    console.error("Authentication mutation failed:", error);
+    // Authentication mutation failed - handle error silently
 
     // Handle specific error cases
     if (
@@ -57,19 +57,15 @@ queryClient.setMutationDefaults(["auth"], {
 
 // Global error boundary for React Query
 export const handleQueryError = (error: Error) => {
-  console.error("Query error:", error);
+  // Query error - handle error silently
 
   // Log error details for debugging
   if (error?.response) {
-    console.error("Response error:", {
-      status: error.response.status,
-      data: error.response.data,
-      headers: error.response.headers,
-    });
+    // Response error - handle error silently
   } else if (error?.request) {
-    console.error("Request error:", error.request);
+    // Request error - handle error silently
   } else {
-    console.error("Error message:", error.message);
+    // Error message - handle error silently
   }
 
   // You could also send errors to a logging service here

@@ -11,7 +11,7 @@ const ThemeToggleButton = () => {
         }
       } catch {
         // localStorage might not be available in incognito mode
-        console.log("localStorage not available, using system preference");
+        // localStorage not available, using system preference
       }
 
       // Fallback to system preference

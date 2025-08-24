@@ -16,9 +16,9 @@ const getInitialAuthState = () => {
       const user = JSON.parse(storedUser);
       return { isLoggedIn: true, user, username: user.username };
     }
-  } catch (error) {
+  } catch {
     if (import.meta.env.DEV) {
-      console.error("Error reading auth state from localStorage:", error);
+      // Error reading auth state from localStorage - handle silently
     }
   }
   return { isLoggedIn: false, user: null, username: null };
@@ -41,15 +41,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const logout = async () => {
     try {
       await api.post("/api/auth/logout");
-    } catch (error) {
-      console.error("Logout API call failed:", error);
+    } catch {
+      // Logout API call failed - handle silently
       // Don't throw error here as we still want to clear local state
     } finally {
       try {
         localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.USER);
-      } catch (storageError) {
-        console.error("Error clearing localStorage:", storageError);
+      } catch {
+        // Error clearing localStorage - handle silently
       }
       setAuthState({ isLoggedIn: false, user: null, username: null });
     }

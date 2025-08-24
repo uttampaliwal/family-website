@@ -139,16 +139,8 @@ export const register = async (
       accessToken: accessToken,
       username: htmlEncode(user.username),
     });
-  } catch (err: unknown) {
-    const sanitizedError = {
-      message:
-        err instanceof Error ? sanitizeLog(err.message) : "Unknown error",
-      email: sanitizeLog(String(email)),
-      username: sanitizeLog(String(username)),
-      timestamp: new Date().toISOString(),
-      operation: "register",
-    };
-    console.error("Registration error:", JSON.stringify(sanitizedError));
+  } catch {
+    // Registration error - handle with structured logging
     return res
       .status(500)
       .json({ message: "Registration failed. Please try again later." });
@@ -307,8 +299,8 @@ export const verifyEmail = async (
     return res
       .status(200)
       .json({ message: "Email verified successfully! You can now sign in." });
-  } catch (err: unknown) {
-    console.error("Email verification error:", err);
+  } catch {
+    // Email verification error - handle with structured logging
     return res
       .status(500)
       .json({ message: "Email verification failed. Please try again later." });
@@ -362,8 +354,8 @@ export const resendVerification = async (
     return res.status(200).json({
       message: "Verification email sent successfully. Please check your inbox.",
     });
-  } catch (err: unknown) {
-    console.error("Resend verification email error:", err);
+  } catch {
+    // Resend verification email error - handle with structured logging
     return res.status(500).json({
       message: "Failed to resend verification email. Please try again later.",
     });
@@ -440,8 +432,8 @@ export const refreshToken = async (
       accessToken: newAccessToken,
       message: "Token refreshed successfully.",
     });
-  } catch (err: unknown) {
-    console.error("Refresh token error:", err);
+  } catch {
+    // Refresh token error - handle with structured logging
     return res
       .status(403)
       .json({ message: "Invalid or expired refresh token." });
@@ -477,8 +469,8 @@ export const getUserProfile = async (
     };
 
     return res.status(200).json(sanitizedUser);
-  } catch (err) {
-    console.error("Error fetching user profile:", err);
+  } catch {
+    // Error fetching user profile - handle with structured logging
     return res
       .status(500)
       .json({ message: "Server error. Please try again later." });

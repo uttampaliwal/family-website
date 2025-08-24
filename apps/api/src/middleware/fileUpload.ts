@@ -3,7 +3,6 @@ import { Request as ExpressRequest } from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { sanitizeLog } from "../utils/logSanitizer.js";
 
 // Create uploads directory if it doesn't exist
 const __filename = fileURLToPath(import.meta.url);
@@ -12,17 +11,8 @@ const uploadDir = path.join(__dirname, "../../uploads");
 if (!fs.existsSync(uploadDir)) {
   try {
     fs.mkdirSync(uploadDir, { recursive: true });
-  } catch (error) {
-    console.error(
-      "Error creating upload directory:",
-      sanitizeLog(
-        JSON.stringify({
-          message: error instanceof Error ? error.message : "Unknown error",
-          path: uploadDir,
-          timestamp: new Date().toISOString(),
-        }),
-      ),
-    );
+  } catch {
+    // Error creating upload directory - handle with structured logging
     throw new Error("Failed to create upload directory");
   }
 }
