@@ -35,21 +35,20 @@ yarn-error.log*
 
 # Custom additions
 docs
-GEMINI_PROJECT_SUMMARY.md
+packages/tests/
 *.log
 .turbo/
-commit_message.txt
 .zencoder/
-acli.exe
 .amazonq/
-packages/tests/
-docker-compose.prod.yml
 .gemini
-commit_message.txt
 .env
 .env.example
+docker-compose.prod.yml
+commit_message.txt
 example.txt
-apps/web/src/styles/README.md
+cookies.txt
+acli.exe
+GEMINI_PROJECT_SUMMARY.md
 PRIVACY_POLICY_IMPLEMENTATION.md
 frontend_styling_log.md
 styling_fixes_summary.md

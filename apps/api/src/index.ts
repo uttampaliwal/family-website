@@ -3,7 +3,6 @@ import helmet from "helmet";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import compression from "compression";
 
 // Import configuration and utilities
 import { env } from "./config/environment.js";
@@ -19,17 +18,11 @@ import documentRoutes from "./routes/documents.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 import {
-  generalRateLimit,
-  speedLimiter,
   securityHeaders,
   requestId,
   requestSizeLimiter,
 } from "./middleware/security.js";
-import {
-  performanceMonitor,
-  memoryMonitor,
-  cpuMonitor,
-} from "./middleware/performance.js";
+import { memoryMonitor, cpuMonitor } from "./middleware/performance.js";
 
 // --- 1. Environment Setup ---
 // Environment validation is now handled in ./config/environment.js
@@ -37,6 +30,9 @@ import {
 // --- 2. Database Connection ---
 const connectDb = async () => {
   try {
+    // Debug: Log the actual URI being used (commented out)
+    // console.log("🔍 DEBUG: Actual MONGO_URI being used:", env.MONGO_URI);
+
     // Enhanced MongoDB connection with modern options
     await mongoose.connect(env.MONGO_URI, {
       family: 4, // Force IPv4
@@ -87,27 +83,75 @@ const app: Express = express();
 // Trust proxy settings for proper IP detection behind reverse proxies
 app.set("trust proxy", 1);
 
+// Manual CORS middleware FIRST - before any other middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  // Always set CORS headers for the frontend origin
+  if (origin === env.FRONTEND_URL) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type,Authorization,X-Requested-With,X-CSRF-Token,X-XSRF-TOKEN,x-xsrf-token,Accept,Cache-Control",
+    );
+    res.setHeader("Access-Control-Expose-Headers", "X-Request-ID");
+
+    // Handle preflight OPTIONS requests
+    if (req.method === "OPTIONS") {
+      return res.status(200).end();
+    }
+    return next();
+  }
+  return next();
+});
+
 // Request ID and HTTP logging (should be first)
 app.use(requestId);
 app.use(httpLogger);
 
-// Performance monitoring
-app.use(performanceMonitor);
+// Performance monitoring - temporarily disabled for debugging
+// app.use(performanceMonitor);
 
-// Compression middleware for better performance
+// Compression middleware for better performance - temporarily disabled for debugging
+// app.use(
+//   compression({
+//     filter: (req, res) => {
+//       if (req.headers["x-no-compression"]) {
+//         return false;
+//       }
+//       return compression.filter(req, res);
+//     },
+//     threshold: 1024, // Only compress responses larger than 1KB
+//   }),
+// );
+
+// Re-enable the original CORS library with correct configuration
 app.use(
-  compression({
-    filter: (req, res) => {
-      if (req.headers["x-no-compression"]) {
-        return false;
-      }
-      return compression.filter(req, res);
-    },
-    threshold: 1024, // Only compress responses larger than 1KB
+  cors({
+    origin: env.FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "X-CSRF-Token",
+      "X-XSRF-TOKEN",
+      "x-xsrf-token",
+      "Accept",
+      "Cache-Control",
+    ],
+    exposedHeaders: ["X-Request-ID"],
+    optionsSuccessStatus: 200,
   }),
 );
 
-// Security middleware
+// Security middleware (moved after CORS)
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -130,33 +174,23 @@ app.use(
 app.use(securityHeaders);
 app.use(requestSizeLimiter("50mb")); // Limit request size
 
-// CORS configuration
-app.use(
-  cors({
-    origin: env.FRONTEND_URL,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "X-CSRF-Token",
-    ],
-    exposedHeaders: ["X-Request-ID"],
-  }),
-);
-
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// Rate limiting and speed limiting
-app.use(speedLimiter);
-app.use(generalRateLimit);
+// Rate limiting and speed limiting - temporarily disabled for debugging
+// app.use(speedLimiter);
+// app.use(generalRateLimit);
 
 // Health check route (before CSRF protection)
 app.use("/api", healthRoutes);
+
+// Simple test route for debugging
+app.get("/api/test", (req, res) => {
+  console.log("Test route hit!");
+  res.json({ message: "API is working", timestamp: new Date().toISOString() });
+});
 
 // CSRF protection for state-changing operations
 // Removed global CSRF protection - now applied per route for better control
