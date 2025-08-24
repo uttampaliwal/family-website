@@ -155,12 +155,7 @@ export const validateEnvironment = (): Environment => {
         "Environment validation failed",
       );
 
-      console.error("\n❌ Environment Validation Failed:");
-      console.error(errorMessages);
-      console.error(
-        "\n💡 Please check your .env file and ensure all required variables are set.",
-      );
-      console.error("📖 See .env.example for reference.\n");
+      // Environment validation failed - handle with structured logging
 
       process.exit(1);
     }

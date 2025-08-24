@@ -74,9 +74,7 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
       localStorage.setItem(ACCESS_TOKEN_KEY, response.data.accessToken);
       localStorage.setItem(USERNAME_KEY, response.data.user.username);
     } else {
-      console.error(
-        "Login successful, but user data is missing from response.",
-      );
+      // Login successful, but user data is missing from response - handle silently
     }
   }
   return response.data;
@@ -85,8 +83,8 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
 export const logout = async (): Promise<void> => {
   try {
     await api.post("/auth/logout");
-  } catch (error) {
-    console.error("Logout failed, proceeding to clear local data.", error);
+  } catch {
+    // Logout failed, proceeding to clear local data - handle silently
   } finally {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(USERNAME_KEY);

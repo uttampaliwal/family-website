@@ -81,16 +81,12 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
   );
 
   const createToggleVisibility = useCallback(
-    (
-      isVisible: boolean,
-      setter: (visible: boolean) => void,
-      fieldName: string,
-    ) => {
+    (isVisible: boolean, setter: (visible: boolean) => void) => {
       return () => {
         try {
           setter(!isVisible);
-        } catch (error) {
-          console.error(`Failed to toggle ${fieldName} visibility:`, error);
+        } catch {
+          // Failed to toggle field visibility - handle error silently
         }
       };
     },

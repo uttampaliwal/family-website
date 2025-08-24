@@ -64,14 +64,14 @@ const ANIMATION_CONFIG = {
 const FamilyTools: React.FC = () => {
   const handleToolClick = useCallback((link: string) => {
     if (!link || typeof link !== "string") {
-      console.error("Invalid link provided:", link);
+      // Invalid link provided - handle error silently
       return;
     }
 
     try {
       window.location.href = link;
-    } catch (error) {
-      console.error("Error navigating to tool:", error);
+    } catch {
+      // Error navigating to tool - handle error silently
       // Fallback: try using window.open as alternative
       window.open(link, "_self");
     }

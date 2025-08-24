@@ -17,7 +17,7 @@ import documentRoutes from "./routes/documents.js";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler.js";
-import { csrfProtection } from "./middleware/csrfGenerator.js";
+
 import {
   generalRateLimit,
   speedLimiter,

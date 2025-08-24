@@ -38,7 +38,9 @@ const QuickTools: React.FC = () => {
           <path d="M8.29431 16.7H8.30329" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       ),
-      action: () => console.log('Add event clicked'),
+      action: () => {
+        // Add event functionality to be implemented
+      },
       color: 'bg-blue-500'
     },
     {
@@ -51,7 +53,9 @@ const QuickTools: React.FC = () => {
           <path d="M2.67004 18.9501L7.60004 15.6401C8.39004 15.1101 9.53004 15.1701 10.24 15.7801L10.57 16.0701C11.35 16.7401 12.61 16.7401 13.39 16.0701L17.55 12.5001C18.33 11.8301 19.59 11.8301 20.37 12.5001L22 13.9001" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       ),
-      action: () => console.log('Share photo clicked'),
+      action: () => {
+        // Share photo functionality to be implemented
+      },
       color: 'bg-green-500'
     },
     {
@@ -66,7 +70,9 @@ const QuickTools: React.FC = () => {
           <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       ),
-      action: () => console.log('Add task clicked'),
+      action: () => {
+        // Add task functionality to be implemented
+      },
       color: 'bg-yellow-500'
     },
     {
@@ -79,7 +85,9 @@ const QuickTools: React.FC = () => {
           <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       ),
-      action: () => console.log('Emergency clicked'),
+      action: () => {
+        // Emergency functionality to be implemented
+      },
       color: 'bg-red-500'
     }
   ];
@@ -229,9 +237,9 @@ const QuickTools: React.FC = () => {
       color: "#2196F3",
       onClick: () => {
         try {
-          console.log("Add event functionality not yet implemented");
-        } catch (error) {
-          console.error("Error in add event action:", error);
+          // Add event functionality not yet implemented
+        } catch {
+          // Handle error silently or use proper error reporting
         }
       },
       delay: 0,
@@ -242,9 +250,9 @@ const QuickTools: React.FC = () => {
       color: "#00C853",
       onClick: () => {
         try {
-          console.log("Share photo functionality not yet implemented");
-        } catch (error) {
-          console.error("Error in share photo action:", error);
+          // Share photo functionality not yet implemented
+        } catch {
+          // Handle error silently or use proper error reporting
         }
       },
       delay: 0.1,
@@ -255,9 +263,9 @@ const QuickTools: React.FC = () => {
       color: "#FFC107",
       onClick: () => {
         try {
-          console.log("Add task functionality not yet implemented");
-        } catch (error) {
-          console.error("Error in add task action:", error);
+          // Add task functionality not yet implemented
+        } catch {
+          // Handle error silently or use proper error reporting
         }
       },
       delay: 0.2,
@@ -268,9 +276,9 @@ const QuickTools: React.FC = () => {
       color: "#F44336",
       onClick: () => {
         try {
-          console.log("Emergency functionality not yet implemented");
-        } catch (error) {
-          console.error("Error in emergency action:", error);
+          // Emergency functionality not yet implemented
+        } catch {
+          // Handle error silently or use proper error reporting
         }
       },
       delay: 0.3,
