@@ -10,7 +10,7 @@ RUN npm install -g npm@latest
 COPY package.json package-lock.json turbo.json ./
 
 # Install all dependencies for the entire monorepo
-RUN npm install
+RUN npm install --no-audit --silent
 
 # Copy all source code
 COPY . .
@@ -36,7 +36,7 @@ COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/package-lock.json ./package-lock.json
 
 # Install dependencies for the pruned 'api' app
-RUN npm install
+RUN npm install --no-audit --silent
 
 # Copy the pruned source code
 COPY --from=pruner /app/out/full/ .
@@ -62,7 +62,7 @@ COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
 # Install production dependencies only
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --no-audit --silent
 
 EXPOSE 3000
 CMD ["node", "apps/api/dist/index.js"]

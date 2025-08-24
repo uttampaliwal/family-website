@@ -12,7 +12,7 @@ COPY turbo.json ./
 COPY apps/web/package*.json ./apps/web/
 
 # Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --only=production --no-audit --silent && npm cache clean --force
 
 # Build stage
 FROM base AS builder
