@@ -83,33 +83,6 @@ const app: Express = express();
 // Trust proxy settings for proper IP detection behind reverse proxies
 app.set("trust proxy", 1);
 
-// Manual CORS middleware FIRST - before any other middleware
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  // Always set CORS headers for the frontend origin
-  if (origin === env.FRONTEND_URL) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,POST,PUT,DELETE,PATCH,OPTIONS",
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type,Authorization,X-Requested-With,X-CSRF-Token,X-XSRF-TOKEN,x-xsrf-token,Accept,Cache-Control",
-    );
-    res.setHeader("Access-Control-Expose-Headers", "X-Request-ID");
-
-    // Handle preflight OPTIONS requests
-    if (req.method === "OPTIONS") {
-      return res.status(200).end();
-    }
-    return next();
-  }
-  return next();
-});
-
 // Request ID and HTTP logging (should be first)
 app.use(requestId);
 app.use(httpLogger);
