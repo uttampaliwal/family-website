@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#0D1B2A" />
+
+  <!-- Butterfly shape -->
+  <path d="M32 28 
+           C24 16, 14 16, 18 28
+           C14 40, 24 40, 32 28
+           C40 40, 50 40, 46 28
+           C50 16, 40 16, 32 28Z"
+        fill="#FFD700" stroke="white" stroke-width="1.5"/>
+
+  <!-- Letter T for Turnix -->
+  <text x="32" y="50" text-anchor="middle"
+        font-family="Poppins"
+        font-size="18" 
+        font-weight="bold"
+        fill="white">
+    T
+  </text>
+</svg>

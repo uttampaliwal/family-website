@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Project Turnix Logo</title>
+  <desc id="desc">Animated butterfly with Project Turnix text, designed for both light and dark themes.</desc>
+
+  <style>
+    /* Font fallback if Montserrat or Poppins not loaded */
+    text {
+      font-family: 'Montserrat', 'Poppins', system-ui, sans-serif;
+      text-rendering: geometricPrecision;
+    }
+
+    /* Default (light mode) */
+    .logo-text { fill: #2E3A59; font-weight: 700; }
+    .tagline { fill: #555; font-style: italic; }
+
+    /* Dark mode overrides */
+    @media (prefers-color-scheme: dark) {
+      .logo-text { fill: #ffffff; }
+      .tagline { fill: #bbbbbb; }
+    }
+
+    /* Butterfly */
+    .butterfly-body { fill: #654321; }
+    .butterfly-head { fill: #2d2d2d; }
+    .butterfly-wing1 { fill: #ff6b6b; opacity: 0.9; }
+    .butterfly-wing2 { fill: #4ecdc4; opacity: 0.9; }
+    .butterfly-pattern { fill: #ffe66d; opacity: 0.8; }
+    .butterfly-pattern2 { fill: #ff8b94; opacity: 0.8; }
+
+    /* Animation */
+    .butterfly {
+      transform-origin: center;
+      animation: flutter 1.5s ease-in-out infinite alternate,
+                 floaty 3s ease-in-out infinite;
+    }
+    @keyframes flutter {
+      0%   { transform: rotate(0deg) scale(1); }
+      25%  { transform: rotate(12deg) scale(1.02); }
+      50%  { transform: rotate(-12deg) scale(1); }
+      75%  { transform: rotate(10deg) scale(1.02); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+  </style>
+
+  <!-- Butterfly (left side) -->
+  <g class="butterfly" transform="translate(180,90) scale(1.2)">
+    <ellipse class="butterfly-body" cx="0" cy="0" rx="2" ry="25"/>
+    <circle class="butterfly-head" cx="0" cy="-20" r="3"/>
+    <path d="M-2,-22 Q-8,-30 -6,-32" stroke="#2d2d2d" stroke-width="1" fill="none"/>
+    <path d="M2,-22 Q8,-30 6,-32" stroke="#2d2d2d" stroke-width="1" fill="none"/>
+    <circle class="butterfly-head" cx="-6" cy="-32" r="1"/>
+    <circle class="butterfly-head" cx="6" cy="-32" r="1"/>
+    <ellipse class="butterfly-wing1" cx="-15" cy="-8" rx="18" ry="12" transform="rotate(-20 -15 -8)"/>
+    <ellipse class="butterfly-wing2" cx="-12" cy="8" rx="12" ry="8" transform="rotate(-10 -12 8)"/>
+    <ellipse class="butterfly-wing1" cx="15" cy="-8" rx="18" ry="12" transform="rotate(20 15 -8)"/>
+    <ellipse class="butterfly-wing2" cx="12" cy="8" rx="12" ry="8" transform="rotate(10 12 8)"/>
+    <circle class="butterfly-pattern" cx="-15" cy="-8" r="4"/>
+    <circle class="butterfly-pattern" cx="15" cy="-8" r="4"/>
+    <circle class="butterfly-pattern2" cx="-12" cy="8" r="2"/>
+    <circle class="butterfly-pattern2" cx="12" cy="8" r="2"/>
+  </g>
+
+  <!-- Logo text -->
+  <g transform="translate(180,100)">
+    <text class="logo-text" font-size="52" y="0">Project</text>
+    <text class="logo-text" font-size="68" y="65">Turnix</text>
+    <text class="tagline" font-size="18" y="95">Connecting branches . . .</text>
+  </g>
+</svg>

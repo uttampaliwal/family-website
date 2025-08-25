@@ -67,8 +67,8 @@ function App() {
                   <Link to="/" className="flex items-center group">
                     <div className="relative">
                       <img
-                        src="/family-logo.webp"
-                        className="h-20 object-contain transition-all duration-300 filter drop-shadow-[0_0_3px_rgba(255,255,255,0.5)] group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:scale-110"
+                        src="/family-logo.svg"
+                        className="h-20 object-contain transition-all duration-300 group-hover:scale-110"
                         alt="Family Website"
                       />
                     </div>
