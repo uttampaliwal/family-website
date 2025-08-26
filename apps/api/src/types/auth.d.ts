@@ -12,6 +12,7 @@ export interface RegisterRequest {
   mobileNumber?: string;
   username: string;
   gender: string;
+  relationship?: string;
 }
 
 export interface LoginRequest {
@@ -58,5 +59,6 @@ export interface UserProfile {
   dateOfBirth?: string;
   phoneNumber?: string | null;
   gender?: Gender;
+  relationship?: string;
   isVerified?: boolean;
 }

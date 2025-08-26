@@ -1,10 +1,14 @@
 import React from "react";
+import ButtonBase, {
+  type ButtonVariant,
+  type ButtonSize,
+} from "./ui/ButtonBase";
 
 interface ThemeButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: "primary" | "secondary" | "ghost" | "error" | "success" | "warning";
-  size?: "sm" | "md" | "lg";
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   loading?: boolean;
   icon?: React.ReactNode;
 }
@@ -16,39 +20,16 @@ const ThemeButton: React.FC<ThemeButtonProps> = ({
   size = "md",
   loading = false,
   icon,
-  disabled,
   ...props
 }) => {
-  const baseClasses = "btn";
-
-  const variantClasses = {
-    primary: "btn-primary",
-    secondary: "btn-secondary",
-    ghost: "btn-ghost",
-    error: "btn-error",
-    success: "btn-success",
-    warning: "btn-warning",
-  };
-
-  const sizeClasses = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-6 py-3 text-lg",
-  };
-
-  const buttonClasses = [
-    baseClasses,
-    variantClasses[variant],
-    sizeClasses[size],
-    loading && "opacity-75 cursor-not-allowed",
-    disabled && "opacity-50 cursor-not-allowed",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <button className={buttonClasses} disabled={disabled || loading} {...props}>
+    <ButtonBase
+      variant={variant}
+      size={size}
+      loading={loading}
+      className={className}
+      {...props}
+    >
       {loading ? (
         <>
           <svg
@@ -79,7 +60,7 @@ const ThemeButton: React.FC<ThemeButtonProps> = ({
           {children}
         </>
       )}
-    </button>
+    </ButtonBase>
   );
 };
 

@@ -37,62 +37,85 @@ const ChangePasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-8 max-w-lg">
-      <h1 className="text-3xl font-bold mb-6">Change Password</h1>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1" htmlFor="currentPassword">
-            Current Password
-          </label>
-          <input
-            id="currentPassword"
-            type="password"
-            className="input w-full"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            disabled={loading}
-          />
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header"></div>
+        <div className="auth-form">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
+              Change Password
+            </h1>
+            <p className="text-muted">Update your password below</p>
+          </div>
+          <form onSubmit={onSubmit} className="space-y-6">
+            <div>
+              <label
+                className="block text-sm font-medium text-base mb-2"
+                htmlFor="currentPassword"
+              >
+                Current Password
+              </label>
+              <input
+                id="currentPassword"
+                type="password"
+                className="input w-full"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label
+                className="block text-sm font-medium text-base mb-2"
+                htmlFor="newPassword"
+              >
+                New Password
+              </label>
+              <input
+                id="newPassword"
+                type="password"
+                className="input w-full"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label
+                className="block text-sm font-medium text-base mb-2"
+                htmlFor="confirmPassword"
+              >
+                Confirm New Password
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                className="input w-full"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "Updating..." : "Update Password"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate(-1)}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
-        <div>
-          <label className="block mb-1" htmlFor="newPassword">
-            New Password
-          </label>
-          <input
-            id="newPassword"
-            type="password"
-            className="input w-full"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label className="block mb-1" htmlFor="confirmPassword">
-            Confirm New Password
-          </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            className="input w-full"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            disabled={loading}
-          />
-        </div>
-        <div className="flex gap-3">
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? "Updating..." : "Update Password"}
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => navigate(-1)}
-            disabled={loading}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

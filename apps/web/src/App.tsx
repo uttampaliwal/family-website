@@ -26,6 +26,7 @@ const DocumentViewPage = lazy(() => import("./pages/DocumentViewPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
+const FamilyTreePage = lazy(() => import("./pages/FamilyTreePage"));
 
 import LiveDateTime from "./components/LiveDateTime";
 import LoadingIndicator from "./components/LoadingIndicator";
@@ -54,14 +55,7 @@ function App() {
       <Router>
         <ToastProvider>
           <RouteFocusManager />
-          <div
-            className="bg-background text-text-base"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              minHeight: "100vh",
-            }}
-          >
+          <div className="bg-background text-text-base app-root">
             <header
               role="banner"
               className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${scrolled ? "shadow-xl py-2" : "py-4"} navbar-glass`}
@@ -70,13 +64,17 @@ function App() {
                 <div className="flex items-center">
                   <Link to="/" className="flex items-center group">
                     <div className="relative">
+                      {/* Glossy accent overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-sm opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
                       <img
                         src="/family-logo.svg"
-                        className="h-16 object-contain transition-all duration-300 group-hover:scale-110"
+                        className="h-20 object-contain transition-all duration-300 group-hover:scale-110 relative z-10"
                         alt="Family Website"
                       />
+                      {/* Subtle color accent ring */}
+                      <div className="absolute inset-0 rounded-full border-2 border-secondary/30 group-hover:border-secondary/50 transition-all duration-300 scale-105"></div>
                     </div>
-                    <div className="ml-3 hidden sm:block">
+                    <div className="ml-4 hidden sm:block">
                       <span className="text-3xl font-extrabold tracking-wide">
                         Family <span className="text-secondary">Website</span>
                       </span>
@@ -93,6 +91,12 @@ function App() {
                     {isLoggedIn && (
                       <Link to="/documents" className="nav-link">
                         Documents
+                      </Link>
+                    )}
+
+                    {isLoggedIn && (
+                      <Link to="/family-tree" className="nav-link">
+                        Family Tree
                       </Link>
                     )}
 
@@ -136,8 +140,7 @@ function App() {
             {/* Main Content Area */}
             <main
               role="main"
-              className="w-full pt-28"
-              style={{ flex: "1 0 auto" }}
+              className="w-full pt-28 main-flex-auto"
               tabIndex={-1}
             >
               <ErrorBoundary
@@ -216,6 +219,14 @@ function App() {
                       }
                     />
                     <Route
+                      path="/family-tree"
+                      element={
+                        <ProtectedRoute>
+                          <FamilyTreePage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
                       path="/documents/new"
                       element={
                         <ProtectedRoute>
@@ -256,33 +267,170 @@ function App() {
             {/* Footer */}
             <footer
               role="contentinfo"
-              className="w-full bg-surface text-text-muted text-center py-6 border-t border-primary/20 mt-12"
+              className="w-full bg-surface text-text-muted border-t border-primary/20 mt-12"
             >
-              <div className="container mx-auto px-4">
-                <div className="flex flex-col md:flex-row justify-between items-center">
-                  <p>
-                    &copy; {new Date().getFullYear()} Family Portal. All rights
-                    reserved.
-                  </p>
-                  <div className="flex space-x-4 mt-4 md:mt-0">
-                    <Link
-                      to="/privacy-policy"
-                      className="hover:text-primary transition-colors"
-                    >
-                      Privacy Policy
-                    </Link>
-                    <Link
-                      to="/terms-of-service"
-                      className="hover:text-primary transition-colors"
-                    >
-                      Terms of Service
-                    </Link>
-                    <Link
-                      to="/contact"
-                      className="hover:text-primary transition-colors"
-                    >
-                      Contact
-                    </Link>
+              <div className="container mx-auto px-4 py-8">
+                {/* Main footer content */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-6">
+                  {/* Family Info */}
+                  <div className="text-center md:text-left">
+                    <h3 className="text-lg font-semibold text-base mb-3">
+                      Family Portal
+                    </h3>
+                    <p className="text-sm text-muted mb-3">
+                      Connecting families through technology, sharing memories,
+                      and staying organized together.
+                    </p>
+                    <div className="flex justify-center md:justify-start space-x-3">
+                      <span className="text-2xl">👨‍👩‍👧‍👦</span>
+                      <span className="text-2xl">💝</span>
+                      <span className="text-2xl">📱</span>
+                    </div>
+                  </div>
+
+                  {/* Quick Links */}
+                  <div className="text-center md:text-left">
+                    <h3 className="text-lg font-semibold text-base mb-3">
+                      Quick Links
+                    </h3>
+                    <ul className="space-y-2 text-sm">
+                      <li>
+                        <Link
+                          to="/"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Home
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/documents"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Documents
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/family-tree"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Family Tree
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/contact"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Contact Us
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Support */}
+                  <div className="text-center md:text-left">
+                    <h3 className="text-lg font-semibold text-base mb-3">
+                      Support
+                    </h3>
+                    <ul className="space-y-2 text-sm">
+                      <li>
+                        <Link
+                          to="/help"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Help Center
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/faq"
+                          className="hover:text-primary transition-colors"
+                        >
+                          FAQ
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/troubleshooting"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Troubleshooting
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/feedback"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Send Feedback
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Legal */}
+                  <div className="text-center md:text-left">
+                    <h3 className="text-lg font-semibold text-base mb-3">
+                      Legal
+                    </h3>
+                    <ul className="space-y-2 text-sm">
+                      <li>
+                        <Link
+                          to="/privacy-policy"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Privacy Policy
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/terms-of-service"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Terms of Service
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/cookie-policy"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Cookie Policy
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/data-protection"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Data Protection
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Bottom bar */}
+                <div className="border-t border-primary/10 pt-6">
+                  <div className="flex flex-col md:flex-row justify-between items-center">
+                    <p className="text-sm text-muted">
+                      &copy; {new Date().getFullYear()} Family Portal. All
+                      rights reserved.
+                    </p>
+                    <div className="flex items-center space-x-4 mt-4 md:mt-0">
+                      <span className="text-sm text-muted">
+                        Made with ❤️ for families
+                      </span>
+                      <div className="flex space-x-2">
+                        <span className="text-xs text-muted">v1.0.0</span>
+                        <span className="text-xs text-muted">•</span>
+                        <span className="text-xs text-muted">
+                          Last updated: {new Date().toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -39,13 +39,17 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {/* Toast Container - positioned to stack toasts */}
-      <div className="fixed top-6 right-6 z-[9999] space-y-3 pointer-events-none">
+      <div
+        className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] space-y-3 pointer-events-none w-full max-w-[560px] px-4"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {toasts.map((toast, index) => (
           <div
             key={toast.id}
-            className="pointer-events-auto"
+            className="pointer-events-auto toast-item"
             style={{
-              transform: `translateY(${index * 10}px)`,
+              transform: `translateY(${index * 12}px)`,
               zIndex: 9999 - index,
             }}
           >

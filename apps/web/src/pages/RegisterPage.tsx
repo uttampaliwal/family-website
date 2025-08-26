@@ -21,6 +21,7 @@ const RegisterPage: React.FC = () => {
   const [mobileNumber, setMobileNumber] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [gender, setGender] = useState<string>("");
+  const [relationship, setRelationship] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1);
 
@@ -82,7 +83,7 @@ const RegisterPage: React.FC = () => {
   const handleNext = useCallback(() => {
     showToast("", "info"); // Clear previous messages
     if (step === 1) {
-      if (!name || !dob || !gender) {
+      if (!name || !dob || !gender || !relationship) {
         showToast(
           "Please fill in all required fields for Personal Details.",
           "error",
@@ -94,7 +95,7 @@ const RegisterPage: React.FC = () => {
       if (!validateStep2()) return;
     }
     setStep(step + 1);
-  }, [step, name, dob, gender, validateStep2, showToast]);
+  }, [step, name, dob, gender, relationship, validateStep2, showToast]);
 
   const handlePrevious = useCallback(() => {
     showToast("", "info"); // Clear previous messages
@@ -163,6 +164,7 @@ const RegisterPage: React.FC = () => {
             mobileNumber: mobileNumber,
             username: username,
             gender: normalizeGender(gender),
+            relationship: relationship,
           } as RegisterRequest,
         );
 
@@ -219,6 +221,7 @@ const RegisterPage: React.FC = () => {
       mobileNumber,
       username,
       gender,
+      relationship,
       step,
       validateEmail,
       validatePassword,
@@ -354,6 +357,46 @@ const RegisterPage: React.FC = () => {
                         {opt.label}
                       </option>
                     ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="relationship"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    What is your relationship with Uttam Paliwal (S/O Ravi
+                    Paliwal)? <span className="text-error">*</span>
+                  </label>
+                  <select
+                    id="relationship"
+                    value={relationship}
+                    onChange={(e) => setRelationship(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="input"
+                  >
+                    <option value="">Select relationship</option>
+                    <option value="father">Father</option>
+                    <option value="mother">Mother</option>
+                    <option value="son">Son</option>
+                    <option value="daughter">Daughter</option>
+                    <option value="brother">Brother</option>
+                    <option value="sister">Sister</option>
+                    <option value="husband">Husband</option>
+                    <option value="wife">Wife</option>
+                    <option value="grandfather">Grandfather</option>
+                    <option value="grandmother">Grandmother</option>
+                    <option value="uncle">Uncle</option>
+                    <option value="aunt">Aunt</option>
+                    <option value="cousin">Cousin</option>
+                    <option value="nephew">Nephew</option>
+                    <option value="niece">Niece</option>
+                    <option value="son-in-law">Son-in-law</option>
+                    <option value="daughter-in-law">Daughter-in-law</option>
+                    <option value="brother-in-law">Brother-in-law</option>
+                    <option value="sister-in-law">Sister-in-law</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
 

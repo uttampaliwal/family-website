@@ -102,47 +102,44 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-background bg-opacity-50 flex items-center justify-center z-50">
-      <div className="card rounded-lg shadow-xl p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
-          Share Document
-        </h2>
+      <div className="auth-card w-full max-w-md">
+        <div className="auth-header"></div>
+        <div className="auth-form">
+          <h2 className="headline text-on-surface mb-4">Share Document</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="username"
-              className="block text-gray-700 dark:text-gray-300 font-medium mb-2"
-            >
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              placeholder="Enter username to share with"
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-6">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-base mb-2"
+              >
+                Username
+              </label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="input"
+                placeholder="Enter username to share with"
+                required
+              />
+            </div>
 
-          <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-            >
-              {loading ? "Sharing..." : "Share"}
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-end space-x-4">
+              <button type="button" onClick={onClose} className="btn btn-ghost">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary"
+              >
+                {loading ? "Sharing..." : "Share"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

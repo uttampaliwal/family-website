@@ -108,29 +108,27 @@ const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+    <div className="auth-container">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="auth-card"
       >
-        <div className="text-center mb-8">
-          <h1 className="font-cursive text-4xl md:text-5xl font-bold mb-2 gradient-text">
-            Reset Password
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Enter your new password below
-          </p>
-        </div>
+        <div className="auth-header"></div>
+        <div className="auth-form">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
+              Reset Password
+            </h1>
+            <p className="text-muted">Enter your new password below</p>
+          </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="h-2 gradient-bg"></div>
-          <form className="p-8" onSubmit={handleSubmit}>
-            <div className="mb-6 relative">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-6">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-base mb-2"
               >
                 New Password <span className="text-error">*</span>
               </label>
@@ -142,15 +140,15 @@ const ResetPasswordPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="input"
                 placeholder="Enter your new password"
               />
             </div>
 
-            <div className="mb-6 relative">
+            <div className="mb-6">
               <label
                 htmlFor="confirm-password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-base mb-2"
               >
                 Confirm New Password <span className="text-error">*</span>
               </label>
@@ -162,12 +160,12 @@ const ResetPasswordPage: React.FC = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
-                className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="input"
                 placeholder="Confirm your new password"
               />
             </div>
 
-            <div className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+            <div className="text-xs text-muted mb-6">
               Password must contain at least 8 characters, one uppercase letter,
               one lowercase letter, one number, and one special character.
             </div>
@@ -175,41 +173,15 @@ const ResetPasswordPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full gradient-bg text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-md hover:opacity-90 transition-all duration-200 flex items-center justify-center"
+              className="btn btn-primary w-full"
             >
-              {loading ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Resetting Password...
-                </>
-              ) : (
-                "Reset Password"
-              )}
+              {loading ? "Resetting Password..." : "Reset Password"}
             </button>
 
             <div className="text-center mt-6">
               <Link
                 to="/login"
-                className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+                className="font-medium text-primary hover:text-secondary transition-colors text-sm"
               >
                 Back to Login
               </Link>

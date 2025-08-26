@@ -49,10 +49,15 @@ const Toast: React.FC<ToastProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(true);
+  const [progressTrigger, setProgressTrigger] = useState(false);
 
   useEffect(() => {
     // Trigger entrance animation
-    const showTimer = setTimeout(() => setIsVisible(true), 50);
+    const showTimer = setTimeout(() => {
+      setIsVisible(true);
+      // kick off progress animation shortly after mount
+      setTimeout(() => setProgressTrigger(true), 50);
+    }, 50);
 
     // Auto-hide timer
     const hideTimer = setTimeout(() => {
@@ -91,9 +96,10 @@ const Toast: React.FC<ToastProps> = ({
   return (
     <div
       className={`${BASE_CLASSES} ${styleClasses} ${animationClasses} cursor-pointer hover:scale-105`}
-      role="alert"
+      role="status"
       onClick={handleClick}
       aria-live="polite"
+      aria-atomic="true"
     >
       <span className="text-xl flex-shrink-0" aria-hidden="true">
         {icon}
@@ -111,6 +117,19 @@ const Toast: React.FC<ToastProps> = ({
       >
         ×
       </button>
+      {/* Progress bar */}
+      <div
+        className="absolute left-0 right-0 bottom-0 h-1/2 rounded-b-xl overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="h-[2px] bg-white/80"
+          style={{
+            width: progressTrigger ? "0%" : "100%",
+            transition: `width ${duration}ms linear`,
+          }}
+        />
+      </div>
     </div>
   );
 };
