@@ -396,7 +396,7 @@ function App() {
                         Made with ❤️ for families
                       </span>
                       <div className="flex space-x-2">
-                        <span className="text-xs text-muted">v1.0.0</span>
+                        <span className="text-xs text-muted">v0.2.4</span>
                         <span className="text-xs text-muted">•</span>
                         <span className="text-xs text-muted">
                           Last updated: {new Date().toLocaleDateString()}
