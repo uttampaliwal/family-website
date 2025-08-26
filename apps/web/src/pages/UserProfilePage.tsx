@@ -172,7 +172,7 @@ const UserProfilePage: React.FC = () => {
     setProfileState((prev) => ({
       ...prev,
       editableProfile: prev.editableProfile
-        ? { ...prev.editableProfile, dob: value }
+        ? { ...prev.editableProfile, dateOfBirth: value }
         : null,
     }));
   };

@@ -74,6 +74,7 @@ const UserSchema = new mongoose.Schema({
   resetPasswordExpires: Date,
   refreshTokens: {
     type: [String],
+    default: [],
     validate: {
       validator: function (tokens: string[]) {
         return tokens.length <= 5; // Limit to 5 tokens max

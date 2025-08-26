@@ -203,7 +203,7 @@ export const register = async (
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString("hex"),
       },
-      Buffer.from(jwtSecret, "hex"),
+      jwtSecret,
       {
         expiresIn: "15m",
         algorithm: "HS512",
@@ -218,7 +218,7 @@ export const register = async (
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString("hex"),
       },
-      Buffer.from(refreshTokenSecret, "hex"),
+      refreshTokenSecret,
       {
         expiresIn: "7d",
         algorithm: "HS512",
@@ -227,8 +227,17 @@ export const register = async (
       },
     );
 
-    user.refreshTokens.push(refreshToken);
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $push: {
+          refreshTokens: { $each: [refreshToken], $slice: -5 },
+        },
+        $set: { loginAttempts: 0 },
+        $unset: { lockUntil: 1 },
+      },
+      { runValidators: false },
+    );
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -308,20 +317,29 @@ export const login = async (
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      user.loginAttempts = (user.loginAttempts || 0) + 1;
-      if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
-        user.lockUntil = Date.now() + LOCK_TIME;
-        await user.save();
+      const newAttempts = (user.loginAttempts || 0) + 1;
+      if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+        await User.updateOne(
+          { _id: user._id },
+          {
+            $set: {
+              loginAttempts: newAttempts,
+              lockUntil: Date.now() + LOCK_TIME,
+            },
+          },
+          { runValidators: false },
+        );
         return res.status(403).json({
           message: `Too many failed login attempts. Account locked for ${LOCK_TIME / (1000 * 60 * 60)} hours.`,
         });
       }
-      await user.save();
+      await User.updateOne(
+        { _id: user._id },
+        { $set: { loginAttempts: newAttempts } },
+        { runValidators: false },
+      );
       return res.status(400).json({ message: "Invalid credentials" });
     }
-    user.loginAttempts = 0;
-    user.lockUntil = undefined;
-    await user.save();
 
     // JWT secret is validated at startup
     const accessToken = jwt.sign(
@@ -330,7 +348,7 @@ export const login = async (
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString("hex"),
       },
-      Buffer.from(jwtSecret, "hex"),
+      jwtSecret,
       {
         expiresIn: "15m",
         algorithm: "HS512",
@@ -345,7 +363,7 @@ export const login = async (
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString("hex"),
       },
-      Buffer.from(refreshTokenSecret, "hex"),
+      refreshTokenSecret,
       {
         expiresIn: "7d",
         algorithm: "HS512",
@@ -353,9 +371,15 @@ export const login = async (
         audience: "family-website-users",
       },
     );
-
-    user.refreshTokens.push(refreshToken);
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $push: { refreshTokens: { $each: [refreshToken], $slice: -5 } },
+        $set: { loginAttempts: 0 },
+        $unset: { lockUntil: 1 },
+      },
+      { runValidators: false },
+    );
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -370,11 +394,23 @@ export const login = async (
       username: htmlEncode(user.username),
     });
   } catch (err) {
+    const errorObject = err as Error & { stack?: string };
+    // Log full error for diagnostics during development
+    console.error("Login error object:", errorObject);
     console.error(
-      "Login error:",
-      sanitizeLog((err as Error).message || String(err)),
+      "Login error message:",
+      sanitizeLog(errorObject?.message || String(err)),
     );
-    return res.status(500).json({ message: "An error occurred during login." });
+    if (errorObject?.stack) {
+      console.error("Login error stack:", errorObject.stack);
+    }
+
+    const message =
+      process.env.NODE_ENV === "development"
+        ? `Login failed: ${errorObject?.message || "Unknown error"}`
+        : "An error occurred during login.";
+
+    return res.status(500).json({ message });
   }
 };
 
@@ -581,10 +617,9 @@ export const refreshToken = async (
   }
   try {
     // Refresh token secret is validated at startup
-    const decoded = jwt.verify(
-      refreshToken,
-      Buffer.from(refreshTokenSecret, "hex"),
-    ) as { id: string };
+    const decoded = jwt.verify(refreshToken, refreshTokenSecret) as {
+      id: string;
+    };
     const user = await User.findById(String(decoded.id));
 
     if (!user || !user.refreshTokens.includes(refreshToken)) {
@@ -597,7 +632,7 @@ export const refreshToken = async (
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString("hex"),
       },
-      Buffer.from(jwtSecret, "hex"),
+      jwtSecret,
       {
         expiresIn: "15m",
         algorithm: "HS512",
@@ -612,7 +647,7 @@ export const refreshToken = async (
         iat: Math.floor(Date.now() / 1000),
         jti: crypto.randomBytes(16).toString("hex"),
       },
-      Buffer.from(refreshTokenSecret, "hex"),
+      refreshTokenSecret,
       {
         expiresIn: "7d",
         algorithm: "HS512",
