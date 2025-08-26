@@ -90,7 +90,6 @@ const UserSchema = new mongoose.Schema({
   },
   verificationToken: {
     type: String,
-    unique: true,
     sparse: true, // Allows null values to not violate unique constraint
   },
   verificationTokenExpires: {
