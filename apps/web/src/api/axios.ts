@@ -13,7 +13,7 @@ const LOGIN_PATH = import.meta.env.VITE_LOGIN_PATH || "/login";
 const ROOT_PATH = "/";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
   withCredentials: true, // Important for sending HttpOnly cookies
   xsrfCookieName: "XSRF-TOKEN", // The name of the cookie to use as a value for the XSRF token
   xsrfHeaderName: "X-XSRF-TOKEN", // The name of the HTTP header to send the XSRF token in
@@ -72,7 +72,7 @@ api.interceptors.request.use(
 async function refreshAccessToken(): Promise<string | null> {
   try {
     const response = await axios.post<AuthResponse>(
-      `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`,
+      `${import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"}/api/auth/refresh-token`,
       {},
       { withCredentials: true },
     );
