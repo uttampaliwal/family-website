@@ -21,6 +21,7 @@ import {
   AuthResponse,
   UserProfile,
   Gender,
+  RelationshipType,
 } from "../types/auth";
 import { sanitizeLog } from "../utils/logSanitizer.js";
 
@@ -628,6 +629,7 @@ export const getUserProfile = async (
         : undefined,
       phoneNumber: user.phoneNumber ? htmlEncode(user.phoneNumber) : undefined,
       gender: user.gender as Gender,
+      relationship: user.relationship as RelationshipType | undefined,
       isVerified: user.isVerified,
     };
 
@@ -900,7 +902,7 @@ export const updateUserProfile = async (
   res: Response,
 ): Promise<Response<AuthResponse>> => {
   const { username } = req.params;
-  const { name, dateOfBirth, phoneNumber, gender } = req.body;
+  const { name, dateOfBirth, phoneNumber, gender, relationship } = req.body;
 
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -951,6 +953,44 @@ export const updateUserProfile = async (
       user.gender = normalizedGender as Gender;
     }
 
+    if (relationship !== undefined) {
+      const normalizedRelationship = String(relationship).toLowerCase();
+      const allowedRelationships = [
+        "self",
+        "father",
+        "mother",
+        "son",
+        "daughter",
+        "brother",
+        "sister",
+        "husband",
+        "wife",
+        "grandfather",
+        "grandmother",
+        "uncle",
+        "aunt",
+        "cousin",
+        "nephew",
+        "niece",
+        "son-in-law",
+        "daughter-in-law",
+        "brother-in-law",
+        "sister-in-law",
+        "other",
+      ];
+      if (
+        normalizedRelationship &&
+        !allowedRelationships.includes(normalizedRelationship)
+      ) {
+        return res.status(400).json({
+          message: "Invalid relationship value.",
+        });
+      }
+      user.relationship = (normalizedRelationship || undefined) as
+        | RelationshipType
+        | undefined;
+    }
+
     await user.save();
 
     const userProfile: UserProfile = {
@@ -963,6 +1003,7 @@ export const updateUserProfile = async (
         : undefined,
       phoneNumber: user.phoneNumber,
       gender: user.gender as Gender,
+      relationship: user.relationship as RelationshipType | undefined,
       isVerified: user.isVerified,
     };
 

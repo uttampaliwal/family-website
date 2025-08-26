@@ -1,11 +1,12 @@
 import { useState, useEffect, Suspense, lazy } from "react";
-import { ErrorBoundary } from "react-error-boundary";
+
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RouteFocusManager from "./components/RouteFocusManager";
 import HamburgerMenu from "./components/HamburgerMenu";
 import ThemeToggleButton from "./components/ThemeToggleButton";
+import EnhancedErrorBoundary from "./components/EnhancedErrorBoundary";
 
 import UserProfileSkeleton from "./components/UserProfileSkeleton";
 
@@ -143,36 +144,7 @@ function App() {
               className="w-full pt-28 main-flex-auto"
               tabIndex={-1}
             >
-              <ErrorBoundary
-                fallback={
-                  <div className="text-center p-8 text-error">
-                    <h2 className="text-xl font-semibold mb-2">
-                      Something went wrong
-                    </h2>
-                    <p className="mb-4">
-                      We're sorry, but there was an error loading this page.
-                    </p>
-                    <button
-                      onClick={() => window.location.reload()}
-                      className="btn btn-primary"
-                    >
-                      Reload Page
-                    </button>
-                  </div>
-                }
-                onError={(error) => {
-                  const sanitizedError = {
-                    message:
-                      error?.message?.replace(/[<>'"&\n\r\t]/g, "") ||
-                      "Unknown error",
-                    timestamp: new Date().toISOString(),
-                  };
-                  console.error(
-                    "ErrorBoundary caught an error:",
-                    sanitizedError,
-                  );
-                }}
-              >
+              <EnhancedErrorBoundary>
                 <Suspense fallback={<LoadingIndicator fullScreen />}>
                   <Routes>
                     <Route path="/" element={<HomePage />} />
@@ -261,7 +233,7 @@ function App() {
                     <Route path="/contact" element={<ContactPage />} />
                   </Routes>
                 </Suspense>
-              </ErrorBoundary>
+              </EnhancedErrorBoundary>
             </main>
 
             {/* Footer */}

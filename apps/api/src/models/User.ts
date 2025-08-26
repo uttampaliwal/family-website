@@ -63,6 +63,7 @@ const UserSchema = new mongoose.Schema({
     required: false,
     enum: {
       values: [
+        "self",
         "father",
         "mother",
         "son",

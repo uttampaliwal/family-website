@@ -51,6 +51,29 @@ export interface AuthResponse {
   error?: AuthError; // Properly typed error responses
 }
 
+export type RelationshipType =
+  | "self"
+  | "father"
+  | "mother"
+  | "son"
+  | "daughter"
+  | "brother"
+  | "sister"
+  | "husband"
+  | "wife"
+  | "grandfather"
+  | "grandmother"
+  | "uncle"
+  | "aunt"
+  | "cousin"
+  | "nephew"
+  | "niece"
+  | "son-in-law"
+  | "daughter-in-law"
+  | "brother-in-law"
+  | "sister-in-law"
+  | "other";
+
 export interface UserProfile {
   id: string;
   username: string;
@@ -59,6 +82,6 @@ export interface UserProfile {
   dateOfBirth?: string;
   phoneNumber?: string | null;
   gender?: Gender;
-  relationship?: string;
+  relationship?: RelationshipType;
   isVerified?: boolean;
 }

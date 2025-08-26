@@ -21,11 +21,40 @@ export const registerSchema = Joi.object({
   }),
   dob: Joi.string().isoDate().required(),
   mobileNumber: Joi.string()
-    .pattern(/^[0-9]{10}$/)
+    .pattern(/^[+]?[1-9][\d]{0,15}$/)
     .allow("", null),
-  username: Joi.string().alphanum().min(3).max(30).required(),
+  // Allow underscores to match frontend and controller validation
+  username: Joi.string()
+    .pattern(/^[a-zA-Z0-9_]{3,30}$/)
+    .required(),
   // Accept standardized lowercase values
   gender: Joi.string().valid("male", "female", "prefer not to say").required(),
+  relationship: Joi.string()
+    .valid(
+      "self",
+      "father",
+      "mother",
+      "son",
+      "daughter",
+      "brother",
+      "sister",
+      "husband",
+      "wife",
+      "grandfather",
+      "grandmother",
+      "uncle",
+      "aunt",
+      "cousin",
+      "nephew",
+      "niece",
+      "son-in-law",
+      "daughter-in-law",
+      "brother-in-law",
+      "sister-in-law",
+      "other",
+    )
+    .optional()
+    .allow("", null),
 });
 
 export const loginSchema = Joi.object({
