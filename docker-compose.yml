@@ -35,6 +35,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      - MONGO_HOST=mongo
     env_file:
       - ./.env
       - ./apps/api/.env

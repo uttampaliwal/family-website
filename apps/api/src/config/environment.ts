@@ -12,45 +12,6 @@ const isRunningInDocker = (): boolean => {
   );
 };
 
-// Helper function to get the appropriate MongoDB host
-const getMongoHost = (): string => {
-  // If MONGO_HOST is explicitly set, use it
-  if (process.env.MONGO_HOST) {
-    return process.env.MONGO_HOST;
-  }
-
-  // For development, always use localhost since MongoDB is accessible via Docker port mapping
-  if (process.env.NODE_ENV === "development") {
-    return "localhost";
-  }
-
-  // Auto-detect based on environment
-  return isRunningInDocker() ? "mongo" : "localhost";
-};
-
-// Helper function to build MongoDB URI
-const buildMongoUri = (): string => {
-  const host = getMongoHost();
-  const database = "family-website";
-
-  // For development mode, always use localhost with Docker credentials
-  if (process.env.NODE_ENV === "development") {
-    const username = process.env.MONGO_INITDB_ROOT_USERNAME || "root";
-    const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
-    return `mongodb://${username}:${password}@localhost:27017/${database}?authSource=admin`;
-  }
-
-  // For Docker environment, use authentication
-  if (host === "mongo") {
-    const username = process.env.MONGO_INITDB_ROOT_USERNAME || "root";
-    const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
-    return `mongodb://${username}:${password}@${host}:27017/${database}?authSource=admin`;
-  }
-
-  // For local development, try without authentication first
-  return `mongodb://${host}:27017/${database}`;
-};
-
 // Define the environment schema using Zod
 const envSchema = z.object({
   // Server Configuration
@@ -72,30 +33,23 @@ const envSchema = z.object({
     .string()
     .optional()
     .transform(() => {
-      // console.log("🔧 Zod transform called with:", val);
-      // console.log("🔧 NODE_ENV:", process.env.NODE_ENV);
+      const host = process.env.MONGO_HOST || "localhost";
+      const database = "family-website";
+      const username = process.env.MONGO_INITDB_ROOT_USERNAME || "root";
+      const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
 
-      // For development mode, always use localhost with Docker credentials
-      if (process.env.NODE_ENV === "development") {
-        const username = process.env.MONGO_INITDB_ROOT_USERNAME || "root";
-        const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
-        const uri = `mongodb://${username}:${password}@localhost:27017/family-website?authSource=admin`;
-        console.log("🔧 Development URI generated:", uri);
-        return uri;
+      console.log(
+        `[environment.ts] NODE_ENV: ${process.env.NODE_ENV}, host: ${host}`,
+      );
+
+      if (process.env.NODE_ENV === "development" && host === "localhost") {
+        // Local development against local MongoDB
+        return `mongodb://localhost:27017/${database}`;
       }
-      // Always build URI dynamically to respect MONGO_HOST
-      const uri = buildMongoUri();
-      console.log("🔧 Production URI generated:", uri);
-      return uri;
-    })
-    .refine((uri) => {
-      try {
-        new URL(uri);
-        return uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
-      } catch {
-        return false;
-      }
-    }, "MONGO_URI must be a valid MongoDB connection string"),
+
+      // Docker and other environments
+      return `mongodb://${username}:${password}@${host}:27017/${database}?authSource=admin`;
+    }),
 
   // JWT Configuration
   JWT_SECRET: z
@@ -146,8 +100,7 @@ export const validateEnvironment = (): Environment => {
   try {
     const env = envSchema.parse(process.env);
 
-    const mongoHost =
-      env.NODE_ENV === "development" ? "localhost" : getMongoHost();
+    const mongoHost = process.env.MONGO_HOST || "localhost";
     const isDocker = isRunningInDocker();
 
     logger.info(
@@ -157,10 +110,7 @@ export const validateEnvironment = (): Environment => {
         logLevel: env.LOG_LEVEL,
         mongoHost,
         isDocker,
-        mongoUri: env.MONGO_URI.replace(
-          /\/\/[^:]+:[^@]+@/,
-          "//***:***@",
-        ).replace(/mongo:27017/, "localhost:27017"), // Hide credentials in logs
+        mongoUri: env.MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"), // Hide credentials in logs
         hasJwtSecret: !!env.JWT_SECRET,
         hasRefreshTokenSecret: !!env.REFRESH_TOKEN_SECRET,
         hasFrontendUrl: !!env.FRONTEND_URL,
@@ -198,21 +148,7 @@ export const validateEnvironment = (): Environment => {
 };
 
 // Export validated environment
-export const env = (() => {
-  const validatedEnv = validateEnvironment();
-
-  // Override MONGO_URI for development to ensure localhost is used
-  if (validatedEnv.NODE_ENV === "development") {
-    // Try without authentication first for local development
-    validatedEnv.MONGO_URI = `mongodb://localhost:27017/family-website`;
-    console.log(
-      "🔧 OVERRIDE: Development MONGO_URI set to (no auth):",
-      validatedEnv.MONGO_URI,
-    );
-  }
-
-  return validatedEnv;
-})();
+export const env = validateEnvironment();
 
 // Helper function to check if we're in production
 export const isProduction = () => env.NODE_ENV === "production";
