@@ -3,6 +3,16 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendEmail } from "../utils/emailService.js";
+import {
+  sendEnhancedEmail,
+  sendEmailWithRetry,
+} from "../utils/enhancedEmailService.js";
+import {
+  createEmailVerificationTemplate,
+  createPasswordResetTemplate,
+  createPasswordChangeConfirmationTemplate,
+} from "../utils/emailContent.js";
+import { createSafeEmailUrl } from "../utils/urlValidator.js";
 import User from "../models/User.js";
 import {
   RegisterRequest,
@@ -20,6 +30,14 @@ import { sanitizeLog } from "../utils/logSanitizer.js";
 const jwtSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
 
+// Validate JWT secrets on startup
+if (!jwtSecret || jwtSecret.length < 32) {
+  throw new Error("JWT_SECRET must be at least 32 characters long");
+}
+if (!refreshTokenSecret || refreshTokenSecret.length < 32) {
+  throw new Error("REFRESH_TOKEN_SECRET must be at least 32 characters long");
+}
+
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
@@ -29,15 +47,50 @@ export const register = async (
   req: Request<Record<string, never>, Record<string, never>, RegisterRequest>,
   res: Response<AuthResponse>,
 ): Promise<Response<AuthResponse>> => {
-  const { name, email, password, dateOfBirth, username, phoneNumber } =
-    req.body;
+  const { name, email, password, dob, username, mobileNumber } = req.body;
   const gender = req.body.gender as Gender;
+
+  // Input validation
+  if (!name || !email || !password || !dob || !username || !gender) {
+    return res.status(400).json({
+      message: "All required fields must be provided",
+    });
+  }
+
+  // Validate password strength
+  if (password.length < 8) {
+    return res.status(400).json({
+      message: "Password must be at least 8 characters long",
+    });
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      message: "Please provide a valid email address",
+    });
+  }
+
+  // Validate username format
+  const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+  if (!usernameRegex.test(username)) {
+    return res.status(400).json({
+      message:
+        "Username must be 3-30 characters and contain only letters, numbers, and underscores",
+    });
+  }
+
+  // Validate gender
+  const validGenders = ["male", "female", "prefer not to say"];
+  if (!validGenders.includes(gender.toLowerCase())) {
+    return res.status(400).json({
+      message: "Gender must be male, female, or prefer not to say",
+    });
+  }
 
   try {
     // Sanitize email input to prevent NoSQL injection
-    if (typeof email !== "string") {
-      return res.status(400).json({ message: "Invalid email format" });
-    }
     const sanitizedEmail = sanitizeForQuery(email);
     let user = await User.findOne({ email: sanitizedEmail });
     if (user) {
@@ -46,10 +99,7 @@ export const register = async (
         .json({ message: "User with this email already exists" });
     }
 
-    // Sanitize username input to prevent NoSQL injection
-    if (typeof username !== "string") {
-      return res.status(400).json({ message: "Invalid username format" });
-    }
+    // Check username availability
     const sanitizedUsername = sanitizeForQuery(username);
     user = await User.findOne({ username: sanitizedUsername });
     if (user) {
@@ -61,39 +111,92 @@ export const register = async (
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const verificationToken = crypto.randomBytes(20).toString("hex");
+    const verificationToken = crypto
+      .randomBytes(20)
+      .toString("hex")
+      .toLowerCase();
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     user = new User({
       name,
       email,
       password: hashedPassword,
-      dateOfBirth,
-      phoneNumber,
+      dateOfBirth: new Date(dob),
+      phoneNumber: mobileNumber,
       username,
-      gender,
+      gender: gender.toLowerCase(),
       verificationToken,
+      verificationTokenExpires,
     });
 
     await user.save();
 
+    // Send verification email
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
     await sendEmail({
       to: email,
       subject: "Verify Your Email for Family Website",
-      html: `<p>Please click the link below to verify your email address:</p><p><a href="${htmlEncode(verificationUrl)}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Verify Your Email</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+            <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2563eb; margin: 0;">Family Website</h1>
+                </div>
+                
+                <h2 style="color: #212529; margin-bottom: 20px;">Welcome! Please verify your email</h2>
+                
+                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                    Hello <strong>${htmlEncode(name)}</strong>,
+                </p>
+                
+                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                    Thank you for joining Family Website! To complete your account setup and ensure the security of your account, please verify your email address by clicking the button below:
+                </p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${verificationUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
+                        Verify Email Address
+                    </a>
+                </div>
+                
+                <p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                    If the button doesn't work, you can copy and paste this link into your browser:
+                </p>
+                
+                <p style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; word-break: break-all; font-family: monospace; font-size: 14px; margin-bottom: 20px;">
+                    ${verificationUrl}
+                </p>
+                
+                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #856404; font-size: 14px;">
+                        <strong>Security Notice:</strong> This verification link will expire in 24 hours for your security. 
+                        If you didn't create an account with us, please ignore this email.
+                    </p>
+                </div>
+                
+                <div style="border-top: 1px solid #e9ecef; padding-top: 20px; margin-top: 30px; text-align: center;">
+                    <p style="color: #6c757d; font-size: 14px; margin: 0;">
+                        If you have any questions, please contact us at 
+                        <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #2563eb;">
+                            ${process.env.EMAIL_USER || "support@familywebsite.com"}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+      `,
     });
 
-    if (!jwtSecret) {
-      return res
-        .status(500)
-        .json({ message: "Server error: JWT_SECRET not configured." });
-    }
-    if (!refreshTokenSecret) {
-      return res.status(500).json({
-        message: "Server error: REFRESH_TOKEN_SECRET not configured.",
-      });
-    }
+    // Generate JWT tokens
     const accessToken = jwt.sign(
       {
         id: user.id,
@@ -108,6 +211,7 @@ export const register = async (
         audience: "family-website-users",
       },
     );
+
     const refreshToken = jwt.sign(
       {
         id: user.id,
@@ -139,8 +243,9 @@ export const register = async (
       accessToken: accessToken,
       username: htmlEncode(user.username),
     });
-  } catch {
+  } catch (error) {
     // Registration error - handle with structured logging
+    console.error("Registration error:", sanitizeLog(String(error)));
     return res
       .status(500)
       .json({ message: "Registration failed. Please try again later." });
@@ -155,16 +260,29 @@ export const login = async (
   req: Request<Record<string, never>, Record<string, never>, LoginRequest>,
   res: Response<AuthResponse>,
 ): Promise<Response<AuthResponse>> => {
-  const { emailOrUsername, password } = req.body;
+  const { identifier, password } = req.body;
+
+  // Input validation
+  if (!identifier || !password) {
+    return res.status(400).json({
+      message: "Email/username and password are required",
+    });
+  }
+
+  if (typeof identifier !== "string" || typeof password !== "string") {
+    return res.status(400).json({
+      message: "Invalid input format",
+    });
+  }
+
+  if (identifier.trim().length === 0 || password.length === 0) {
+    return res.status(400).json({
+      message: "Email/username and password cannot be empty",
+    });
+  }
 
   try {
-    // Prevent NoSQL injection by ensuring identifier is treated as a string literal
-    if (typeof emailOrUsername !== "string") {
-      return res
-        .status(400)
-        .json({ message: "Invalid email or username format" });
-    }
-    const sanitizedIdentifier = sanitizeForQuery(emailOrUsername);
+    const sanitizedIdentifier = sanitizeForQuery(identifier);
     const user = await User.findOne({
       $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
@@ -204,11 +322,7 @@ export const login = async (
     user.lockUntil = undefined;
     await user.save();
 
-    if (!jwtSecret) {
-      return res
-        .status(500)
-        .json({ message: "Server error: JWT_SECRET not configured." });
-    }
+    // JWT secret is validated at startup
     const accessToken = jwt.sign(
       {
         id: user.id,
@@ -223,11 +337,7 @@ export const login = async (
         audience: "family-website-users",
       },
     );
-    if (!refreshTokenSecret) {
-      return res.status(500).json({
-        message: "Server error: REFRESH_TOKEN_SECRET not configured.",
-      });
-    }
+    // Refresh token secret is validated at startup
     const refreshToken = jwt.sign(
       {
         id: user.id,
@@ -279,28 +389,59 @@ export const verifyEmail = async (
 
   try {
     // Validate token format before querying database
-    if (!token || typeof token !== "string" || !/^[a-f0-9]{40}$/.test(token)) {
+    if (
+      !token ||
+      typeof token !== "string" ||
+      !/^[a-fA-F0-9]{40}$/.test(token)
+    ) {
       return res
         .status(400)
         .json({ message: "Invalid verification token format." });
     }
 
-    const user = await User.findOne({ verificationToken: token });
+    // Normalize token to lowercase for consistent database lookup
+    const normalizedToken = token.toLowerCase();
+
+    // Find user by token
+    const user = await User.findOne({
+      verificationToken: normalizedToken,
+    });
 
     if (!user) {
       return res
         .status(400)
         .json({ message: "Invalid or expired verification token." });
     }
+
+    // Check if user is already verified
+    if (user.isVerified) {
+      return res
+        .status(400)
+        .json({ message: "Email is already verified. Please log in." });
+    }
+
+    // Check if token has expired
+    if (
+      user.verificationTokenExpires &&
+      user.verificationTokenExpires < new Date()
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Invalid or expired verification token." });
+    }
+
+    // Update user verification status
     user.isVerified = true;
     user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
     await user.save();
 
     return res
       .status(200)
       .json({ message: "Email verified successfully! You can now sign in." });
-  } catch {
+  } catch (error) {
     // Email verification error - handle with structured logging
+    console.error("Email verification error:", sanitizeLog(String(error)));
     return res
       .status(500)
       .json({ message: "Email verification failed. Please try again later." });
@@ -315,18 +456,18 @@ export const resendVerification = async (
   >,
   res: Response<AuthResponse>,
 ): Promise<Response<AuthResponse>> => {
-  const { emailOrUsername } = req.body;
+  const { identifier } = req.body;
 
   try {
     // Sanitize input to prevent NoSQL injection
-    if (typeof emailOrUsername !== "string" || !emailOrUsername.trim()) {
+    if (typeof identifier !== "string" || !identifier.trim()) {
       return res
         .status(400)
         .json({ message: "Invalid email or username format" });
     }
 
     // Sanitize the input to prevent NoSQL injection
-    const sanitizedInput = String(emailOrUsername).trim();
+    const sanitizedInput = String(identifier).trim();
 
     const user = await User.findOne({
       $or: [{ email: sanitizedInput }, { username: sanitizedInput }],
@@ -341,14 +482,80 @@ export const resendVerification = async (
         .json({ message: "Email already verified. Please log in." });
     }
 
-    const verificationToken = user.verificationToken;
+    // Generate a new verification token with expiration for resend
+    const verificationToken = crypto
+      .randomBytes(20)
+      .toString("hex")
+      .toLowerCase();
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpires = verificationTokenExpires;
+    await user.save();
+
+    // Use basic email service for now (fallback while debugging enhanced service)
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
     await sendEmail({
       to: user.email,
       subject: "Verify Your Email for Family Website",
-      html: `<p>Please click the link below to verify your email address:</p><p><a href="${htmlEncode(verificationUrl)}">Verify Email</a></p><p>This link will expire in 24 hours for security purposes.</p>`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Verify Your Email</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+            <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2563eb; margin: 0;">Family Website</h1>
+                </div>
+                
+                <h2 style="color: #212529; margin-bottom: 20px;">Email Verification Required</h2>
+                
+                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                    Hello <strong>${htmlEncode(user.name)}</strong>,
+                </p>
+                
+                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                    You requested a new verification email for your Family Website account. Please verify your email address by clicking the button below:
+                </p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${verificationUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
+                        Verify Email Address
+                    </a>
+                </div>
+                
+                <p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                    If the button doesn't work, you can copy and paste this link into your browser:
+                </p>
+                
+                <p style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; word-break: break-all; font-family: monospace; font-size: 14px; margin-bottom: 20px;">
+                    ${verificationUrl}
+                </p>
+                
+                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #856404; font-size: 14px;">
+                        <strong>Security Notice:</strong> This verification link will expire in 24 hours for your security. 
+                        If you didn't request this verification email, please ignore this message.
+                    </p>
+                </div>
+                
+                <div style="border-top: 1px solid #e9ecef; padding-top: 20px; margin-top: 30px; text-align: center;">
+                    <p style="color: #6c757d; font-size: 14px; margin: 0;">
+                        If you have any questions, please contact us at 
+                        <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #2563eb;">
+                            ${process.env.EMAIL_USER || "support@familywebsite.com"}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+      `,
     });
 
     return res.status(200).json({
@@ -372,11 +579,7 @@ export const refreshToken = async (
     return res.status(401).json({ message: "No refresh token provided." });
   }
   try {
-    if (!refreshTokenSecret) {
-      throw new Error(
-        "REFRESH_TOKEN_SECRET environment variable is not configured",
-      );
-    }
+    // Refresh token secret is validated at startup
     const decoded = jwt.verify(
       refreshToken,
       Buffer.from(refreshTokenSecret, "hex"),
@@ -386,11 +589,7 @@ export const refreshToken = async (
     if (!user || !user.refreshTokens.includes(refreshToken)) {
       return res.status(403).json({ message: "Invalid refresh token." });
     }
-    if (!jwtSecret) {
-      return res
-        .status(500)
-        .json({ message: "Server error: JWT_SECRET not configured." });
-    }
+    // JWT secret is validated at startup
     const newAccessToken = jwt.sign(
       {
         id: user.id,
@@ -508,17 +707,85 @@ export const forgotPassword = async (
 
       await user.save();
 
-      // Send the unhashed token to the user via email
+      // Use basic email service for now (fallback while debugging enhanced service)
       const resetUrl = `${process.env.FRONTEND_URL}/reset-password`;
 
       await sendEmail({
         to: user.email,
-        subject: "Password Reset Request",
-        html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
-             <p>Please visit the password reset page and enter your reset code:</p>
-             <p><a href="${htmlEncode(resetUrl)}">Reset Password</a></p>
-             <p>Your reset code: <strong>${htmlEncode(resetToken)}</strong></p>
-             <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
+        subject: "Password Reset Request - Family Website",
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Password Reset Request</title>
+          </head>
+          <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                  <div style="text-align: center; margin-bottom: 30px;">
+                      <h1 style="color: #2563eb; margin: 0;">Family Website</h1>
+                  </div>
+                  
+                  <h2 style="color: #212529; margin-bottom: 20px;">Password Reset Request</h2>
+                  
+                  <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                      Hello <strong>${htmlEncode(user.name)}</strong>,
+                  </p>
+                  
+                  <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                      We received a request to reset the password for your Family Website account. To reset your password, please follow these steps:
+                  </p>
+                  
+                  <ol style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                      <li>Click the "Reset Password" button below</li>
+                      <li>Enter your reset code when prompted</li>
+                      <li>Create a new secure password</li>
+                  </ol>
+                  
+                  <div style="text-align: center; margin: 30px 0;">
+                      <a href="${resetUrl}" style="background-color: #dc3545; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
+                          Reset Password
+                      </a>
+                  </div>
+                  
+                  <p style="color: #495057; line-height: 1.6; margin-bottom: 10px;">
+                      <strong>Your reset code:</strong>
+                  </p>
+                  
+                  <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; font-family: monospace; font-size: 18px; font-weight: bold; text-align: center; margin: 15px 0; letter-spacing: 3px; color: #dc3545;">
+                      ${htmlEncode(resetToken)}
+                  </div>
+                  
+                  <p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                      If the button doesn't work, you can copy and paste this link into your browser:
+                  </p>
+                  
+                  <p style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; word-break: break-all; font-family: monospace; font-size: 14px; margin-bottom: 20px;">
+                      ${resetUrl}
+                  </p>
+                  
+                  <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 20px 0;">
+                      <p style="margin: 0; color: #721c24; font-size: 14px;">
+                          <strong>Security Information:</strong><br>
+                          • This reset code expires in 1 hour for your security<br>
+                          • If you didn't request this reset, please ignore this email<br>
+                          • Your password will remain unchanged unless you complete the reset process
+                      </p>
+                  </div>
+                  
+                  <div style="border-top: 1px solid #e9ecef; padding-top: 20px; margin-top: 30px; text-align: center;">
+                      <p style="color: #6c757d; font-size: 14px; margin: 0;">
+                          If you have any questions, please contact us at 
+                          <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #2563eb;">
+                              ${process.env.EMAIL_USER || "support@familywebsite.com"}
+                          </a>
+                      </p>
+                  </div>
+              </div>
+          </body>
+          </html>
+        `,
       });
     }
 
@@ -573,11 +840,73 @@ export const resetPassword = async (
 
     await user.save();
 
+    // Use basic email service for password change confirmation
     await sendEmail({
       to: user.email,
-      subject: "Your password has been changed",
-      html: `<p>Hello,</p>
-             <p>This is a confirmation that the password for your account ${htmlEncode(user.email)} has just been changed.</p>`,
+      subject: "Password Changed Successfully - Family Website",
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Password Changed</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+            <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2563eb; margin: 0;">Family Website</h1>
+                </div>
+                
+                <h2 style="color: #28a745; margin-bottom: 20px;">✅ Password Changed Successfully</h2>
+                
+                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                    Hello <strong>${htmlEncode(user.name)}</strong>,
+                </p>
+                
+                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
+                    This email confirms that the password for your Family Website account (${htmlEncode(user.email)}) was successfully changed on ${new Date().toLocaleString()}.
+                </p>
+                
+                <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #0c5460; font-size: 14px;">
+                        <strong>✅ Your account is now secure with your new password.</strong>
+                    </p>
+                </div>
+                
+                <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #721c24; font-size: 14px;">
+                        <strong>⚠️ Security Alert:</strong> If you didn't make this change, please contact our support team immediately at 
+                        <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #721c24;">
+                            ${process.env.EMAIL_USER || "support@familywebsite.com"}
+                        </a>
+                    </p>
+                </div>
+                
+                <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0 0 10px 0; color: #155724; font-size: 14px; font-weight: bold;">
+                        Security Tips:
+                    </p>
+                    <ul style="margin: 0; padding-left: 20px; color: #155724; font-size: 14px;">
+                        <li>Keep your password secure and don't share it with anyone</li>
+                        <li>Use a unique password that you don't use for other accounts</li>
+                        <li>Consider enabling two-factor authentication for added security</li>
+                        <li>Log out of shared or public computers after use</li>
+                    </ul>
+                </div>
+                
+                <div style="border-top: 1px solid #e9ecef; padding-top: 20px; margin-top: 30px; text-align: center;">
+                    <p style="color: #6c757d; font-size: 14px; margin: 0;">
+                        If you have any questions, please contact us at 
+                        <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #2563eb;">
+                            ${process.env.EMAIL_USER || "support@familywebsite.com"}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+      `,
     });
 
     return res.status(200).json({ message: "Your password has been updated." });

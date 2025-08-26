@@ -32,8 +32,8 @@ api.interceptors.request.use(
       console.log("🔑 Added Authorization header");
     }
 
-    // Let Axios handle XSRF automatically, but ensure the cookie is properly decoded
-    // Only manually handle if Axios's automatic handling fails
+    // IMPORTANT: Disable Axios's automatic CSRF handling
+    // We need to manually handle it to ensure proper decoding
     if (
       config.method !== "get" &&
       config.method !== "head" &&
@@ -51,16 +51,9 @@ api.interceptors.request.use(
         const decodedCsrfToken = decodeURIComponent(csrfToken);
         console.log("🔓 Decoded CSRF token:", decodedCsrfToken);
 
-        // Only set manually if not already set by Axios
-        if (
-          !config.headers["X-XSRF-TOKEN"] &&
-          !config.headers["x-xsrf-token"]
-        ) {
-          config.headers["X-XSRF-TOKEN"] = decodedCsrfToken;
-          console.log("✅ Manually added CSRF token to headers");
-        } else {
-          console.log("🔄 CSRF token already set by Axios");
-        }
+        // Always set the decoded token manually
+        config.headers["X-XSRF-TOKEN"] = decodedCsrfToken;
+        console.log("✅ Manually added decoded CSRF token to headers");
       } else {
         console.log("⚠️ No CSRF token found in cookies");
       }

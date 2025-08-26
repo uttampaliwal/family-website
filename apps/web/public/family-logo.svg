@@ -1,0 +1,394 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800" height="600" viewBox="0 0 800 600">
+  <title>Project Turnix Family Logo</title>
+  <desc>A beautiful butterfly logo for Project Turnix family website</desc>
+  <?xml-stylesheet type="text/css" href="svg-styles.css"?>
+  
+  <!-- Definitions for gradients, filters and patterns -->
+  <defs>
+    <!-- Light mode gradients -->
+    <linearGradient id="butterfly-body-gradient-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9800" />
+      <stop offset="100%" stop-color="#F57C00" />
+    </linearGradient>
+    
+    <linearGradient id="butterfly-wing-gradient-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFA726" />
+      <stop offset="50%" stop-color="#FB8C00" />
+      <stop offset="100%" stop-color="#EF6C00" />
+    </linearGradient>
+    
+    <linearGradient id="butterfly-pattern-gradient-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB74D" />
+      <stop offset="100%" stop-color="#FFA000" />
+    </linearGradient>
+    
+    <linearGradient id="wing-texture-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFCC80" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FFE0B2" stop-opacity="0.1" />
+    </linearGradient>
+    
+    <linearGradient id="text-gradient-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A237E" />
+      <stop offset="100%" stop-color="#3949AB" />
+    </linearGradient>
+    
+    <!-- Dark mode gradients -->
+    <linearGradient id="butterfly-body-gradient-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFA726" />
+      <stop offset="100%" stop-color="#FB8C00" />
+    </linearGradient>
+    
+    <linearGradient id="butterfly-wing-gradient-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB74D" />
+      <stop offset="50%" stop-color="#FFA000" />
+      <stop offset="100%" stop-color="#FF8F00" />
+    </linearGradient>
+    
+    <linearGradient id="butterfly-pattern-gradient-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFCC80" />
+      <stop offset="100%" stop-color="#FFB300" />
+    </linearGradient>
+    
+    <linearGradient id="wing-texture-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD180" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FFE0B2" stop-opacity="0.1" />
+    </linearGradient>
+    
+    <linearGradient id="text-gradient-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5C6BC0" />
+      <stop offset="100%" stop-color="#9FA8DA" />
+    </linearGradient>
+    
+    <!-- Filters -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3" />
+    </filter>
+    
+    <!-- Patterns for wing texture -->
+    <pattern id="wing-texture-light" patternUnits="userSpaceOnUse" width="30" height="30" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="30" stroke="#FFA000" stroke-width="0.5" stroke-opacity="0.3" />
+    </pattern>
+    
+    <pattern id="wing-texture-dark" patternUnits="userSpaceOnUse" width="30" height="30" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="30" stroke="#FFD54F" stroke-width="0.5" stroke-opacity="0.3" />
+    </pattern>
+  </defs>
+  
+  <!-- CSS Styles -->
+  <style>
+    /* CSS Variables for theme adaptation */
+    :root {
+      /* Light mode theme */
+      --butterfly-body-fill-light: url(#butterfly-body-gradient-light);
+      --butterfly-wing-fill-light: url(#butterfly-wing-gradient-light);
+      --butterfly-pattern-fill-light: url(#butterfly-pattern-gradient-light);
+      --butterfly-stroke-light: #FFA000;
+      --butterfly-pattern-stroke-light: rgba(255, 160, 0, 0.7);
+      --wing-texture-light: url(#wing-texture-light);
+      --text-fill-light: url(#text-gradient-light);
+      --tagline-fill-light: #1A237E;
+      
+      /* Dark mode theme */
+      --butterfly-body-fill-dark: url(#butterfly-body-gradient-dark);
+      --butterfly-wing-fill-dark: url(#butterfly-wing-gradient-dark);
+      --butterfly-pattern-fill-dark: url(#butterfly-pattern-gradient-dark);
+      --butterfly-stroke-dark: #FF8F00;
+      --butterfly-pattern-stroke-dark: rgba(255, 143, 0, 0.7);
+      --wing-texture-dark: url(#wing-texture-dark);
+      --text-fill-dark: url(#text-gradient-dark);
+      --tagline-fill-dark: #9FA8DA;
+      
+      /* Default to light mode */
+      --butterfly-body-fill: var(--butterfly-body-fill-light);
+      --butterfly-wing-fill: var(--butterfly-wing-fill-light);
+      --butterfly-pattern-fill: var(--butterfly-pattern-fill-light);
+      --butterfly-stroke: var(--butterfly-stroke-light);
+      --butterfly-pattern-stroke: var(--butterfly-pattern-stroke-light);
+      --wing-texture: var(--wing-texture-light);
+      --text-fill: var(--text-fill-light);
+      --tagline-fill: var(--tagline-fill-light);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --butterfly-body-fill: var(--butterfly-body-fill-dark);
+        --butterfly-wing-fill: var(--butterfly-wing-fill-dark);
+        --butterfly-pattern-fill: var(--butterfly-pattern-fill-dark);
+        --butterfly-stroke: var(--butterfly-stroke-dark);
+        --butterfly-pattern-stroke: var(--butterfly-pattern-stroke-dark);
+        --wing-texture: var(--wing-texture-dark);
+        --text-fill: var(--text-fill-dark);
+        --tagline-fill: var(--tagline-fill-dark);
+      }
+    }
+    
+    /* Butterfly Animation */
+    .butterfly {
+      transform-origin: center;
+      animation: flutter 8s ease-in-out infinite alternate;
+      cursor: pointer;
+      transition: filter 0.3s ease;
+    }
+    
+    .butterfly-wing {
+      transform-origin: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .butterfly-wing-left {
+      transform-origin: right center;
+      animation: wing-flutter-left 2s ease-in-out infinite;
+    }
+    
+    .butterfly-wing-right {
+      transform-origin: left center;
+      animation: wing-flutter-right 2s ease-in-out infinite;
+    }
+    
+    .butterfly:hover .butterfly-wing-left {
+      transform: rotate(-15deg);
+    }
+    
+    .butterfly:hover .butterfly-wing-right {
+      transform: rotate(15deg);
+    }
+    
+    .butterfly-pattern {
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+    
+    .butterfly:hover .butterfly-pattern {
+      opacity: 0.9;
+    }
+    
+    .butterfly:hover {
+      filter: url(#glow) brightness(1.2);
+    }
+    
+    /* Text Styling */
+    .logo-text {
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+      fill: var(--text-fill);
+      filter: url(#shadow);
+      transition: transform 0.3s ease;
+      transform: translateZ(0); /* Prevent text movement during transitions */
+    }
+    
+    .logo-text:hover {
+      transform: scale(1.05);
+    }
+    
+    .tagline {
+      font-family: 'Arial', sans-serif;
+      fill: var(--tagline-fill);
+      opacity: 0.9;
+      transition: opacity 0.3s ease;
+      transform: translateZ(0); /* Prevent text movement during transitions */
+    }
+    
+    .tagline:hover {
+      opacity: 1;
+    }
+    
+    /* Ensure smooth transitions between modes */
+     :root {
+       transition: --butterfly-body-fill 0.3s ease, --butterfly-wing-fill 0.3s ease,
+                 --butterfly-pattern-fill 0.3s ease, --butterfly-pattern-stroke 0.3s ease,
+                 --wing-texture 0.3s ease, --butterfly-stroke 0.3s ease,
+                 --text-fill 0.3s ease, --tagline-fill 0.3s ease;
+     }
+     
+     /* Butterfly eye styling */
+     .butterfly-eye {
+       fill: #333;
+     }
+     
+     @media (prefers-color-scheme: dark) {
+       .butterfly-eye {
+         fill: #eee;
+       }
+     }
+    
+    /* Animations */
+    @keyframes flutter {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(3deg) scale(1.03); }
+      75% { transform: rotate(-3deg) scale(0.97); }
+    }
+    
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    @keyframes antennae-sway {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(5deg); }
+      75% { transform: rotate(-5deg); }
+    }
+    
+    @keyframes wing-flutter-left {
+      0%, 100% { transform: rotate(0deg) scaleX(1); }
+      50% { transform: rotate(-5deg) scaleX(0.95); }
+    }
+    
+    @keyframes wing-flutter-right {
+      0%, 100% { transform: rotate(0deg) scaleX(1); }
+      50% { transform: rotate(5deg) scaleX(0.95); }
+    }
+    
+    /* Responsive text sizing */
+    @media (max-width: 400px) {
+      .logo-text { font-size: 40px; }
+      .tagline { font-size: 14px; }
+    }
+  </style>
+  
+  <!-- Main Logo Group -->
+  <g id="logo" transform="translate(400, 300)">
+    <!-- Butterfly -->
+    <g class="butterfly" filter="url(#glow)">
+      <!-- Body segments -->
+      <path d="M0,30 C-5,20 -5,10 0,0 C5,10 5,20 0,30 Z" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="1.5" />
+      <ellipse cx="0" cy="0" rx="4" ry="15" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="1" />
+      <circle cx="0" cy="-5" r="3.5" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="1" />
+      <circle cx="0" cy="5" r="3.5" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="1" />
+      <circle cx="0" cy="15" r="3.5" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="1" />
+      <circle cx="0" cy="25" r="3" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="1" />
+      
+      <!-- Head -->
+      <ellipse cx="0" cy="-20" rx="6" ry="7" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="1.5" />
+      
+      <!-- Eyes -->
+      <circle cx="-2.5" cy="-21" r="1" class="butterfly-eye" />
+      <circle cx="2.5" cy="-21" r="1" class="butterfly-eye" />
+      
+      <!-- Antennae -->
+      <path d="M-3,-25 Q-15,-45 -12,-60" fill="none" stroke="var(--butterfly-stroke)" stroke-width="1" />
+      <path d="M3,-25 Q15,-45 12,-60" fill="none" stroke="var(--butterfly-stroke)" stroke-width="1" />
+      <circle cx="-12" cy="-60" r="1.5" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="0.5" />
+      <circle cx="12" cy="-60" r="1.5" fill="var(--butterfly-body-fill)" stroke="var(--butterfly-stroke)" stroke-width="0.5" />
+      
+      <!-- Wings -->
+      <g class="butterfly-wing butterfly-wing-left">
+        <!-- Upper wing -->
+        <path d="M-2,-5 C-30,-30 -70,-20 -85,5 C-90,20 -70,40 -40,30 C-20,25 -5,10 -2,-5 Z" 
+              fill="var(--butterfly-wing-fill)" stroke="var(--butterfly-stroke)" stroke-width="1.5" />
+        <!-- Lower wing -->
+        <path d="M-2,5 C-20,15 -50,40 -60,25 C-70,10 -50,-5 -30,0 C-15,2 -5,5 -2,5 Z" 
+              fill="var(--butterfly-wing-fill)" stroke="var(--butterfly-stroke)" stroke-width="1.5" />
+        <!-- Wing texture -->
+        <path d="M-2,-5 C-30,-30 -70,-20 -85,5 C-90,20 -70,40 -40,30 C-20,25 -5,10 -2,-5 Z" 
+              fill="var(--wing-texture)" fill-opacity="0.3" stroke="none" />
+        <!-- Wing patterns -->
+        <path class="butterfly-pattern" 
+              d="M-40,0 C-50,-5 -60,0 -65,10 M-30,-10 C-40,-15 -55,-10 -60,0 M-20,10 C-30,5 -40,10 -45,20" 
+              fill="none" stroke="var(--butterfly-pattern-stroke)" stroke-width="1" />
+        <circle cx="-60" cy="5" r="5" fill="var(--butterfly-pattern-fill)" fill-opacity="0.7" stroke="var(--butterfly-pattern-stroke)" stroke-width="0.5" />
+        <circle cx="-40" cy="-15" r="3" fill="var(--butterfly-pattern-fill)" fill-opacity="0.7" stroke="var(--butterfly-pattern-stroke)" stroke-width="0.5" />
+        <circle cx="-30" cy="15" r="2" fill="var(--butterfly-pattern-fill)" fill-opacity="0.7" stroke="var(--butterfly-pattern-stroke)" stroke-width="0.5" />
+      </g>
+      
+      <g class="butterfly-wing butterfly-wing-right">
+        <!-- Upper wing -->
+        <path d="M2,-5 C30,-30 70,-20 85,5 C90,20 70,40 40,30 C20,25 5,10 2,-5 Z" 
+              fill="var(--butterfly-wing-fill)" stroke="var(--butterfly-stroke)" stroke-width="1.5" />
+        <!-- Lower wing -->
+        <path d="M2,5 C20,15 50,40 60,25 C70,10 50,-5 30,0 C15,2 5,5 2,5 Z" 
+              fill="var(--butterfly-wing-fill)" stroke="var(--butterfly-stroke)" stroke-width="1.5" />
+        <!-- Wing texture -->
+        <path d="M2,-5 C30,-30 70,-20 85,5 C90,20 70,40 40,30 C20,25 5,10 2,-5 Z" 
+              fill="var(--wing-texture)" fill-opacity="0.3" stroke="none" />
+        <!-- Wing patterns -->
+        <path class="butterfly-pattern" 
+              d="M40,0 C50,-5 60,0 65,10 M30,-10 C40,-15 55,-10 60,0 M20,10 C30,5 40,10 45,20" 
+              fill="none" stroke="var(--butterfly-pattern-stroke)" stroke-width="1" />
+        <circle cx="60" cy="5" r="5" fill="var(--butterfly-pattern-fill)" fill-opacity="0.7" stroke="var(--butterfly-pattern-stroke)" stroke-width="0.5" />
+        <circle cx="40" cy="-15" r="3" fill="var(--butterfly-pattern-fill)" fill-opacity="0.7" stroke="var(--butterfly-pattern-stroke)" stroke-width="0.5" />
+        <circle cx="30" cy="15" r="2" fill="var(--butterfly-pattern-fill)" fill-opacity="0.7" stroke="var(--butterfly-pattern-stroke)" stroke-width="0.5" />
+      </g>
+    </g>
+    
+    <!-- Text Elements -->
+    <text class="logo-text" x="0" y="80" text-anchor="middle" font-size="48">Project Turnix</text>
+    <text class="tagline" x="0" y="110" text-anchor="middle" font-size="16">Connecting branches . . .</text>
+  </g>
+  
+  <!-- Interactive Script -->
+  <script type="text/javascript">
+    <![CDATA[
+    (function() {
+      // Get the butterfly element
+      const butterfly = document.querySelector('.butterfly');
+      
+      // Add click event for animation trigger
+      if (butterfly) {
+        butterfly.addEventListener('click', function() {
+          // Create a temporary animation
+          butterfly.style.animation = 'none';
+          setTimeout(() => {
+            butterfly.style.animation = 'flutter 0.5s ease-in-out 3';
+            setTimeout(() => {
+              butterfly.style.animation = 'flutter 8s ease-in-out infinite alternate';
+            }, 1500);
+          }, 10);
+          
+          // Toggle between light and dark mode
+          document.documentElement.classList.toggle('dark-mode');
+          
+          // Update CSS variables based on mode
+          if (document.documentElement.classList.contains('dark-mode')) {
+            // Butterfly components
+            document.documentElement.style.setProperty('--butterfly-body-fill', 'var(--butterfly-body-fill-dark)');
+            document.documentElement.style.setProperty('--butterfly-wing-fill', 'var(--butterfly-wing-fill-dark)');
+            document.documentElement.style.setProperty('--butterfly-pattern-fill', 'var(--butterfly-pattern-fill-dark)');
+            document.documentElement.style.setProperty('--butterfly-pattern-stroke', 'var(--butterfly-pattern-stroke-dark)');
+            document.documentElement.style.setProperty('--wing-texture', 'var(--wing-texture-dark)');
+            document.documentElement.style.setProperty('--butterfly-stroke', 'var(--butterfly-stroke-dark)');
+            
+            // Text components
+            document.documentElement.style.setProperty('--text-fill', 'var(--text-fill-dark)');
+            document.documentElement.style.setProperty('--tagline-fill', 'var(--tagline-fill-dark)');
+          } else {
+            // Butterfly components
+            document.documentElement.style.setProperty('--butterfly-body-fill', 'var(--butterfly-body-fill-light)');
+            document.documentElement.style.setProperty('--butterfly-wing-fill', 'var(--butterfly-wing-fill-light)');
+            document.documentElement.style.setProperty('--butterfly-pattern-fill', 'var(--butterfly-pattern-fill-light)');
+            document.documentElement.style.setProperty('--butterfly-pattern-stroke', 'var(--butterfly-pattern-stroke-light)');
+            document.documentElement.style.setProperty('--wing-texture', 'var(--wing-texture-light)');
+            document.documentElement.style.setProperty('--butterfly-stroke', 'var(--butterfly-stroke-light)');
+            
+            // Text components
+            document.documentElement.style.setProperty('--text-fill', 'var(--text-fill-light)');
+            document.documentElement.style.setProperty('--tagline-fill', 'var(--tagline-fill-light)');
+          }
+        });
+      }
+      
+      // Check for color scheme changes
+      const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const updateColorScheme = (e) => {
+        const root = document.documentElement;
+        if (e.matches) {
+          // Dark mode
+          document.documentElement.classList.add('dark-mode');
+        } else {
+          // Light mode
+          document.documentElement.classList.remove('dark-mode');
+        }
+      };
+      
+      darkModeMediaQuery.addListener(updateColorScheme);
+      // Initial check
+      updateColorScheme(darkModeMediaQuery);
+    })();
+    ]]>
+  </script>
+</svg>

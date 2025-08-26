@@ -4,6 +4,7 @@ import {
   NextFunction as ExpressNextFunction,
 } from "express";
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 /**
  * Authentication middleware that verifies JWT tokens from request headers
@@ -11,12 +12,16 @@ import jwt from "jsonwebtoken";
  * @param res - Express response object
  * @param next - Express next function to continue middleware chain
  */
-export default function (
+export default async function (
   req: ExpressRequest,
   res: ExpressResponse,
   next: ExpressNextFunction,
-): void {
-  const token = req.headers["x-auth-token"] as string;
+): Promise<void> {
+  // Get token from Authorization header (Bearer token format) or x-auth-token header
+  const authHeader = req.headers.authorization as string;
+  const token = authHeader?.startsWith("Bearer ")
+    ? authHeader.substring(7)
+    : (req.headers["x-auth-token"] as string);
 
   // Check if not token
   if (!token) {
@@ -32,29 +37,34 @@ export default function (
     }
 
     // Use constant-time comparison for token verification
-    const decoded = jwt.verify(token, jwtSecret, {
+    const decoded = jwt.verify(token, Buffer.from(jwtSecret, "hex"), {
       algorithms: ["HS512"], // Use stronger algorithm
-    }) as { id: string; username: string; email: string };
+    }) as { id: string };
 
     // Validate decoded token structure
     if (
       !decoded ||
       typeof decoded !== "object" ||
       !decoded.id ||
-      typeof decoded.id !== "string" ||
-      !decoded.username ||
-      typeof decoded.username !== "string" ||
-      !decoded.email ||
-      typeof decoded.email !== "string"
+      typeof decoded.id !== "string"
     ) {
       res.status(401).json({ message: "Token is not valid" });
       return;
     }
 
+    // Fetch user details from database
+    const user = await User.findById(decoded.id).select(
+      "-password -refreshTokens",
+    );
+    if (!user) {
+      res.status(401).json({ message: "User not found" });
+      return;
+    }
+
     req.user = {
-      id: decoded.id,
-      username: decoded.username,
-      email: decoded.email,
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
     };
     next();
   } catch (err) {
@@ -68,11 +78,11 @@ export default function (
           : "Unknown error",
       timestamp: new Date().toISOString(),
       operation: "authMiddleware",
+      tokenPresent: !!token,
+      tokenLength: token ? token.length : 0,
     };
     // Use structured logging for better monitoring and debugging
-    process.stderr.write(
-      `[ERROR] ${new Date().toISOString()} - Auth middleware error: ${JSON.stringify(sanitizedError)}\n`,
-    );
+    console.error("Auth middleware error:", sanitizedError);
 
     res.status(401).json({ message: "Token is not valid" });
     return;

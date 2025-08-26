@@ -82,6 +82,22 @@ const VerifyEmailPage: React.FC = () => {
   const verifyEmail = useCallback(
     async (token: string) => {
       try {
+        console.log("Verifying email with token:", token);
+        console.log("API Base URL:", import.meta.env.VITE_API_BASE_URL);
+
+        // First get CSRF token
+        const csrfResponse = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/auth/csrf-token`,
+          {
+            method: "GET",
+            credentials: "include",
+          },
+        );
+
+        if (!csrfResponse.ok) {
+          console.warn("Failed to get CSRF token, proceeding without it");
+        }
+
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email`,
           {
@@ -90,11 +106,14 @@ const VerifyEmailPage: React.FC = () => {
               "Content-Type": "application/json",
               "X-XSRF-TOKEN": getXsrfToken() || "",
             },
-            body: JSON.stringify({ token }),
+            credentials: "include",
+            body: JSON.stringify({ token: token.trim() }),
           },
         );
 
+        console.log("Verification response status:", response.status);
         const data = await response.json();
+        console.log("Verification response data:", data);
 
         if (response.ok) {
           handleVerificationSuccess(data);
@@ -102,6 +121,7 @@ const VerifyEmailPage: React.FC = () => {
           handleVerificationError(response, data);
         }
       } catch (error) {
+        console.error("Verification error:", error);
         if (error instanceof TypeError) {
           setMessage(MESSAGES.NETWORK_ERROR);
         } else if (error instanceof Error && error.name === "AbortError") {

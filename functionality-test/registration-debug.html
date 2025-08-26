@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-wrap: break-word; }
+        button { padding: 10px; margin: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .field { margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 10px; }
+        #debug { max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Registration Debugging Tool</h1>
+    
+    <div>
+        <h2>Debug Log</h2>
+        <pre id="debug"></pre>
+        <button onclick="clearDebug()">Clear Debug Log</button>
+    </div>
+    
+    <div>
+        <h2>Step 1: Get CSRF Token</h2>
+        <button onclick="getCsrfToken()">Get CSRF Token</button>
+        <pre id="csrfResult"></pre>
+    </div>
+
+    <div>
+        <h2>Step 2: Register User</h2>
+        <div class="field">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="test@example.com">
+        </div>
+        <div class="field">
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="testuser">
+        </div>
+        <div class="field">
+            <label for="password">Password:</label>
+            <input type="text" id="password" value="TestPassword123!">
+        </div>
+        <div class="field">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" value="Test User">
+        </div>
+        <div class="field">
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" value="1990-01-01">
+        </div>
+        <div class="field">
+            <label for="mobileNumber">Mobile Number:</label>
+            <input type="text" id="mobileNumber" value="1234567890">
+        </div>
+        <div class="field">
+            <label for="gender">Gender:</label>
+            <select id="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+        </div>
+        <button onclick="registerUser()">Register User</button>
+        <pre id="registerResult"></pre>
+    </div>
+
+    <script>
+        // Debug logging function
+        function logDebug(message) {
+            const debugElement = document.getElementById('debug');
+            const timestamp = new Date().toISOString();
+            debugElement.innerHTML += `[${timestamp}] ${message}\n`;
+            debugElement.scrollTop = debugElement.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function clearDebug() {
+            document.getElementById('debug').innerHTML = '';
+        }
+        
+        // Get cookies as an object
+        function getCookies() {
+            return document.cookie.split('; ').reduce((cookies, cookie) => {
+                const [name, value] = cookie.split('=');
+                cookies[name] = value;
+                return cookies;
+            }, {});
+        }
+        
+        // Get CSRF token
+        async function getCsrfToken() {
+            const resultElement = document.getElementById('csrfResult');
+            resultElement.innerHTML = 'Fetching CSRF token...';
+            logDebug('Fetching CSRF token from /api/auth/csrf-token');
+            
+            try {
+                // This is exactly how the frontend code does it
+                const response = await fetch('http://localhost:3000/api/auth/csrf-token', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                logDebug(`CSRF token response: ${JSON.stringify(data)}`);
+                
+                // Get cookies after the request
+                const cookies = getCookies();
+                logDebug(`Cookies after CSRF request: ${JSON.stringify(cookies)}`);
+                
+                const csrfToken = cookies['XSRF-TOKEN'];
+                if (csrfToken) {
+                    const decodedToken = decodeURIComponent(csrfToken);
+                    resultElement.innerHTML = `<span class="success">CSRF Token obtained</span>\nToken: ${decodedToken}`;
+                    logDebug(`Decoded CSRF token: ${decodedToken}`);
+                    return decodedToken;
+                } else {
+                    resultElement.innerHTML = `<span class="error">No CSRF token found in cookies</span>`;
+                    logDebug('No CSRF token found in cookies');
+                    return null;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                logDebug(`Error getting CSRF token: ${error.message}`);
+                return null;
+            }
+        }
+
+        // Register user - using the exact same approach as the frontend code
+        async function registerUser() {
+            const resultElement = document.getElementById('registerResult');
+            resultElement.innerHTML = 'Registering user...';
+            
+            // First ensure we have a CSRF token
+            await getCsrfToken();
+            
+            // Get the CSRF token from cookies - try both raw and decoded versions
+            const cookies = getCookies();
+            const rawCsrfToken = cookies['XSRF-TOKEN'] || null;
+            const decodedCsrfToken = rawCsrfToken ? decodeURIComponent(rawCsrfToken) : null;
+            
+            logDebug(`Raw CSRF token from cookie: ${rawCsrfToken}`);
+            logDebug(`Decoded CSRF token: ${decodedCsrfToken}`);
+            
+            if (!rawCsrfToken) {
+                resultElement.innerHTML = `<span class="error">Cannot register: No CSRF token available</span>`;
+                return;
+            }
+            
+            const userData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                dob: document.getElementById('dob').value,
+                mobileNumber: document.getElementById('mobileNumber').value,
+                username: document.getElementById('username').value,
+                gender: document.getElementById('gender').value
+            };
+            
+            logDebug(`Attempting to register with data: ${JSON.stringify(userData)}`);
+            logDebug(`Using raw CSRF token: ${rawCsrfToken}`);
+            
+            try {
+                // This matches how the frontend makes the request
+                const response = await fetch('http://localhost:3000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': rawCsrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(userData)
+                });
+                
+                // Log the response status
+                logDebug(`Registration response status: ${response.status}`);
+                
+                // Try to parse the response as JSON
+                let responseData;
+                try {
+                    responseData = await response.json();
+                    logDebug(`Registration response data: ${JSON.stringify(responseData)}`);
+                } catch (e) {
+                    logDebug(`Could not parse response as JSON: ${e.message}`);
+                    responseData = { message: 'Could not parse response' };
+                }
+                
+                if (response.ok) {
+                    resultElement.innerHTML = `<span class="success">Registration successful!</span>\n${JSON.stringify(responseData, null, 2)}`;
+                } else {
+                    resultElement.innerHTML = `<span class="error">Registration failed with status ${response.status}</span>\n${JSON.stringify(responseData, null, 2)}`;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                logDebug(`Error during registration: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

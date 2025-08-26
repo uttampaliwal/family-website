@@ -15,8 +15,7 @@ export interface UserProfile {
   username: string;
   email: string;
   name?: string;
-  dateOfBirth?: string;
-  phoneNumber?: string | null;
+  dob?: string;
   mobileNumber?: string | null;
   gender?: string;
 }
@@ -25,8 +24,8 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-  dateOfBirth: string;
-  phoneNumber?: string;
+  dob: string;
+  mobileNumber?: string;
   username: string;
   gender: string;
 }
