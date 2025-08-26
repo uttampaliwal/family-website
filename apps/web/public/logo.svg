@@ -1,7 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 600" width="800" height="600">
-  <title>Project Turnix Draft Logo</title>
-  <desc>A premium, dynamic draft logo for Project Turnix that adapts to light and dark modes</desc>
-  <?xml-stylesheet type="text/css" href="../svg-styles.css"?>
+  <title>Project Turnix Logo</title>
+  <desc>A premium, dynamic logo for Project Turnix that adapts to light and dark modes</desc>
+  <?xml-stylesheet type="text/css" href="svg-styles.css"?>
+  
   <!-- Definitions for gradients, filters and patterns -->
   <defs>
     <!-- Gradients for light mode -->
@@ -129,12 +130,29 @@
       filter: url(#glow);
     }
 
-    .project-title {
-      transition: fill 0.5s ease;
+    .logo-text {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      fill: var(--text-primary);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      transition: fill 0.3s ease;
     }
 
-    .project-title:hover {
-      fill: #4a7c59;
+    .tagline {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 300;
+      font-style: italic;
+      fill: var(--text-secondary);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      transition: fill 0.3s ease;
+    }
+
+    /* Responsive text sizing */
+    @media screen and (max-width: 600px) {
+      .logo-text { font-size: 48px; }
+      .tagline { font-size: 16px; }
     }
   </style>
 
@@ -142,7 +160,7 @@
   <rect width="100%" height="100%" fill="var(--bg-gradient)"/>
 
   <!-- Tree (centered, behind text) -->
-  <g class="tree" transform="translate(400,400) scale(1.0)" filter="url(#dropShadow)">
+  <g class="tree" transform="translate(400,350) scale(0.8)" filter="url(#dropShadow)">
     <!-- Tree trunk -->
     <rect x="-8" y="0" width="16" height="60" fill="var(--trunk-gradient)" rx="2"/>
     
@@ -167,48 +185,8 @@
     <path d="M0,-22 Q12,-38 8,-42" stroke="var(--trunk-gradient)" stroke-width="2" fill="none"/>
   </g>
 
-  <!-- Enhanced flower (positioned elegantly) -->
-  <g class="flower" transform="translate(320,380) scale(0.8)" filter="url(#dropShadow)">
-    <!-- Flower stem -->
-    <path d="M0,40 Q5,20 0,0 Q-2,-10 2,-15" stroke="var(--leaf-gradient)" stroke-width="3" fill="none"/>
-    
-    <!-- Flower petals -->
-    <g transform="translate(0,-15)">
-      <!-- Petal 1 -->
-      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(0)">
-        <animate attributeName="ry" values="15;15.5;15" dur="3s" repeatCount="indefinite" />
-      </ellipse>
-      <!-- Petal 2 -->
-      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(72)">
-        <animate attributeName="ry" values="15;15.5;15" dur="3.2s" repeatCount="indefinite" />
-      </ellipse>
-      <!-- Petal 3 -->
-      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(144)">
-        <animate attributeName="ry" values="15;15.5;15" dur="3.4s" repeatCount="indefinite" />
-      </ellipse>
-      <!-- Petal 4 -->
-      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(216)">
-        <animate attributeName="ry" values="15;15.5;15" dur="3.6s" repeatCount="indefinite" />
-      </ellipse>
-      <!-- Petal 5 -->
-      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(288)">
-        <animate attributeName="ry" values="15;15.5;15" dur="3.8s" repeatCount="indefinite" />
-      </ellipse>
-      
-      <!-- Flower center -->
-      <circle cx="0" cy="0" r="5" fill="#e09380">
-        <animate attributeName="r" values="5;5.2;5" dur="2s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="0" cy="0" r="2" fill="#c26835"/>
-    </g>
-    
-    <!-- Small leaves -->
-    <ellipse cx="-8" cy="15" rx="4" ry="8" fill="var(--leaf-gradient)" transform="rotate(-30 -8 15)"/>
-    <ellipse cx="10" cy="25" rx="3" ry="6" fill="var(--leaf-gradient)" transform="rotate(45 10 25)"/>
-  </g>
-
-  <!-- Butterfly (right top, animated) -->
-  <g class="butterfly" transform="translate(300,220) scale(1)" filter="url(#dropShadow)">
+  <!-- Butterfly (animated) -->
+  <g class="butterfly" transform="translate(400,250) scale(1.2)" filter="url(#dropShadow)">
     <!-- Butterfly body -->
     <ellipse cx="0" cy="0" rx="2" ry="25" fill="var(--trunk-gradient)"/>
     <circle cx="0" cy="-20" r="3" fill="var(--text-primary)"/>
@@ -250,46 +228,19 @@
     </circle>
   </g>
 
-  <!-- Additional decorative elements -->
-  <!-- Small scattered leaves -->
-  <g opacity="0.6">
-    <ellipse cx="150" cy="200" rx="3" ry="6" fill="var(--leaf-gradient)" transform="rotate(45 150 200)"/>
-    <ellipse cx="680" cy="280" rx="2" ry="4" fill="var(--leaf-gradient)" transform="rotate(-30 680 280)"/>
-    <ellipse cx="120" cy="420" rx="4" ry="7" fill="var(--leaf-gradient)" transform="rotate(60 120 420)"/>
-    <ellipse cx="700" cy="450" rx="3" ry="5" fill="var(--leaf-gradient)" transform="rotate(-45 700 450)"/>
-  </g>
-
-  <!-- Project Title with enhanced styling -->
-  <text class="project-title" x="400" y="450" font-family="'Montserrat', sans-serif"
-        font-size="48" font-weight="300" text-anchor="middle" fill="var(--text-primary)" filter="url(#dropShadow)">
-    PROJECT
+  <!-- Logo Text -->
+  <text class="logo-text" x="400" y="450" font-size="64" letter-spacing="2px" filter="url(#dropShadow)">
+    TURNIX
   </text>
   
-  <text class="project-title" x="400" y="520" font-family="'Poppins', sans-serif"
-        font-size="72" font-weight="700" text-anchor="middle" fill="var(--text-primary)" 
-        letter-spacing="2px" filter="url(#dropShadow)">
-    TURN IX
-  </text>
-
   <!-- Tagline with decorative elements -->
   <g>
-    <line x1="250" y1="555" x2="350" y2="555" stroke="var(--text-secondary)" stroke-width="1" opacity="0.6"/>
-    <line x1="450" y1="555" x2="550" y2="555" stroke="var(--text-secondary)" stroke-width="1" opacity="0.6"/>
+    <line x1="300" y1="485" x2="350" y2="485" stroke="var(--text-secondary)" stroke-width="1" opacity="0.6"/>
+    <line x1="450" y1="485" x2="500" y2="485" stroke="var(--text-secondary)" stroke-width="1" opacity="0.6"/>
     
-    <text x="400" y="560" font-family="'Montserrat', sans-serif"
-          font-size="22" font-weight="300" text-anchor="middle" fill="var(--text-secondary)" 
-          font-style="italic">
+    <text class="tagline" x="400" y="490" font-size="18">
       Connecting branches
     </text>
-  </g>
-
-  <!-- Subtle corner ornaments -->
-  <g opacity="0.3">
-    <!-- Top left ornament -->
-    <path d="M30,30 Q50,20 70,30 Q50,40 30,30" fill="var(--leaf-gradient)"/>
-    
-    <!-- Bottom right ornament -->
-    <path d="M730,570 Q750,560 770,570 Q750,580 730,570" fill="var(--leaf-gradient)"/>
   </g>
 
   <!-- Interactive script -->
@@ -308,9 +259,9 @@
             animation: spin 1s ease-in-out forwards !important;
           }
           @keyframes spin {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
+            0% { transform: translate(400px, 250px) rotate(0deg) scale(1.2); }
+            50% { transform: translate(400px, 250px) rotate(180deg) scale(1.4); }
+            100% { transform: translate(400px, 250px) rotate(360deg) scale(1.2); }
           }
         `;
         document.head.appendChild(style);

@@ -5,6 +5,8 @@ import Button from "../components/Button";
 import { isAxiosError } from "axios";
 import api from "../api/axios";
 import type { UserProfile } from "../types/api";
+import { updateUserProfile } from "../api/auth";
+import { ensureCsrfToken } from "../utils/csrf";
 
 import CustomSelect from "../components/CustomSelect";
 import DateOfBirthPicker from "../components/DateOfBirthPicker";
@@ -16,7 +18,7 @@ const GENDER_OPTIONS = [
   { value: "", label: "Select Gender" },
   { value: "Male", label: "Male" },
   { value: "Female", label: "Female" },
-  { value: "Other", label: "Other" },
+  { value: "Prefer not to say", label: "Prefer not to say" },
 ];
 
 const UserProfilePage: React.FC = () => {
@@ -108,18 +110,27 @@ const UserProfilePage: React.FC = () => {
     if (!profileState.editableProfile) return;
 
     try {
+      // Ensure CSRF token is available before making the request
+      await ensureCsrfToken();
+
       // Only send the fields that are editable
       const updateData = {
         name: profileState.editableProfile.name,
         dateOfBirth: profileState.editableProfile.dateOfBirth,
-        mobileNumber: profileState.editableProfile.mobileNumber,
+        phoneNumber: profileState.editableProfile.mobileNumber, // Backend expects phoneNumber
         gender: profileState.editableProfile.gender,
       };
-      await api.put(`/api/auth/profile/${displayUsername}`, updateData);
+
+      const updatedProfile = await updateUserProfile(
+        displayUsername,
+        updateData,
+      );
       setProfileState((prev) => ({
         ...prev,
-        userProfile: prev.editableProfile,
+        userProfile: updatedProfile,
+        editableProfile: updatedProfile,
         isEditing: false,
+        error: null,
       }));
     } catch (err) {
       console.error("Error updating user profile:", err);

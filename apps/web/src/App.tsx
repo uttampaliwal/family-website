@@ -23,6 +23,8 @@ const DocumentsPage = lazy(() => import("./pages/DocumentsPage"));
 const DocumentEditPage = lazy(() => import("./pages/DocumentEditPage"));
 const DocumentViewPage = lazy(() => import("./pages/DocumentViewPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
 
 import LiveDateTime from "./components/LiveDateTime";
 
@@ -68,7 +70,7 @@ function App() {
                     <div className="relative">
                       <img
                         src="/family-logo.svg"
-                        className="h-20 object-contain transition-all duration-300 group-hover:scale-110"
+                        className="h-16 object-contain transition-all duration-300 group-hover:scale-110"
                         alt="Family Website"
                       />
                     </div>
@@ -240,6 +242,11 @@ function App() {
                       path="/privacy-policy"
                       element={<PrivacyPolicyPage />}
                     />
+                    <Route
+                      path="/terms-of-service"
+                      element={<TermsOfServicePage />}
+                    />
+                    <Route path="/contact" element={<ContactPage />} />
                   </Routes>
                 </Suspense>
               </ErrorBoundary>
@@ -263,18 +270,18 @@ function App() {
                     >
                       Privacy Policy
                     </Link>
-                    <a
-                      href="#"
+                    <Link
+                      to="/terms-of-service"
                       className="hover:text-primary transition-colors"
                     >
                       Terms of Service
-                    </a>
-                    <a
-                      href="#"
+                    </Link>
+                    <Link
+                      to="/contact"
                       className="hover:text-primary transition-colors"
                     >
                       Contact
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>

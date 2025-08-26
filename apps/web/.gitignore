@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 .env
-# public/Extras
+public/Extras
 apps/web/src/styles/README.md

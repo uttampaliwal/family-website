@@ -18,16 +18,19 @@ interface EmailOptions {
 
 export const sendEmail = async (options: EmailOptions) => {
   try {
-    // Sanitize HTML content to prevent XSS
+    // Sanitize HTML content to prevent XSS while preserving safe HTML tags
     const sanitizedHtml = String(options.html || "")
-      .replace(/<script[^>]*>.*?<\/script>/gi, "")
+      // Remove dangerous script tags
+      .replace(/<script[^>]*>.*?<\/script>/gis, "")
+      // Remove dangerous event handlers
+      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, "")
+      // Remove javascript: and vbscript: protocols
       .replace(/javascript:/gi, "")
-      .replace(/on\w+\s*=/gi, "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#x27;");
+      .replace(/vbscript:/gi, "")
+      // Remove data: URLs (can be used for XSS)
+      .replace(/data:/gi, "")
+      // Remove CSS expressions
+      .replace(/expression\s*\(/gi, "");
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER, // Sender address
@@ -37,10 +40,10 @@ export const sendEmail = async (options: EmailOptions) => {
     });
     // Use structured logging instead of console.log for production
     if (process.env.NODE_ENV === "development") {
-      // Email service log data - using structured logging
+      console.log("Email sent successfully to:", options.to);
     }
-  } catch {
-    // Email service error - handle with structured logging
+  } catch (error) {
+    console.error("Email service error:", error);
     throw new Error("Failed to send email");
   }
 };

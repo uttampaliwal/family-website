@@ -1,21 +1,21 @@
 export enum Gender {
   MALE = "male",
   FEMALE = "female",
-  OTHER = "other",
+  PREFER_NOT_TO_SAY = "prefer not to say",
 }
 
 export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-  dateOfBirth: string; // ISO date string (YYYY-MM-DD)
-  phoneNumber?: string;
+  dob: string; // ISO date string (YYYY-MM-DD)
+  mobileNumber?: string;
   username: string;
-  gender: Gender;
+  gender: string;
 }
 
 export interface LoginRequest {
-  emailOrUsername: string; // More descriptive than 'identifier'
+  identifier: string; // Used by frontend
   password: string;
 }
 
@@ -24,7 +24,7 @@ export interface VerifyEmailRequest {
 }
 
 export interface ResendVerificationRequest {
-  emailOrUsername: string;
+  identifier: string;
 }
 
 export interface ForgotPasswordRequest {

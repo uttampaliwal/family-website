@@ -1,74 +1,258 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Project Turnix Logo</title>
-  <desc id="desc">Animated butterfly with Project Turnix text, designed for both light and dark themes.</desc>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-labelledby="title desc">
+  <title id="title">Project Turnix Family Logo</title>
+  <desc id="desc">Premium interactive logo for Project Turnix, designed for both light and dark themes.</desc>
+
+  <defs>
+    <!-- Gradients for light mode -->
+    <linearGradient id="butterflyGradient1Light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff6b6b" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ff8b94" stop-opacity="0.9" />
+    </linearGradient>
+    
+    <linearGradient id="butterflyGradient2Light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ecdc4" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#6a98d0" stop-opacity="0.9" />
+    </linearGradient>
+    
+    <linearGradient id="patternGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe66d" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#ffcc5c" stop-opacity="0.8" />
+    </linearGradient>
+    
+    <!-- Gradients for dark mode -->
+    <linearGradient id="butterflyGradient1Dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff8e9e" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ff6b6b" stop-opacity="0.9" />
+    </linearGradient>
+    
+    <linearGradient id="butterflyGradient2Dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ad4cb" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#4ecdc4" stop-opacity="0.9" />
+    </linearGradient>
+    
+    <linearGradient id="patternGradientDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff06d" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ffe66d" stop-opacity="0.9" />
+    </linearGradient>
+    
+    <!-- Filters -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3" flood-color="currentColor" />
+    </filter>
+  </defs>
 
   <style>
-    /* Font fallback if Montserrat or Poppins not loaded */
+    /* Base styles and font fallbacks */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&family=Poppins:wght@300;500;700&display=swap');
+    
     text {
       font-family: 'Montserrat', 'Poppins', system-ui, sans-serif;
       text-rendering: geometricPrecision;
     }
-
-    /* Default (light mode) */
-    .logo-text { fill: #2E3A59; font-weight: 700; }
-    .tagline { fill: #555; font-style: italic; }
-
+    
+    /* Light mode (default) */
+    :root {
+      --text-primary: #2E3A59;
+      --text-secondary: #555;
+      --butterfly-body: #654321;
+      --butterfly-head: #2d2d2d;
+      --butterfly-wing1: url(#butterflyGradient1Light);
+      --butterfly-wing2: url(#butterflyGradient2Light);
+      --butterfly-pattern: url(#patternGradientLight);
+      --glow-color: rgba(255, 230, 109, 0.5);
+    }
+    
+    .logo-text { 
+      fill: var(--text-primary); 
+      font-weight: 700;
+      transition: fill 0.5s ease;
+    }
+    
+    .tagline { 
+      fill: var(--text-secondary); 
+      font-style: italic;
+      transition: fill 0.5s ease;
+    }
+    
+    .butterfly-body { 
+      fill: var(--butterfly-body);
+      transition: fill 0.5s ease;
+    }
+    
+    .butterfly-head { 
+      fill: var(--butterfly-head);
+      transition: fill 0.5s ease;
+    }
+    
+    .butterfly-wing1 { 
+      fill: var(--butterfly-wing1);
+      transition: fill 0.5s ease;
+    }
+    
+    .butterfly-wing2 { 
+      fill: var(--butterfly-wing2);
+      transition: fill 0.5s ease;
+    }
+    
+    .butterfly-pattern { 
+      fill: var(--butterfly-pattern);
+      transition: fill 0.5s ease;
+    }
+    
     /* Dark mode overrides */
     @media (prefers-color-scheme: dark) {
-      .logo-text { fill: #ffffff; }
-      .tagline { fill: #bbbbbb; }
+      :root {
+        --text-primary: #ffffff;
+        --text-secondary: #bbbbbb;
+        --butterfly-body: #8b5a2b;
+        --butterfly-head: #3d3d3d;
+        --butterfly-wing1: url(#butterflyGradient1Dark);
+        --butterfly-wing2: url(#butterflyGradient2Dark);
+        --butterfly-pattern: url(#patternGradientDark);
+        --glow-color: rgba(255, 240, 109, 0.6);
+      }
     }
-
-    /* Butterfly */
-    .butterfly-body { fill: #654321; }
-    .butterfly-head { fill: #2d2d2d; }
-    .butterfly-wing1 { fill: #ff6b6b; opacity: 0.9; }
-    .butterfly-wing2 { fill: #4ecdc4; opacity: 0.9; }
-    .butterfly-pattern { fill: #ffe66d; opacity: 0.8; }
-    .butterfly-pattern2 { fill: #ff8b94; opacity: 0.8; }
-
-    /* Animation */
+    
+    /* Animations */
     .butterfly {
       transform-origin: center;
-      animation: flutter 1.5s ease-in-out infinite alternate,
-                 floaty 3s ease-in-out infinite;
+      animation: flutter 3s ease-in-out infinite alternate,
+                 floaty 5s ease-in-out infinite;
+      cursor: pointer;
     }
+    
     @keyframes flutter {
       0%   { transform: rotate(0deg) scale(1); }
-      25%  { transform: rotate(12deg) scale(1.02); }
-      50%  { transform: rotate(-12deg) scale(1); }
-      75%  { transform: rotate(10deg) scale(1.02); }
+      25%  { transform: rotate(8deg) scale(1.02); }
+      50%  { transform: rotate(-8deg) scale(1); }
+      75%  { transform: rotate(6deg) scale(1.02); }
       100% { transform: rotate(0deg) scale(1); }
     }
+    
     @keyframes floaty {
       0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-8px); }
+      50%      { transform: translateY(-12px); }
+    }
+    
+    /* Interactive hover effects */
+    .butterfly:hover {
+      animation-play-state: paused;
+      filter: url(#glow);
+    }
+    
+    .butterfly:hover .butterfly-wing1 {
+      transform: scale(1.05);
+      transition: transform 0.3s ease;
+    }
+    
+    .butterfly:hover .butterfly-wing2 {
+      transform: scale(1.05);
+      transition: transform 0.3s ease;
+    }
+    
+    .logo-text:hover {
+      filter: brightness(1.2);
+      cursor: pointer;
+    }
+    
+    /* Responsive text sizing */
+    @media (max-width: 600px) {
+      .project-text { font-size: 42px; }
+      .turnix-text { font-size: 58px; }
+      .tagline-text { font-size: 16px; }
     }
   </style>
 
-  <!-- Butterfly (left side) -->
+  <!-- Main butterfly (left side) -->
   <g class="butterfly" transform="translate(180,90) scale(1.2)">
+    <!-- Body and head -->
     <ellipse class="butterfly-body" cx="0" cy="0" rx="2" ry="25"/>
     <circle class="butterfly-head" cx="0" cy="-20" r="3"/>
-    <path d="M-2,-22 Q-8,-30 -6,-32" stroke="#2d2d2d" stroke-width="1" fill="none"/>
-    <path d="M2,-22 Q8,-30 6,-32" stroke="#2d2d2d" stroke-width="1" fill="none"/>
+    
+    <!-- Antennae -->
+    <path d="M-2,-22 Q-8,-30 -6,-32" stroke="var(--butterfly-head)" stroke-width="1" fill="none"/>
+    <path d="M2,-22 Q8,-30 6,-32" stroke="var(--butterfly-head)" stroke-width="1" fill="none"/>
     <circle class="butterfly-head" cx="-6" cy="-32" r="1"/>
     <circle class="butterfly-head" cx="6" cy="-32" r="1"/>
-    <ellipse class="butterfly-wing1" cx="-15" cy="-8" rx="18" ry="12" transform="rotate(-20 -15 -8)"/>
-    <ellipse class="butterfly-wing2" cx="-12" cy="8" rx="12" ry="8" transform="rotate(-10 -12 8)"/>
-    <ellipse class="butterfly-wing1" cx="15" cy="-8" rx="18" ry="12" transform="rotate(20 15 -8)"/>
-    <ellipse class="butterfly-wing2" cx="12" cy="8" rx="12" ry="8" transform="rotate(10 12 8)"/>
-    <circle class="butterfly-pattern" cx="-15" cy="-8" r="4"/>
-    <circle class="butterfly-pattern" cx="15" cy="-8" r="4"/>
-    <circle class="butterfly-pattern2" cx="-12" cy="8" r="2"/>
-    <circle class="butterfly-pattern2" cx="12" cy="8" r="2"/>
+    
+    <!-- Wings -->
+    <g class="wings">
+      <!-- Left wings -->
+      <ellipse class="butterfly-wing1" cx="-15" cy="-8" rx="18" ry="12" transform="rotate(-20 -15 -8)">
+        <animate attributeName="rx" values="18;19;18" dur="3s" repeatCount="indefinite" />
+      </ellipse>
+      <ellipse class="butterfly-wing2" cx="-12" cy="8" rx="12" ry="8" transform="rotate(-10 -12 8)">
+        <animate attributeName="rx" values="12;13;12" dur="3.5s" repeatCount="indefinite" />
+      </ellipse>
+      
+      <!-- Right wings -->
+      <ellipse class="butterfly-wing1" cx="15" cy="-8" rx="18" ry="12" transform="rotate(20 15 -8)">
+        <animate attributeName="rx" values="18;19;18" dur="3s" repeatCount="indefinite" />
+      </ellipse>
+      <ellipse class="butterfly-wing2" cx="12" cy="8" rx="12" ry="8" transform="rotate(10 12 8)">
+        <animate attributeName="rx" values="12;13;12" dur="3.5s" repeatCount="indefinite" />
+      </ellipse>
+    </g>
+    
+    <!-- Wing patterns -->
+    <circle class="butterfly-pattern" cx="-15" cy="-8" r="4">
+      <animate attributeName="r" values="4;4.5;4" dur="4s" repeatCount="indefinite" />
+    </circle>
+    <circle class="butterfly-pattern" cx="15" cy="-8" r="4">
+      <animate attributeName="r" values="4;4.5;4" dur="4s" repeatCount="indefinite" />
+    </circle>
+    <circle class="butterfly-pattern" cx="-12" cy="8" r="2">
+      <animate attributeName="r" values="2;2.3;2" dur="3s" repeatCount="indefinite" />
+    </circle>
+    <circle class="butterfly-pattern" cx="12" cy="8" r="2">
+      <animate attributeName="r" values="2;2.3;2" dur="3s" repeatCount="indefinite" />
+    </circle>
   </g>
 
-  <!-- Logo text -->
-  <g transform="translate(180,100)">
-    <text class="logo-text" font-size="52" y="0">Project</text>
-    <text class="logo-text" font-size="68" y="65">Turnix</text>
-    <text class="tagline" font-size="18" y="95">Connecting branches . . .</text>
+  <!-- Logo text with enhanced styling -->
+  <g transform="translate(180,100)" filter="url(#shadow)">
+    <text class="logo-text project-text" font-size="52" y="0">Project</text>
+    <text class="logo-text turnix-text" font-size="68" y="65">Turnix</text>
+    <text class="tagline tagline-text" font-size="18" y="95">Connecting branches . . .</text>
   </g>
+
+  <!-- Interactive script -->
+  <script type="text/javascript">
+    //<![CDATA[
+    // Get the butterfly element
+    const butterfly = document.querySelector('.butterfly');
+    
+    // Add click event to butterfly for a special animation
+    if (butterfly) {
+      butterfly.addEventListener('click', function() {
+        // Create a temporary animation class
+        const style = document.createElement('style');
+        style.innerHTML = `
+          .butterfly-spin {
+            animation: spin 1s ease-in-out forwards !important;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Apply and then remove the animation class
+        this.classList.add('butterfly-spin');
+        setTimeout(() => {
+          this.classList.remove('butterfly-spin');
+          document.head.removeChild(style);
+        }, 1000);
+      });
+    }
+    //]]>
+  </script>
 </svg>
