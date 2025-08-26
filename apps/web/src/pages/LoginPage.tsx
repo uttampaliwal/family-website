@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
     showToast("", "info"); // Clear previous messages
     try {
       const response = await api.post<AuthResponse>(
-        `${import.meta.env.VITE_API_BASE_URL}/api/auth/resend-verification`,
+        "/api/auth/resend-verification",
         {
           identifier,
         } as ResendVerificationRequest,

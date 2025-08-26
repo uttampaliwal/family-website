@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 // Create base API instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
   withCredentials: true, // Important for cookies
   headers: {
     "Content-Type": "application/json",
@@ -87,6 +87,7 @@ api.interceptors.response.use(
       }
 
       // Show error message if available
+      const data = error.response.data as any;
       if (data?.message) {
         toast.error(data.message);
       } else {

@@ -253,7 +253,8 @@ export const register = async (
 };
 
 const sanitizeForQuery = (input: string) => {
-  return input.replace(/[^a-zA-Z0-9@.]/g, "");
+  // Allow alphanumeric, @, ., -, _, and + for emails and usernames
+  return input.replace(/[^a-zA-Z0-9@.\-_+]/g, "");
 };
 
 export const login = async (
@@ -668,8 +669,9 @@ export const getUserProfile = async (
     };
 
     return res.status(200).json(sanitizedUser);
-  } catch {
+  } catch (error) {
     // Error fetching user profile - handle with structured logging
+    console.error("Get user profile error:", sanitizeLog(String(error)));
     return res
       .status(500)
       .json({ message: "Server error. Please try again later." });
