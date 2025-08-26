@@ -120,7 +120,7 @@ export const verifyEmail = async (token: string) => {
 export const fetchUserProfile = async (
   username: string,
 ): Promise<UserProfile> => {
-  const response = await api.get<UserProfile>(`/auth/profile/${username}`);
+  const response = await api.get<UserProfile>(`/api/auth/profile/${username}`);
   return response.data;
 };
 
@@ -128,9 +128,9 @@ export const updateUserProfile = async (
   username: string,
   data: Partial<UserProfile>,
 ): Promise<UserProfile> => {
-  const response = await api.put<UserProfile>(
-    `/auth/profile/${username}`,
+  const response = await api.put<{ message: string; userProfile: UserProfile }>(
+    `/api/auth/profile/${username}`,
     data,
   );
-  return response.data;
+  return response.data.userProfile;
 };

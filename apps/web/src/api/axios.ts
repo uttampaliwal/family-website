@@ -1,4 +1,5 @@
 import axios, { type AxiosRequestConfig } from "axios";
+import { getCsrfToken } from "../utils/csrf";
 import type { AuthResponse } from "../types/api";
 
 interface RetryAxiosRequestConfig extends AxiosRequestConfig {
@@ -71,10 +72,14 @@ api.interceptors.request.use(
 // Helper function to refresh access token
 async function refreshAccessToken(): Promise<string | null> {
   try {
+    const csrfToken = getCsrfToken();
     const response = await axios.post<AuthResponse>(
       `${import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"}/api/auth/refresh-token`,
       {},
-      { withCredentials: true },
+      {
+        withCredentials: true,
+        headers: csrfToken ? { "X-XSRF-TOKEN": csrfToken } : undefined,
+      },
     );
     return response.data.accessToken || null;
   } catch (error) {
