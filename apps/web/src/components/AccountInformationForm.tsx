@@ -94,10 +94,8 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
   );
 
   return (
-    <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
-      <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">
-        Account Information
-      </h2>
+    <div className="mb-8 card">
+      <h2 className="headline mb-6 text-on-surface">Account Information</h2>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
         <label
           htmlFor="email"
@@ -114,7 +112,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={refs.emailRef}
-          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
@@ -133,7 +131,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={refs.usernameRef}
-          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center relative">
@@ -153,7 +151,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           disabled={loading}
           ref={refs.passwordRef}
           autoComplete={`new-password-${Date.now()}`}
-          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+          className="input pr-10"
         />
         <button
           type="button"
@@ -162,7 +160,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
             handlers.setShowPassword,
             "password",
           )}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-base focus:outline-none text-sm"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword ? "Hide" : "Show"}
@@ -185,7 +183,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           disabled={loading}
           ref={refs.confirmPasswordRef}
           autoComplete="new-password"
-          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+          className="input pr-10"
         />
         <button
           type="button"
@@ -194,7 +192,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
             handlers.setShowConfirmPassword,
             "confirm password",
           )}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white focus:outline-none text-sm"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-base focus:outline-none text-sm"
           aria-label={
             showConfirmPassword
               ? "Hide confirm password"

@@ -114,9 +114,7 @@ const DocumentsPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-          My Documents
-        </h1>
+        <h1 className="headline text-on-surface">My Documents</h1>
         <button
           onClick={handleNewDocument}
           className="btn btn-primary flex items-center"
@@ -140,11 +138,11 @@ const DocumentsPage: React.FC = () => {
       </div>
 
       {documents.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
-          <p className="text-gray-600 dark:text-gray-300">
+        <div className="card text-center">
+          <p className="text-readable-muted mb-4">
             You don't have any documents yet.
           </p>
-          <button onClick={handleNewDocument} className="mt-4 btn btn-primary">
+          <button onClick={handleNewDocument} className="btn btn-primary">
             Create Your First Document
           </button>
         </div>

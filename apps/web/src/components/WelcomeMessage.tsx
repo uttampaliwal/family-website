@@ -14,10 +14,12 @@ const WelcomeMessage: React.FC = () => {
 
   return (
     <div className="text-center my-8">
-      <h1 className="text-4xl font-bold text-primary">
+      <h1 className="display-1 gradient-text">
         {greeting}, {user?.name || "Guest"}!
       </h1>
-      <p className="text-lg text-muted mt-2">Welcome to the family portal.</p>
+      <p className="body-lg text-readable-muted mt-3">
+        Welcome to the family portal.
+      </p>
     </div>
   );
 };

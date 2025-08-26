@@ -153,16 +153,22 @@ const VerifyEmailPage: React.FC = () => {
   }, [searchParams, verifyEmail]);
 
   return (
-    <div className="text-center">
-      <h1 className="text-gray-800 dark:text-white">Email Verification</h1>
-      <p role="alert" className={`${isError ? "text-error" : "text-success"}`}>
-        {message}
-      </p>
-      {!isError && message.includes("successfully") && (
-        <p className="text-gray-700 dark:text-gray-300">
-          Redirecting to login page...
-        </p>
-      )}
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header"></div>
+        <div className="auth-form text-center">
+          <h1 className="display-2 gradient-text mb-2">Email Verification</h1>
+          <p
+            role="alert"
+            className={`${isError ? "text-error" : "text-success"}`}
+          >
+            {message}
+          </p>
+          {!isError && message.includes("successfully") && (
+            <p className="text-muted mt-2">Redirecting to login page...</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

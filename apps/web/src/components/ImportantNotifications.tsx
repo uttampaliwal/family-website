@@ -15,9 +15,9 @@ interface Notification {
 
 // Constants for better performance
 const NOTIFICATION_STYLES = {
-  urgent: "bg-red-50 dark:bg-red-900/20 border-red-500",
-  warning: "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500",
-  info: "bg-blue-50 dark:bg-blue-900/20 border-blue-500",
+  urgent: "bg-error/10 border-error text-error",
+  warning: "bg-warning/10 border-warning text-warning",
+  info: "bg-info/10 border-info text-info",
 } as const;
 
 const sanitizeString = (str: string) => String(str).replace(/[<>"'&]/g, "");
@@ -107,7 +107,7 @@ const ImportantNotifications: React.FC = () => {
         {[1, 2, 3].map((n) => (
           <div
             key={n}
-            className="h-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"
+            className="h-24 bg-surface rounded-lg animate-pulse"
           ></div>
         ))}
       </div>
@@ -115,11 +115,7 @@ const ImportantNotifications: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
-        {error}
-      </div>
-    );
+    return <div className="alert alert-error">{error}</div>;
   }
 
   return (
@@ -131,17 +127,17 @@ const ImportantNotifications: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className={`p-4 rounded-lg border-l-4 ${getNotificationStyles(notification.type)}`}
+            className={`p-4 rounded-lg border ${getNotificationStyles(notification.type)} bg-surface`}
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
+                <h3 className="subheadline text-on-surface">
                   {notification.title}
                 </h3>
-                <p className="mt-1 text-gray-700 dark:text-gray-300">
+                <p className="mt-1 text-readable-muted">
                   {notification.message}
                 </p>
-                <time className="block mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <time className="block mt-2 text-sm text-muted">
                   {new Date(notification.timestamp).toLocaleString()}
                 </time>
               </div>
@@ -152,7 +148,7 @@ const ImportantNotifications: React.FC = () => {
                       ? notification.action.url
                       : "#"
                   }
-                  className="ml-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white dark:bg-gray-800 text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700"
+                  className="ml-4 badge badge-primary hover:opacity-90 transition-opacity"
                   rel="noopener noreferrer"
                   target={
                     notification.action.url.startsWith("http")

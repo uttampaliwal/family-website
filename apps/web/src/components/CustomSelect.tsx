@@ -21,9 +21,9 @@ interface CustomSelectProps {
 const STYLES = {
   container: "relative",
   button: {
-    base: "flex-1 p-3 rounded-xl border text-left cursor-pointer flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-primary",
-    enabled: "bg-input border-border text-base",
-    disabled: "bg-surface cursor-not-allowed text-muted",
+    base: "input flex justify-between items-center text-left cursor-pointer",
+    enabled: "",
+    disabled: "cursor-not-allowed opacity-70",
   },
   dropdown:
     "absolute z-10 w-full bg-surface border border-border rounded-md mt-1 max-h-60 overflow-auto shadow-lg",

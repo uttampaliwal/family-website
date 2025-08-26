@@ -4,7 +4,7 @@
   
   :root {
     /* 🌾 Light Mode - Morning Warmth */
-    --color-background: 252 248 240; /* Warm Cream */
+    --color-background: 248 244 235; /* Soothing Warm Beige - more calming and family-friendly */
     --color-surface: 240 230 210; /* Soft Linen */
     --color-primary: 139 69 19; /* Rich Saddle Brown */
     --color-secondary: 218 165 32; /* Warm Goldenrod */
@@ -30,7 +30,7 @@
 
   .light {
     /* 🌅 Light Mode - Warm Morning Coffee */
-    --color-background: 252 248 240; /* Warm Cream */
+    --color-background: 248 244 235; /* Soothing Warm Beige - more calming and family-friendly */
     --color-surface: 240 230 210; /* Soft Linen */
     --color-primary: 139 69 19; /* Rich Saddle Brown */
     --color-secondary: 218 165 32; /* Warm Goldenrod */

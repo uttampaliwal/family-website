@@ -8,7 +8,9 @@ interface EmptyStateProps {
 const EmptyState: React.FC<EmptyStateProps> = ({ message }) => {
   return (
     <div className="text-center py-12">
-      <p className="text-muted">{sanitizeText(message)}</p>
+      <div className="card max-w-md mx-auto">
+        <p className="body-lg text-readable-muted">{sanitizeText(message)}</p>
+      </div>
     </div>
   );
 };

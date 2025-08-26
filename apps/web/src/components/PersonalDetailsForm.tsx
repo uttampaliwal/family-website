@@ -39,10 +39,8 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
     [setMobileNumber],
   );
   return (
-    <div className="mb-8 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl">
-      <h2 className="text-2xl font-extrabold mb-6 text-gray-800 dark:text-gray-100">
-        Personal Details
-      </h2>
+    <div className="mb-8 card">
+      <h2 className="headline mb-6 text-on-surface">Personal Details</h2>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
         <label
           htmlFor="name"
@@ -59,7 +57,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
           aria-required="true"
           disabled={loading}
           ref={nameRef}
-          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
@@ -86,7 +84,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
           disabled={loading}
           pattern="[+]?[0-9\s()-]{10,15}"
           title="Please enter a valid phone number (10-15 digits)"
-          className="flex-1 p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
         />
       </div>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center">

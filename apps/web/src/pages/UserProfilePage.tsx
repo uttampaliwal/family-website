@@ -5,12 +5,8 @@ import Button from "../components/Button";
 import { isAxiosError } from "axios";
 import api from "../api/axios";
 import type { UserProfile } from "../types/api";
-import { updateUserProfile } from "../api/auth";
-import { ensureCsrfToken } from "../utils/csrf";
-
-import CustomSelect from "../components/CustomSelect";
-import { GENDER_OPTIONS, normalizeGender, labelForGender } from "../lib/gender";
-import DateOfBirthPicker from "../components/DateOfBirthPicker";
+import { labelForGender } from "../lib/gender";
+import EnhancedProfileEdit from "../components/EnhancedProfileEdit";
 
 import EmptyState from "../components/EmptyState";
 
@@ -101,74 +97,11 @@ const UserProfilePage: React.FC = () => {
     setProfileState((prev) => ({ ...prev, isEditing: true }));
   };
 
-  const handleSave = async () => {
-    if (!profileState.editableProfile) return;
-
-    try {
-      // Ensure CSRF token is available before making the request
-      await ensureCsrfToken();
-
-      // Only send the fields that are editable
-      const updateData = {
-        name: profileState.editableProfile.name,
-        dateOfBirth: profileState.editableProfile.dateOfBirth,
-        phoneNumber: profileState.editableProfile.mobileNumber, // Backend expects phoneNumber
-        gender: normalizeGender(profileState.editableProfile.gender),
-      };
-
-      const updatedProfile = await updateUserProfile(
-        displayUsername,
-        updateData,
-      );
-      setProfileState((prev) => ({
-        ...prev,
-        userProfile: updatedProfile,
-        editableProfile: updatedProfile,
-        isEditing: false,
-        error: null,
-      }));
-    } catch (err) {
-      console.error("Error updating user profile:", err);
-      setProfileState((prev) => ({
-        ...prev,
-        error: "Failed to update profile.",
-      }));
-    }
-  };
-
   const handleCancel = () => {
     setProfileState((prev) => ({
       ...prev,
       editableProfile: prev.userProfile,
       isEditing: false,
-    }));
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProfileState((prev) => ({
-      ...prev,
-      editableProfile: prev.editableProfile
-        ? { ...prev.editableProfile, [name]: value }
-        : null,
-    }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setProfileState((prev) => ({
-      ...prev,
-      editableProfile: prev.editableProfile
-        ? { ...prev.editableProfile, [name]: value }
-        : null,
-    }));
-  };
-
-  const handleDateChange = (value: string) => {
-    setProfileState((prev) => ({
-      ...prev,
-      editableProfile: prev.editableProfile
-        ? { ...prev.editableProfile, dateOfBirth: value }
-        : null,
     }));
   };
 
@@ -202,125 +135,65 @@ const UserProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-8 bg-background-light dark:bg-background-dark rounded-xl shadow-lg text-text-light dark:text-text-dark">
-      <h1 className="text-4xl font-extrabold mb-6 text-center text-gray-800 dark:text-gray-100">
-        @{profileState.userProfile.username}
-      </h1>
+    <div className="container mx-auto p-8">
+      <div className="card">
+        <h1 className="headline mb-6 text-on-surface text-center">
+          @{profileState.userProfile.username}
+        </h1>
 
-      {profileState.isEditing ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={profileState.editableProfile?.name || ""}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
-              />
+        {profileState.isEditing ? (
+          <EnhancedProfileEdit
+            userProfile={profileState.userProfile}
+            onSave={(updatedProfile) => {
+              setProfileState((prev) => ({
+                ...prev,
+                userProfile: updatedProfile,
+                editableProfile: updatedProfile,
+                isEditing: false,
+                error: null,
+              }));
+            }}
+            onCancel={handleCancel}
+          />
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-readable">
+              <p>
+                <strong>Name:</strong> {profileState.userProfile.name || "N/A"}
+              </p>
+              <p>
+                <strong>Email:</strong> {profileState.userProfile.email}
+              </p>
+              <p>
+                <strong>Date of Birth:</strong>{" "}
+                {profileState.userProfile.dateOfBirth || "N/A"}
+              </p>
+              <p>
+                <strong>Mobile Number:</strong>{" "}
+                {profileState.userProfile.mobileNumber || "N/A"}
+              </p>
+              <p>
+                <strong>Gender:</strong>{" "}
+                {labelForGender(profileState.userProfile.gender) || "N/A"}
+              </p>
             </div>
-            <div>
-              <label
-                htmlFor="dob"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Date of Birth
-              </label>
-              <DateOfBirthPicker
-                value={profileState.editableProfile?.dateOfBirth || ""}
-                onChange={handleDateChange}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="mobileNumber"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Mobile Number
-              </label>
-              <input
-                type="text"
-                id="mobileNumber"
-                name="mobileNumber"
-                value={profileState.editableProfile?.mobileNumber || ""}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="gender"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Gender
-              </label>
-              <CustomSelect
-                id="gender"
-                name="gender"
-                value={normalizeGender(
-                  profileState.editableProfile?.gender || "",
-                )}
-                onChange={(value) => handleSelectChange("gender", value)}
-                options={GENDER_OPTIONS(true)}
-              />
-            </div>
-          </div>
-          <div className="flex justify-center space-x-4 mt-6">
-            <Button
-              label="Save Changes"
-              onClick={handleSave}
-              variant="primary"
-            />
-            <Button label="Cancel" onClick={handleCancel} variant="secondary" />
-          </div>
-          <div className="text-center mt-4">
-            <Button
-              label="Change Password"
-              onClick={() => navigate("/change-password")}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-gray-700 dark:text-gray-300">
-            <p>
-              <strong>Name:</strong> {profileState.userProfile.name || "N/A"}
-            </p>
-            <p>
-              <strong>Email:</strong> {profileState.userProfile.email}
-            </p>
-            <p>
-              <strong>Date of Birth:</strong>{" "}
-              {profileState.userProfile.dateOfBirth || "N/A"}
-            </p>
-            <p>
-              <strong>Mobile Number:</strong>{" "}
-              {profileState.userProfile.mobileNumber || "N/A"}
-            </p>
-            <p>
-              <strong>Gender:</strong>{" "}
-              {labelForGender(profileState.userProfile.gender) || "N/A"}
-            </p>
-          </div>
-          <div className="flex justify-center space-x-4 mt-8">
-            {authUsername === profileState.userProfile.username && (
+            <div className="flex justify-center space-x-4 mt-8">
+              {authUsername === profileState.userProfile.username && (
+                <Button
+                  label="Edit Profile"
+                  onClick={handleEdit}
+                  variant="primary"
+                />
+              )}
               <Button
-                label="Edit Profile"
-                onClick={handleEdit}
-                variant="primary"
+                label="Logout"
+                onClick={handleLogout}
+                variant="secondary"
               />
-            )}
-            <Button label="Logout" onClick={handleLogout} variant="secondary" />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -220,8 +220,8 @@ const FamilyCalendar: React.FC = () => {
                 {dayEvents.map((event) => (
                   <div
                     key={event.id}
-                    className={`text-xs p-1 rounded truncate`}
-                    style={{ backgroundColor: event.color + "20" }}
+                    className="calendar-event truncate"
+                    style={{ backgroundColor: `${event.color}20` }}
                   >
                     {event.title}
                   </div>

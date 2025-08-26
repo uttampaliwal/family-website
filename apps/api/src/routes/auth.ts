@@ -11,6 +11,7 @@ import {
   logout,
   changePassword,
   updateUserProfile,
+  checkUsernameAvailability,
 } from "../controllers/authController.js";
 import {
   validate,
@@ -115,6 +116,13 @@ router.post(
 
 // Refresh Token Route
 router.post("/refresh-token", ...csrfProtection, authRateLimit, refreshToken);
+
+// Check Username Availability - Public endpoint
+router.get(
+  "/check-username/:username",
+  authRateLimit,
+  checkUsernameAvailability,
+);
 
 // Get User Profile by Username - Public endpoint with basic rate limiting
 router.get(

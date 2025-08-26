@@ -44,7 +44,8 @@ export const register = async (
   req: Request<Record<string, never>, Record<string, never>, RegisterRequest>,
   res: Response<AuthResponse>,
 ): Promise<Response<AuthResponse>> => {
-  const { name, email, password, dob, username, mobileNumber } = req.body;
+  const { name, email, password, dob, username, mobileNumber, relationship } =
+    req.body;
   const gender = req.body.gender as Gender;
 
   // Input validation
@@ -122,6 +123,7 @@ export const register = async (
       phoneNumber: mobileNumber,
       username,
       gender: gender.toLowerCase(),
+      relationship: relationship?.toLowerCase(),
       verificationToken,
       verificationTokenExpires,
     });
@@ -848,6 +850,48 @@ export const changePassword = async (
   } catch (err) {
     console.error("Change password error:", err);
     return res.status(500).json({ message: "Failed to change password." });
+  }
+};
+
+export const checkUsernameAvailability = async (
+  req: Request<{ username: string }>,
+  res: Response<{ available: boolean; message?: string }>,
+): Promise<Response<{ available: boolean; message?: string }>> => {
+  try {
+    const { username } = req.params;
+
+    // Validate username format
+    if (!username || username.length < 3) {
+      return res.status(400).json({
+        available: false,
+        message: "Username must be at least 3 characters long",
+      });
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return res.status(400).json({
+        available: false,
+        message: "Username can only contain letters, numbers, and underscores",
+      });
+    }
+
+    // Check if username exists
+    const existingUser = await User.findOne({
+      username: username.toLowerCase(),
+    });
+
+    return res.json({
+      available: !existingUser,
+      message: existingUser
+        ? "Username is already taken"
+        : "Username is available",
+    });
+  } catch (error) {
+    console.error("Error checking username availability:", error);
+    return res.status(500).json({
+      available: false,
+      message: "Error checking username availability",
+    });
   }
 };
 
