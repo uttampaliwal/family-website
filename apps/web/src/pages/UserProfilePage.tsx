@@ -7,6 +7,7 @@ import api from "../api/axios";
 import type { UserProfile } from "../types/api";
 import { labelForGender } from "../lib/gender";
 import EnhancedProfileEdit from "../components/EnhancedProfileEdit";
+import RelationshipManager from "../components/RelationshipManager";
 
 import EmptyState from "../components/EmptyState";
 
@@ -177,6 +178,26 @@ const UserProfilePage: React.FC = () => {
                 {labelForGender(profileState.userProfile.gender) || "N/A"}
               </p>
             </div>
+            {/* Relationship Manager - only show for the current user */}
+            {authUsername === profileState.userProfile.username && (
+              <div className="mt-8">
+                <RelationshipManager
+                  currentRelationship={profileState.userProfile.relationship}
+                  onUpdate={(newRelationship) => {
+                    setProfileState((prev) => ({
+                      ...prev,
+                      userProfile: prev.userProfile
+                        ? {
+                            ...prev.userProfile,
+                            relationship: newRelationship,
+                          }
+                        : null,
+                    }));
+                  }}
+                />
+              </div>
+            )}
+
             <div className="flex justify-center space-x-4 mt-8">
               {authUsername === profileState.userProfile.username && (
                 <Button

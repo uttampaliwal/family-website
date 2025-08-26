@@ -377,6 +377,7 @@ const RegisterPage: React.FC = () => {
                     className="input"
                   >
                     <option value="">Select relationship</option>
+                    <option value="self">Self</option>
                     <option value="father">Father</option>
                     <option value="mother">Mother</option>
                     <option value="son">Son</option>
