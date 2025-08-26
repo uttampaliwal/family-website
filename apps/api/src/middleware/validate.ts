@@ -24,7 +24,8 @@ export const registerSchema = Joi.object({
     .pattern(/^[0-9]{10}$/)
     .allow("", null),
   username: Joi.string().alphanum().min(3).max(30).required(),
-  gender: Joi.string().valid("Male", "Female", "Prefer not to say").required(),
+  // Accept standardized lowercase values
+  gender: Joi.string().valid("male", "female", "prefer not to say").required(),
 });
 
 export const loginSchema = Joi.object({
@@ -47,6 +48,13 @@ export const forgotPasswordSchema = Joi.object({
 export const resetPasswordSchema = Joi.object({
   token: Joi.string().optional(), // Make token optional in the body since it might be in the URL params
   password: Joi.string().pattern(PASSWORD_REGEX).required().messages({
+    "string.pattern.base": PASSWORD_ERROR_MESSAGE,
+  }),
+});
+
+export const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().required(),
+  newPassword: Joi.string().pattern(PASSWORD_REGEX).required().messages({
     "string.pattern.base": PASSWORD_ERROR_MESSAGE,
   }),
 });

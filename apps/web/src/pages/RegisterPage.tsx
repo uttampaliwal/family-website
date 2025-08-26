@@ -7,6 +7,7 @@ import type { RegisterRequest, AuthResponse } from "../types/api";
 import { isAxiosError } from "axios";
 import { useToast } from "../hooks/useToast";
 import { ensureCsrfToken } from "../utils/csrf";
+import { GENDER_OPTIONS, normalizeGender } from "../lib/gender";
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState<string>("");
@@ -161,7 +162,7 @@ const RegisterPage: React.FC = () => {
             dob: dob,
             mobileNumber: mobileNumber,
             username: username,
-            gender: gender,
+            gender: normalizeGender(gender),
           } as RegisterRequest,
         );
 
@@ -348,10 +349,11 @@ const RegisterPage: React.FC = () => {
                     disabled={loading}
                     className="input"
                   >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
+                    {GENDER_OPTIONS(true).map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

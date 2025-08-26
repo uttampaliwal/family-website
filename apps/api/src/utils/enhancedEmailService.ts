@@ -61,10 +61,10 @@ async function validateEmailUrls(
     return results;
   }
 
-  logger.info("Validating URLs in email content", {
-    urlCount: urls.length,
-    urls,
-  });
+  logger.info(
+    { urlCount: urls.length, urls },
+    "Validating URLs in email content",
+  );
 
   // Validate URLs concurrently with timeout
   const validationPromises = urls.map(async (url) => {
@@ -80,7 +80,7 @@ async function validateEmailUrls(
       results.set(url, result);
 
       if (!result.isAccessible) {
-        logger.warn("URL validation failed", { url, error: result.error });
+        logger.warn({ url, error: result.error }, "URL validation failed");
       }
     } catch (error) {
       const errorMessage =
@@ -90,7 +90,7 @@ async function validateEmailUrls(
         isAccessible: false,
         error: errorMessage,
       });
-      logger.error("URL validation error", { url, error: errorMessage });
+      logger.error({ url, error: errorMessage }, "URL validation error");
     }
   });
 
@@ -105,6 +105,7 @@ export const sendEnhancedEmail = async (
   options: EmailOptions,
 ): Promise<EmailSendResult> => {
   const startTime = Date.now();
+  let urlValidationResults: Map<string, UrlValidationResult> | undefined;
 
   try {
     // Validate email options
@@ -115,7 +116,6 @@ export const sendEnhancedEmail = async (
     }
 
     // Validate URLs if requested
-    let urlValidationResults: Map<string, UrlValidationResult> | undefined;
     if (options.validateUrls !== false) {
       // Default to true
       urlValidationResults = await validateEmailUrls(
@@ -125,16 +125,19 @@ export const sendEnhancedEmail = async (
 
       // Check if any critical URLs failed validation
       const failedUrls = Array.from(urlValidationResults.entries()).filter(
-        ([_, result]) => !result.isAccessible,
+        ([, result]) => !result.isAccessible,
       );
 
       if (failedUrls.length > 0) {
-        logger.warn("Email contains inaccessible URLs", {
-          failedUrls: failedUrls.map(([url, result]) => ({
-            url,
-            error: result.error,
-          })),
-        });
+        logger.warn(
+          {
+            failedUrls: failedUrls.map(([url, result]) => ({
+              url,
+              error: result.error,
+            })),
+          },
+          "Email contains inaccessible URLs",
+        );
 
         // In strict mode, you might want to throw an error here
         // throw new Error(`Email contains inaccessible URLs: ${failedUrls.map(([url]) => url).join(', ')}`);
@@ -168,13 +171,16 @@ export const sendEnhancedEmail = async (
 
     const duration = Date.now() - startTime;
 
-    logger.info("Email sent successfully", {
-      to: options.to,
-      subject: options.subject,
-      messageId: info.messageId,
-      duration,
-      urlCount: urlValidationResults?.size || 0,
-    });
+    logger.info(
+      {
+        to: options.to,
+        subject: options.subject,
+        messageId: info.messageId,
+        duration,
+        urlCount: urlValidationResults?.size || 0,
+      },
+      "Email sent successfully",
+    );
 
     return {
       success: true,
@@ -186,12 +192,15 @@ export const sendEnhancedEmail = async (
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    logger.error("Email sending failed", {
-      to: options.to,
-      subject: options.subject,
-      error: errorMessage,
-      duration,
-    });
+    logger.error(
+      {
+        to: options.to,
+        subject: options.subject,
+        error: errorMessage,
+        duration,
+      },
+      "Email sending failed",
+    );
 
     return {
       success: false,
@@ -217,11 +226,10 @@ export const sendEmailWithRetry = async (
 
       if (result.success) {
         if (attempt > 1) {
-          logger.info("Email sent successfully after retry", {
-            attempt,
-            to: options.to,
-            subject: options.subject,
-          });
+          logger.info(
+            { attempt, to: options.to, subject: options.subject },
+            "Email sent successfully after retry",
+          );
         }
         return result;
       }
@@ -229,12 +237,15 @@ export const sendEmailWithRetry = async (
       lastError = result.error || "Unknown error";
 
       if (attempt < maxRetries) {
-        logger.warn("Email sending failed, retrying", {
-          attempt,
-          maxRetries,
-          error: lastError,
-          nextRetryIn: retryDelay * attempt,
-        });
+        logger.warn(
+          {
+            attempt,
+            maxRetries,
+            error: lastError,
+            nextRetryIn: retryDelay * attempt,
+          },
+          "Email sending failed, retrying",
+        );
 
         // Exponential backoff
         await new Promise((resolve) =>
@@ -245,12 +256,15 @@ export const sendEmailWithRetry = async (
       lastError = error instanceof Error ? error.message : "Unknown error";
 
       if (attempt < maxRetries) {
-        logger.warn("Email sending failed, retrying", {
-          attempt,
-          maxRetries,
-          error: lastError,
-          nextRetryIn: retryDelay * attempt,
-        });
+        logger.warn(
+          {
+            attempt,
+            maxRetries,
+            error: lastError,
+            nextRetryIn: retryDelay * attempt,
+          },
+          "Email sending failed, retrying",
+        );
 
         await new Promise((resolve) =>
           setTimeout(resolve, retryDelay * attempt),
@@ -259,12 +273,15 @@ export const sendEmailWithRetry = async (
     }
   }
 
-  logger.error("Email sending failed after all retries", {
-    maxRetries,
-    finalError: lastError,
-    to: options.to,
-    subject: options.subject,
-  });
+  logger.error(
+    {
+      maxRetries,
+      finalError: lastError,
+      to: options.to,
+      subject: options.subject,
+    },
+    "Email sending failed after all retries",
+  );
 
   return {
     success: false,

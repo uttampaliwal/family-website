@@ -189,11 +189,14 @@ export async function checkUrlAccessibility(
     }
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    logger.error("URL accessibility check failed", {
-      url,
-      error:
-        error instanceof Error ? error.message : ("Unknown error" as string),
-    });
+    logger.error(
+      {
+        url,
+        error:
+          error instanceof Error ? error.message : ("Unknown error" as string),
+      },
+      "URL accessibility check failed",
+    );
 
     return {
       isValid: false,

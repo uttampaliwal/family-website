@@ -2,11 +2,8 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { sendEmail } from "../utils/emailService.js";
-import {
-  sendEnhancedEmail,
-  sendEmailWithRetry,
-} from "../utils/enhancedEmailService.js";
+// Switched to enhanced email service with URL validation and retry
+import { sendEmailWithRetry } from "../utils/enhancedEmailService.js";
 import {
   createEmailVerificationTemplate,
   createPasswordResetTemplate,
@@ -131,70 +128,38 @@ export const register = async (
 
     await user.save();
 
-    // Send verification email
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    // Send verification email using templates and enhanced service
+    const { url: safeVerificationUrl, isValid } = await createSafeEmailUrl(
+      process.env.FRONTEND_URL || "",
+      "/verify-email",
+      { token: verificationToken },
+    );
+    const finalVerificationUrl = isValid
+      ? safeVerificationUrl
+      : `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
-    await sendEmail({
+    const verificationEmail = createEmailVerificationTemplate(
+      finalVerificationUrl,
+      {
+        recipientName: name,
+        supportEmail: process.env.EMAIL_USER || "support@familywebsite.com",
+      },
+    );
+
+    const sendResult = await sendEmailWithRetry({
       to: email,
-      subject: "Verify Your Email for Family Website",
-      html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Verify Your Email</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
-            <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #2563eb; margin: 0;">Family Website</h1>
-                </div>
-                
-                <h2 style="color: #212529; margin-bottom: 20px;">Welcome! Please verify your email</h2>
-                
-                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                    Hello <strong>${htmlEncode(name)}</strong>,
-                </p>
-                
-                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                    Thank you for joining Family Website! To complete your account setup and ensure the security of your account, please verify your email address by clicking the button below:
-                </p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="${verificationUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
-                        Verify Email Address
-                    </a>
-                </div>
-                
-                <p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-                    If the button doesn't work, you can copy and paste this link into your browser:
-                </p>
-                
-                <p style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; word-break: break-all; font-family: monospace; font-size: 14px; margin-bottom: 20px;">
-                    ${verificationUrl}
-                </p>
-                
-                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; color: #856404; font-size: 14px;">
-                        <strong>Security Notice:</strong> This verification link will expire in 24 hours for your security. 
-                        If you didn't create an account with us, please ignore this email.
-                    </p>
-                </div>
-                
-                <div style="border-top: 1px solid #e9ecef; padding-top: 20px; margin-top: 30px; text-align: center;">
-                    <p style="color: #6c757d; font-size: 14px; margin: 0;">
-                        If you have any questions, please contact us at 
-                        <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #2563eb;">
-                            ${process.env.EMAIL_USER || "support@familywebsite.com"}
-                        </a>
-                    </p>
-                </div>
-            </div>
-        </body>
-        </html>
-      `,
+      subject: verificationEmail.subject,
+      html: verificationEmail.html,
+      text: verificationEmail.text,
+      validateUrls: true,
     });
+
+    if (!sendResult.success) {
+      console.warn(
+        "Verification email failed to send:",
+        sanitizeLog(sendResult.error || "Unknown error"),
+      );
+    }
 
     // Generate JWT tokens
     const accessToken = jwt.sign(
@@ -530,69 +495,30 @@ export const resendVerification = async (
     user.verificationTokenExpires = verificationTokenExpires;
     await user.save();
 
-    // Use basic email service for now (fallback while debugging enhanced service)
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    // Build and validate verification URL, then send using template
+    const { url: safeVerificationUrl, isValid } = await createSafeEmailUrl(
+      process.env.FRONTEND_URL || "",
+      "/verify-email",
+      { token: verificationToken },
+    );
+    const finalVerificationUrl = isValid
+      ? safeVerificationUrl
+      : `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
-    await sendEmail({
+    const verificationEmail = createEmailVerificationTemplate(
+      finalVerificationUrl,
+      {
+        recipientName: user.name,
+        supportEmail: process.env.EMAIL_USER || "support@familywebsite.com",
+      },
+    );
+
+    await sendEmailWithRetry({
       to: user.email,
-      subject: "Verify Your Email for Family Website",
-      html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Verify Your Email</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
-            <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #2563eb; margin: 0;">Family Website</h1>
-                </div>
-                
-                <h2 style="color: #212529; margin-bottom: 20px;">Email Verification Required</h2>
-                
-                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                    Hello <strong>${htmlEncode(user.name)}</strong>,
-                </p>
-                
-                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                    You requested a new verification email for your Family Website account. Please verify your email address by clicking the button below:
-                </p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="${verificationUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
-                        Verify Email Address
-                    </a>
-                </div>
-                
-                <p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-                    If the button doesn't work, you can copy and paste this link into your browser:
-                </p>
-                
-                <p style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; word-break: break-all; font-family: monospace; font-size: 14px; margin-bottom: 20px;">
-                    ${verificationUrl}
-                </p>
-                
-                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; color: #856404; font-size: 14px;">
-                        <strong>Security Notice:</strong> This verification link will expire in 24 hours for your security. 
-                        If you didn't request this verification email, please ignore this message.
-                    </p>
-                </div>
-                
-                <div style="border-top: 1px solid #e9ecef; padding-top: 20px; margin-top: 30px; text-align: center;">
-                    <p style="color: #6c757d; font-size: 14px; margin: 0;">
-                        If you have any questions, please contact us at 
-                        <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #2563eb;">
-                            ${process.env.EMAIL_USER || "support@familywebsite.com"}
-                        </a>
-                    </p>
-                </div>
-            </div>
-        </body>
-        </html>
-      `,
+      subject: verificationEmail.subject,
+      html: verificationEmail.html,
+      text: verificationEmail.text,
+      validateUrls: true,
     });
 
     return res.status(200).json({
@@ -744,85 +670,31 @@ export const forgotPassword = async (
 
       await user.save();
 
-      // Use basic email service for now (fallback while debugging enhanced service)
-      const resetUrl = `${process.env.FRONTEND_URL}/reset-password`;
+      // Build validated reset URL and use email template + enhanced sender
+      const { url: safeResetUrl, isValid } = await createSafeEmailUrl(
+        process.env.FRONTEND_URL || "",
+        "/reset-password",
+        {},
+      );
+      const finalResetUrl = isValid
+        ? safeResetUrl
+        : `${process.env.FRONTEND_URL}/reset-password`;
 
-      await sendEmail({
+      const resetEmail = createPasswordResetTemplate(
+        finalResetUrl,
+        resetToken,
+        {
+          recipientName: user.name,
+          supportEmail: process.env.EMAIL_USER || "support@familywebsite.com",
+        },
+      );
+
+      await sendEmailWithRetry({
         to: user.email,
-        subject: "Password Reset Request - Family Website",
-        html: `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Password Reset Request</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
-              <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                  <div style="text-align: center; margin-bottom: 30px;">
-                      <h1 style="color: #2563eb; margin: 0;">Family Website</h1>
-                  </div>
-                  
-                  <h2 style="color: #212529; margin-bottom: 20px;">Password Reset Request</h2>
-                  
-                  <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                      Hello <strong>${htmlEncode(user.name)}</strong>,
-                  </p>
-                  
-                  <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                      We received a request to reset the password for your Family Website account. To reset your password, please follow these steps:
-                  </p>
-                  
-                  <ol style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                      <li>Click the "Reset Password" button below</li>
-                      <li>Enter your reset code when prompted</li>
-                      <li>Create a new secure password</li>
-                  </ol>
-                  
-                  <div style="text-align: center; margin: 30px 0;">
-                      <a href="${resetUrl}" style="background-color: #dc3545; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
-                          Reset Password
-                      </a>
-                  </div>
-                  
-                  <p style="color: #495057; line-height: 1.6; margin-bottom: 10px;">
-                      <strong>Your reset code:</strong>
-                  </p>
-                  
-                  <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; font-family: monospace; font-size: 18px; font-weight: bold; text-align: center; margin: 15px 0; letter-spacing: 3px; color: #dc3545;">
-                      ${htmlEncode(resetToken)}
-                  </div>
-                  
-                  <p style="color: #6c757d; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-                      If the button doesn't work, you can copy and paste this link into your browser:
-                  </p>
-                  
-                  <p style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; word-break: break-all; font-family: monospace; font-size: 14px; margin-bottom: 20px;">
-                      ${resetUrl}
-                  </p>
-                  
-                  <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 20px 0;">
-                      <p style="margin: 0; color: #721c24; font-size: 14px;">
-                          <strong>Security Information:</strong><br>
-                          • This reset code expires in 1 hour for your security<br>
-                          • If you didn't request this reset, please ignore this email<br>
-                          • Your password will remain unchanged unless you complete the reset process
-                      </p>
-                  </div>
-                  
-                  <div style="border-top: 1px solid #e9ecef; padding-top: 20px; margin-top: 30px; text-align: center;">
-                      <p style="color: #6c757d; font-size: 14px; margin: 0;">
-                          If you have any questions, please contact us at 
-                          <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #2563eb;">
-                              ${process.env.EMAIL_USER || "support@familywebsite.com"}
-                          </a>
-                      </p>
-                  </div>
-              </div>
-          </body>
-          </html>
-        `,
+        subject: resetEmail.subject,
+        html: resetEmail.html,
+        text: resetEmail.text,
+        validateUrls: true,
       });
     }
 
@@ -877,73 +749,17 @@ export const resetPassword = async (
 
     await user.save();
 
-    // Use basic email service for password change confirmation
-    await sendEmail({
+    // Send password change confirmation using template + enhanced sender
+    const confirmEmail = createPasswordChangeConfirmationTemplate(user.email, {
+      recipientName: user.name,
+      supportEmail: process.env.EMAIL_USER || "support@familywebsite.com",
+    });
+    await sendEmailWithRetry({
       to: user.email,
-      subject: "Password Changed Successfully - Family Website",
-      html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Password Changed</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
-            <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #2563eb; margin: 0;">Family Website</h1>
-                </div>
-                
-                <h2 style="color: #28a745; margin-bottom: 20px;">✅ Password Changed Successfully</h2>
-                
-                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                    Hello <strong>${htmlEncode(user.name)}</strong>,
-                </p>
-                
-                <p style="color: #495057; line-height: 1.6; margin-bottom: 20px;">
-                    This email confirms that the password for your Family Website account (${htmlEncode(user.email)}) was successfully changed on ${new Date().toLocaleString()}.
-                </p>
-                
-                <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; color: #0c5460; font-size: 14px;">
-                        <strong>✅ Your account is now secure with your new password.</strong>
-                    </p>
-                </div>
-                
-                <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; color: #721c24; font-size: 14px;">
-                        <strong>⚠️ Security Alert:</strong> If you didn't make this change, please contact our support team immediately at 
-                        <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #721c24;">
-                            ${process.env.EMAIL_USER || "support@familywebsite.com"}
-                        </a>
-                    </p>
-                </div>
-                
-                <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0 0 10px 0; color: #155724; font-size: 14px; font-weight: bold;">
-                        Security Tips:
-                    </p>
-                    <ul style="margin: 0; padding-left: 20px; color: #155724; font-size: 14px;">
-                        <li>Keep your password secure and don't share it with anyone</li>
-                        <li>Use a unique password that you don't use for other accounts</li>
-                        <li>Consider enabling two-factor authentication for added security</li>
-                        <li>Log out of shared or public computers after use</li>
-                    </ul>
-                </div>
-                
-                <div style="border-top: 1px solid #e9ecef; padding-top: 20px; margin-top: 30px; text-align: center;">
-                    <p style="color: #6c757d; font-size: 14px; margin: 0;">
-                        If you have any questions, please contact us at 
-                        <a href="mailto:${process.env.EMAIL_USER || "support@familywebsite.com"}" style="color: #2563eb;">
-                            ${process.env.EMAIL_USER || "support@familywebsite.com"}
-                        </a>
-                    </p>
-                </div>
-            </div>
-        </body>
-        </html>
-      `,
+      subject: confirmEmail.subject,
+      html: confirmEmail.html,
+      text: confirmEmail.text,
+      validateUrls: true,
     });
 
     return res.status(200).json({ message: "Your password has been updated." });
@@ -963,10 +779,9 @@ export const logout = async (
     return res.status(204).json({ message: "No refresh token found." });
   }
   try {
-    const decoded = jwt.verify(
-      refreshToken,
-      Buffer.from(refreshTokenSecret, "hex"),
-    ) as { id: string };
+    const decoded = jwt.verify(refreshToken, refreshTokenSecret) as {
+      id: string;
+    };
     const userId = String(decoded.id);
     const user = await User.findById(userId);
 
@@ -999,6 +814,43 @@ export const logout = async (
   }
 };
 
+export const changePassword = async (
+  req: Request,
+  res: Response<AuthResponse>,
+): Promise<Response<AuthResponse>> => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { currentPassword, newPassword } = req.body as {
+      currentPassword: string;
+      newPassword: string;
+    };
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const matches = await bcrypt.compare(currentPassword, user.password);
+    if (!matches) {
+      return res
+        .status(400)
+        .json({ message: "Current password is incorrect." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    return res.status(200).json({ message: "Password updated successfully." });
+  } catch (err) {
+    console.error("Change password error:", err);
+    return res.status(500).json({ message: "Failed to change password." });
+  }
+};
+
 export const updateUserProfile = async (
   req: Request,
   res: Response,
@@ -1025,10 +877,35 @@ export const updateUserProfile = async (
     }
 
     // Update fields if they are provided in the request body
-    if (name) user.name = name;
-    if (dateOfBirth) user.dateOfBirth = dateOfBirth;
-    if (phoneNumber) user.phoneNumber = phoneNumber;
-    if (gender) user.gender = gender as Gender;
+    if (name) user.name = String(name).trim();
+
+    if (dateOfBirth) {
+      // Accept YYYY-MM-DD and convert to Date
+      const parsed = new Date(String(dateOfBirth));
+      if (isNaN(parsed.getTime())) {
+        return res
+          .status(400)
+          .json({ message: "Invalid dateOfBirth format. Use YYYY-MM-DD." });
+      }
+      user.dateOfBirth = parsed;
+    }
+
+    if (phoneNumber !== undefined) {
+      const trimmed = (phoneNumber ?? "").toString().trim();
+      user.phoneNumber = trimmed.length === 0 ? undefined : trimmed;
+    }
+
+    if (gender) {
+      const normalizedGender = String(gender).toLowerCase();
+      const allowed = ["male", "female", "prefer not to say"];
+      if (!allowed.includes(normalizedGender)) {
+        return res.status(400).json({
+          message:
+            'Invalid gender. Allowed values: "male", "female", "prefer not to say".',
+        });
+      }
+      user.gender = normalizedGender as Gender;
+    }
 
     await user.save();
 
@@ -1049,6 +926,17 @@ export const updateUserProfile = async (
       .status(200)
       .json({ message: "Profile updated successfully", userProfile });
   } catch (err) {
+    const anyErr = err as unknown as {
+      name?: string;
+      message?: string;
+      errors?: unknown;
+    };
+    if (anyErr?.name === "ValidationError") {
+      return res.status(400).json({
+        message: "Validation failed while updating profile.",
+        details: anyErr?.message,
+      });
+    }
     console.error("Update profile error:", err);
     return res.status(500).json({ message: "Error updating user profile." });
   }

@@ -9,6 +9,7 @@ import {
   forgotPassword,
   resetPassword,
   logout,
+  changePassword,
   updateUserProfile,
 } from "../controllers/authController.js";
 import {
@@ -19,6 +20,7 @@ import {
   resendVerificationSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  changePasswordSchema,
 } from "../middleware/validate.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import {
@@ -165,5 +167,15 @@ router.post(
 
 // Logout Route
 router.post("/logout", ...csrfProtection, authRateLimit, logout);
+
+// Change password (authenticated user)
+router.post(
+  "/change-password",
+  ...csrfProtection,
+  authMiddleware,
+  authRateLimit,
+  validate(changePasswordSchema),
+  changePassword,
+);
 
 export default router;

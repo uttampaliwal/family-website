@@ -134,3 +134,14 @@ export const updateUserProfile = async (
   );
   return response.data.userProfile;
 };
+
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+) => {
+  const response = await api.post<{ message: string }>(
+    `/api/auth/change-password`,
+    { currentPassword, newPassword },
+  );
+  return response.data;
+};

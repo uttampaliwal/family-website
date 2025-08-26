@@ -13,8 +13,23 @@ const USERNAME_KEY = import.meta.env.VITE_USERNAME_KEY || "username";
 const LOGIN_PATH = import.meta.env.VITE_LOGIN_PATH || "/login";
 const ROOT_PATH = "/";
 
+const derivedBaseUrl = (() => {
+  try {
+    const override = window?.localStorage?.getItem("apiBaseUrl");
+    if (override && /^https?:\/\//i.test(override)) {
+      return override.replace(/\/$/, "");
+    }
+    const protocol = window?.location?.protocol || "http:";
+    const host = window?.location?.hostname || "localhost";
+    const port = "3000";
+    return `${protocol}//${host}:${port}`;
+  } catch {
+    return "http://localhost:3000";
+  }
+})();
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+  baseURL: import.meta.env.VITE_API_BASE_URL || derivedBaseUrl,
   withCredentials: true, // Important for sending HttpOnly cookies
   xsrfCookieName: "XSRF-TOKEN", // The name of the cookie to use as a value for the XSRF token
   xsrfHeaderName: "X-XSRF-TOKEN", // The name of the HTTP header to send the XSRF token in

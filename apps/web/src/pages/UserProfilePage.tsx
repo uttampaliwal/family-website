@@ -9,17 +9,12 @@ import { updateUserProfile } from "../api/auth";
 import { ensureCsrfToken } from "../utils/csrf";
 
 import CustomSelect from "../components/CustomSelect";
+import { GENDER_OPTIONS, normalizeGender, labelForGender } from "../lib/gender";
 import DateOfBirthPicker from "../components/DateOfBirthPicker";
 
 import EmptyState from "../components/EmptyState";
 
-// Constants for better maintainability
-const GENDER_OPTIONS = [
-  { value: "", label: "Select Gender" },
-  { value: "Male", label: "Male" },
-  { value: "Female", label: "Female" },
-  { value: "Prefer not to say", label: "Prefer not to say" },
-];
+// Gender options are centralized in lib/gender
 
 const UserProfilePage: React.FC = () => {
   const { username: paramUsername } = useParams<{ username: string }>();
@@ -118,7 +113,7 @@ const UserProfilePage: React.FC = () => {
         name: profileState.editableProfile.name,
         dateOfBirth: profileState.editableProfile.dateOfBirth,
         phoneNumber: profileState.editableProfile.mobileNumber, // Backend expects phoneNumber
-        gender: profileState.editableProfile.gender,
+        gender: normalizeGender(profileState.editableProfile.gender),
       };
 
       const updatedProfile = await updateUserProfile(
@@ -179,8 +174,17 @@ const UserProfilePage: React.FC = () => {
 
   if (profileState.loading) {
     return (
-      <div className="text-center mt-8 text-gray-700 dark:text-gray-300">
-        Loading profile...
+      <div className="mt-8">
+        <div className="max-w-md mx-auto">
+          <img
+            src="/family-logo.svg"
+            alt="Loading"
+            className="h-20 w-20 object-contain mx-auto mb-4 animate-pulse"
+          />
+          <div className="text-center text-gray-700 dark:text-gray-300 text-lg font-medium">
+            Loading . . .
+          </div>
+        </div>
       </div>
     );
   }
@@ -260,9 +264,11 @@ const UserProfilePage: React.FC = () => {
               <CustomSelect
                 id="gender"
                 name="gender"
-                value={profileState.editableProfile?.gender || ""}
+                value={normalizeGender(
+                  profileState.editableProfile?.gender || "",
+                )}
                 onChange={(value) => handleSelectChange("gender", value)}
-                options={GENDER_OPTIONS}
+                options={GENDER_OPTIONS(true)}
               />
             </div>
           </div>
@@ -277,7 +283,7 @@ const UserProfilePage: React.FC = () => {
           <div className="text-center mt-4">
             <Button
               label="Change Password"
-              onClick={() => navigate("/forgot-password")}
+              onClick={() => navigate("/change-password")}
             />
           </div>
         </div>
@@ -300,7 +306,7 @@ const UserProfilePage: React.FC = () => {
             </p>
             <p>
               <strong>Gender:</strong>{" "}
-              {profileState.userProfile.gender || "N/A"}
+              {labelForGender(profileState.userProfile.gender) || "N/A"}
             </p>
           </div>
           <div className="flex justify-center space-x-4 mt-8">

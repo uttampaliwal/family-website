@@ -18,6 +18,7 @@ const VerifyEmailPage = lazy(() => import("./pages/VerifyEmailPage"));
 const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const ChangePasswordPage = lazy(() => import("./pages/ChangePasswordPage"));
 const HealthCheck = lazy(() => import("./pages/HealthCheck"));
 const DocumentsPage = lazy(() => import("./pages/DocumentsPage"));
 const DocumentEditPage = lazy(() => import("./pages/DocumentEditPage"));
@@ -27,6 +28,7 @@ const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 
 import LiveDateTime from "./components/LiveDateTime";
+import LoadingIndicator from "./components/LoadingIndicator";
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
@@ -168,16 +170,7 @@ function App() {
                   );
                 }}
               >
-                <Suspense
-                  fallback={
-                    <div className="w-full h-64 flex items-center justify-center">
-                      <div className="animate-pulse flex flex-col items-center">
-                        <div className="h-12 w-12 rounded-full bg-primary mb-4"></div>
-                        <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
-                      </div>
-                    </div>
-                  }
-                >
+                <Suspense fallback={<LoadingIndicator fullScreen />}>
                   <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<LoginPage />} />
@@ -204,6 +197,14 @@ function App() {
                     <Route
                       path="/reset-password"
                       element={<ResetPasswordPage />}
+                    />
+                    <Route
+                      path="/change-password"
+                      element={
+                        <ProtectedRoute>
+                          <ChangePasswordPage />
+                        </ProtectedRoute>
+                      }
                     />
                     <Route path="/healthz" element={<HealthCheck />} />
                     <Route
