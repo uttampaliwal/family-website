@@ -74,12 +74,4 @@
              repeatCount="indefinite" />
   </path>
 
-  <!-- Letter T for Turnix -->
-  <text x="32" y="50" text-anchor="middle"
-        font-family="Poppins"
-        font-size="18" 
-        font-weight="bold"
-        fill="var(--text-color)">
-    T
-  </text>
 </svg>

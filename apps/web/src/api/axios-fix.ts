@@ -87,7 +87,7 @@ api.interceptors.response.use(
       }
 
       // Show error message if available
-      const data = error.response.data as any;
+      const data = error.response.data as { message: string };
       if (data?.message) {
         toast.error(data.message);
       } else {

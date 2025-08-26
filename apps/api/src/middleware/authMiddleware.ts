@@ -37,7 +37,7 @@ export default async function (
     }
 
     // Use constant-time comparison for token verification
-    const decoded = jwt.verify(token, Buffer.from(jwtSecret, "hex"), {
+    const decoded = jwt.verify(token, jwtSecret, {
       algorithms: ["HS512"], // Use stronger algorithm
     }) as { id: string };
 

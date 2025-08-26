@@ -19,9 +19,9 @@ const generateCsrfToken = (
     const csrfToken = crypto.randomBytes(32).toString("base64");
     // The token is sent in a cookie that client-side JavaScript can read.
     res.cookie("XSRF-TOKEN", csrfToken, {
-      httpOnly: false, // Must be false for client-side script to access it.
+      httpOnly: false, // client must read it
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "lax", // allows cross-site on top-level navigation
     });
     // CSRF XSRF-TOKEN cookie generated and set
   } else {

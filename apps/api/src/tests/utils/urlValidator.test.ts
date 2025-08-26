@@ -3,13 +3,12 @@ import {
   validateUrlFormat,
   validateUrlSecurity,
   checkUrlAccessibility,
-  validateUrl,
   validateUrls,
   createSafeEmailUrl,
 } from "../../utils/urlValidator.js";
 
 // Mock server for testing URL accessibility
-let mockServer: any;
+let mockServer: http.Server;
 const mockServerPort = 3001;
 
 beforeAll(async () => {

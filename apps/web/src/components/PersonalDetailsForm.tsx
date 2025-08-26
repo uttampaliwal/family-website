@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import Button from "./Button";
 import CustomSelect from "./CustomSelect";
 import DateOfBirthPicker from "./DateOfBirthPicker";
+import { GENDER_OPTIONS } from "../lib/gender";
 
 interface PersonalDetailsFormProps {
   name: string;
@@ -96,12 +97,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
           Gender:
         </label>
         <CustomSelect
-          options={[
-            { value: "", label: "Select Gender" },
-            { value: "Male", label: "Male" },
-            { value: "Female", label: "Female" },
-            { value: "Prefer not to say", label: "Prefer not to say" },
-          ]}
+          options={GENDER_OPTIONS(true)}
           value={gender}
           onChange={setGender}
           placeholder="Select Gender"
