@@ -21,10 +21,27 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
     // Don't show empty messages
     if (!message.trim()) return;
 
-    const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-    const newToast = { id, message: message.trim(), type };
+    const trimmedMessage = message.trim();
 
     setToasts((prev) => {
+      // Check for duplicate messages (same message and type within last 3 seconds)
+      const now = Date.now();
+      const isDuplicate = prev.some((toast) => {
+        const toastTime = parseInt(toast.id.split(".")[0]);
+        return (
+          toast.message === trimmedMessage &&
+          toast.type === type &&
+          now - toastTime < 3000
+        ); // Extended to 3 seconds for better deduplication
+      });
+
+      if (isDuplicate) {
+        return prev; // Don't add duplicate toast
+      }
+
+      const id = now.toString() + "." + Math.random().toString(36).substr(2, 9);
+      const newToast = { id, message: trimmedMessage, type };
+
       // Limit to 3 toasts maximum
       const updated = [...prev, newToast];
       return updated.slice(-3);

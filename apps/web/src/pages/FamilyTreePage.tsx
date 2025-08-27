@@ -34,14 +34,6 @@ const FamilyTreePage: React.FC = () => {
   );
   const [viewMode, setViewMode] = useState<"tree" | "list" | "grid">("tree");
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchFamilyData();
-    } else {
-      setLoading(false);
-    }
-  }, [isLoggedIn, fetchFamilyData]);
-
   const fetchFamilyData = useCallback(async () => {
     try {
       setLoading(true);
@@ -54,6 +46,14 @@ const FamilyTreePage: React.FC = () => {
       setLoading(false);
     }
   }, [showToast]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchFamilyData();
+    } else {
+      setLoading(false);
+    }
+  }, [isLoggedIn, fetchFamilyData]);
 
   const getRelationshipIcon = (relationship: string) => {
     const relationshipMap: Record<string, string> = {

@@ -36,7 +36,7 @@ const ResetPasswordPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast("", "info");
+    // Toast clearing is now handled automatically by the ToastProvider
     setLoading(true);
 
     if (password !== confirmPassword) {
