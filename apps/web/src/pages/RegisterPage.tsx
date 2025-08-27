@@ -81,7 +81,7 @@ const RegisterPage: React.FC = () => {
   ]);
 
   const handleNext = useCallback(() => {
-    showToast("", "info"); // Clear previous messages
+    // Toast clearing is now handled automatically by the ToastProvider
     if (step === 1) {
       if (!name || !dob || !gender || !relationship) {
         showToast(
@@ -98,14 +98,14 @@ const RegisterPage: React.FC = () => {
   }, [step, name, dob, gender, relationship, validateStep2, showToast]);
 
   const handlePrevious = useCallback(() => {
-    showToast("", "info"); // Clear previous messages
+    // Toast clearing is now handled automatically by the ToastProvider
     setStep(step - 1);
-  }, [step, showToast]);
+  }, [step]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      showToast("", "info"); // Clear previous messages
+      // Toast clearing is now handled automatically by the ToastProvider
       setLoading(true);
 
       if (step === 2) {

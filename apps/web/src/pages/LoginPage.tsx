@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast("", "info"); // Clear previous messages
+    // Toast clearing is now handled automatically by the ToastProvider
     setLoading(true);
 
     try {
@@ -95,7 +95,7 @@ const LoginPage: React.FC = () => {
 
   const handleResendVerification = async () => {
     setLoading(true);
-    showToast("", "info"); // Clear previous messages
+    // Note: Toast clearing is now handled automatically by the ToastProvider
     try {
       const response = await api.post<AuthResponse>(
         "/api/auth/resend-verification",
