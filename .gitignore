@@ -41,6 +41,7 @@ packages/tests/
 .zencoder/
 .amazonq/
 .gemini
+.grok
 .env
 .env.example
 docker-compose.prod.yml

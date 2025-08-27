@@ -4,10 +4,10 @@ import {
   getDocumentById,
   deleteDocument,
   downloadFile,
-} from "../api/documents";
+} from "../services/documents";
 import { useToast } from "../hooks/useToast";
 import ShareDocumentModal from "../components/ShareDocumentModal";
-import type { Document as DocumentType } from "../api/documents";
+import type { Document as DocumentType } from "../services/documents";
 
 const DocumentViewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

@@ -1,4 +1,4 @@
-import api from "../api/axios";
+import api from "../services/axios";
 
 // Function to ensure CSRF token is available before making protected requests
 export const ensureCsrfToken = async (): Promise<void> => {

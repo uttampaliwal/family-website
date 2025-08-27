@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import api from "../api/axios";
+import api from "../services/axios";
 import { useFormValidation } from "../hooks/useFormValidation";
 import type { RegisterRequest, AuthResponse } from "../types/api";
 import { isAxiosError } from "axios";

@@ -11,13 +11,12 @@ describe("Button", () => {
   it("applies primary styles when variant is primary", () => {
     render(<Button label="Primary Button" variant="primary" />);
     const button = screen.getByText("Primary Button");
-    expect(button).toHaveClass("bg-gradient-primary");
-    expect(button).toHaveClass("text-white");
+    expect(button).toHaveClass("btn-primary");
   });
 
   it("applies default styles when variant is default or not provided", () => {
     render(<Button label="Default Button" />);
     const button = screen.getByText("Default Button");
-    expect(button).toHaveClass("bg-surface");
+    expect(button).toHaveClass("btn-ghost");
   });
 });

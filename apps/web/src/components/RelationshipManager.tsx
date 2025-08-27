@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
-import { updateUserProfile } from "../api/auth";
+import { updateUserProfile } from "../services/auth";
 import { ensureCsrfToken } from "../utils/csrf";
 import CustomSelect from "./CustomSelect";
 

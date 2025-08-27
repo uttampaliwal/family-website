@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDocuments, deleteDocument } from "../api/documents";
-import type { Document } from "../api/documents";
+import { getDocuments, deleteDocument } from "../services/documents";
+import type { Document } from "../services/documents";
 import { useToast } from "../hooks/useToast";
 import DocumentCard from "../components/DocumentCard";
 

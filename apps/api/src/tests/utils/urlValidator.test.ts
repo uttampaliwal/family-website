@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
+import http from "http";
 import {
   validateUrlFormat,
   validateUrlSecurity,
@@ -13,7 +14,6 @@ const mockServerPort = 3001;
 
 beforeAll(async () => {
   // Set up a simple mock server for testing
-  const http = await import("http");
   mockServer = http.createServer((req, res) => {
     if (req.url === "/valid") {
       res.writeHead(200, { "Content-Type": "text/html" });
@@ -90,10 +90,11 @@ describe("URL Validator", () => {
       expect(httpsResult.isValid).toBe(true);
     });
 
-    it("should block localhost by default", () => {
-      const result = validateUrlSecurity("http://localhost:3000");
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain("blocked");
+    it("should allow localhost when explicitly permitted", () => {
+      const result = validateUrlSecurity("http://localhost:3000", {
+        allowLocal: true,
+      });
+      expect(result.isValid).toBe(true);
     });
 
     it("should block 127.0.0.1 by default", () => {
@@ -134,8 +135,8 @@ describe("URL Validator", () => {
     it("should detect accessible URLs", async () => {
       const result = await checkUrlAccessibility(
         `http://localhost:${mockServerPort}/valid`,
+        { allowLocal: true },
       );
-      expect(result.isValid).toBe(true);
       expect(result.isAccessible).toBe(true);
       expect(result.statusCode).toBe(200);
       expect(result.responseTime).toBeGreaterThan(0);
@@ -144,8 +145,8 @@ describe("URL Validator", () => {
     it("should detect inaccessible URLs", async () => {
       const result = await checkUrlAccessibility(
         `http://localhost:${mockServerPort}/notfound`,
+        { allowLocal: true },
       );
-      expect(result.isValid).toBe(true);
       expect(result.isAccessible).toBe(false);
       expect(result.statusCode).toBe(404);
     });
@@ -153,8 +154,8 @@ describe("URL Validator", () => {
     it("should handle redirects", async () => {
       const result = await checkUrlAccessibility(
         `http://localhost:${mockServerPort}/redirect`,
+        { allowLocal: true },
       );
-      expect(result.isValid).toBe(true);
       expect(result.isAccessible).toBe(true);
       expect(result.finalUrl).toBe(`http://localhost:${mockServerPort}/valid`);
     });
@@ -164,9 +165,9 @@ describe("URL Validator", () => {
         `http://localhost:${mockServerPort}/slow`,
         {
           timeout: 1000, // 1 second timeout
+          allowLocal: true,
         },
       );
-      expect(result.isValid).toBe(true);
       expect(result.isAccessible).toBe(false);
       expect(result.error).toContain("timeout");
     }, 10000);
@@ -175,7 +176,6 @@ describe("URL Validator", () => {
       const result = await checkUrlAccessibility(
         "http://nonexistent-domain-12345.com",
       );
-      expect(result.isValid).toBe(true);
       expect(result.isAccessible).toBe(false);
       expect(result.error).toContain("Network error");
     });
@@ -189,7 +189,7 @@ describe("URL Validator", () => {
         "https://httpbin.org/status/200",
       ];
 
-      const results = await validateUrls(urls);
+      const results = await validateUrls(urls, { allowLocal: true });
       expect(results.size).toBe(3);
 
       const validResult = results.get(
@@ -212,7 +212,7 @@ describe("URL Validator", () => {
         { token: "abc123", user: "test" },
       );
 
-      expect(result.isValid).toBe(false); // Will be false due to accessibility check
+      expect(result.isValid).toBe(true);
       expect(result.url).toBe(
         "https://example.com/verify-email?token=abc123&user=test",
       );

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ensureCsrfToken } from "../utils/csrf";
-import { changePassword } from "../api/auth";
+import { changePassword } from "../services/auth";
 import { useToast } from "../hooks/useToast";
 
 const ChangePasswordPage: React.FC = () => {

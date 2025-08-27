@@ -1,5 +1,5 @@
 import React, { useState, type ReactNode } from "react";
-import api from "../api/axios";
+import api from "../services/axios";
 import { AuthContext, type User } from "./AuthContextDefinition";
 
 // Constants for better maintainability

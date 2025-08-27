@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { isAxiosError } from "axios";
 import { useToast } from "../hooks/useToast";
-import { resetPassword as resetPasswordApi } from "../api/auth";
+import { resetPassword as resetPasswordApi } from "../services/auth";
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState("");
