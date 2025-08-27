@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
-import api from "../api/axios";
+import api from "../services/axios";
 import { ensureCsrfToken } from "../utils/csrf";
 import type {
   LoginRequest,

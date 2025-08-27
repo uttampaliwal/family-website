@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import api from "../api/axios";
+import api from "../services/axios";
 
 interface UsernameAvailabilityCheckerProps {
   username: string;

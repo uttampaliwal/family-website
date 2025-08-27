@@ -4,7 +4,7 @@ import {
   getDocumentById,
   createDocument,
   updateDocument,
-} from "../api/documents";
+} from "../services/documents";
 import { useToast } from "../hooks/useToast";
 
 const LoadingSpinner = memo(() => (

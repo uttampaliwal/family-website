@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import type { Document } from "../api/documents";
+import type { Document } from "../services/documents";
 
 interface DocumentCardProps {
   doc: Document & { formattedDate: string };

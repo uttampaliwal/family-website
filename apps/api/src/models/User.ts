@@ -116,7 +116,6 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Indexes for faster lookups
-UserSchema.index({ verificationToken: 1 }, { sparse: true });
 UserSchema.index({ resetPasswordToken: 1 });
 UserSchema.index({ lockUntil: 1 }, { sparse: true });
 

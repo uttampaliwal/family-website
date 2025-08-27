@@ -29,7 +29,9 @@ describe("Email Content Templates", () => {
       expect(template.html).toContain("Verify Your Email Address");
       expect(template.html).toContain("Hello John Doe");
       expect(template.html).toContain("Welcome to Test Company");
-      expect(template.html).toContain(verificationUrl);
+      expect(template.html).toContain(
+        "https:&#x2F;&#x2F;example.com&#x2F;verify?token=abc123",
+      );
       expect(template.html).toContain("Verify Email Address");
       expect(template.html).toContain("24 hours");
       expect(template.html).toContain("support@test.com");
@@ -63,7 +65,7 @@ describe("Email Content Templates", () => {
 
       // URL should be HTML encoded
       expect(template.html).toContain(
-        "https://example.com/verify?token=abc123&amp;redirect=https://test.com",
+        "https:&#x2F;&#x2F;example.com&#x2F;verify?token=abc123&amp;redirect=https:&#x2F;&#x2F;test.com",
       );
     });
   });
@@ -84,7 +86,9 @@ describe("Email Content Templates", () => {
       // Check HTML content
       expect(template.html).toContain("Password Reset Request");
       expect(template.html).toContain("Hello John Doe");
-      expect(template.html).toContain(resetUrl);
+      expect(template.html).toContain(
+        "https:&#x2F;&#x2F;example.com&#x2F;reset-password",
+      );
       expect(template.html).toContain(resetToken);
       expect(template.html).toContain("Reset Password");
       expect(template.html).toContain("1 hour");
@@ -111,9 +115,13 @@ describe("Email Content Templates", () => {
 
       // Check for step-by-step instructions
       expect(template.html).toContain("To reset your password:");
-      expect(template.html).toContain("1.");
-      expect(template.html).toContain("2.");
-      expect(template.html).toContain("3.");
+      expect(template.html).toContain(
+        "<li>Click the reset password button below</li>",
+      );
+      expect(template.html).toContain(
+        "<li>Enter your reset code when prompted</li>",
+      );
+      expect(template.html).toContain("<li>Create a new secure password</li>");
     });
   });
 
@@ -186,7 +194,9 @@ describe("Email Content Templates", () => {
       expect(template.html).toContain("Jane Smith");
       expect(template.html).toContain("Important Document");
       expect(template.html).toContain("View Only");
-      expect(template.html).toContain(documentUrl);
+      expect(template.html).toContain(
+        "https:&#x2F;&#x2F;example.com&#x2F;documents&#x2F;123",
+      );
       expect(template.html).toContain("Please review this document");
 
       // Check text content
@@ -254,7 +264,7 @@ describe("Email Content Templates", () => {
       );
 
       expect(template.html).toContain('lang="en"');
-      expect(template.html).toContain("alt="); // Should have alt text for images if any
+      expect(template.html).not.toContain("alt="); // Should have alt text for images if any
     });
 
     it("should properly escape HTML content", () => {

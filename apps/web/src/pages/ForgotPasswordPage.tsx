@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { isAxiosError } from "axios";
 import { useToast } from "../hooks/useToast";
-import api from "../api/axios";
+import api from "../services/axios";
 import { ensureCsrfToken } from "../utils/csrf";
 
 const ForgotPasswordPage: React.FC = () => {

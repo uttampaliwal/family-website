@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { shareDocument } from "../api/documents";
+import { shareDocument } from "../services/documents";
 import { useToast } from "../hooks/useToast";
 
 interface ShareDocumentModalProps {
