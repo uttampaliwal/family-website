@@ -4,7 +4,6 @@
 /node_modules
 /.pnp
 .pnp.js
-package-lock.json
 
 # testing
 /coverage
@@ -35,19 +34,24 @@ yarn-error.log*
 *.orig
 
 # Custom additions
-/docs
-/GEMINI.md
+docs
+packages/tests/
 *.log
 .turbo/
-commit_message.txt
-apps/FRONTEND_DESIGN_BACKUP_20250701.md
-apps/FRONTEND_DESIGN.md
-apps/api/BACKEND_DESIGN_BACKUP_20250701.md
-apps/api/BACKEND_DESIGN.md
 .zencoder/
-
-/packages/tests
-
-commit_message.txt
+.amazonq/
+.gemini
+.grok
 .env
-
+.env.example
+docker-compose.prod.yml
+commit_message.txt
+example.txt
+cookies.txt
+acli.exe
+GEMINI_PROJECT_SUMMARY.md
+PRIVACY_POLICY_IMPLEMENTATION.md
+frontend_styling_log.md
+styling_fixes_summary.md
+register_page_theme_fixes.md
+TOAST_SYSTEM_README.md

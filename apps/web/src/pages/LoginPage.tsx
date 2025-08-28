@@ -1,104 +1,318 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import Button from '../components/Button';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../hooks/useToast";
+import api from "../services/axios";
+import { ensureCsrfToken } from "../utils/csrf";
+import type {
+  LoginRequest,
+  AuthResponse,
+  ResendVerificationRequest,
+  UserProfile,
+} from "../types/api";
+import { isAxiosError } from "axios";
 
 const LoginPage: React.FC = () => {
-  const [identifier, setIdentifier] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false); // New state for password visibility
-  const [message, setMessage] = useState<string>('');
+  const [identifier, setIdentifier] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
+
   const [loading, setLoading] = useState<boolean>(false);
+  const [showResendButton, setShowResendButton] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    showToast("", "info"); // Clear previous messages
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ identifier, password }),
-      });
+      // Ensure CSRF token is available before making the request
+      await ensureCsrfToken();
 
-      const data = await response.json();
+      const response = await api.post<AuthResponse>("/api/auth/login", {
+        identifier,
+        password,
+      } as LoginRequest);
 
-      if (response.ok) {
-        setMessage(data.message || 'Login successful!');
-        console.log('JWT Token (placeholder):', data.token);
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
+      const data = response.data;
+      if (data.username) {
+        localStorage.setItem("accessToken", data.accessToken || "");
+        const userResponse = await api.get<UserProfile>(
+          `/api/auth/profile/${data.username}`,
+        );
+        login(userResponse.data);
+        showToast(data.message || "Login successful!", "success");
+        navigate(`/profile/${data.username}`);
       } else {
-        if (response.status === 400) {
-          setMessage(data.message || 'Bad Request.');
-        } else if (response.status === 500) {
-          setMessage('Server error. Please try again later.');
-        } else {
-          setMessage(data.message || 'An unexpected error occurred.');
-        }
+        throw new Error("Invalid response: missing username");
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      if (error instanceof TypeError) {
-        setMessage('Network error. Please check your internet connection or try again later.');
-      } else {
-        setMessage('An error occurred. Please try again.');
+      let errorMessage = "An unexpected error occurred. Please try again.";
+
+      if (isAxiosError(error)) {
+        if (error.response) {
+          if (error.response.status === 400 || error.response.status === 401) {
+            if (typeof error.response.data === "string") {
+              errorMessage = error.response.data;
+            } else {
+              errorMessage =
+                error.response.data?.message || "Invalid credentials";
+            }
+            if (
+              error.response.data?.message ===
+              "Please verify your email before logging in."
+            ) {
+              setShowResendButton(true);
+            }
+          } else if (error.response.status >= 500) {
+            errorMessage = "Server error. Please try again later.";
+          } else {
+            errorMessage =
+              error.response.data?.message ||
+              error.response.statusText ||
+              errorMessage;
+          }
+        } else if (error.request) {
+          errorMessage =
+            "Network error. Please check your internet connection or try again later.";
+        } else {
+          errorMessage = error.message || errorMessage;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
       }
+
+      showToast(errorMessage, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setLoading(true);
+    showToast("", "info"); // Clear previous messages
+    try {
+      const response = await api.post<AuthResponse>(
+        "/api/auth/resend-verification",
+        {
+          identifier,
+        } as ResendVerificationRequest,
+      );
+      const data = response.data;
+      showToast(
+        data.message || "Verification email sent successfully!",
+        "success",
+      );
+      setShowResendButton(false);
+    } catch (error) {
+      let errorMessage =
+        "An error occurred while resending verification email.";
+
+      if (isAxiosError(error)) {
+        if (error.response) {
+          if (error.response.status === 404) {
+            errorMessage =
+              "User not found. Please check your email or username.";
+          } else if (error.response.status >= 500) {
+            errorMessage = "Server error. Please try again later.";
+          } else if (error.response.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+        } else if (error.request) {
+          errorMessage = "Network error. Please check your connection.";
+        }
+      }
+
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="text-center mt-[10px]">
-      <h1 className="text-[32px] font-bold mb-[20px]">Login</h1>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-md text-left">
-        <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-          <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-            <label htmlFor="identifier" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Email or Username:</label>
-            <input
-              type="text"
-              id="identifier"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              required
-              disabled={loading}
-              className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+    <div className="auth-container">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="auth-card"
+      >
+        <div className="auth-header"></div>
+
+        <div className="auth-form">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
+              Welcome Back
+            </h1>
+            <p className="text-muted">Sign in to continue to your account</p>
           </div>
-          <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center relative">
-            <label htmlFor="password" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Password:</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-              className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Added pr-10 for padding for the button
-            />
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-6">
+              <label
+                htmlFor="identifier"
+                className="block text-sm font-medium text-base mb-2"
+              >
+                Email or Username
+              </label>
+              <input
+                type="text"
+                id="identifier"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                required
+                disabled={loading}
+                className="input"
+                placeholder="Enter your email or username"
+              />
+            </div>
+
+            <div className="mb-6 relative">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-base mb-2"
+              >
+                Password
+              </label>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                className="input pr-10"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                      clipRule="evenodd"
+                    />
+                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
+                />
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-base"
+                >
+                  Remember me
+                </label>
+              </div>
+
+              <Link
+                to="/forgot-password"
+                className="text-sm font-medium text-primary hover:text-secondary transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary w-full"
             >
-              {showPassword ? 'Hide' : 'Show'}
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </button>
-          </div>
-          <div className="text-right mt-6">
-            <Button label={loading ? 'Logging In...' : 'Login'} type="submit" disabled={loading} />
+          </form>
+
+          {showResendButton && (
+            <div className="mt-4">
+              <button
+                onClick={handleResendVerification}
+                disabled={loading}
+                className="btn btn-ghost w-full"
+              >
+                Resend Verification Email
+              </button>
+            </div>
+          )}
+
+          <div className="text-center mt-6">
+            <p className="text-muted">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="font-medium text-primary hover:text-secondary transition-colors"
+              >
+                Sign up now
+              </Link>
+            </p>
           </div>
         </div>
-      </form>
-      {message && <p className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
-      <p className="mt-[20px]">
-        Don't have an account? <Link to="/register">Register</Link>
-      </p>
+      </motion.div>
     </div>
   );
 };

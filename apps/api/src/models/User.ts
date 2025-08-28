@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -7,49 +7,116 @@ const UserSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: [true, "Email is required"],
     unique: true,
-    index: true,
+    match: [
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      "Please provide a valid email address",
+    ],
+    trim: true,
+    lowercase: true,
   },
   password: {
     type: String,
-    required: true,
+    required: [true, "Password is required"],
+    minlength: [8, "Password must be at least 8 characters long"],
+    maxlength: [128, "Password cannot exceed 128 characters"],
   },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true,
-  },
-  dob: {
+  dateOfBirth: {
     type: Date,
     required: true,
   },
-  mobileNumber: {
+  phoneNumber: {
     type: String,
-    required: false,
     validate: {
-      validator: function(v: string | undefined) {
-        if (v === undefined || v === null || v === '') return true; // Not required, so valid if empty
-        return /^\+?[1-9]\d{1,14}$/.test(v); // E.164 format (or similar, adjust regex as needed)
+      validator: function (phoneNumber: string) {
+        if (!phoneNumber || phoneNumber.trim() === "") {
+          return true; // Allow empty/null values
+        }
+        return /^[+]?[1-9]\d{1,14}$/.test(phoneNumber.trim());
       },
-      message: (props: { value: string }) => `${props.value} is not a valid mobile number!`
-    }
+      message: "Please provide a valid phone number",
+    },
+  },
+  username: {
+    type: String,
+    required: [true, "Username is required"],
+    unique: true,
+    trim: true,
+    minlength: [3, "Username must be at least 3 characters long"],
+    maxlength: [30, "Username cannot exceed 30 characters"],
+    match: [
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores",
+    ],
   },
   gender: {
     type: String,
-    enum: ['Male', 'Female', 'Prefer not to say'],
     required: true,
+    enum: {
+      values: ["male", "female", "prefer not to say"],
+      message: "Gender must be male, female, or prefer not to say",
+    },
+  },
+  relationship: {
+    type: String,
+    required: false,
+    enum: {
+      values: [
+        "self",
+        "father",
+        "mother",
+        "son",
+        "daughter",
+        "brother",
+        "sister",
+        "husband",
+        "wife",
+        "grandfather",
+        "grandmother",
+        "uncle",
+        "aunt",
+        "cousin",
+        "nephew",
+        "niece",
+        "son-in-law",
+        "daughter-in-law",
+        "brother-in-law",
+        "sister-in-law",
+        "other",
+      ],
+      message: "Invalid relationship type",
+    },
+  },
+  verificationToken: {
+    type: String,
+    sparse: true, // Allows null values to not violate unique constraint
+  },
+  verificationTokenExpires: {
+    type: Date,
   },
   isVerified: {
     type: Boolean,
     default: false,
   },
-  verificationToken: String,
-  date: {
-    type: Date,
-    default: Date.now,
-  },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+  refreshTokens: {
+    type: [String],
+    default: [],
+    validate: {
+      validator: function (tokens: string[]) {
+        return tokens.length <= 5; // Limit to 5 tokens max
+      },
+      message: "Too many refresh tokens stored",
+    },
+  }, // Array to store multiple refresh tokens
+  loginAttempts: { type: Number, required: true, default: 0 },
+  lockUntil: { type: Number },
 });
 
-export default mongoose.model('User', UserSchema);
+// Indexes for faster lookups
+UserSchema.index({ resetPasswordToken: 1 });
+UserSchema.index({ lockUntil: 1 }, { sparse: true });
+
+export default mongoose.model("User", UserSchema);

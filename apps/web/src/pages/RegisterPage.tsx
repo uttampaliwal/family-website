@@ -1,352 +1,643 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
-
-import Button from '../components/Button';
-import CustomSelect from '../components/CustomSelect';
+import React, { useState, useCallback, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import api from "../services/axios";
+import { useFormValidation } from "../hooks/useFormValidation";
+import type { RegisterRequest, AuthResponse } from "../types/api";
+import { isAxiosError } from "axios";
+import { useToast } from "../hooks/useToast";
+import { ensureCsrfToken } from "../utils/csrf";
+import { GENDER_OPTIONS, normalizeGender } from "../lib/gender";
 
 const RegisterPage: React.FC = () => {
-  const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [dob, setDob] = useState<string>('');
-  const [mobileNumber, setMobileNumber] = useState<string>('');
-  const [username, setUsername] = useState<string>('');
-  const [gender, setGender] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
+  const [dob, setDob] = useState<string>("");
+  const [mobileNumber, setMobileNumber] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
+  const [relationship, setRelationship] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [step, setStep] = useState<number>(1); // New state for multi-step form
+  const [step, setStep] = useState<number>(1);
 
-  const nameRef = useRef<HTMLInputElement>(null);
-  const dobRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const usernameRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement | null>(null);
 
-  const validateEmail = useCallback((email: string) => {
-    // Basic email regex validation
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }, []);
+  const { validateEmail, validatePassword } = useFormValidation();
+  const { showToast } = useToast();
+  const navigate = useNavigate();
 
-  const validatePassword = useCallback((password: string) => {
-    // Password must be at least 8 characters long
-    // Contain at least one uppercase letter
-    // Contain at least one lowercase letter
-    // Contain at least one number
-    // Contain at least one special character
-    const errors: string[] = [];
-    if (password.length < 8) {
-      errors.push('at least 8 characters long');
+  const validateStep2 = useCallback(() => {
+    if (!email || !username || !password || !confirmPassword) {
+      showToast(
+        "Please fill in all required fields for Account Information.",
+        "error",
+      );
+      if (!email) emailRef.current?.focus();
+      else if (!username) usernameRef.current?.focus();
+      else if (!password) passwordRef.current?.focus();
+      else if (!confirmPassword) confirmPasswordRef.current?.focus();
+      return false;
     }
-    if (!/[A-Z]/.test(password)) {
-      errors.push('at least one uppercase letter');
+    if (password !== confirmPassword) {
+      showToast("Confirm password should be same as password.", "error");
+      confirmPasswordRef.current?.focus();
+      return false;
     }
-    if (!/[a-z]/.test(password)) {
-      errors.push('at least one lowercase letter');
+    if (!validateEmail(email)) {
+      showToast("Please enter a valid email address.", "error");
+      emailRef.current?.focus();
+      return false;
     }
-    if (!/[0-9]/.test(password)) {
-      errors.push('at least one number');
+    const passwordValidationResult = validatePassword(password);
+    if (
+      passwordValidationResult.errors &&
+      passwordValidationResult.errors.length > 0
+    ) {
+      showToast(
+        `Password must contain: ${passwordValidationResult.errors.join(", ")}`,
+        "error",
+      );
+      passwordRef.current?.focus();
+      return false;
     }
-    if (!/[^A-Za-z0-9]/.test(password)) {
-      errors.push('at least one special character');
-    }
-    return errors;
-  }, []);
+    return true;
+  }, [
+    email,
+    username,
+    password,
+    confirmPassword,
+    validateEmail,
+    validatePassword,
+    showToast,
+  ]);
 
   const handleNext = useCallback(() => {
-    setMessage('');
+    showToast("", "info"); // Clear previous messages
     if (step === 1) {
-      // Validate Step 1 fields (Personal Details)
-      if (!name || !dob || !gender) {
-        setMessage('Please fill in all required fields for Personal Details.');
+      if (!name || !dob || !gender || !relationship) {
+        showToast(
+          "Please fill in all required fields for Personal Details.",
+          "error",
+        );
         if (!name) nameRef.current?.focus();
-        else if (!dob) dobRef.current?.focus();
         return;
       }
     } else if (step === 2) {
-      // Validate Step 2 fields (Account Information)
-      if (!email || !username || !password || !confirmPassword) {
-        setMessage('Please fill in all required fields for Account Information.');
-        if (!email) emailRef.current?.focus();
-        else if (!username) usernameRef.current?.focus();
-        else if (!password) passwordRef.current?.focus();
-        else if (!confirmPassword) confirmPasswordRef.current?.focus();
-        return;
-      }
-      if (!validateEmail(email)) {
-        setMessage('Please enter a valid email address.');
-        emailRef.current?.focus();
-        return;
-      }
-      if (password !== confirmPassword) {
-        setMessage('Confirm password should be same as password.');
-        confirmPasswordRef.current?.focus();
-        return;
-      }
-      const passwordErrors = validatePassword(password);
-      if (passwordErrors.length > 0) {
-        setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
-        passwordRef.current?.focus();
-        return;
-      }
+      if (!validateStep2()) return;
     }
     setStep(step + 1);
-  }, [step, name, dob, gender, email, username, password, confirmPassword, validateEmail, validatePassword]);
+  }, [step, name, dob, gender, relationship, validateStep2, showToast]);
 
   const handlePrevious = useCallback(() => {
-    setMessage('');
+    showToast("", "info"); // Clear previous messages
     setStep(step - 1);
-  }, [step]);
+  }, [step, showToast]);
 
-  const retryFetch = useCallback(async (url: RequestInfo | URL, options?: RequestInit, retries = 3, delay = 1000) => {
-    for (let i = 0; i < retries; i++) {
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      showToast("", "info"); // Clear previous messages
+      setLoading(true);
+
+      if (step === 2) {
+        if (password !== confirmPassword) {
+          showToast("Passwords do not match.", "error");
+          confirmPasswordRef.current?.focus();
+          setLoading(false);
+          return;
+        }
+
+        if (!email || !username || !password || !confirmPassword) {
+          showToast(
+            "Please fill in all required fields for Account Information.",
+            "error",
+          );
+          if (!email) emailRef.current?.focus();
+          else if (!username) usernameRef.current?.focus();
+          else if (!password) passwordRef.current?.focus();
+          else if (!confirmPassword) confirmPasswordRef.current?.focus();
+          setLoading(false);
+          return;
+        }
+
+        if (!validateEmail(email)) {
+          showToast("Please enter a valid email address.", "error");
+          emailRef.current?.focus();
+          setLoading(false);
+          return;
+        }
+
+        const passwordErrors = validatePassword(password);
+        if (passwordErrors.errors && passwordErrors.errors.length > 0) {
+          showToast(
+            `Password must contain: ${passwordErrors.errors.join(", ")}.`,
+            "error",
+          );
+          passwordRef.current?.focus();
+          setLoading(false);
+          return;
+        }
+      }
+
+      showToast("Attempting to register...", "info");
+
       try {
-        const response = await fetch(url, options);
-        if (response.ok || response.status < 500) {
-          return response;
+        // Ensure CSRF token is available before making the request
+        await ensureCsrfToken();
+
+        const response = await api.post<AuthResponse>(
+          `${import.meta.env.VITE_API_BASE_URL || ""}/api/auth/register`,
+          {
+            name: name,
+            email: email,
+            password: password,
+            dob: dob,
+            mobileNumber: mobileNumber,
+            username: username,
+            gender: normalizeGender(gender),
+            relationship: relationship,
+          } as RegisterRequest,
+        );
+
+        const data = response.data;
+
+        if (response.status === 201) {
+          showToast(
+            data.message ||
+              "Registration successful! Please check your email for verification.",
+            "success",
+          );
+          setTimeout(() => {
+            navigate("/login");
+          }, 3000); // Navigate after 3 seconds to allow user to read the toast
+        } else {
+          showToast(data.message || "An unexpected error occurred.", "error");
         }
       } catch (error) {
-        if (i < retries - 1) {
-          console.warn(`Fetch failed, retrying in ${delay}ms...`, error);
-          await new Promise(resolve => setTimeout(resolve, delay));
+        if (isAxiosError(error)) {
+          if (error.response) {
+            if (error.response.status === 400 && error.response.data?.message) {
+              showToast(error.response.data.message, "error");
+            } else if (error.response.status === 409) {
+              showToast(
+                "User already exists. Please try with different email or username.",
+                "error",
+              );
+            } else if (error.response.status >= 500) {
+              showToast("Server error. Please try again later.", "error");
+            } else {
+              showToast(
+                "Registration failed. Please check your information.",
+                "error",
+              );
+            }
+          } else if (error.code === "NETWORK_ERROR") {
+            showToast("Network error. Please check your connection.", "error");
+          } else {
+            showToast("Registration failed. Please try again.", "error");
+          }
         } else {
-          throw error; // Re-throw error if max retries reached
+          showToast("An unexpected error occurred. Please try again.", "error");
         }
-      }
-    }
-    throw new Error('Max retries reached');
-  }, []);
-
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage('');
-    setLoading(true);
-
-    // Validate Step 2 fields (Account Information) before final submission
-    if (step === 2) {
-      if (!email || !username || !password || !confirmPassword) {
-        setMessage('Please fill in all required fields for Account Information.');
-        if (!email) emailRef.current?.focus();
-        else if (!username) usernameRef.current?.focus();
-        else if (!password) passwordRef.current?.focus();
-        else if (!confirmPassword) confirmPasswordRef.current?.focus();
+      } finally {
         setLoading(false);
-        return;
       }
-      if (!validateEmail(email)) {
-        setMessage('Please enter a valid email address.');
-        emailRef.current?.focus();
-        setLoading(false);
-        return;
-      }
-      if (password !== confirmPassword) {
-        setMessage('Confirm password should be same as password.');
-        confirmPasswordRef.current?.focus();
-        setLoading(false);
-        return;
-      }
-      const passwordErrors = validatePassword(password);
-      if (passwordErrors.length > 0) {
-        setMessage(`Password must contain: ${passwordErrors.join(', ')}.`);
-        passwordRef.current?.focus();
-        setLoading(false);
-        return;
-      }
-    }
-
-    setMessage('Attempting to register...');
-
-    try {
-      const response = await retryFetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password, dob, mobileNumber, username, gender }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage(data.message || 'Registration successful! Please check your email for verification.');
-      } else {
-        if (response.status === 400) {
-          setMessage(data.message || 'Bad Request.');
-        } else if (response.status === 500) {
-          setMessage('Server error. Please try again later.');
-        } else {
-          setMessage(data.message || 'An unexpected error occurred.');
-        }
-      }
-    } catch (error) {
-      console.error('Error during registration:', error);
-      if (error instanceof TypeError) {
-        setMessage('Network error. Please check your internet connection or try again later.');
-      } else {
-        setMessage('An error occurred. Please try again.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [name, email, password, dob, mobileNumber, username, gender, step, validateEmail, validatePassword]);
+    },
+    [
+      name,
+      email,
+      password,
+      confirmPassword,
+      dob,
+      mobileNumber,
+      username,
+      gender,
+      relationship,
+      step,
+      validateEmail,
+      validatePassword,
+      showToast,
+      navigate,
+    ],
+  );
 
   return (
-    <div className="text-center mt-[10px]">
-      <h1 className="text-[32px] font-bold mb-[20px]">Register</h1>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-md text-left">
-        {step === 1 && (
-          <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-extrabold mb-6 text-white">Personal Details</h2>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="name" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Name:</label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={nameRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="dob" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Date of Birth:</label>
-              <input
-                type="date"
-                id="dob"
-                value={dob}
-                onChange={(e) => setDob(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={dobRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="mobileNumber" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Mobile Number:</label>
-              <input
-                type="tel"
-                id="mobileNumber"
-                value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-                disabled={loading}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="gender" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Gender:</label>
-              <CustomSelect
-                options={[
-                  { value: '', label: 'Select Gender' },
-                  { value: 'Male', label: 'Male' },
-                  { value: 'Female', label: 'Female' },
-                  { value: 'Prefer not to say', label: 'Prefer not to say' },
-                ]}
-                value={gender}
-                onChange={setGender}
-                placeholder="Select Gender"
-                disabled={loading}
-                className="flex-1"
-              />
-            </div>
-            <div className="text-right mt-6">
-              <Button label="Next" onClick={handleNext} disabled={loading} type="button" />
-            </div>
-          </div>
-        )}
+    <div className="auth-container">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="auth-card"
+      >
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
+            Create Account
+          </h1>
+          <p className="text-muted">Join our family portal today</p>
+        </div>
 
-        {step === 2 && (
-          <div className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-extrabold mb-6 text-white">Account Information</h2>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="email" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Email:</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={emailRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center">
-              <label htmlFor="username" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Username:</label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={usernameRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center relative">
-              <label htmlFor="password" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Password:</label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={passwordRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
-            </div>
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center relative">
-              <label htmlFor="confirmPassword" className="mb-1 sm:mb-0 sm:w-32 text-left sm:text-right mr-4 text-gray-300">Confirm Password:</label>
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                aria-required="true"
-                disabled={loading}
-                ref={confirmPasswordRef}
-                className="flex-1 p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
-                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
-              >
-                {showConfirmPassword ? 'Hide' : 'Show'}
-              </button>
-            </div>
-            <div className="text-right mt-6">
-              <Button label="Previous" onClick={handlePrevious} disabled={loading} className="mr-4" />
-              <Button label={loading ? 'Registering...' : 'Register'} type="submit" disabled={loading} />
+        <div className="auth-form">
+          <div className="auth-header"></div>
+
+          {/* Progress indicator */}
+          <div className="p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 1 ? "bg-primary text-on-primary" : "bg-surface text-muted"}`}
+                >
+                  1
+                </div>
+                <span
+                  className={`ml-2 text-sm ${step === 1 ? "text-base font-medium" : "text-muted"}`}
+                >
+                  Personal Details
+                </span>
+              </div>
+              <div className="flex-1 mx-4 h-1 bg-border"></div>
+              <div className="flex items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 2 ? "bg-primary text-on-primary" : "bg-surface text-muted"}`}
+                >
+                  2
+                </div>
+                <span
+                  className={`ml-2 text-sm ${step === 2 ? "text-base font-medium" : "text-muted"}`}
+                >
+                  Account Info
+                </span>
+              </div>
             </div>
           </div>
-        )}
-      </form>
-      {message && <p role="alert" className={`mt-[20px] ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>{message}</p>}
-      <p className="mt-[20px]">
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+
+          <form onSubmit={handleSubmit} className="p-8 pt-2">
+            {step === 1 && (
+              <div className="space-y-6">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    Full Name <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    disabled={loading}
+                    ref={nameRef}
+                    className="input"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="dob"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    Date of Birth <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    id="dob"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="mobileNumber"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    Mobile Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="mobileNumber"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    disabled={loading}
+                    className="input"
+                    placeholder="Enter your mobile number"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="gender"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    Gender <span className="text-error">*</span>
+                  </label>
+                  <select
+                    id="gender"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="input"
+                  >
+                    {GENDER_OPTIONS(true).map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="relationship"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    What is your relationship with Uttam Paliwal (S/O Ravi
+                    Paliwal)? <span className="text-error">*</span>
+                  </label>
+                  <select
+                    id="relationship"
+                    value={relationship}
+                    onChange={(e) => setRelationship(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="input"
+                  >
+                    <option value="">Select relationship</option>
+                    <option value="self">Self</option>
+                    <option value="father">Father</option>
+                    <option value="mother">Mother</option>
+                    <option value="son">Son</option>
+                    <option value="daughter">Daughter</option>
+                    <option value="brother">Brother</option>
+                    <option value="sister">Sister</option>
+                    <option value="husband">Husband</option>
+                    <option value="wife">Wife</option>
+                    <option value="grandfather">Grandfather</option>
+                    <option value="grandmother">Grandmother</option>
+                    <option value="uncle">Uncle</option>
+                    <option value="aunt">Aunt</option>
+                    <option value="cousin">Cousin</option>
+                    <option value="nephew">Nephew</option>
+                    <option value="niece">Niece</option>
+                    <option value="son-in-law">Son-in-law</option>
+                    <option value="daughter-in-law">Daughter-in-law</option>
+                    <option value="brother-in-law">Brother-in-law</option>
+                    <option value="sister-in-law">Sister-in-law</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={loading}
+                    className="btn btn-primary w-full"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    Email <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={loading}
+                    ref={emailRef}
+                    className="input"
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="username"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    Username <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={loading}
+                    ref={usernameRef}
+                    className="input"
+                    placeholder="Choose a username"
+                  />
+                </div>
+
+                <div className="relative">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    Password <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                    ref={passwordRef}
+                    className="input pr-10"
+                    placeholder="Enter password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showPassword ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                          clipRule="evenodd"
+                        />
+                        <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-base mb-2"
+                  >
+                    Confirm Password <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                    ref={confirmPasswordRef}
+                    className="input pr-10"
+                    placeholder="Confirm your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none"
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showConfirmPassword ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                          clipRule="evenodd"
+                        />
+                        <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Password must contain at least 8 characters, one uppercase
+                  letter, one lowercase letter, one number, and one special
+                  character.
+                </div>
+
+                <div className="flex space-x-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={handlePrevious}
+                    disabled={loading}
+                    className="btn btn-secondary w-1/2"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn btn-primary w-1/2"
+                  >
+                    {loading ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        Registering...
+                      </>
+                    ) : (
+                      "Register"
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </form>
+        </div>
+
+        <div className="text-center mt-6">
+          <p className="text-muted">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-medium text-primary hover:text-secondary transition-colors"
+            >
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 };
