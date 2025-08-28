@@ -1,0 +1,62 @@
+# Multi-stage production Dockerfile for API
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat curl
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY turbo.json ./
+COPY apps/api/package*.json ./apps/api/
+
+# Install dependencies
+RUN npm ci --only=production --no-audit --silent && npm cache clean --force
+
+# Build stage
+FROM base AS builder
+WORKDIR /app
+
+# Copy source code and dependencies
+COPY . .
+COPY --from=deps /app/node_modules ./node_modules
+
+# Build the application
+ARG TURBO_TELEMETRY_DISABLED=1
+ENV TURBO_TELEMETRY_DISABLED=$TURBO_TELEMETRY_DISABLED
+
+RUN npm run build
+
+# Production stage
+FROM base AS runner
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodejs
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Copy built application
+COPY --from=builder --chown=nodejs:nodejs /app/apps/api/dist ./dist
+COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/apps/api/package*.json ./
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Switch to non-root user
+USER nodejs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health-check || exit 1
+
+# Start the application
+CMD ["node", "dist/index.js"]

@@ -1,20 +1,49 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import Button from './Button';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import Button from "./Button";
+import { useAuth } from "../hooks/useAuth";
+
+// Constants for better maintainability
+const ROUTES = {
+  LOGIN: "/login",
+  REGISTER: "/register",
+  PROFILE: "/profile",
+} as const;
+
+const EXCLUDED_PATHS = [ROUTES.LOGIN, ROUTES.REGISTER];
 
 const AuthButtons: React.FC = () => {
   const location = useLocation();
-  const showAuthButtons = location.pathname !== '/login' && location.pathname !== '/register';
+  const { isLoggedIn, username } = useAuth();
+  const showAuthButtons = !EXCLUDED_PATHS.includes(
+    location.pathname as (typeof EXCLUDED_PATHS)[number],
+  );
+
+  const renderAuthenticatedButtons = () => (
+    <Link to={ROUTES.PROFILE}>
+      <Button label={username || "Profile"} />
+    </Link>
+  );
+
+  const renderUnauthenticatedButtons = () => (
+    <>
+      <Link to={ROUTES.LOGIN}>
+        <Button label="Login" variant="secondary" />
+      </Link>
+      <Link to={ROUTES.REGISTER}>
+        <Button label="Register" className="ml-2.5" variant="primary" />
+      </Link>
+    </>
+  );
+
+  if (!showAuthButtons) return null;
 
   return (
-    <>
-      {showAuthButtons && (
-        <div className="text-center mt-[20px]">
-          <Link to="/login"><Button label="Login" /></Link>
-          <Link to="/register"><Button label="Register" className="ml-[10px]" /></Link>
-        </div>
-      )}
-    </>
+    <div className="text-center mt-5">
+      {isLoggedIn
+        ? renderAuthenticatedButtons()
+        : renderUnauthenticatedButtons()}
+    </div>
   );
 };
 

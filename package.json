@@ -1,18 +1,30 @@
 {
   "name": "family-website",
-  "version": "0.0.0",
+  "version": "0.2.4",
   "private": true,
+  "packageManager": "npm@11.5.2",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "dev": "dotenv -e ./.env -- turbo dev",
+    "build": "dotenv -e ./.env -- turbo build",
+    "lint": "dotenv -e ./.env -- turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "npm test --workspace=api && npm test --workspace=web"
   },
   "devDependencies": {
+    "dotenv-cli": "^10.0.0",
     "prettier": "^3.3.3",
-    "turbo": "^2.0.9"
+    "turbo": "^2.5.6"
+  },
+  "overrides": {
+    "inflight": "npm:@isaacs/inflight@^1.0.6",
+    "test-exclude": "^7.0.0"
+  },
+  "dependencies": {
+    "axios-cookiejar-support": "^6.0.4",
+    "tough-cookie": "^5.1.2"
   }
 }

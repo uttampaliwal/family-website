@@ -1,146 +1,189 @@
-import express, { Request, Response, NextFunction, RequestHandler } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto'; // For generating random tokens
-import { sendEmail } from '../utils/emailService'; // Import email service
-import User from '../models/User';
+import express from "express";
+import {
+  register,
+  login,
+  verifyEmail,
+  resendVerification,
+  refreshToken,
+  getUserProfile,
+  forgotPassword,
+  resetPassword,
+  logout,
+  changePassword,
+  updateUserProfile,
+  checkUsernameAvailability,
+} from "../controllers/authController.js";
+import {
+  validate,
+  registerSchema,
+  loginSchema,
+  verifyEmailSchema,
+  resendVerificationSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  changePasswordSchema,
+} from "../middleware/validate.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import {
+  csrfProtection,
+  generateCsrfToken,
+} from "../middleware/csrfGenerator.js";
+import {
+  authRateLimit,
+  passwordResetRateLimit,
+} from "../middleware/security.js";
+import { logger } from "../utils/logger.js";
 
 const router = express.Router();
-const jwtSecret = process.env.JWT_SECRET as string; // Use a strong secret in production
 
+// Enhanced logging middleware for auth routes
+const authLogger = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  const startTime = Date.now();
 
-// Register Route
-router.post('/register', (async (req: Request, res: Response) => {
-  const { name, email, password, dob, username, gender, mobileNumber } = req.body;
+  res.on("finish", () => {
+    const duration = Date.now() - startTime;
+    const logData = {
+      method: req.method,
+      url: req.url,
+      statusCode: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+      userAgent: req.get("User-Agent"),
+      success: res.statusCode < 400,
+    };
 
-  // Basic validation
-  if (!name || !email || !password || !dob || !username || !gender) {
-    return res.status(400).json({ message: 'Please enter all required fields' });
-  }
-
-  // Email format validation
-  const emailRegex = /^[\S@]+@[\S@]+\.[\S@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: 'Please enter a valid email address' });
-  }
-
-  // Password strength validation
-  if (password.length < 8) {
-    return res.status(400).json({ message: 'Password must be at least 8 characters long' });
-  }
-  if (!/[A-Z]/.test(password)) {
-    return res.status(400).json({ message: 'Password must contain at least one uppercase letter' });
-  }
-  if (!/[a-z]/.test(password)) {
-    return res.status(400).json({ message: 'Password must contain at least one lowercase letter' });
-  }
-  if (!/[0-9]/.test(password)) {
-    return res.status(400).json({ message: 'Password must contain at least one number' });
-  }
-  if (!/[^A-Za-z0-9]/.test(password)) {
-    return res.status(400).json({ message: 'Password must contain at least one special character' });
-  }
-
-  try {
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ message: 'User with this email already exists' });
+    if (res.statusCode >= 400) {
+      logger.warn(logData, "Authentication request failed");
+    } else {
+      logger.info(logData, "Authentication request completed");
     }
+  });
 
-    user = await User.findOne({ username });
-    if (user) {
-      return res.status(400).json({ message: 'Username is already taken. Please choose another.' });
-    }
+  next();
+};
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+// Apply auth logging to all routes
+router.use(authLogger);
 
-    const verificationToken = crypto.randomBytes(20).toString('hex');
+// CSRF Token endpoint - GET request to generate and return CSRF token
+router.get("/csrf-token", generateCsrfToken, (req, res) => {
+  // The CSRF token is already set in the cookie by the middleware
+  res.json({
+    message: "CSRF token generated",
+    token: req.cookies?.["XSRF-TOKEN"] || null,
+  });
+});
 
-    user = new User({
-      name,
-      email,
-      password: hashedPassword,
-      dob,
-      mobileNumber,
-      username,
-      gender,
-      verificationToken,
-    });
+// Register Route - Enhanced with validation and rate limiting
+router.post(
+  "/register",
+  ...csrfProtection,
+  authRateLimit,
+  validate(registerSchema),
+  register,
+);
 
-    await user.save();
-
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email`;
-
-    // Send verification email
-    await sendEmail({
-      to: email,
-      subject: 'Verify Your Email for Family Website',
-      html: `<p>Please click the following link to verify your email:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>`,
-    });
-
-    const payload = { user: { id: user.id } };
-    const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
-
-    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.', token });
-  } catch (err) {
-    console.error('Registration error:', err);
-    res.status(500).json({ message: 'Registration failed. Please try again later.' });
-  }
-}) as RequestHandler);
-
-// Sign In Route
-router.post('/login', (async (req: Request, res: Response) => {
-  const { identifier, password } = req.body;
-
-  try {
-    const user = await User.findOne({
-      $or: [{ email: identifier }, { username: identifier }],
-    });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    // Check if user is verified
-    if (!user.isVerified) {
-      return res.status(400).json({ message: 'Please verify your email before logging in.' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const payload = { user: { id: user.id } };
-    const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
-
-    res.json({ message: 'Logged in successfully', token });
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ message: 'Login failed. Please try again later.' });
-  }
-}) as RequestHandler);
+// Sign In Route - Strict rate limiting for login attempts
+router.post(
+  "/login",
+  ...csrfProtection,
+  authRateLimit,
+  validate(loginSchema),
+  login,
+);
 
 // Verify Email Route
-router.post('/verify-email', (async (req: Request, res: Response) => {
-  const { token } = req.body; // Token should be sent in the request body for security
+router.post(
+  "/verify-email",
+  ...csrfProtection,
+  authRateLimit,
+  validate(verifyEmailSchema),
+  verifyEmail,
+);
 
-  try {
-    const user = await User.findOne({ verificationToken: token });
+// Resend Verification Email Route
+router.post(
+  "/resend-verification",
+  ...csrfProtection,
+  authRateLimit,
+  validate(resendVerificationSchema),
+  resendVerification,
+);
 
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired verification token.' });
+// Refresh Token Route
+router.post("/refresh-token", ...csrfProtection, authRateLimit, refreshToken);
+
+// Check Username Availability - Public endpoint
+router.get(
+  "/check-username/:username",
+  authRateLimit,
+  checkUsernameAvailability,
+);
+
+// Get User Profile by Username - Public endpoint with basic rate limiting
+router.get(
+  "/profile/:username",
+  authRateLimit,
+  (req: express.Request<{ username: string }>, res, next) => {
+    try {
+      getUserProfile(req, res);
+    } catch (error) {
+      next(error);
     }
+  },
+);
 
-    user.isVerified = true;
-    user.verificationToken = undefined; // Clear the token after verification
-    await user.save();
+// Update User Profile by Username - Requires authentication
+router.put(
+  "/profile/:username",
+  ...csrfProtection,
+  authMiddleware,
+  authRateLimit,
+  updateUserProfile,
+);
 
-    res.status(200).json({ message: 'Email verified successfully! You can now sign in.' });
-  } catch (err) {
-    console.error('Email verification error:', err);
-    res.status(500).json({ message: 'Email verification failed. Please try again later.' });
-  }
-}) as RequestHandler);
+// Forgot Password Route - Very strict rate limiting
+router.post(
+  "/forgot-password",
+  ...csrfProtection,
+  passwordResetRateLimit,
+  validate(forgotPasswordSchema),
+  forgotPassword,
+);
+
+// Reset Password Route with token in URL
+router.post(
+  "/reset-password/:token",
+  ...csrfProtection,
+  passwordResetRateLimit,
+  validate(resetPasswordSchema),
+  resetPassword,
+);
+
+// Reset Password Route with token in body
+router.post(
+  "/reset-password",
+  ...csrfProtection,
+  passwordResetRateLimit,
+  validate(resetPasswordSchema),
+  resetPassword,
+);
+
+// Logout Route
+router.post("/logout", ...csrfProtection, authRateLimit, logout);
+
+// Change password (authenticated user)
+router.post(
+  "/change-password",
+  ...csrfProtection,
+  authMiddleware,
+  authRateLimit,
+  validate(changePasswordSchema),
+  changePassword,
+);
 
 export default router;

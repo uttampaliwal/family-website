@@ -1,0 +1,328 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 600" width="800" height="600">
+  <title>Project Turnix Draft Logo</title>
+  <desc>A premium, dynamic draft logo for Project Turnix that adapts to light and dark modes</desc>
+  <?xml-stylesheet type="text/css" href="../svg-styles.css"?>
+  <!-- Definitions for gradients, filters and patterns -->
+  <defs>
+    <!-- Gradients for light mode -->
+    <radialGradient id="bgGradientLight" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" style="stop-color:#f8f9fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e9ecef;stop-opacity:1" />
+    </radialGradient>
+    
+    <linearGradient id="leafGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a7c59;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5016;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="trunkGradientLight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8b4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#654321;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="flowerGradientLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e4c998;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e09380;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Gradients for dark mode -->
+    <radialGradient id="bgGradientDark" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#121212;stop-opacity:1" />
+    </radialGradient>
+    
+    <linearGradient id="leafGradientDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5a9c69;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3d6026;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="trunkGradientDark" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#9b5523;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#755331;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="flowerGradientDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f4d9a8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0a390;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="dropShadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    /* Light mode (default) */
+    :root {
+      --bg-gradient: url(#bgGradientLight);
+      --leaf-gradient: url(#leafGradientLight);
+      --trunk-gradient: url(#trunkGradientLight);
+      --flower-gradient: url(#flowerGradientLight);
+      --text-primary: #2E3A59;
+      --text-secondary: #666;
+      --butterfly-wing1: #ff6b6b;
+      --butterfly-wing2: #4ecdc4;
+      --butterfly-pattern1: #ffe66d;
+      --butterfly-pattern2: #ff8b94;
+    }
+
+    /* Dark mode overrides */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-gradient: url(#bgGradientDark);
+        --leaf-gradient: url(#leafGradientDark);
+        --trunk-gradient: url(#trunkGradientDark);
+        --flower-gradient: url(#flowerGradientDark);
+        --text-primary: #ffffff;
+        --text-secondary: #bbbbbb;
+        --butterfly-wing1: #ff8e9e;
+        --butterfly-wing2: #6ad4cb;
+        --butterfly-pattern1: #fff06d;
+        --butterfly-pattern2: #ffb0b9;
+      }
+    }
+
+    /* Animations */
+    .butterfly {
+      transform-origin: center;
+      animation: flutter 3s ease-in-out infinite alternate,
+                floaty 5s ease-in-out infinite;
+      cursor: pointer;
+    }
+    
+    @keyframes flutter {
+      0%   { transform: rotate(0deg) scale(1); }
+      25%  { transform: rotate(8deg) scale(1.02); }
+      50%  { transform: rotate(-8deg) scale(1); }
+      75%  { transform: rotate(6deg) scale(1.02); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+    
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+
+    .tree {
+      transition: transform 0.3s ease;
+    }
+
+    .tree:hover {
+      transform: scale(1.05);
+    }
+
+    .flower {
+      transition: transform 0.3s ease;
+    }
+
+    .flower:hover {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .butterfly:hover {
+      filter: url(#glow);
+    }
+
+    .project-title {
+      transition: fill 0.5s ease;
+    }
+
+    .project-title:hover {
+      fill: #4a7c59;
+    }
+  </style>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="var(--bg-gradient)"/>
+
+  <!-- Tree (centered, behind text) -->
+  <g class="tree" transform="translate(400,400) scale(1.0)" filter="url(#dropShadow)">
+    <!-- Tree trunk -->
+    <rect x="-8" y="0" width="16" height="60" fill="var(--trunk-gradient)" rx="2"/>
+    
+    <!-- Tree crown - multiple organic shapes -->
+    <ellipse cx="0" cy="-10" rx="45" ry="35" fill="var(--leaf-gradient)" opacity="0.9">
+      <animate attributeName="ry" values="35;36;35" dur="4s" repeatCount="indefinite" />
+    </ellipse>
+    <ellipse cx="-20" cy="-25" rx="30" ry="25" fill="var(--leaf-gradient)" opacity="0.8">
+      <animate attributeName="rx" values="30;31;30" dur="5s" repeatCount="indefinite" />
+    </ellipse>
+    <ellipse cx="25" cy="-20" rx="35" ry="30" fill="var(--leaf-gradient)" opacity="0.8">
+      <animate attributeName="rx" values="35;36;35" dur="4.5s" repeatCount="indefinite" />
+    </ellipse>
+    <ellipse cx="0" cy="-40" rx="25" ry="20" fill="var(--leaf-gradient)" opacity="0.9">
+      <animate attributeName="ry" values="20;21;20" dur="3.5s" repeatCount="indefinite" />
+    </ellipse>
+    
+    <!-- Tree branches -->
+    <path d="M-5,-5 Q-15,-15 -25,-10" stroke="var(--trunk-gradient)" stroke-width="3" fill="none"/>
+    <path d="M5,-8 Q20,-18 30,-12" stroke="var(--trunk-gradient)" stroke-width="3" fill="none"/>
+    <path d="M0,-20 Q-10,-35 -5,-40" stroke="var(--trunk-gradient)" stroke-width="2" fill="none"/>
+    <path d="M0,-22 Q12,-38 8,-42" stroke="var(--trunk-gradient)" stroke-width="2" fill="none"/>
+  </g>
+
+  <!-- Enhanced flower (positioned elegantly) -->
+  <g class="flower" transform="translate(320,380) scale(0.8)" filter="url(#dropShadow)">
+    <!-- Flower stem -->
+    <path d="M0,40 Q5,20 0,0 Q-2,-10 2,-15" stroke="var(--leaf-gradient)" stroke-width="3" fill="none"/>
+    
+    <!-- Flower petals -->
+    <g transform="translate(0,-15)">
+      <!-- Petal 1 -->
+      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(0)">
+        <animate attributeName="ry" values="15;15.5;15" dur="3s" repeatCount="indefinite" />
+      </ellipse>
+      <!-- Petal 2 -->
+      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(72)">
+        <animate attributeName="ry" values="15;15.5;15" dur="3.2s" repeatCount="indefinite" />
+      </ellipse>
+      <!-- Petal 3 -->
+      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(144)">
+        <animate attributeName="ry" values="15;15.5;15" dur="3.4s" repeatCount="indefinite" />
+      </ellipse>
+      <!-- Petal 4 -->
+      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(216)">
+        <animate attributeName="ry" values="15;15.5;15" dur="3.6s" repeatCount="indefinite" />
+      </ellipse>
+      <!-- Petal 5 -->
+      <ellipse cx="0" cy="-12" rx="8" ry="15" fill="var(--flower-gradient)" opacity="0.9" transform="rotate(288)">
+        <animate attributeName="ry" values="15;15.5;15" dur="3.8s" repeatCount="indefinite" />
+      </ellipse>
+      
+      <!-- Flower center -->
+      <circle cx="0" cy="0" r="5" fill="#e09380">
+        <animate attributeName="r" values="5;5.2;5" dur="2s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="0" cy="0" r="2" fill="#c26835"/>
+    </g>
+    
+    <!-- Small leaves -->
+    <ellipse cx="-8" cy="15" rx="4" ry="8" fill="var(--leaf-gradient)" transform="rotate(-30 -8 15)"/>
+    <ellipse cx="10" cy="25" rx="3" ry="6" fill="var(--leaf-gradient)" transform="rotate(45 10 25)"/>
+  </g>
+
+  <!-- Butterfly (right top, animated) -->
+  <g class="butterfly" transform="translate(300,220) scale(1)" filter="url(#dropShadow)">
+    <!-- Butterfly body -->
+    <ellipse cx="0" cy="0" rx="2" ry="25" fill="var(--trunk-gradient)"/>
+    <circle cx="0" cy="-20" r="3" fill="var(--text-primary)"/>
+    
+    <!-- Antennae -->
+    <path d="M-2,-22 Q-8,-30 -6,-32" stroke="var(--text-primary)" stroke-width="1" fill="none"/>
+    <path d="M2,-22 Q8,-30 6,-32" stroke="var(--text-primary)" stroke-width="1" fill="none"/>
+    <circle cx="-6" cy="-32" r="1" fill="var(--text-primary)"/>
+    <circle cx="6" cy="-32" r="1" fill="var(--text-primary)"/>
+    
+    <!-- Left wings -->
+    <ellipse cx="-15" cy="-8" rx="18" ry="12" fill="var(--butterfly-wing1)" opacity="0.8" transform="rotate(-20 -15 -8)">
+      <animate attributeName="rx" values="18;19;18" dur="3s" repeatCount="indefinite" />
+    </ellipse>
+    <ellipse cx="-12" cy="8" rx="12" ry="8" fill="var(--butterfly-wing2)" opacity="0.8" transform="rotate(-10 -12 8)">
+      <animate attributeName="rx" values="12;13;12" dur="3.5s" repeatCount="indefinite" />
+    </ellipse>
+    
+    <!-- Right wings -->
+    <ellipse cx="15" cy="-8" rx="18" ry="12" fill="var(--butterfly-wing1)" opacity="0.8" transform="rotate(20 15 -8)">
+      <animate attributeName="rx" values="18;19;18" dur="3s" repeatCount="indefinite" />
+    </ellipse>
+    <ellipse cx="12" cy="8" rx="12" ry="8" fill="var(--butterfly-wing2)" opacity="0.8" transform="rotate(10 12 8)">
+      <animate attributeName="rx" values="12;13;12" dur="3.5s" repeatCount="indefinite" />
+    </ellipse>
+    
+    <!-- Wing patterns -->
+    <circle cx="-15" cy="-8" r="4" fill="var(--butterfly-pattern1)" opacity="0.7">
+      <animate attributeName="r" values="4;4.5;4" dur="4s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="15" cy="-8" r="4" fill="var(--butterfly-pattern1)" opacity="0.7">
+      <animate attributeName="r" values="4;4.5;4" dur="4s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="-12" cy="8" r="2" fill="var(--butterfly-pattern2)" opacity="0.7">
+      <animate attributeName="r" values="2;2.3;2" dur="3s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="12" cy="8" r="2" fill="var(--butterfly-pattern2)" opacity="0.7">
+      <animate attributeName="r" values="2;2.3;2" dur="3s" repeatCount="indefinite" />
+    </circle>
+  </g>
+
+  <!-- Additional decorative elements -->
+  <!-- Small scattered leaves -->
+  <g opacity="0.6">
+    <ellipse cx="150" cy="200" rx="3" ry="6" fill="var(--leaf-gradient)" transform="rotate(45 150 200)"/>
+    <ellipse cx="680" cy="280" rx="2" ry="4" fill="var(--leaf-gradient)" transform="rotate(-30 680 280)"/>
+    <ellipse cx="120" cy="420" rx="4" ry="7" fill="var(--leaf-gradient)" transform="rotate(60 120 420)"/>
+    <ellipse cx="700" cy="450" rx="3" ry="5" fill="var(--leaf-gradient)" transform="rotate(-45 700 450)"/>
+  </g>
+
+  <!-- Project Title with enhanced styling -->
+  <text class="project-title" x="400" y="450" font-family="'Montserrat', sans-serif"
+        font-size="48" font-weight="300" text-anchor="middle" fill="var(--text-primary)" filter="url(#dropShadow)">
+    PROJECT
+  </text>
+  
+  <text class="project-title" x="400" y="520" font-family="'Poppins', sans-serif"
+        font-size="72" font-weight="700" text-anchor="middle" fill="var(--text-primary)" 
+        letter-spacing="2px" filter="url(#dropShadow)">
+    TURN IX
+  </text>
+
+  <!-- Tagline with decorative elements -->
+  <g>
+    <line x1="250" y1="555" x2="350" y2="555" stroke="var(--text-secondary)" stroke-width="1" opacity="0.6"/>
+    <line x1="450" y1="555" x2="550" y2="555" stroke="var(--text-secondary)" stroke-width="1" opacity="0.6"/>
+    
+    <text x="400" y="560" font-family="'Montserrat', sans-serif"
+          font-size="22" font-weight="300" text-anchor="middle" fill="var(--text-secondary)" 
+          font-style="italic">
+      Connecting branches
+    </text>
+  </g>
+
+  <!-- Subtle corner ornaments -->
+  <g opacity="0.3">
+    <!-- Top left ornament -->
+    <path d="M30,30 Q50,20 70,30 Q50,40 30,30" fill="var(--leaf-gradient)"/>
+    
+    <!-- Bottom right ornament -->
+    <path d="M730,570 Q750,560 770,570 Q750,580 730,570" fill="var(--leaf-gradient)"/>
+  </g>
+
+  <!-- Interactive script -->
+  <script type="text/javascript">
+    //<![CDATA[
+    // Get the butterfly element
+    const butterfly = document.querySelector('.butterfly');
+    
+    // Add click event to butterfly for a special animation
+    if (butterfly) {
+      butterfly.addEventListener('click', function() {
+        // Create a temporary animation class
+        const style = document.createElement('style');
+        style.innerHTML = `
+          .butterfly-spin {
+            animation: spin 1s ease-in-out forwards !important;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Apply and then remove the animation class
+        this.classList.add('butterfly-spin');
+        setTimeout(() => {
+          this.classList.remove('butterfly-spin');
+          document.head.removeChild(style);
+        }, 1000);
+      });
+    }
+    //]]>
+  </script>
+</svg>
