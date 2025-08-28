@@ -81,8 +81,8 @@ export const register = async (
   }
 
   // Validate gender
-  const validGenders = ["male", "female", "prefer not to say"];
-  if (!validGenders.includes(gender.toLowerCase())) {
+  const validGenders = [Gender.MALE, Gender.FEMALE, Gender.PREFER_NOT_TO_SAY];
+  if (!validGenders.includes(gender.toLowerCase() as Gender)) {
     return res.status(400).json({
       message: "Gender must be male, female, or prefer not to say",
     });
@@ -943,8 +943,8 @@ export const updateUserProfile = async (
 
     if (gender) {
       const normalizedGender = String(gender).toLowerCase();
-      const allowed = ["male", "female", "prefer not to say"];
-      if (!allowed.includes(normalizedGender)) {
+      const allowed = [Gender.MALE, Gender.FEMALE, Gender.PREFER_NOT_TO_SAY];
+      if (!allowed.includes(normalizedGender as Gender)) {
         return res.status(400).json({
           message:
             'Invalid gender. Allowed values: "male", "female", "prefer not to say".',
@@ -956,39 +956,39 @@ export const updateUserProfile = async (
     if (relationship !== undefined) {
       const normalizedRelationship = String(relationship).toLowerCase();
       const allowedRelationships = [
-        "self",
-        "father",
-        "mother",
-        "son",
-        "daughter",
-        "brother",
-        "sister",
-        "husband",
-        "wife",
-        "grandfather",
-        "grandmother",
-        "uncle",
-        "aunt",
-        "cousin",
-        "nephew",
-        "niece",
-        "son-in-law",
-        "daughter-in-law",
-        "brother-in-law",
-        "sister-in-law",
-        "other",
+        RelationshipType.SELF,
+        RelationshipType.FATHER,
+        RelationshipType.MOTHER,
+        RelationshipType.SON,
+        RelationshipType.DAUGHTER,
+        RelationshipType.BROTHER,
+        RelationshipType.SISTER,
+        RelationshipType.HUSBAND,
+        RelationshipType.WIFE,
+        RelationshipType.GRANDFATHER,
+        RelationshipType.GRANDMOTHER,
+        RelationshipType.UNCLE,
+        RelationshipType.AUNT,
+        RelationshipType.COUSIN,
+        RelationshipType.NEPHEW,
+        RelationshipType.NIECE,
+        RelationshipType.SON_IN_LAW,
+        RelationshipType.DAUGHTER_IN_LAW,
+        RelationshipType.BROTHER_IN_LAW,
+        RelationshipType.SISTER_IN_LAW,
+        RelationshipType.OTHER,
       ];
       if (
         normalizedRelationship &&
-        !allowedRelationships.includes(normalizedRelationship)
+        !allowedRelationships.includes(
+          normalizedRelationship as RelationshipType,
+        )
       ) {
         return res.status(400).json({
           message: "Invalid relationship value.",
         });
       }
-      user.relationship = (normalizedRelationship || undefined) as
-        | RelationshipType
-        | undefined;
+      user.relationship = normalizedRelationship as RelationshipType;
     }
 
     await user.save();

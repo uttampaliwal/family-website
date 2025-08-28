@@ -4,6 +4,30 @@ export enum Gender {
   PREFER_NOT_TO_SAY = "prefer not to say",
 }
 
+export enum RelationshipType {
+  SELF = "self",
+  FATHER = "father",
+  MOTHER = "mother",
+  SON = "son",
+  DAUGHTER = "daughter",
+  BROTHER = "brother",
+  SISTER = "sister",
+  HUSBAND = "husband",
+  WIFE = "wife",
+  GRANDFATHER = "grandfather",
+  GRANDMOTHER = "grandmother",
+  UNCLE = "uncle",
+  AUNT = "aunt",
+  COUSIN = "cousin",
+  NEPHEW = "nephew",
+  NIECE = "niece",
+  SON_IN_LAW = "son-in-law",
+  DAUGHTER_IN_LAW = "daughter-in-law",
+  BROTHER_IN_LAW = "brother-in-law",
+  SISTER_IN_LAW = "sister-in-law",
+  OTHER = "other",
+}
+
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -12,7 +36,7 @@ export interface RegisterRequest {
   mobileNumber?: string;
   username: string;
   gender: string;
-  relationship?: string;
+  relationship?: RelationshipType;
 }
 
 export interface LoginRequest {
@@ -50,29 +74,6 @@ export interface AuthResponse {
   username?: string;
   error?: AuthError; // Properly typed error responses
 }
-
-export type RelationshipType =
-  | "self"
-  | "father"
-  | "mother"
-  | "son"
-  | "daughter"
-  | "brother"
-  | "sister"
-  | "husband"
-  | "wife"
-  | "grandfather"
-  | "grandmother"
-  | "uncle"
-  | "aunt"
-  | "cousin"
-  | "nephew"
-  | "niece"
-  | "son-in-law"
-  | "daughter-in-law"
-  | "brother-in-law"
-  | "sister-in-law"
-  | "other";
 
 export interface UserProfile {
   id: string;

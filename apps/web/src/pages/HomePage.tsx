@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import ComponentSkeleton from "../components/ComponentSkeleton";
+import AnnouncementTicker from "../components/AnnouncementTicker";
 
 // Lazy loaded components for better performance
 const FamilyCalendar = lazy(() => import("../components/FamilyCalendar"));
@@ -49,15 +50,50 @@ const recentActivity: ActivityItem[] = [
 const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero section with content behind navbar to show translucent effect */}
-      <div className="relative h-40 gradient-bg flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="display-2 gradient-text mb-2">
-            Welcome to Your Family Portal
-          </h1>
-          <p className="body-lg text-on-surface/80">
-            This content shows through the translucent navbar above!
-          </p>
+      {/* Enhanced Hero section with dynamic background */}
+      <div className="relative h-48 overflow-hidden">
+        {/* Animated background gradients */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/15 to-accent/20"></div>
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            rotate: [0, 5, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute -top-10 -right-10 w-64 h-64 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1.1, 1, 1.1],
+            rotate: [0, -3, 0],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute -bottom-10 -left-10 w-48 h-48 bg-gradient-to-br from-accent/10 to-primary/10 rounded-full blur-2xl"
+        />
+
+        {/* Hero content */}
+        <div className="relative z-10 h-full flex items-center justify-center text-center px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-3">
+              Welcome to Yuva Kulya
+            </h1>
+            <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto">
+              Where families connect, memories flourish, and bonds grow stronger
+              every day
+            </p>
+          </motion.div>
         </div>
       </div>
 
@@ -69,47 +105,81 @@ const HomePage: React.FC = () => {
       >
         <WelcomeMessage />
 
-        {/* Quick Actions */}
+        {/* Announcement Ticker */}
+        <section className="mb-8">
+          <AnnouncementTicker />
+        </section>
+
+        {/* Enhanced Quick Actions */}
         <section className="mb-12">
-          <h2 className="headline mb-6 text-on-surface">Quick Actions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <motion.div
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.95 }}
-              className="tool-item"
-            >
-              <span className="tool-icon text-4xl mb-2">📅</span>
-              <span className="font-medium">Add Event</span>
-            </motion.div>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-primary mb-2">Family Hub</h2>
+            <p className="text-muted">
+              Everything you need to stay connected and organized
+            </p>
+          </div>
 
-            <motion.div
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.95 }}
-              className="tool-item"
-            >
-              <span className="tool-icon text-4xl mb-2">📸</span>
-              <span className="font-medium">Share Photo</span>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.95 }}
-              className="tool-item"
-            >
-              <span className="tool-icon text-4xl mb-2">✅</span>
-              <span className="font-medium">Add Task</span>
-            </motion.div>
-
-            <Link to="/family-tree">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              {
+                icon: "📅",
+                label: "Add Event",
+                color: "from-blue-500/20 to-purple-500/20",
+                border: "border-blue-300/30",
+              },
+              {
+                icon: "📸",
+                label: "Share Photo",
+                color: "from-pink-500/20 to-rose-500/20",
+                border: "border-pink-300/30",
+              },
+              {
+                icon: "✅",
+                label: "Add Task",
+                color: "from-green-500/20 to-emerald-500/20",
+                border: "border-green-300/30",
+              },
+              {
+                icon: "🌳",
+                label: "Family Tree",
+                color: "from-amber-500/20 to-orange-500/20",
+                border: "border-amber-300/30",
+                to: "/family-tree",
+              },
+            ].map((action, index) => (
               <motion.div
-                whileHover={{ scale: 1.05, y: -5 }}
+                key={action.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.05, y: -8 }}
                 whileTap={{ scale: 0.95 }}
-                className="tool-item cursor-pointer"
+                className={`relative bg-gradient-to-br ${action.color} backdrop-blur-sm rounded-2xl border ${action.border} p-6 cursor-pointer group transition-all duration-300 hover:shadow-xl`}
               >
-                <span className="tool-icon text-4xl mb-2">🌳</span>
-                <span className="font-medium">Family Tree</span>
+                {action.to ? (
+                  <Link to={action.to} className="block text-center">
+                    <div className="text-5xl mb-3 group-hover:scale-110 transition-transform duration-300">
+                      {action.icon}
+                    </div>
+                    <span className="font-semibold text-on-surface group-hover:text-primary transition-colors duration-300">
+                      {action.label}
+                    </span>
+                  </Link>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-5xl mb-3 group-hover:scale-110 transition-transform duration-300">
+                      {action.icon}
+                    </div>
+                    <span className="font-semibold text-on-surface group-hover:text-primary transition-colors duration-300">
+                      {action.label}
+                    </span>
+                  </div>
+                )}
+
+                {/* Hover effect overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </motion.div>
-            </Link>
+            ))}
           </div>
         </section>
 
