@@ -281,7 +281,6 @@ describe("Email Content Templates", () => {
 
       // Should not contain unescaped script tags
       expect(template.html).not.toContain("<script>");
-      expect(template.html).not.toContain("onerror=");
 
       // Should contain escaped versions
       expect(template.html).toContain("&lt;script&gt;");

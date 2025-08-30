@@ -3,15 +3,15 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 // Switched to enhanced email service with URL validation and retry
-import { sendEmailWithRetry } from "../utils/enhancedEmailService.js";
+import { sendEmailWithRetry } from "../utils/enhancedEmailService";
 import {
   createEmailVerificationTemplate,
   createPasswordResetTemplate,
   createPasswordChangeConfirmationTemplate,
-} from "../utils/emailContent.js";
-import { createSafeEmailUrl } from "../utils/urlValidator.js";
-import User from "../models/User.js";
-import {
+} from "../utils/emailContent";
+import { createSafeEmailUrl } from "../utils/urlValidator";
+import User from "../models/User";
+import type {
   RegisterRequest,
   LoginRequest,
   VerifyEmailRequest,
@@ -20,10 +20,9 @@ import {
   ResetPasswordRequest,
   AuthResponse,
   UserProfile,
-  Gender,
-  RelationshipType,
 } from "../types/auth";
-import { sanitizeLog } from "../utils/logSanitizer.js";
+import { Gender, RelationshipType } from "../types/auth.enums";
+import { sanitizeLog } from "../utils/logSanitizer";
 
 const jwtSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
@@ -281,6 +280,10 @@ export const login = async (
       return res
         .status(400)
         .json({ message: "Please verify your email before logging in." });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({ message: "Invalid credentials." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -832,9 +835,13 @@ export const changePassword = async (
       newPassword: string;
     };
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user?.id);
     if (!user) {
       return res.status(404).json({ message: "User not found." });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({ message: "User has no password set." });
     }
 
     const matches = await bcrypt.compare(currentPassword, user.password);
@@ -909,7 +916,7 @@ export const updateUserProfile = async (
   }
 
   // Ensure the user making the request is the user being updated
-  if (req.user.username !== username) {
+  if (req.user?.username !== username) {
     return res
       .status(403)
       .json({ message: "Forbidden: You can only update your own profile." });

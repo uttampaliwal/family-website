@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
-import { validateUrl, UrlValidationResult } from "./urlValidator.js";
-import { logger } from "./logger.js";
+import { validateUrl, UrlValidationResult } from "./urlValidator";
+import { logger } from "./logger";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

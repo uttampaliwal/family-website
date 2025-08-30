@@ -3,6 +3,7 @@ declare global {
     interface Request {
       user?: {
         id: string;
+        _id: string;
         username: string;
         email: string;
       };

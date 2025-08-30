@@ -13,6 +13,9 @@ import authRoutes from "./routes/auth.js";
 import feedRoutes from "./routes/feed.js";
 import healthRoutes from "./routes/health.js";
 import documentRoutes from "./routes/documents.js";
+import socialRoutes from "./routes/social.js";
+import chatRoutes from "./routes/chat.js";
+import passport from "./config/passport.js";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -175,6 +178,9 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
+// Passport middleware
+app.use(passport.initialize());
+
 // Rate limiting and speed limiting - temporarily disabled for debugging
 // app.use(speedLimiter);
 // app.use(generalRateLimit);
@@ -195,6 +201,8 @@ app.get("/api/test", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/documents", documentRoutes);
+app.use("/api/social", socialRoutes);
+app.use("/api/chat", chatRoutes);
 
 // 404 handler for unmatched routes - Fixed for path-to-regexp compatibility
 app.use((req, res) => {
