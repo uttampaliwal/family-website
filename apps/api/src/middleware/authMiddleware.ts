@@ -61,11 +61,7 @@ export default async function (
       return;
     }
 
-    req.user = {
-      id: user._id.toString(),
-      username: user.username,
-      email: user.email,
-    };
+    req.user = user;
     next();
   } catch (err) {
     // Use constant time response to prevent timing attacks

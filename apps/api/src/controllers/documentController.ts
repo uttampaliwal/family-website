@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import Document from "../models/Document.js";
-import User from "../models/User.js";
+import Document from "../models/Document";
+import User from "../models/User";
 import mongoose from "mongoose";
 import path from "path";
 import fs from "fs";
-import { sanitizeLog } from "../utils/logSanitizer.js";
+import { sanitizeLog } from "../utils/logSanitizer";
 
-import { htmlEncode } from "../utils/sanitization.js";
+import { htmlEncode } from "../utils/sanitization";
 
 // Get all documents for the logged-in user
 export const getDocuments = async (req: Request, res: Response) => {
@@ -15,14 +15,14 @@ export const getDocuments = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+    if (!mongoose.Types.ObjectId.isValid(req.user?.id)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
     const documents = await Document.find({
       $or: [
-        { owner: String(req.user.id) },
-        { sharedWith: String(req.user.id) },
+        { owner: String(req.user?.id) },
+        { sharedWith: String(req.user?.id) },
       ],
     })
       .populate("owner", "username name") // Populate owner information
@@ -44,7 +44,7 @@ export const getDocumentById = async (req: Request, res: Response) => {
     }
 
     // Verify user exists
-    const user = await User.findById(String(req.user.id));
+    const user = await User.findById(String(req.user?.id));
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -54,7 +54,7 @@ export const getDocumentById = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid document ID" });
     }
 
-    const sanitizedUserId = String(req.user.id);
+    const sanitizedUserId = String(req.user?.id);
     const document = await Document.findOne({
       _id: documentId,
       $or: [{ owner: sanitizedUserId }, { sharedWith: sanitizedUserId }],
@@ -94,7 +94,7 @@ export const createDocument = async (req: Request, res: Response) => {
     }
 
     // Verify user exists
-    const user = await User.findById(String(req.user.id));
+    const user = await User.findById(String(req.user?.id));
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -115,7 +115,7 @@ export const createDocument = async (req: Request, res: Response) => {
     const documentData: DocumentCreationData = {
       title: sanitizedTitle,
       content: sanitizedContent,
-      owner: req.user.id,
+      owner: req.user?.id,
     };
 
     if (req.file) {
@@ -142,7 +142,7 @@ export const createDocument = async (req: Request, res: Response) => {
 // Update a document
 export const updateDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user.id)) {
+    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user?.id)) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -155,7 +155,7 @@ export const updateDocument = async (req: Request, res: Response) => {
     // Find document and verify ownership
     const document = await Document.findOne({
       _id: String(req.params.id),
-      owner: String(req.user.id),
+      owner: String(req.user?.id),
     });
     if (!document) {
       return res.status(404).json({
@@ -177,7 +177,7 @@ export const updateDocument = async (req: Request, res: Response) => {
 // Delete a document
 export const deleteDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user.id)) {
+    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user?.id)) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -187,7 +187,7 @@ export const deleteDocument = async (req: Request, res: Response) => {
 
     const document = await Document.findOneAndDelete({
       _id: req.params.id,
-      owner: String(req.user.id),
+      owner: String(req.user?.id),
     });
 
     if (!document) {
@@ -217,8 +217,8 @@ export const downloadFile = async (req: Request, res: Response) => {
     const document = await Document.findOne({
       _id: req.params.id,
       $or: [
-        { owner: String(req.user.id) },
-        { sharedWith: String(req.user.id) },
+        { owner: String(req.user?.id) },
+        { sharedWith: String(req.user?.id) },
       ],
     });
 
@@ -271,7 +271,7 @@ export const downloadFile = async (req: Request, res: Response) => {
 // Share a document with another user
 export const shareDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user.id)) {
+    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user?.id)) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -299,7 +299,7 @@ export const shareDocument = async (req: Request, res: Response) => {
     }
 
     // Prevent sharing with yourself
-    if (targetUser._id.toString() === String(req.user.id)) {
+    if (targetUser._id.toString() === String(req.user?.id)) {
       return res
         .status(400)
         .json({ message: "Cannot share document with yourself" });
@@ -312,7 +312,7 @@ export const shareDocument = async (req: Request, res: Response) => {
 
     const document = await Document.findOne({
       _id: String(documentId),
-      owner: String(req.user.id),
+      owner: String(req.user?.id),
     });
 
     if (!document) {

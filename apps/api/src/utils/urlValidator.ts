@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { logger } from "./logger.js";
+import { logger } from "./logger";
 
 // URL validation schema
 const urlSchema = z.string().url("Invalid URL format");
@@ -11,14 +11,17 @@ interface UrlValidationConfig {
   allowedDomains?: string[];
   blockedDomains?: string[];
   maxRedirects?: number;
+  allowLocal?: boolean;
 }
 
-const DEFAULT_CONFIG: Required<UrlValidationConfig> = {
+const DEFAULT_CONFIG: Required<Omit<UrlValidationConfig, "allowLocal">> &
+  Pick<UrlValidationConfig, "allowLocal"> = {
   timeout: 5000, // 5 seconds
   allowedProtocols: ["http:", "https:"],
   allowedDomains: [], // Empty means all domains allowed
   blockedDomains: ["localhost", "127.0.0.1", "0.0.0.0"], // Block local addresses in production
   maxRedirects: 3,
+  allowLocal: false,
 };
 
 export interface UrlValidationResult {
@@ -74,6 +77,7 @@ export function validateUrlSecurity(
     // Check blocked domains
     const hostname = parsedUrl.hostname.toLowerCase();
     if (
+      !mergedConfig.allowLocal &&
       mergedConfig.blockedDomains.some((blocked) => hostname.includes(blocked))
     ) {
       return {

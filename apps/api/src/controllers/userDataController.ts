@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import UserData from "../models/UserData.js";
-import User from "../models/User.js";
+import UserData from "../models/UserData";
+import User from "../models/User";
 import mongoose from "mongoose";
-import { sanitizeLog } from "../utils/logSanitizer.js";
+import { sanitizeLog } from "../utils/logSanitizer";
 
-import { htmlEncode } from "../utils/sanitization.js";
+import { htmlEncode } from "../utils/sanitization";
 
 // Type definitions
 interface Event {

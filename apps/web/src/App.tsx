@@ -29,13 +29,20 @@ const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const FamilyTreePage = lazy(() => import("./pages/FamilyTreePage"));
+const AuthSuccessPage = lazy(() => import("./pages/AuthSuccessPage"));
 
 import LiveDateTime from "./components/LiveDateTime";
 import LoadingIndicator from "./components/LoadingIndicator";
+import SocialSidebar from "./components/SocialSidebar";
+import ChatWindow from "./components/ChatWindow";
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
   const { isLoggedIn, user } = useAuth();
+  const [socialSidebarOpen, setSocialSidebarOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [activeChatId, setActiveChatId] = useState<string>("");
+  const [activeChatName, setActiveChatName] = useState<string>("");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,6 +58,31 @@ function App() {
       document.removeEventListener("scroll", handleScroll);
     };
   }, [scrolled]);
+
+  const handleStartChat = async (friendId: string, friendName: string) => {
+    try {
+      // Create or get existing chat
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          participantIds: [friendId],
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setActiveChatId(data.chat._id);
+        setActiveChatName(friendName);
+        setChatOpen(true);
+        setSocialSidebarOpen(false);
+      }
+    } catch (error) {
+      console.error("Error starting chat:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -232,6 +264,7 @@ function App() {
                       element={<TermsOfServicePage />}
                     />
                     <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/auth/success" element={<AuthSuccessPage />} />
                   </Routes>
                 </Suspense>
               </EnhancedErrorBoundary>
@@ -239,6 +272,43 @@ function App() {
 
             {/* Footer */}
             <ModernFooter />
+
+            {/* Social Features - Only show when logged in */}
+            {isLoggedIn && (
+              <>
+                <SocialSidebar
+                  isOpen={socialSidebarOpen}
+                  onClose={() => setSocialSidebarOpen(false)}
+                  onStartChat={handleStartChat}
+                />
+                <ChatWindow
+                  chatId={activeChatId}
+                  friendName={activeChatName}
+                  isOpen={chatOpen}
+                  onClose={() => setChatOpen(false)}
+                />
+
+                {/* Floating Social Button */}
+                <button
+                  onClick={() => setSocialSidebarOpen(true)}
+                  className="fixed bottom-4 left-4 w-12 h-12 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 transition-colors z-40 flex items-center justify-center"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z"
+                    />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
         </ToastProvider>
       </Router>

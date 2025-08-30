@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import api from "../services/axios";
 import { ensureCsrfToken } from "../utils/csrf";
+import OAuthButtons from "../components/OAuthButtons";
 import type {
   LoginRequest,
   AuthResponse,
@@ -151,6 +152,9 @@ const LoginPage: React.FC = () => {
             </h1>
             <p className="text-muted">Sign in to continue to your account</p>
           </div>
+
+          {/* OAuth Buttons */}
+          <OAuthButtons className="mb-6" />
 
           <form onSubmit={handleSubmit}>
             <div className="mb-6">

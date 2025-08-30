@@ -1,4 +1,38 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+// Define the User interface
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  id: string;
+  name: string;
+  email: string;
+  password?: string;
+  dateOfBirth: Date;
+  phoneNumber?: string;
+  username: string;
+  gender: "male" | "female" | "prefer not to say";
+  relationship?: string;
+  verificationToken?: string;
+  verificationTokenExpires?: Date;
+  isVerified: boolean;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  refreshTokens: string[];
+  loginAttempts: number;
+  lockUntil?: number;
+  githubId?: string;
+  googleId?: string;
+  authProvider: "local" | "github" | "google";
+  avatar?: string;
+  friends: mongoose.Types.ObjectId[];
+  friendRequests: {
+    sent: mongoose.Types.ObjectId[];
+    received: mongoose.Types.ObjectId[];
+  };
+  groups: mongoose.Types.ObjectId[];
+  isOnline: boolean;
+  lastSeen: Date;
+}
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -18,7 +52,9 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
+    required: function (this: IUser) {
+      return this.authProvider === "local";
+    },
     minlength: [8, "Password must be at least 8 characters long"],
     maxlength: [128, "Password cannot exceed 128 characters"],
   },
@@ -113,10 +149,64 @@ const UserSchema = new mongoose.Schema({
   }, // Array to store multiple refresh tokens
   loginAttempts: { type: Number, required: true, default: 0 },
   lockUntil: { type: Number },
+  // OAuth fields
+  githubId: {
+    type: String,
+    sparse: true,
+    unique: true,
+  },
+  googleId: {
+    type: String,
+    sparse: true,
+    unique: true,
+  },
+  authProvider: {
+    type: String,
+    enum: ["local", "github", "google"],
+    default: "local",
+  },
+  avatar: {
+    type: String,
+  },
+  // Social features
+  friends: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  friendRequests: {
+    sent: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    received: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+  },
+  groups: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+    },
+  ],
+  isOnline: {
+    type: Boolean,
+    default: false,
+  },
+  lastSeen: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // Indexes for faster lookups
 UserSchema.index({ resetPasswordToken: 1 });
 UserSchema.index({ lockUntil: 1 }, { sparse: true });
 
-export default mongoose.model("User", UserSchema);
+export default mongoose.model<IUser>("User", UserSchema);

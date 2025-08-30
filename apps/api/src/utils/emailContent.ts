@@ -1,4 +1,4 @@
-import { htmlEncode } from "./sanitization.js";
+import { htmlEncode } from "./sanitization";
 
 export interface EmailTemplate {
   subject: string;

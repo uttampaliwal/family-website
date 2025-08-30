@@ -13,6 +13,7 @@ import {
   updateUserProfile,
   checkUsernameAvailability,
 } from "../controllers/authController.js";
+import passport from "../config/passport.js";
 import {
   validate,
   registerSchema,
@@ -184,6 +185,70 @@ router.post(
   authRateLimit,
   validate(changePasswordSchema),
   changePassword,
+);
+
+// OAuth Routes
+
+// GitHub OAuth
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] }),
+);
+
+router.get(
+  "/github/callback",
+  passport.authenticate("github", {
+    failureRedirect: "/login?error=github_auth_failed",
+  }),
+  (req, res) => {
+    // Successful authentication, redirect to frontend with success
+    if (!req.user) {
+      return res.redirect("/login?error=authentication_failed");
+    }
+    const user = req.user;
+    const redirectUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    res.redirect(
+      `${redirectUrl}/auth/success?provider=github&user=${encodeURIComponent(
+        JSON.stringify({
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+        }),
+      )}`,
+    );
+  },
+);
+
+// Google OAuth
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] }),
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login?error=google_auth_failed",
+  }),
+  (req, res) => {
+    // Successful authentication, redirect to frontend with success
+    if (!req.user) {
+      return res.redirect("/login?error=authentication_failed");
+    }
+    const user = req.user;
+    const redirectUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    res.redirect(
+      `${redirectUrl}/auth/success?provider=google&user=${encodeURIComponent(
+        JSON.stringify({
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+        }),
+      )}`,
+    );
+  },
 );
 
 export default router;
