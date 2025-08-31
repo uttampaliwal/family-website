@@ -5,7 +5,11 @@ import ComponentSkeleton from "../components/ComponentSkeleton";
 import AnnouncementTicker from "../components/AnnouncementTicker";
 
 // Lazy loaded components for better performance
-const FamilyCalendar = lazy(() => import("../components/FamilyCalendar"));
+const Calendar = lazy(() =>
+  import("../components/calendar").then((module) => ({
+    default: module.Calendar,
+  })),
+);
 const WeatherWidget = lazy(() => import("../components/WeatherWidget"));
 const FamilyTools = lazy(() => import("../components/FamilyTools"));
 const ImportantNotifications = lazy(
@@ -253,7 +257,7 @@ const HomePage: React.FC = () => {
           <h2 className="headline mb-6 text-on-surface">Family Calendar</h2>
           <div className="card">
             <Suspense fallback={<ComponentSkeleton rows={1} height="h-96" />}>
-              <FamilyCalendar />
+              <Calendar />
             </Suspense>
           </div>
         </section>

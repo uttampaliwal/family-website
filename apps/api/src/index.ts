@@ -15,6 +15,9 @@ import healthRoutes from "./routes/health.js";
 import documentRoutes from "./routes/documents.js";
 import socialRoutes from "./routes/social.js";
 import chatRoutes from "./routes/chat.js";
+import calendarRoutes from "./routes/calendar.js";
+import notificationsRoutes from "./routes/notifications.js";
+import weatherRoutes from "./routes/weather.js";
 import passport from "./config/passport.js";
 
 // Import middleware
@@ -203,6 +206,9 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/social", socialRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/calendar", calendarRoutes);
+app.use("/api/notifications", notificationsRoutes);
+app.use("/api/weather", weatherRoutes);
 
 // 404 handler for unmatched routes - Fixed for path-to-regexp compatibility
 app.use((req, res) => {
