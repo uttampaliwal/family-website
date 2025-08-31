@@ -23,6 +23,8 @@ export interface UserProfile {
   phoneNumber?: string | null;
   mobileNumber?: string | null;
   gender?: string;
+  role?: "user" | "admin";
+  adminApprovalStatus?: "pending" | "approved" | "rejected";
 }
 
 export interface RegisterRequest {
@@ -61,6 +63,7 @@ export interface ResetPasswordRequest {
 
 const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || "accessToken";
 const USERNAME_KEY = import.meta.env.VITE_USERNAME_KEY || "username";
+const USER_KEY = import.meta.env.VITE_USER_KEY || "user";
 
 export const register = async (data: RegisterRequest): Promise<UserProfile> => {
   const response = await api.post<UserProfile>("/auth/register", data);
@@ -70,9 +73,10 @@ export const register = async (data: RegisterRequest): Promise<UserProfile> => {
 export const login = async (data: LoginRequest): Promise<AuthResponse> => {
   const response = await api.post<AuthResponse>("/auth/login", data);
   if (response.data.accessToken) {
+    localStorage.setItem(ACCESS_TOKEN_KEY, response.data.accessToken);
     if (response.data.user) {
-      localStorage.setItem(ACCESS_TOKEN_KEY, response.data.accessToken);
       localStorage.setItem(USERNAME_KEY, response.data.user.username);
+      localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
     } else {
       // Login successful, but user data is missing from response - handle silently
     }
@@ -88,6 +92,7 @@ export const logout = async (): Promise<void> => {
   } finally {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(USERNAME_KEY);
+    localStorage.removeItem(USER_KEY);
   }
 };
 

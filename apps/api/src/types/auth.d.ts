@@ -44,6 +44,14 @@ export interface AuthResponse {
   message: string;
   accessToken?: string; // Consolidated access token property
   username?: string;
+  user?: {
+    id: string;
+    name?: string;
+    username: string;
+    email: string;
+    role?: "user" | "admin";
+    adminApprovalStatus?: "pending" | "approved" | "rejected";
+  };
   error?: AuthError; // Properly typed error responses
 }
 

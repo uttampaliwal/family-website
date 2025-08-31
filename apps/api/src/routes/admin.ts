@@ -1,24 +1,29 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import {
   getPendingUsers,
   approveUser,
   rejectUser,
+  getAdminDashboardStats,
+  getAdminActivityLogs,
 } from "../controllers/adminController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import adminMiddleware, {
+  adminSessionMiddleware,
+} from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
-const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  if (req.user?.role !== "admin") {
-    return res.status(403).json({ message: "Forbidden: Admins only" });
-  }
-  return next();
-};
+// Apply authentication and admin middleware to all routes
+router.use(authMiddleware);
+router.use(adminMiddleware);
 
-router.use(authMiddleware, adminMiddleware);
+// Admin dashboard routes with session validation
+router.get("/dashboard/stats", adminSessionMiddleware, getAdminDashboardStats);
+router.get("/activity-logs", adminSessionMiddleware, getAdminActivityLogs);
 
-router.get("/pending-users", getPendingUsers);
-router.post("/users/:userId/approve", approveUser);
-router.post("/users/:userId/reject", rejectUser);
+// User management routes
+router.get("/pending-users", adminSessionMiddleware, getPendingUsers);
+router.post("/users/:userId/approve", adminSessionMiddleware, approveUser);
+router.post("/users/:userId/reject", adminSessionMiddleware, rejectUser);
 
 export default router;
