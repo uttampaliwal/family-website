@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import type { CalendarEvent } from "./types";
 import { getDaysInMonth } from "./utils";
 import api from "../../services/axios"; // Import the configured axios instance
+import { useAuth } from "../../hooks/useAuth";
 
 export const useCalendar = () => {
+  const { isLoggedIn } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +31,13 @@ export const useCalendar = () => {
   }, [selectedDate]);
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    if (isLoggedIn) {
+      fetchEvents();
+    } else {
+      setLoading(false);
+      setEvents([]);
+    }
+  }, [fetchEvents, isLoggedIn]);
 
   const calendarDays = useMemo(
     () => getDaysInMonth(selectedDate),
