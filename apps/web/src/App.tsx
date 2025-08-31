@@ -30,6 +30,7 @@ const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const FamilyTreePage = lazy(() => import("./pages/FamilyTreePage"));
 const AuthSuccessPage = lazy(() => import("./pages/AuthSuccessPage"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 
 import LiveDateTime from "./components/LiveDateTime";
 import LoadingIndicator from "./components/LoadingIndicator";
@@ -38,8 +39,56 @@ import ChatWindow from "./components/ChatWindow";
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
   const [socialSidebarOpen, setSocialSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    let timeoutId: number;
+
+    const events = [
+      "load",
+      "mousemove",
+      "mousedown",
+      "touchstart",
+      "keydown",
+      "scroll",
+    ];
+
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(
+        () => {
+          logout();
+        },
+        15 * 60 * 1000,
+      ); // 15 minutes
+    };
+
+    const handleOnline = () => {
+      // You might want to refresh data or show a notification
+    };
+
+    const handleOffline = () => {
+      logout();
+    };
+
+    events.forEach((event) => document.addEventListener(event, resetTimer));
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    resetTimer(); // Initial setup
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      events.forEach((event) =>
+        document.removeEventListener(event, resetTimer),
+      );
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [isLoggedIn, logout]);
   const [chatOpen, setChatOpen] = useState(false);
   const [activeChatId, setActiveChatId] = useState<string>("");
   const [activeChatName, setActiveChatName] = useState<string>("");
@@ -265,6 +314,14 @@ function App() {
                     />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/auth/success" element={<AuthSuccessPage />} />
+                    <Route
+                      path="/admin/dashboard"
+                      element={
+                        <ProtectedRoute>
+                          <AdminDashboardPage />
+                        </ProtectedRoute>
+                      }
+                    />
                   </Routes>
                 </Suspense>
               </EnhancedErrorBoundary>

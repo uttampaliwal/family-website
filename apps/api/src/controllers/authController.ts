@@ -126,9 +126,28 @@ export const register = async (
       relationship: relationship?.toLowerCase(),
       verificationToken,
       verificationTokenExpires,
+      auditLog: [{ event: "User account created" }],
     });
 
     await user.save();
+
+    // Send admin notification email
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      const adminNotificationTemplate = {
+        subject: "New User Registration Requires Approval",
+        html: `<p>A new user, ${name} (@${username}), has registered.</p><p>Please review their details and approve or reject their access.</p>`,
+        text: `A new user, ${name} (@${username}), has registered. Please review their details and approve or reject their access.`,
+      };
+      sendEmailWithRetry({
+        to: adminEmail,
+        subject: adminNotificationTemplate.subject,
+        html: adminNotificationTemplate.html,
+        text: adminNotificationTemplate.text,
+      }).catch((err) =>
+        console.error("Failed to send admin notification email:", err),
+      ); // Log error but don't block registration
+    }
 
     // Send verification email using templates and enhanced service
     const { url: safeVerificationUrl, isValid } = await createSafeEmailUrl(
@@ -280,6 +299,12 @@ export const login = async (
       return res
         .status(400)
         .json({ message: "Please verify your email before logging in." });
+    }
+
+    if (user.role !== "admin" && user.adminApprovalStatus !== "approved") {
+      return res
+        .status(403)
+        .json({ message: "Account not approved by administrator." });
     }
 
     if (!user.password) {
