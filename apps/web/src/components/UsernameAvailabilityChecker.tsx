@@ -50,16 +50,25 @@ const UsernameAvailabilityChecker: React.FC<
 
   const debouncedCheck = useMemo(() => {
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
-    return (value: string) => {
+
+    const check = (value: string) => {
       if (timeoutId) clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         checkUsernameAvailability(value);
       }, 500);
     };
+
+    const cancel = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+
+    return { check, cancel };
   }, [checkUsernameAvailability]);
 
   useEffect(() => {
-    debouncedCheck(username);
+    debouncedCheck.check(username);
     return () => {
       debouncedCheck.cancel();
     };

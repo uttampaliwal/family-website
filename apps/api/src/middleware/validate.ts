@@ -53,8 +53,7 @@ export const registerSchema = Joi.object({
       "sister-in-law",
       "other",
     )
-    .optional()
-    .allow("", null),
+    .required(),
 });
 
 export const loginSchema = Joi.object({
