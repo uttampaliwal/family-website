@@ -388,6 +388,14 @@ export const login = async (
       message: "Logged in successfully",
       accessToken: accessToken,
       username: htmlEncode(user.username),
+      user: {
+        id: user._id.toString(),
+        name: htmlEncode(user.name),
+        username: htmlEncode(user.username),
+        email: htmlEncode(user.email),
+        role: user.role,
+        adminApprovalStatus: user.adminApprovalStatus,
+      },
     });
   } catch (err) {
     const errorObject = err as Error & { stack?: string };

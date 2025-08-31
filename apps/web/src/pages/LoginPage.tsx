@@ -10,7 +10,6 @@ import type {
   LoginRequest,
   AuthResponse,
   ResendVerificationRequest,
-  UserProfile,
 } from "../types/api";
 import { isAxiosError } from "axios";
 
@@ -41,16 +40,13 @@ const LoginPage: React.FC = () => {
       } as LoginRequest);
 
       const data = response.data;
-      if (data.username) {
-        localStorage.setItem("accessToken", data.accessToken || "");
-        const userResponse = await api.get<UserProfile>(
-          `/api/auth/profile/${data.username}`,
-        );
-        login(userResponse.data);
+      if (data.user && data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+        login(data.user);
         showToast(data.message || "Login successful!", "success");
-        navigate(`/profile/${data.username}`);
+        navigate(`/profile/${data.user.username}`);
       } else {
-        throw new Error("Invalid response: missing username");
+        throw new Error("Invalid response: missing user data");
       }
     } catch (error) {
       let errorMessage = "An unexpected error occurred. Please try again.";

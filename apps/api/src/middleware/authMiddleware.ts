@@ -5,6 +5,7 @@ import {
 } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { logger } from "../utils/logger.js";
 
 /**
  * Authentication middleware that verifies JWT tokens from request headers
@@ -62,6 +63,20 @@ export default async function (
     }
 
     req.user = user;
+
+    // Log successful authentication for audit purposes
+    logger.info(
+      {
+        userId: user._id,
+        username: user.username,
+        role: user.role,
+        ip: req.ip,
+        userAgent: req.get("User-Agent"),
+        operation: "authentication_success",
+      },
+      "User authenticated successfully",
+    );
+
     next();
   } catch (err) {
     // Use constant time response to prevent timing attacks

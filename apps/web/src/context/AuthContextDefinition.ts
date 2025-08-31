@@ -5,6 +5,8 @@ export interface User {
   name?: string;
   username: string;
   email: string;
+  role?: "user" | "admin";
+  adminApprovalStatus?: "pending" | "approved" | "rejected";
 }
 
 export interface AuthContextType {

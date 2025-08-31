@@ -32,6 +32,8 @@ const FamilyTreePage = lazy(() => import("./pages/FamilyTreePage"));
 const AuthSuccessPage = lazy(() => import("./pages/AuthSuccessPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
+
 import LiveDateTime from "./components/LiveDateTime";
 import LoadingIndicator from "./components/LoadingIndicator";
 import SocialSidebar from "./components/SocialSidebar";
@@ -183,6 +185,15 @@ function App() {
                       </Link>
                     )}
 
+                    {isLoggedIn && user?.role === "admin" && (
+                      <Link
+                        to="/admin/dashboard"
+                        className="nav-link admin-link"
+                      >
+                        🛡️ Admin
+                      </Link>
+                    )}
+
                     {isLoggedIn && user ? (
                       <Link
                         to={`/profile/${encodeURIComponent(user.username)}`}
@@ -317,9 +328,9 @@ function App() {
                     <Route
                       path="/admin/dashboard"
                       element={
-                        <ProtectedRoute>
+                        <AdminProtectedRoute>
                           <AdminDashboardPage />
-                        </ProtectedRoute>
+                        </AdminProtectedRoute>
                       }
                     />
                   </Routes>
