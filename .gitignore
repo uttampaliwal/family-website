@@ -48,6 +48,7 @@ docker-compose.prod.yml
 commit_message.txt
 example.txt
 cookies.txt
+logs.txt
 acli.exe
 GEMINI_PROJECT_SUMMARY.md
 PRIVACY_POLICY_IMPLEMENTATION.md

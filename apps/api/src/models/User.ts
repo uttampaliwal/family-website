@@ -32,6 +32,9 @@ export interface IUser extends Document {
   groups: mongoose.Types.ObjectId[];
   isOnline: boolean;
   lastSeen: Date;
+  role: "user" | "admin";
+  adminApprovalStatus: "pending" | "approved" | "rejected";
+  auditLog: { event: string; timestamp: Date; details?: string }[];
 }
 
 const UserSchema = new mongoose.Schema({
@@ -203,6 +206,23 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
+  adminApprovalStatus: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
+  },
+  auditLog: [
+    {
+      event: String,
+      timestamp: { type: Date, default: Date.now },
+      details: String,
+    },
+  ],
 });
 
 // Indexes for faster lookups

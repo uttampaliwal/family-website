@@ -29,14 +29,17 @@ const envSchema = z.object({
   }),
 
   // Database Configuration
+  MONGO_DB_NAME: z.string().default("family-portal"),
+  MONGO_APP_USERNAME: z.string().min(1, "MONGO_APP_USERNAME is required"),
+  MONGO_APP_PASSWORD: z.string().min(1, "MONGO_APP_PASSWORD is required"),
   MONGO_URI: z
     .string()
     .optional()
     .transform(() => {
       const host = process.env.MONGO_HOST || "localhost";
-      const database = "family-website";
-      const username = process.env.MONGO_INITDB_ROOT_USERNAME || "root";
-      const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
+      const database = process.env.MONGO_DB_NAME || "family-portal"; // Use MONGO_DB_NAME
+      const username = process.env.MONGO_APP_USERNAME; // No fallback
+      const password = process.env.MONGO_APP_PASSWORD; // No fallback
 
       console.log(
         `[environment.ts] NODE_ENV: ${process.env.NODE_ENV}, host: ${host}`,
