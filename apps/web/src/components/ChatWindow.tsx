@@ -46,20 +46,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isOpen && chatId) {
-      fetchMessages();
-    }
-  }, [isOpen, chatId, fetchMessages]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const fetchMessages = useCallback(async () => {
     setLoading(true);
     try {
@@ -71,6 +57,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       setLoading(false);
     }
   }, [chatId]);
+
+  useEffect(() => {
+    if (isOpen && chatId) {
+      fetchMessages();
+    }
+  }, [isOpen, chatId, fetchMessages]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -182,17 +182,20 @@ const UserProfilePage: React.FC = () => {
             {authUsername === profileState.userProfile.username && (
               <div className="mt-8">
                 <RelationshipManager
-                  currentRelationship={profileState.userProfile.relationship}
+                  currentRelationship={
+                    profileState.userProfile.relationship || []
+                  }
                   onUpdate={(newRelationship) => {
-                    setProfileState((prev) => ({
-                      ...prev,
-                      userProfile: prev.userProfile
-                        ? {
-                            ...prev.userProfile,
-                            relationship: newRelationship,
-                          }
-                        : null,
-                    }));
+                    setProfileState((prev) => {
+                      if (!prev.userProfile) return prev; // Should not happen, but good practice
+                      return {
+                        ...prev,
+                        userProfile: {
+                          ...prev.userProfile,
+                          relationship: newRelationship,
+                        },
+                      };
+                    });
                   }}
                 />
               </div>
