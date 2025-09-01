@@ -19,6 +19,7 @@ import calendarRoutes from "./routes/calendar.js";
 import notificationsRoutes from "./routes/notifications.js";
 import weatherRoutes from "./routes/weather.js";
 import adminRoutes from "./routes/admin.js";
+import policyRoutes from "./routes/policy.js";
 import passport from "./config/passport.js";
 
 // Import middleware
@@ -211,6 +212,7 @@ app.use("/api/calendar", calendarRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/weather", weatherRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/policy", policyRoutes);
 
 // 404 handler for unmatched routes - Fixed for path-to-regexp compatibility
 app.use((req, res) => {

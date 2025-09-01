@@ -31,6 +31,9 @@ const ContactPage = lazy(() => import("./pages/ContactPage"));
 const FamilyTreePage = lazy(() => import("./pages/FamilyTreePage"));
 const AuthSuccessPage = lazy(() => import("./pages/AuthSuccessPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+const EnhancedAdminDashboard = lazy(
+  () => import("./pages/EnhancedAdminDashboard"),
+);
 
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
@@ -187,10 +190,10 @@ function App() {
 
                     {isLoggedIn && user?.role === "admin" && (
                       <Link
-                        to="/admin/dashboard"
+                        to="/admin/enhanced-dashboard"
                         className="nav-link admin-link"
                       >
-                        🛡️ Admin
+                        🛡️ Admin Dashboard
                       </Link>
                     )}
 
@@ -330,6 +333,14 @@ function App() {
                       element={
                         <AdminProtectedRoute>
                           <AdminDashboardPage />
+                        </AdminProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/admin/enhanced-dashboard"
+                      element={
+                        <AdminProtectedRoute>
+                          <EnhancedAdminDashboard />
                         </AdminProtectedRoute>
                       }
                     />

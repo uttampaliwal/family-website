@@ -23,6 +23,27 @@ const TermsOfServicePage: React.FC = () => {
           and for all activities that occur under your account. You agree to
           notify us immediately of any unauthorized use of your account.
         </p>
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+          Account Approval Process
+        </h4>
+        <p className="text-base leading-relaxed mb-4">
+          All new user accounts require administrative approval before gaining
+          full access to the platform. This approval process helps maintain the
+          security and integrity of our family-oriented community. Account
+          approval decisions are made at the sole discretion of our
+          administrators and may be subject to verification requirements.
+        </p>
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+          Access Revocation
+        </h4>
+        <p className="text-base leading-relaxed mb-4">
+          We reserve the right to immediately revoke access to any user account
+          at our sole discretion, including but not limited to violations of
+          these Terms, suspicious activity, or security concerns. Users will be
+          notified via email when access is revoked, along with the reason for
+          the action. Revoked users may appeal the decision through our support
+          channels.
+        </p>
       </Section>
 
       <Section title="User Content" number={3}>
@@ -71,7 +92,56 @@ const TermsOfServicePage: React.FC = () => {
         </ul>
       </Section>
 
-      <Section title="Termination" number={5}>
+      <Section title="Administrative Roles and Promotion System" number={5}>
+        <p className="text-base leading-relaxed mb-4">
+          Our platform operates with a role-based access control system to
+          ensure proper governance and security of the family portal.
+        </p>
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+          User Roles
+        </h4>
+        <ul className="list-disc list-inside text-base space-y-2 mb-4">
+          <li>
+            <strong>Regular Users:</strong> Standard family members with access
+            to basic platform features after account approval.
+          </li>
+          <li>
+            <strong>Administrators:</strong> Trusted family members with
+            elevated privileges to manage users, approve accounts, and maintain
+            platform security.
+          </li>
+        </ul>
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+          Admin Promotion Process
+        </h4>
+        <p className="text-base leading-relaxed mb-4">
+          Verified users may be considered for administrative promotion through
+          the following process:
+        </p>
+        <ul className="list-disc list-inside text-base space-y-2 mb-4">
+          <li>
+            Only verified users with good standing may be nominated for admin
+            roles
+          </li>
+          <li>
+            Admin promotion requires approval from at least two existing
+            administrators
+          </li>
+          <li>
+            Approved promotions have a 7-day waiting period before activation
+          </li>
+          <li>
+            During the waiting period, any existing administrator may revoke the
+            promotion if concerns arise
+          </li>
+          <li>
+            All promotion activities are logged and audited for security
+            purposes
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Termination" number={6}>
         <p className="text-base leading-relaxed mb-4">
           We may terminate or suspend your account and bar access to the Service
           immediately, without prior notice or liability, under our sole
@@ -80,7 +150,39 @@ const TermsOfServicePage: React.FC = () => {
         </p>
       </Section>
 
-      <Section title="Governing Law" number={6}>
+      <Section title="Security and Audit Logging" number={7}>
+        <p className="text-base leading-relaxed mb-4">
+          To maintain the security and integrity of our platform, we implement
+          comprehensive audit logging and monitoring systems.
+        </p>
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+          Activity Monitoring
+        </h4>
+        <ul className="list-disc list-inside text-base space-y-2 mb-4">
+          <li>
+            All administrative actions are logged with timestamps, IP addresses,
+            and detailed descriptions
+          </li>
+          <li>
+            User account changes, including approvals, rejections, and access
+            revocations, are permanently recorded
+          </li>
+          <li>
+            Session management and authentication events are monitored for
+            security purposes
+          </li>
+          <li>
+            Critical actions require dual confirmation to prevent accidental or
+            unauthorized changes
+          </li>
+        </ul>
+        <p className="text-base leading-relaxed mb-4">
+          These logs are used solely for security, troubleshooting, and
+          compliance purposes and are protected according to our Privacy Policy.
+        </p>
+      </Section>
+
+      <Section title="Governing Law" number={8}>
         <p className="text-base leading-relaxed mb-4">
           These Terms shall be governed and construed in accordance with the
           laws of our jurisdiction, without regard to its conflict of law
@@ -88,7 +190,7 @@ const TermsOfServicePage: React.FC = () => {
         </p>
       </Section>
 
-      <Section title="Changes to Terms" number={7}>
+      <Section title="Changes to Terms" number={9}>
         <p className="text-base leading-relaxed mb-4">
           We reserve the right, at our sole discretion, to modify or replace
           these Terms at any time. If a revision is material we will provide at
@@ -96,9 +198,18 @@ const TermsOfServicePage: React.FC = () => {
           constitutes a material change will be determined at our sole
           discretion.
         </p>
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+          Version History
+        </h4>
+        <p className="text-base leading-relaxed mb-4">
+          We maintain a complete version history of all policy changes,
+          including the date of changes, the administrator who made the changes,
+          and a detailed changelog. This ensures transparency and accountability
+          in our policy management.
+        </p>
       </Section>
 
-      <Section title="Contact Us" number={8}>
+      <Section title="Contact Us" number={10}>
         <p className="text-base leading-relaxed mb-4">
           If you have any questions about these Terms, please contact us.
         </p>

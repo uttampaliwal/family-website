@@ -34,7 +34,28 @@ export interface IUser extends Document {
   lastSeen: Date;
   role: "user" | "admin";
   adminApprovalStatus: "pending" | "approved" | "rejected";
-  auditLog: { event: string; timestamp: Date; details?: string }[];
+  auditLog: {
+    event: string;
+    timestamp: Date;
+    details?: string;
+    adminId?: string;
+    ip?: string;
+  }[];
+  // Enhanced admin features
+  adminPromotion?: {
+    status: "none" | "pending" | "approved" | "rejected";
+    requestedBy: mongoose.Types.ObjectId;
+    requestedAt: Date;
+    activationDate?: Date;
+    approvedBy?: mongoose.Types.ObjectId[];
+    rejectedBy?: mongoose.Types.ObjectId;
+    reason?: string;
+  };
+  accessRevoked: boolean;
+  accessRevokedAt?: Date;
+  accessRevokedBy?: mongoose.Types.ObjectId;
+  accessRevokedReason?: string;
+  sessionTokens: string[];
 }
 
 const UserSchema = new mongoose.Schema({
@@ -221,8 +242,49 @@ const UserSchema = new mongoose.Schema({
       event: String,
       timestamp: { type: Date, default: Date.now },
       details: String,
+      adminId: String,
+      ip: String,
     },
   ],
+  // Enhanced admin features
+  adminPromotion: {
+    status: {
+      type: String,
+      enum: ["none", "pending", "approved", "rejected"],
+      default: "none",
+    },
+    requestedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    requestedAt: Date,
+    activationDate: Date,
+    approvedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    rejectedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    reason: String,
+  },
+  accessRevoked: {
+    type: Boolean,
+    default: false,
+  },
+  accessRevokedAt: Date,
+  accessRevokedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  accessRevokedReason: String,
+  sessionTokens: {
+    type: [String],
+    default: [],
+  },
 });
 
 // Indexes for faster lookups
