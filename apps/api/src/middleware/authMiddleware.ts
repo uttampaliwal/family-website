@@ -62,6 +62,25 @@ export default async function (
       return;
     }
 
+    // Check if user access has been revoked
+    if (user.accessRevoked) {
+      res.status(403).json({
+        message: "Access has been revoked",
+        reason: user.accessRevokedReason,
+        revokedAt: user.accessRevokedAt,
+      });
+      return;
+    }
+
+    // Check if user is approved (unless they're an admin)
+    if (user.role !== "admin" && user.adminApprovalStatus !== "approved") {
+      res.status(403).json({
+        message: "Account pending approval",
+        status: user.adminApprovalStatus,
+      });
+      return;
+    }
+
     req.user = user;
 
     // Log successful authentication for audit purposes
