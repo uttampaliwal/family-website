@@ -34,7 +34,7 @@ const Header = ({ scrolled }: HeaderProps) => {
             </div>
             <div className="ml-4 hidden sm:block">
               <span className="text-3xl font-extrabold tracking-wide">
-                Family <span className="text-secondary">Website</span>
+                Family <span className="text-secondary">Portal</span>
               </span>
             </div>
           </Link>

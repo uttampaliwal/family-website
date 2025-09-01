@@ -222,7 +222,7 @@ const PrivacyPolicyPage: React.FC = () => {
         <ul className="list-disc list-inside text-base space-y-2 mb-4 ml-11">
           <li>
             <strong>Essential Cookies:</strong> Required for authentication,
-            security, and basic website functionality
+            security, and basic portal functionality
           </li>
           <li>
             <strong>Preference Cookies:</strong> Remember your theme settings,

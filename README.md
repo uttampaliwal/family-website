@@ -1,4 +1,4 @@
-# Family Website
+# Family Portal
 
 This project is a personal/family website built to learn and demonstrate full-stack web development using modern technologies. It features user authentication, personalized profiles, and a clean, responsive design.
 

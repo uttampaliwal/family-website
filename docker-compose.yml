@@ -9,7 +9,7 @@ services:
       - "27017:27017"
     restart: unless-stopped
     networks:
-      - family-website-network
+      - family-portal-network
     healthcheck:
       # This simpler form passes credentials as separate arguments, which is more robust and less
       # prone to errors from special characters in passwords than using a full URI string.
@@ -26,7 +26,7 @@ services:
       dockerfile: apps/api/Dockerfile
       args:
         - TURBO_TELEMETRY_DISABLED=${TURBO_TELEMETRY_DISABLED:-1}
-    container_name: family-website-api
+    container_name: family-portal-api
     ports:
       - "3000:3000"
     healthcheck:
@@ -44,7 +44,7 @@ services:
       mongo:
         condition: service_healthy
     networks:
-      - family-website-network
+      - family-portal-network
   web:
     build:
       context: .
@@ -64,7 +64,7 @@ services:
       api:
         condition: service_healthy
     networks:
-      - family-website-network
+      - family-portal-network
 
 volumes:
   mongo-data:

@@ -80,7 +80,7 @@ const ModernNavbar: React.FC<ModernNavbarProps> = ({ scrolled }) => {
                 <img
                   src="/family-logo.svg"
                   className="h-16 sm:h-20 object-contain transition-all duration-300 group-hover:scale-110 relative z-10"
-                  alt="Family Website Logo"
+                  alt="Family Portal Logo"
                 />
                 {/* Enhanced accent ring */}
                 <div className="absolute inset-0 rounded-full border-2 border-secondary/40 group-hover:border-secondary/70 transition-all duration-300 scale-105 animate-pulse"></div>

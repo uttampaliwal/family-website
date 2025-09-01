@@ -1,6 +1,6 @@
 # Web Application
 
-This document provides an overview of the frontend application for the Family Website project. The application is built with React, Vite, and TypeScript, and it consumes the backend API.
+This document provides an overview of the frontend application for the Family Portal project. The application is built with React, Vite, and TypeScript, and it consumes the backend API.
 
 ## Getting Started
 

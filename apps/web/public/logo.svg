@@ -80,7 +80,7 @@
         --leaf-gradient: url(#leafGradientDark);
         --trunk-gradient: url(#trunkGradientDark);
         --flower-gradient: url(#flowerGradientDark);
-        --text-primary: #ffffff;
+        --text-primary: #fdfdfd;
         --text-secondary: #bbbbbb;
         --butterfly-wing1: #ff8e9e;
         --butterfly-wing2: #6ad4cb;
