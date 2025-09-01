@@ -24,6 +24,6 @@ export const accountInformationSchema = z
     path: ["confirmPassword"],
   });
 
-export const registerSchema = personalDetailsSchema.merge(
-  accountInformationSchema,
+export const registerSchema = personalDetailsSchema.extend(
+  accountInformationSchema.shape,
 );

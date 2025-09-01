@@ -19,6 +19,9 @@ export const registerSchema = Joi.object({
   password: Joi.string().pattern(PASSWORD_REGEX).required().messages({
     "string.pattern.base": PASSWORD_ERROR_MESSAGE,
   }),
+  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
+    "any.only": "Passwords do not match",
+  }),
   dob: Joi.string().isoDate().required(),
   mobileNumber: Joi.string()
     .pattern(/^[+]?[1-9][\d]{0,15}$/)
