@@ -28,10 +28,7 @@ const WelcomeMessage: React.FC = () => {
         >
           युवा कुल्या
         </h1>
-        <h2
-          className="text-3xl md:text-4xl font-semibold text-primary/80 mb-4"
-          style={{ fontFamily: "'Playfair Display', 'Georgia', serif" }}
-        >
+        <h2 className="text-3xl md:text-4xl font-semibold text-primary/80 mb-4 font-playfair-display text-lg">
           Yuva Kulya
         </h2>
         <p className="text-lg text-muted italic">

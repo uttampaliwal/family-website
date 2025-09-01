@@ -128,6 +128,7 @@ router.get(
 // Get User Profile by Username - Public endpoint with basic rate limiting
 router.get(
   "/profile/:username",
+  authMiddleware,
   authRateLimit,
   (req: express.Request<{ username: string }>, res, next) => {
     try {
@@ -154,15 +155,6 @@ router.post(
   passwordResetRateLimit,
   validate(forgotPasswordSchema),
   forgotPassword,
-);
-
-// Reset Password Route with token in URL
-router.post(
-  "/reset-password/:token",
-  ...csrfProtection,
-  passwordResetRateLimit,
-  validate(resetPasswordSchema),
-  resetPassword,
 );
 
 // Reset Password Route with token in body

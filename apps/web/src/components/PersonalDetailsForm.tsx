@@ -1,128 +1,152 @@
-import React, { useCallback } from "react";
-import Button from "./Button";
-import CustomSelect from "./CustomSelect";
-import DateOfBirthPicker from "./DateOfBirthPicker";
+import React from "react";
+import { useFormContext } from "react-hook-form";
 import { GENDER_OPTIONS } from "../lib/gender";
 
 interface PersonalDetailsFormProps {
-  name: string;
-  setName: (name: string) => void;
-  dob: string;
-  setDob: (dob: string) => void;
-  mobileNumber: string;
-  setMobileNumber: (mobileNumber: string) => void;
-  gender: string;
-  setGender: (gender: string) => void;
   loading: boolean;
-  nameRef: React.RefObject<HTMLInputElement | null>;
-  handleNext: () => void;
 }
 
 const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({
-  name,
-  setName,
-  dob,
-  setDob,
-  mobileNumber,
-  setMobileNumber,
-  gender,
-  setGender,
   loading,
-  nameRef,
-  handleNext,
 }) => {
-  const handleMobileNumberChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.replace(/[^+\d\s()-]/g, "");
-      setMobileNumber(value);
-    },
-    [setMobileNumber],
-  );
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
   return (
-    <div className="mb-8 card">
-      <h2 className="headline mb-6 text-on-surface">Personal Details</h2>
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+    <div className="space-y-6">
+      <div>
         <label
           htmlFor="name"
-          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+          className="block text-sm font-medium text-base mb-2"
         >
-          Name:
+          Full Name <span className="text-error">*</span>
         </label>
         <input
           type="text"
           id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          {...register("name")}
           required
-          aria-required="true"
           disabled={loading}
-          ref={nameRef}
           className="input"
+          placeholder="Enter your full name"
         />
+        {errors.name && (
+          <p className="text-error text-sm mt-1">
+            {errors.name.message as string}
+          </p>
+        )}
       </div>
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+      <div>
         <label
           htmlFor="dob"
-          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+          className="block text-sm font-medium text-base mb-2"
         >
-          DOB:
+          Date of Birth <span className="text-error">*</span>
         </label>
-        <DateOfBirthPicker value={dob} onChange={setDob} disabled={loading} />
+        <input
+          type="date"
+          id="dob"
+          {...register("dob")}
+          required
+          disabled={loading}
+          className="input"
+        />
+        {errors.dob && (
+          <p className="text-error text-sm mt-1">
+            {errors.dob.message as string}
+          </p>
+        )}
       </div>
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+      <div>
         <label
           htmlFor="mobileNumber"
-          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+          className="block text-sm font-medium text-base mb-2"
         >
-          Mobile Number:
+          Mobile Number
         </label>
         <input
           type="tel"
           id="mobileNumber"
-          value={mobileNumber}
-          onChange={handleMobileNumberChange}
+          {...register("mobileNumber")}
           disabled={loading}
-          pattern="[+]?[0-9\s()-]{10,15}"
-          title="Please enter a valid phone number (10-15 digits)"
           className="input"
+          placeholder="Enter your mobile number"
         />
       </div>
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center">
+      <div>
         <label
           htmlFor="gender"
-          className="mb-2 sm:mb-0 sm:w-40 text-left sm:text-right mr-4 text-gray-700 dark:text-gray-300"
+          className="block text-sm font-medium text-base mb-2"
         >
-          Gender:
+          Gender <span className="text-error">*</span>
         </label>
-        <CustomSelect
-          options={GENDER_OPTIONS(true)}
-          value={gender}
-          onChange={setGender}
-          placeholder="Select Gender"
+        <select
+          id="gender"
+          {...register("gender")}
+          required
           disabled={loading}
-          className="flex-1"
-        />
+          className="input"
+        >
+          {GENDER_OPTIONS(true).map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        {errors.gender && (
+          <p className="text-error text-sm mt-1">
+            {errors.gender.message as string}
+          </p>
+        )}
       </div>
-      <div className="text-right mt-6">
-        <Button
-          label="Next"
-          onClick={() => {
-            if (!name.trim()) {
-              nameRef.current?.focus();
-              return;
-            }
-            if (!dob) {
-              return;
-            }
-            handleNext();
-          }}
+      <div>
+        <label
+          htmlFor="relationship"
+          className="block text-sm font-medium text-base mb-2"
+        >
+          What is your relationship with Uttam Paliwal (S/O Ravi Paliwal)?{" "}
+          <span className="text-error">*</span>
+        </label>
+        <select
+          id="relationship"
+          {...register("relationship")}
+          required
           disabled={loading}
-          type="button"
-          variant="primary"
-        />
+          className="input"
+        >
+          <option value="">Select relationship</option>
+          <option value="self">Self</option>
+          <option value="father">Father</option>
+          <option value="mother">Mother</option>
+          <option value="son">Son</option>
+          <option value="daughter">Daughter</option>
+          <option value="brother">Brother</option>
+          <option value="sister">Sister</option>
+          <option value="husband">Husband</option>
+          <option value="wife">Wife</option>
+          <option value="grandfather">Grandfather</option>
+          <option value="grandmother">Grandmother</option>
+          <option value="uncle">Uncle</option>
+          <option value="aunt">Aunt</option>
+          <option value="cousin">Cousin</option>
+          <option value="nephew">Nephew</option>
+          <option value="niece">Niece</option>
+          <option value="son-in-law">Son-in-law</option>
+          <option value="daughter-in-law">Daughter-in-law</option>
+          <option value="brother-in-law">Brother-in-law</option>
+          <option value="sister-in-law">Sister-in-law</option>
+          <option value="other">Other</option>
+        </select>
+        {errors.relationship && (
+          <p className="text-error text-sm mt-1">
+            {errors.relationship.message as string}
+          </p>
+        )}
       </div>
     </div>
   );
 };
 
-export default React.memo(PersonalDetailsForm);
+export default PersonalDetailsForm;

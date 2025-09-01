@@ -8,6 +8,7 @@
     "dev:local": "cross-env MONGO_HOST=localhost node --import tsx/esm --require dotenv/config --watch ./src/index.ts",
     "dev:docker": "cross-env MONGO_HOST=mongo node --import tsx/esm --require dotenv/config --watch ./src/index.ts",
     "build": "tsc --build",
+    "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint .",
     "activate-promotions": "cross-env NODE_ENV=production node --import tsx/esm --require dotenv/config ./src/scripts/activatePromotions.ts",
