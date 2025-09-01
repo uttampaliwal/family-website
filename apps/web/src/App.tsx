@@ -20,7 +20,6 @@ const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const ChangePasswordPage = lazy(() => import("./pages/ChangePasswordPage"));
-const HealthCheck = lazy(() => import("./pages/HealthCheck"));
 const DocumentsPage = lazy(() => import("./pages/DocumentsPage"));
 const DocumentEditPage = lazy(() => import("./pages/DocumentEditPage"));
 const DocumentViewPage = lazy(() => import("./pages/DocumentViewPage"));
@@ -33,6 +32,8 @@ const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const EnhancedAdminDashboard = lazy(
   () => import("./pages/EnhancedAdminDashboard"),
 );
+const SitemapPage = lazy(() => import("./pages/SitemapPage"));
+const SystemHealthPage = lazy(() => import("./pages/SystemHealthPage"));
 
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
@@ -187,7 +188,6 @@ function App() {
                         </ProtectedRoute>
                       }
                     />
-                    <Route path="/healthz" element={<HealthCheck />} />
                     <Route
                       path="/documents"
                       element={
@@ -238,6 +238,8 @@ function App() {
                     />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/auth/success" element={<AuthSuccessPage />} />
+                    <Route path="/health" element={<SystemHealthPage />} />
+                    <Route path="/sitemap" element={<SitemapPage />} />
                     <Route
                       path="/admin/dashboard"
                       element={
