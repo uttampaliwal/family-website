@@ -33,6 +33,7 @@ export interface IUser extends Document {
   isOnline: boolean;
   lastSeen: Date;
   role: "user" | "admin";
+  isSuperAdmin: boolean;
   adminApprovalStatus: "pending" | "approved" | "rejected";
   auditLog: {
     event: string;
@@ -231,6 +232,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ["user", "admin"],
     default: "user",
+  },
+  isSuperAdmin: {
+    type: Boolean,
+    default: false,
   },
   adminApprovalStatus: {
     type: String,
