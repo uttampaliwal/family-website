@@ -1,13 +1,12 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RouteFocusManager from "./components/RouteFocusManager";
-import HamburgerMenu from "./components/HamburgerMenu";
-import ThemeToggleButton from "./components/ThemeToggleButton";
 import EnhancedErrorBoundary from "./components/EnhancedErrorBoundary";
 import ModernFooter from "./components/ModernFooter";
+import Header from "./components/Header";
 
 import UserProfileSkeleton from "./components/UserProfileSkeleton";
 
@@ -37,14 +36,13 @@ const EnhancedAdminDashboard = lazy(
 
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
-import LiveDateTime from "./components/LiveDateTime";
 import LoadingIndicator from "./components/LoadingIndicator";
 import SocialSidebar from "./components/SocialSidebar";
 import ChatWindow from "./components/ChatWindow";
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const [socialSidebarOpen, setSocialSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -144,95 +142,7 @@ function App() {
         <ToastProvider>
           <RouteFocusManager />
           <div className="bg-background text-text-base app-root">
-            <header
-              role="banner"
-              className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${scrolled ? "shadow-xl py-2" : "py-4"} navbar-glass`}
-            >
-              <div className="container mx-auto px-4 flex items-center justify-between">
-                <div className="flex items-center">
-                  <Link to="/" className="flex items-center group">
-                    <div className="relative">
-                      {/* Glossy accent overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-sm opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-                      <img
-                        src="/family-logo.svg"
-                        className="h-20 object-contain transition-all duration-300 group-hover:scale-110 relative z-10"
-                        alt="Family Website"
-                      />
-                      {/* Subtle color accent ring */}
-                      <div className="absolute inset-0 rounded-full border-2 border-secondary/30 group-hover:border-secondary/50 transition-all duration-300 scale-105"></div>
-                    </div>
-                    <div className="ml-4 hidden sm:block">
-                      <span className="text-3xl font-extrabold tracking-wide">
-                        Family <span className="text-secondary">Website</span>
-                      </span>
-                    </div>
-                  </Link>
-                </div>
-
-                <div className="flex items-center">
-                  <div className="hidden md:flex items-center space-x-3">
-                    <Link to="/" className="nav-link">
-                      Home
-                    </Link>
-
-                    {isLoggedIn && (
-                      <Link to="/documents" className="nav-link">
-                        Documents
-                      </Link>
-                    )}
-
-                    {isLoggedIn && (
-                      <Link to="/family-tree" className="nav-link">
-                        Family Tree
-                      </Link>
-                    )}
-
-                    {isLoggedIn && user?.role === "admin" && (
-                      <Link
-                        to="/admin/enhanced-dashboard"
-                        className="nav-link admin-link"
-                      >
-                        🛡️ Admin Dashboard
-                      </Link>
-                    )}
-
-                    {isLoggedIn && user ? (
-                      <Link
-                        to={`/profile/${encodeURIComponent(user.username)}`}
-                        className="nav-link"
-                      >
-                        {user.username}
-                      </Link>
-                    ) : (
-                      <>
-                        <Link to="/login" className="btn btn-primary">
-                          Login
-                        </Link>
-                        <Link to="/register" className="btn btn-secondary">
-                          Register
-                        </Link>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="hidden lg:block mx-4">
-                    <LiveDateTime />
-                  </div>
-
-                  <div className="ml-4">
-                    <ThemeToggleButton />
-                  </div>
-
-                  <div className="md:hidden ml-4">
-                    <HamburgerMenu
-                      isLoggedIn={isLoggedIn}
-                      username={user?.username || ""}
-                    />
-                  </div>
-                </div>
-              </div>
-            </header>
+            <Header scrolled={scrolled} />
 
             {/* Main Content Area */}
             <main

@@ -94,8 +94,7 @@ const HomePage: React.FC = () => {
               Welcome to Yuva Kulya
             </h1>
             <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto">
-              Where families connect, memories flourish, and bonds grow stronger
-              every day
+              Welcome to the family hub.
             </p>
           </motion.div>
         </div>
