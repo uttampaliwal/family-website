@@ -37,24 +37,37 @@ const RegisterPage: React.FC = () => {
     },
   });
 
-  const onSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
+  const { errors } = methods.formState;
+
+  React.useEffect(() => {
+    const errorValues = Object.values(errors);
+    if (errorValues.length > 0) {
+      showToast(errorValues[0].message || "An error occurred", "error");
+    }
+  }, [errors, showToast]);
+
+  const onSubmit: SubmitHandler<RegisterFormValues> = async () => {
     setLoading(true);
-    showToast("Attempting to register...", "info");
+    const isValid = await methods.trigger();
+    if (!isValid) {
+      setLoading(false);
+      return;
+    }
 
     try {
       await ensureCsrfToken();
+      const allData = methods.getValues();
       const response = await api.post(
         `${import.meta.env.VITE_API_BASE_URL || ""}/api/auth/register`,
         {
-          ...data,
-          gender: normalizeGender(data.gender),
+          ...allData,
+          gender: normalizeGender(allData.gender),
         },
       );
 
       if (response.status === 201) {
         showToast(
-          response.data.message ||
-            "Registration successful! Please check your email for verification.",
+          "Registration successful! Please check your email for verification.",
           "success",
         );
         setTimeout(() => navigate("/login"), 3000);
@@ -81,8 +94,9 @@ const RegisterPage: React.FC = () => {
       "dob",
       "gender",
       "relationship",
+      "mobileNumber",
     ]);
-    if (isValid) {
+    if (isValid && methods.formState.isValid) {
       setStep(2);
     }
   };

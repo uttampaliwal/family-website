@@ -48,45 +48,6 @@ export const register = async (
     req.body;
   const gender = req.body.gender as Gender;
 
-  // Input validation
-  if (!name || !email || !password || !dob || !username || !gender) {
-    return res.status(400).json({
-      message: "All required fields must be provided",
-    });
-  }
-
-  // Validate password strength
-  if (password.length < 8) {
-    return res.status(400).json({
-      message: "Password must be at least 8 characters long",
-    });
-  }
-
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({
-      message: "Please provide a valid email address",
-    });
-  }
-
-  // Validate username format
-  const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
-  if (!usernameRegex.test(username)) {
-    return res.status(400).json({
-      message:
-        "Username must be 3-30 characters and contain only letters, numbers, and underscores",
-    });
-  }
-
-  // Validate gender
-  const validGenders = [Gender.MALE, Gender.FEMALE, Gender.PREFER_NOT_TO_SAY];
-  if (!validGenders.includes(gender.toLowerCase() as Gender)) {
-    return res.status(400).json({
-      message: "Gender must be male, female, or prefer not to say",
-    });
-  }
-
   try {
     // Sanitize email input to prevent NoSQL injection
     const sanitizedEmail = sanitizeForQuery(email);
