@@ -4,6 +4,46 @@ import AdminAction from "../models/AdminAction.js";
 import { logger } from "../utils/logger.js";
 import { sendEnhancedEmail } from "../utils/enhancedEmailService.js";
 
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    logger.info(
+      {
+        adminId: req.user?._id,
+        adminUsername: req.user?.username,
+        ip: req.ip,
+        operation: "get_all_users",
+      },
+      "Admin fetching all users",
+    );
+
+    const users = await User.find({}).select(
+      "username email role createdAt isVerified adminApprovalStatus accessRevoked",
+    );
+
+    logger.info(
+      {
+        adminId: req.user?._id,
+        retrievedUsersCount: users.length,
+        operation: "get_all_users_success",
+      },
+      "All users retrieved successfully",
+    );
+
+    return res.status(200).json(users);
+  } catch (error) {
+    logger.error(
+      {
+        err: error,
+        adminId: req.user?._id,
+        operation: "get_all_users_error",
+      },
+      "Error fetching all users",
+    );
+
+    return res.status(500).json({ message: "Error fetching all users", error });
+  }
+};
+
 export const getPendingUsers = async (req: Request, res: Response) => {
   try {
     logger.info(
@@ -43,6 +83,48 @@ export const getPendingUsers = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ message: "Error fetching pending users", error });
+  }
+};
+
+export const getRejectedUsers = async (req: Request, res: Response) => {
+  try {
+    logger.info(
+      {
+        adminId: req.user?._id,
+        adminUsername: req.user?.username,
+        ip: req.ip,
+        operation: "get_rejected_users",
+      },
+      "Admin fetching rejected users",
+    );
+
+    const users = await User.find({ adminApprovalStatus: "rejected" }).select(
+      "-password -refreshTokens",
+    );
+
+    logger.info(
+      {
+        adminId: req.user?._id,
+        rejectedUsersCount: users.length,
+        operation: "get_rejected_users_success",
+      },
+      "Rejected users retrieved successfully",
+    );
+
+    return res.status(200).json(users);
+  } catch (error) {
+    logger.error(
+      {
+        err: error,
+        adminId: req.user?._id,
+        operation: "get_rejected_users_error",
+      },
+      "Error fetching rejected users",
+    );
+
+    return res
+      .status(500)
+      .json({ message: "Error fetching rejected users", error });
   }
 };
 
@@ -225,6 +307,76 @@ export const rejectUser = async (req: Request, res: Response) => {
     );
 
     return res.status(500).json({ message: "Error rejecting user", error });
+  }
+};
+
+export const updateUserRole = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const { role } = req.body;
+
+  try {
+    const userToUpdate = await User.findById(userId);
+    if (!userToUpdate) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Prevent demoting a super admin
+    if (userToUpdate.isSuperAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Cannot change the role of a super admin." });
+    }
+
+    // Prevent last admin from being demoted
+    if (userToUpdate.role === "admin" && role === "user") {
+      const adminCount = await User.countDocuments({ role: "admin" });
+      if (adminCount <= 1) {
+        return res
+          .status(400)
+          .json({ message: "Cannot remove the last admin." });
+      }
+    }
+
+    userToUpdate.role = role;
+    await userToUpdate.save();
+
+    return res.status(200).json({ message: "User role updated successfully." });
+  } catch (error) {
+    logger.error({ err: error }, "Error updating user role");
+    return res.status(500).json({ message: "Error updating user role", error });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const userToDelete = await User.findById(userId);
+    if (!userToDelete) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Prevent deleting a super admin
+    if (userToDelete.isSuperAdmin) {
+      return res.status(403).json({ message: "Cannot delete a super admin." });
+    }
+
+    // Prevent deleting the last admin
+    if (userToDelete.role === "admin") {
+      const adminCount = await User.countDocuments({ role: "admin" });
+      if (adminCount <= 1) {
+        return res
+          .status(400)
+          .json({ message: "Cannot delete the last admin." });
+      }
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    return res.status(200).json({ message: "User deleted successfully." });
+  } catch (error) {
+    logger.error({ err: error }, "Error deleting user");
+    return res.status(500).json({ message: "Error deleting user", error });
   }
 };
 

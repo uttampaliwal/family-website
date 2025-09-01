@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getPendingUsers,
+  getRejectedUsers,
   approveUser,
   rejectUser,
   getAdminDashboardStats,
@@ -12,6 +13,9 @@ import {
   approveAdminPromotion,
   activateApprovedPromotions,
   getEnhancedDashboardStats,
+  getAllUsers,
+  updateUserRole,
+  deleteUser,
 } from "../controllers/adminController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware, {
@@ -34,7 +38,9 @@ router.get(
 router.get("/activity-logs", adminSessionMiddleware, getAdminActivityLogs);
 
 // User management routes
+router.get("/users", adminSessionMiddleware, getAllUsers);
 router.get("/pending-users", adminSessionMiddleware, getPendingUsers);
+router.get("/rejected-users", adminSessionMiddleware, getRejectedUsers);
 router.post("/users/:userId/approve", adminSessionMiddleware, approveUser);
 router.post(
   "/users/:userId/approve-confirmed",
@@ -42,6 +48,8 @@ router.post(
   approveUserWithConfirmation,
 );
 router.post("/users/:userId/reject", adminSessionMiddleware, rejectUser);
+router.put("/users/:userId/role", adminSessionMiddleware, updateUserRole);
+router.delete("/users/:userId", adminSessionMiddleware, deleteUser);
 router.post(
   "/users/:userId/revoke-access",
   adminSessionMiddleware,

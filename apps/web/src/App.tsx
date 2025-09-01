@@ -28,12 +28,22 @@ const TermsOfServicePage = lazy(() => import("./pages/TermsOfServicePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const FamilyTreePage = lazy(() => import("./pages/FamilyTreePage"));
 const AuthSuccessPage = lazy(() => import("./pages/AuthSuccessPage"));
-const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
-const EnhancedAdminDashboard = lazy(
-  () => import("./pages/EnhancedAdminDashboard"),
-);
+
 const SitemapPage = lazy(() => import("./pages/SitemapPage"));
 const SystemHealthPage = lazy(() => import("./pages/SystemHealthPage"));
+
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const DashboardHomePage = lazy(() => import("./pages/admin/DashboardHomePage"));
+const UserManagementPage = lazy(
+  () => import("./pages/admin/UserManagementPage"),
+);
+const ContentManagementPage = lazy(
+  () => import("./pages/admin/ContentManagementPage"),
+);
+const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
+const SystemSettingsPage = lazy(
+  () => import("./pages/admin/SystemSettingsPage"),
+);
 
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
@@ -241,21 +251,28 @@ function App() {
                     <Route path="/health" element={<SystemHealthPage />} />
                     <Route path="/sitemap" element={<SitemapPage />} />
                     <Route
-                      path="/admin/dashboard"
+                      path="/admin"
                       element={
                         <AdminProtectedRoute>
-                          <AdminDashboardPage />
+                          <AdminLayout />
                         </AdminProtectedRoute>
                       }
-                    />
-                    <Route
-                      path="/admin/enhanced-dashboard"
-                      element={
-                        <AdminProtectedRoute>
-                          <EnhancedAdminDashboard />
-                        </AdminProtectedRoute>
-                      }
-                    />
+                    >
+                      <Route index element={<DashboardHomePage />} />
+                      <Route
+                        path="user-management"
+                        element={<UserManagementPage />}
+                      />
+                      <Route
+                        path="content-management"
+                        element={<ContentManagementPage />}
+                      />
+                      <Route path="analytics" element={<AnalyticsPage />} />
+                      <Route
+                        path="system-settings"
+                        element={<SystemSettingsPage />}
+                      />
+                    </Route>
                   </Routes>
                 </Suspense>
               </EnhancedErrorBoundary>

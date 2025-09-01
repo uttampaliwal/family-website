@@ -69,7 +69,7 @@ const Header = ({ scrolled }: HeaderProps) => {
 
             {isLoggedIn && user?.role === "admin" && (
               <Link
-                to="/admin/enhanced-dashboard"
+                to="/admin"
                 className="p-2 rounded-md hover:bg-primary/10 transition-colors duration-300 admin-link"
               >
                 🛡️ Admin Dashboard
