@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import Button from "../components/Button";
@@ -8,41 +8,34 @@ import type { UserProfile } from "../types/api";
 import { labelForGender } from "../lib/gender";
 import EnhancedProfileEdit from "../components/EnhancedProfileEdit";
 import RelationshipManager from "../components/RelationshipManager";
-
 import EmptyState from "../components/EmptyState";
+import { userProfileReducer } from "../reducers/userProfileReducer";
+import type { ProfileState } from "../reducers/userProfileReducer";
 
-// Gender options are centralized in lib/gender
+const initialState: ProfileState = {
+  userProfile: null,
+  editableProfile: null,
+  loading: true,
+  error: null,
+  isEditing: false,
+};
 
 const UserProfilePage: React.FC = () => {
   const { username: paramUsername } = useParams<{ username: string }>();
   const { username: authUsername, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Consolidated state for better maintainability
-  const [profileState, setProfileState] = useState({
-    userProfile: null as UserProfile | null,
-    editableProfile: null as UserProfile | null,
-    loading: true,
-    error: null as string | null,
-    isEditing: false,
-  });
+  const [state, dispatch] = useReducer(userProfileReducer, initialState);
 
   const displayUsername = authUsername || paramUsername;
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      setProfileState((prev) => ({ ...prev, loading: true, error: null }));
+      dispatch({ type: "FETCH_START" });
       try {
         const response = await api.get(`/api/auth/profile/${displayUsername}`);
-        const data = response.data;
-
-        setProfileState((prev) => ({
-          ...prev,
-          userProfile: data,
-          editableProfile: data,
-        }));
+        dispatch({ type: "FETCH_SUCCESS", payload: response.data });
       } catch (err) {
-        // Structured error logging with context
         const errorInfo = {
           message: err instanceof Error ? err.message : "Unknown error",
           username: displayUsername,
@@ -78,9 +71,7 @@ const UserProfilePage: React.FC = () => {
           return "Network error or server is unreachable.";
         };
 
-        setProfileState((prev) => ({ ...prev, error: getErrorMessage(err) }));
-      } finally {
-        setProfileState((prev) => ({ ...prev, loading: false }));
+        dispatch({ type: "FETCH_ERROR", payload: getErrorMessage(err) });
       }
     };
 
@@ -94,19 +85,7 @@ const UserProfilePage: React.FC = () => {
     navigate("/");
   };
 
-  const handleEdit = () => {
-    setProfileState((prev) => ({ ...prev, isEditing: true }));
-  };
-
-  const handleCancel = () => {
-    setProfileState((prev) => ({
-      ...prev,
-      editableProfile: prev.userProfile,
-      isEditing: false,
-    }));
-  };
-
-  if (profileState.loading) {
+  if (state.loading) {
     return (
       <div className="mt-8">
         <div className="max-w-md mx-auto">
@@ -123,15 +102,13 @@ const UserProfilePage: React.FC = () => {
     );
   }
 
-  if (profileState.error) {
+  if (state.error) {
     return (
-      <div className="text-center mt-8 text-error">
-        Error: {profileState.error}
-      </div>
+      <div className="text-center mt-8 text-error">Error: {state.error}</div>
     );
   }
 
-  if (!profileState.userProfile) {
+  if (!state.userProfile) {
     return <EmptyState message="User profile not found." />;
   }
 
@@ -139,62 +116,51 @@ const UserProfilePage: React.FC = () => {
     <div className="container mx-auto p-8">
       <div className="card">
         <h1 className="headline mb-6 text-on-surface text-center">
-          @{profileState.userProfile.username}
+          @{state.userProfile.username}
         </h1>
 
-        {profileState.isEditing ? (
+        {state.isEditing ? (
           <EnhancedProfileEdit
-            userProfile={profileState.userProfile}
-            onSave={(updatedProfile) => {
-              setProfileState((prev) => ({
-                ...prev,
-                userProfile: updatedProfile,
-                editableProfile: updatedProfile,
-                isEditing: false,
-                error: null,
-              }));
-            }}
-            onCancel={handleCancel}
+            userProfile={state.userProfile}
+            onSave={(updatedProfile) =>
+              dispatch({ type: "EDIT_SAVE", payload: updatedProfile })
+            }
+            onCancel={() => dispatch({ type: "EDIT_CANCEL" })}
           />
         ) : (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-readable">
               <p>
-                <strong>Name:</strong> {profileState.userProfile.name || "N/A"}
+                <strong>Name:</strong> {state.userProfile.name || "N/A"}
               </p>
               <p>
-                <strong>Email:</strong> {profileState.userProfile.email}
+                <strong>Email:</strong> {state.userProfile.email}
               </p>
               <p>
                 <strong>Date of Birth:</strong>{" "}
-                {profileState.userProfile.dateOfBirth || "N/A"}
+                {state.userProfile.dateOfBirth || "N/A"}
               </p>
               <p>
                 <strong>Mobile Number:</strong>{" "}
-                {profileState.userProfile.mobileNumber || "N/A"}
+                {state.userProfile.mobileNumber || "N/A"}
               </p>
               <p>
                 <strong>Gender:</strong>{" "}
-                {labelForGender(profileState.userProfile.gender) || "N/A"}
+                {labelForGender(state.userProfile.gender) || "N/A"}
               </p>
             </div>
-            {/* Relationship Manager - only show for the current user */}
-            {authUsername === profileState.userProfile.username && (
+            {authUsername === state.userProfile.username && (
               <div className="mt-8">
                 <RelationshipManager
-                  currentRelationship={
-                    profileState.userProfile.relationship || []
-                  }
+                  currentRelationship={state.userProfile.relationship || []}
                   onUpdate={(newRelationship) => {
-                    setProfileState((prev) => {
-                      if (!prev.userProfile) return prev; // Should not happen, but good practice
-                      return {
-                        ...prev,
-                        userProfile: {
-                          ...prev.userProfile,
-                          relationship: newRelationship,
-                        },
-                      };
+                    const updatedProfile = {
+                      ...state.userProfile,
+                      relationship: newRelationship,
+                    };
+                    dispatch({
+                      type: "EDIT_SAVE",
+                      payload: updatedProfile as UserProfile,
                     });
                   }}
                 />
@@ -202,10 +168,10 @@ const UserProfilePage: React.FC = () => {
             )}
 
             <div className="flex justify-center space-x-4 mt-8">
-              {authUsername === profileState.userProfile.username && (
+              {authUsername === state.userProfile.username && (
                 <Button
                   label="Edit Profile"
-                  onClick={handleEdit}
+                  onClick={() => dispatch({ type: "EDIT_START" })}
                   variant="primary"
                 />
               )}

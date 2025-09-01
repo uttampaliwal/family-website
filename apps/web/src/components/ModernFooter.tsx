@@ -79,10 +79,7 @@ const ModernFooter: React.FC = () => {
               >
                 युवा कुल्या
               </h3>
-              <h4
-                className="text-xl font-semibold text-primary mb-3"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
+              <h4 className="text-xl font-semibold text-primary mb-3 font-playfair-display text-lg">
                 Yuva Kulya
               </h4>
               <p className="text-muted text-sm leading-relaxed">

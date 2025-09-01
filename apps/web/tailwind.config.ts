@@ -48,6 +48,8 @@ const config: Config = {
       fontFamily: {
         sans: ["Inter", "Avenir", "Helvetica", "Arial", "sans-serif"],
         serif: ["Merriweather", "serif"], // Example serif font
+        "dancing-script": ["Dancing Script", "cursive"],
+        "playfair-display": ["Playfair Display", "serif"],
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
