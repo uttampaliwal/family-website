@@ -11,7 +11,7 @@ const TermsOfServicePage: React.FC = () => {
       <Section title="Introduction" number={1}>
         <p className="text-base leading-relaxed mb-4">
           Welcome to our Family Portal. These Terms of Service ("Terms") govern
-          your access to and use of our website and services. By accessing or
+          your access to and use of our portal and services. By accessing or
           using the Service, you agree to be bound by these Terms.
         </p>
       </Section>

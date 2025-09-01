@@ -50,9 +50,9 @@ describe("Email Content Templates", () => {
       const verificationUrl = "https://example.com/verify?token=abc123";
       const template = createEmailVerificationTemplate(verificationUrl);
 
-      expect(template.subject).toContain("Family Website");
+      expect(template.subject).toContain("Family Portal");
       expect(template.html).toContain("Hello User");
-      expect(template.html).toContain("Welcome to Family Website");
+      expect(template.html).toContain("Welcome to Family Portal");
     });
 
     it("should properly encode HTML entities in URLs", () => {

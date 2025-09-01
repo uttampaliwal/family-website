@@ -21,8 +21,8 @@
     :root {
       --bg-color: #0D1B2A;
       --butterfly-fill: url(#butterflyGradientLight);
-      --text-color: #ffffff;
-      --stroke-color: #ffffff;
+      --text-color: #fdfdfd;
+      --stroke-color: #fdfdfd;
     }
     
     /* Dark mode overrides */
@@ -30,8 +30,8 @@
       :root {
         --bg-color: #0D1B2A;
         --butterfly-fill: #FFD700;
-        --text-color: #ffffff;
-        --stroke-color: #ffffff;
+        --text-color: #fdfdfd;
+        --stroke-color: #fdfdfd;
       }
     }
     

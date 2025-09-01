@@ -1,6 +1,6 @@
 # API Documentation
 
-This document provides an overview of the backend API for the Family Website project. The API is built with Node.js, Express.js, and TypeScript, and it provides a RESTful interface for the frontend application.
+This document provides an overview of the backend API for the Family Portal project. The API is built with Node.js, Express.js, and TypeScript, and it provides a RESTful interface for the frontend application.
 
 ## Getting Started
 

@@ -15,7 +15,7 @@ export interface EmailContentOptions {
 
 const DEFAULT_OPTIONS: Required<EmailContentOptions> = {
   recipientName: "User",
-  companyName: "Family Website",
+  companyName: "Family Portal",
   supportEmail: "support@familywebsite.com",
   brandColor: "#2563eb",
 };
@@ -48,7 +48,7 @@ function createEmailTemplate(
             background-color: #f8f9fa;
         }
         .email-container {
-            background-color: #ffffff;
+            background-color: #fdfdfd;
             border-radius: 8px;
             padding: 40px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -78,7 +78,7 @@ function createEmailTemplate(
             display: inline-block;
             padding: 12px 24px;
             background-color: ${opts.brandColor};
-            color: #ffffff;
+            color: #fdfdfd;
             text-decoration: none;
             border-radius: 6px;
             font-weight: 500;
