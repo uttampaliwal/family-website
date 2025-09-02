@@ -1,5 +1,18 @@
 {
-  "build": {
-    "rootDirectory": "apps/web"
-  }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "apps/web/dist",
+  "functions": {
+    "apps/api/dist/index.js": {
+      "memory": 3008
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "/apps/api/dist/index.js"
+    }
+  ]
 }
