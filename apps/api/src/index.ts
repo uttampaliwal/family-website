@@ -3,6 +3,7 @@ import helmet from "helmet";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 
 // Import configuration and utilities
 import { env } from "./config/environment.js";
@@ -20,6 +21,7 @@ import notificationsRoutes from "./routes/notifications.js";
 import weatherRoutes from "./routes/weather.js";
 import adminRoutes from "./routes/admin.js";
 import policyRoutes from "./routes/policy.js";
+import monitoringRoutes from "./routes/monitoring.js";
 import passport from "./config/passport.js";
 
 // Import middleware
@@ -29,8 +31,22 @@ import {
   securityHeaders,
   requestId,
   requestSizeLimiter,
+  speedLimiter,
+  generalRateLimit,
 } from "./middleware/security.js";
-import { memoryMonitor, cpuMonitor } from "./middleware/performance.js";
+import {
+  memoryMonitor,
+  cpuMonitor,
+  performanceMonitor,
+} from "./middleware/performance.js";
+import {
+  enhancedCSP,
+  securityEventMonitor,
+  sessionSecurity,
+  authRateLimit,
+  apiRateLimit,
+  monitoringRateLimit,
+} from "./middleware/enhancedSecurity.js";
 
 // --- 1. Environment Setup ---
 // Environment validation is now handled in ./config/environment.js
@@ -41,13 +57,21 @@ const connectDb = async () => {
     // Debug: Log the actual URI being used (commented out)
     // console.log("🔍 DEBUG: Actual MONGO_URI being used:", env.MONGO_URI);
 
-    // Enhanced MongoDB connection with modern options
+    // Enhanced MongoDB connection with optimized pooling and resilience
     await mongoose.connect(env.MONGO_URI, {
       family: 4, // Force IPv4
-      maxPoolSize: 10, // Maintain up to 10 socket connections
+      maxPoolSize: 15, // Increased pool size for better concurrency
+      minPoolSize: 2, // Maintain minimum connections
+      maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
       serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
       socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
       bufferCommands: false, // Disable mongoose buffering
+      // bufferMaxEntries: 0, // Disable mongoose buffering queue - removed as not supported in current version
+      retryWrites: true, // Enable retryable writes
+      retryReads: true, // Enable retryable reads
+      readPreference: "primary", // Read from primary for consistency
+      heartbeatFrequencyMS: 10000, // Check server status every 10 seconds
+      connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
     });
 
     logger.info(
@@ -95,21 +119,38 @@ app.set("trust proxy", 1);
 app.use(requestId);
 app.use(httpLogger);
 
-// Performance monitoring - temporarily disabled for debugging
-// app.use(performanceMonitor);
+// Performance monitoring - re-enabled with optimizations
+app.use(performanceMonitor);
 
-// Compression middleware for better performance - temporarily disabled for debugging
-// app.use(
-//   compression({
-//     filter: (req, res) => {
-//       if (req.headers["x-no-compression"]) {
-//         return false;
-//       }
-//       return compression.filter(req, res);
-//     },
-//     threshold: 1024, // Only compress responses larger than 1KB
-//   }),
-// );
+// Compression middleware for better performance - optimized configuration
+
+app.use(
+  compression({
+    level: 6, // Balanced compression level (1-9, 6 is good balance)
+    threshold: 1024, // Only compress responses larger than 1KB
+    filter: (req, res) => {
+      // Don't compress if client explicitly requests no compression
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      // Don't compress images, videos, or already compressed content
+      const contentType = res.getHeader("Content-Type");
+      if (typeof contentType === "string") {
+        if (
+          contentType.includes("image/") ||
+          contentType.includes("video/") ||
+          contentType.includes("application/zip") ||
+          contentType.includes("application/gzip")
+        ) {
+          return false;
+        }
+      }
+      return compression.filter(req, res);
+    },
+    // Add compression ratio monitoring
+    chunkSize: 16 * 1024, // 16KB chunks for better streaming
+  }),
+);
 
 // Re-enable the original CORS library with correct configuration
 app.use(
@@ -155,25 +196,22 @@ app.use(
   }),
 );
 
-// Security middleware (moved after CORS)
+// Enhanced security middleware (moved after CORS)
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'"],
-        fontSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
-      },
-    },
+    contentSecurityPolicy: enhancedCSP,
     crossOriginEmbedderPolicy: false, // Disable for API
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true,
+    },
   }),
 );
+
+// Additional security monitoring and session security
+app.use(securityEventMonitor);
+app.use(sessionSecurity);
 
 app.use(securityHeaders);
 app.use(requestSizeLimiter("50mb")); // Limit request size
@@ -186,9 +224,9 @@ app.use(cookieParser());
 // Passport middleware
 app.use(passport.initialize());
 
-// Rate limiting and speed limiting - temporarily disabled for debugging
-// app.use(speedLimiter);
-// app.use(generalRateLimit);
+// Rate limiting and speed limiting - re-enabled with optimized configuration
+app.use(speedLimiter);
+app.use(generalRateLimit);
 
 // Health check route (before CSRF protection)
 app.use("/api", healthRoutes);
@@ -202,17 +240,18 @@ app.get("/api/test", (req, res) => {
 // CSRF protection for state-changing operations
 // Removed global CSRF protection - now applied per route for better control
 
-// API routes with enhanced logging
-app.use("/api/auth", authRoutes);
-app.use("/api/feed", feedRoutes);
-app.use("/api/documents", documentRoutes);
-app.use("/api/social", socialRoutes);
-app.use("/api/chat", chatRoutes);
-app.use("/api/calendar", calendarRoutes);
-app.use("/api/notifications", notificationsRoutes);
-app.use("/api/weather", weatherRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/policy", policyRoutes);
+// API routes with enhanced logging and per-endpoint rate limiting
+app.use("/api/auth", authRateLimit, authRoutes);
+app.use("/api/feed", apiRateLimit, feedRoutes);
+app.use("/api/documents", apiRateLimit, documentRoutes);
+app.use("/api/social", apiRateLimit, socialRoutes);
+app.use("/api/chat", apiRateLimit, chatRoutes);
+app.use("/api/calendar", apiRateLimit, calendarRoutes);
+app.use("/api/notifications", apiRateLimit, notificationsRoutes);
+app.use("/api/weather", apiRateLimit, weatherRoutes);
+app.use("/api/admin", authRateLimit, adminRoutes); // Admin routes get stricter limits
+app.use("/api/policy", policyRoutes); // Policy routes don't need rate limiting
+app.use("/api/monitoring", monitoringRateLimit, monitoringRoutes); // Monitoring dashboard with high limits for frequent refreshes
 
 // 404 handler for unmatched routes - Fixed for path-to-regexp compatibility
 app.use((req, res) => {

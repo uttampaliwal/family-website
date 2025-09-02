@@ -28,13 +28,47 @@ class EnhancedErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Log error details for debugging
-    console.error("ErrorBoundary caught an error:", error);
-    console.error("Error info:", errorInfo);
+    // Enhanced error logging with context
+    const errorDetails = {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      userId: localStorage.getItem("userId") || "anonymous",
+    };
 
-    // You could send this to an error reporting service
-    // logErrorToService(error, errorInfo);
+    console.error("ErrorBoundary caught an error:", errorDetails);
+
+    // Send error to monitoring service in production
+    if (process.env.NODE_ENV === "production") {
+      this.reportError(errorDetails);
+    }
   }
+
+  private reportError = async (errorDetails: {
+    message: string;
+    stack?: string;
+    componentStack: string;
+    timestamp: string;
+    userAgent: string;
+    url: string;
+    userId: string;
+  }) => {
+    try {
+      // Send error report to backend for monitoring
+      await fetch("/api/errors/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(errorDetails),
+      });
+    } catch (reportingError) {
+      console.error("Failed to report error:", reportingError);
+    }
+  };
 
   handleRetry = () => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
