@@ -137,7 +137,7 @@ const UserTable: React.FC<UserTableProps> = ({
               <td className="p-4">
                 <div className="flex items-center gap-2">
                   <select
-                    defaultValue={user.role}
+                    value={user.role}
                     onChange={(e) =>
                       onRoleChange({ userId: user._id, role: e.target.value })
                     }
@@ -218,7 +218,7 @@ const PendingUserTable: React.FC<UserTableProps> = ({
               <td className="p-4">
                 <div className="flex items-center gap-2">
                   <select
-                    defaultValue={user.role}
+                    value={user.role}
                     onChange={(e) =>
                       onRoleChange({ userId: user._id, role: e.target.value })
                     }
@@ -336,19 +336,16 @@ const UserManagementPage: React.FC = () => {
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["adminUsers"],
     queryFn: fetchAdminUsers,
-    refetchOnWindowFocus: true,
   });
 
   const { data: pendingUsers, isLoading: isLoadingPendingUsers } = useQuery({
     queryKey: ["pendingUsers"],
     queryFn: fetchPendingUsers,
-    refetchOnWindowFocus: true,
   });
 
   const { data: rejectedUsers, isLoading: isLoadingRejectedUsers } = useQuery({
     queryKey: ["rejectedUsers"],
     queryFn: fetchRejectedUsers,
-    refetchOnWindowFocus: true,
   });
 
   const roleMutation = useMutation({
@@ -472,7 +469,6 @@ const UserManagementPage: React.FC = () => {
           {rejectedUsers && (
             <RejectedUserTable
               users={rejectedUsers}
-              onRoleChange={roleMutation.mutate}
               onDeleteUser={handleDeleteUser}
               onRestoreUser={handleRestoreUser}
             />

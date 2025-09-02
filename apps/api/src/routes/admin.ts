@@ -19,9 +19,8 @@ import {
   restoreUser,
 } from "../controllers/adminController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
-import adminMiddleware, {
-  adminSessionMiddleware,
-} from "../middleware/adminMiddleware.js";
+import { adminApiRateLimit } from "../middleware/security.js";
+import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
@@ -30,49 +29,49 @@ router.use(authMiddleware);
 router.use(adminMiddleware);
 
 // Admin dashboard routes with session validation
-router.get("/dashboard/stats", adminSessionMiddleware, getAdminDashboardStats);
+router.get("/dashboard/stats", adminApiRateLimit, getAdminDashboardStats);
 router.get(
   "/dashboard/enhanced-stats",
-  adminSessionMiddleware,
+  adminApiRateLimit,
   getEnhancedDashboardStats,
 );
-router.get("/activity-logs", adminSessionMiddleware, getAdminActivityLogs);
+router.get("/activity-logs", adminApiRateLimit, getAdminActivityLogs);
 
 // User management routes
-router.get("/users", adminSessionMiddleware, getAllUsers);
-router.get("/pending-users", adminSessionMiddleware, getPendingUsers);
-router.get("/rejected-users", adminSessionMiddleware, getRejectedUsers);
-router.post("/users/:userId/approve", adminSessionMiddleware, approveUser);
+router.get("/users", adminApiRateLimit, getAllUsers);
+router.get("/pending-users", adminApiRateLimit, getPendingUsers);
+router.get("/rejected-users", adminApiRateLimit, getRejectedUsers);
+router.post("/users/:userId/approve", adminApiRateLimit, approveUser);
 router.post(
   "/users/:userId/approve-confirmed",
-  adminSessionMiddleware,
+  adminApiRateLimit,
   approveUserWithConfirmation,
 );
-router.post("/users/:userId/reject", adminSessionMiddleware, rejectUser);
-router.post("/users/:userId/restore", adminSessionMiddleware, restoreUser);
-router.put("/users/:userId/role", adminSessionMiddleware, updateUserRole);
-router.delete("/users/:userId", adminSessionMiddleware, deleteUser);
+router.post("/users/:userId/reject", adminApiRateLimit, rejectUser);
+router.post("/users/:userId/restore", adminApiRateLimit, restoreUser);
+router.put("/users/:userId/role", adminApiRateLimit, updateUserRole);
+router.delete("/users/:userId", adminApiRateLimit, deleteUser);
 router.post(
   "/users/:userId/revoke-access",
-  adminSessionMiddleware,
+  adminApiRateLimit,
   revokeUserAccess,
 );
 
 // Admin promotion routes
 router.post(
   "/users/:userId/request-promotion",
-  adminSessionMiddleware,
+  adminApiRateLimit,
   requestAdminPromotion,
 );
-router.get("/pending-promotions", adminSessionMiddleware, getPendingPromotions);
+router.get("/pending-promotions", adminApiRateLimit, getPendingPromotions);
 router.post(
   "/promotions/:userId/approve",
-  adminSessionMiddleware,
+  adminApiRateLimit,
   approveAdminPromotion,
 );
 router.post(
   "/promotions/activate",
-  adminSessionMiddleware,
+  adminApiRateLimit,
   activateApprovedPromotions,
 );
 

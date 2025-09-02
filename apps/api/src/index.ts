@@ -33,6 +33,7 @@ import {
   requestSizeLimiter,
   speedLimiter,
   generalRateLimit,
+  adminApiRateLimit,
 } from "./middleware/security.js";
 import {
   memoryMonitor,
@@ -249,7 +250,7 @@ app.use("/api/chat", apiRateLimit, chatRoutes);
 app.use("/api/calendar", apiRateLimit, calendarRoutes);
 app.use("/api/notifications", apiRateLimit, notificationsRoutes);
 app.use("/api/weather", apiRateLimit, weatherRoutes);
-app.use("/api/admin", authRateLimit, adminRoutes); // Admin routes get stricter limits
+app.use("/api/admin", adminApiRateLimit, adminRoutes); // Admin routes get appropriate limits
 app.use("/api/policy", policyRoutes); // Policy routes don't need rate limiting
 app.use("/api/monitoring", monitoringRateLimit, monitoringRoutes); // Monitoring dashboard with high limits for frequent refreshes
 
