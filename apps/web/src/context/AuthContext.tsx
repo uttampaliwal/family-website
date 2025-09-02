@@ -14,14 +14,19 @@ const getInitialAuthState = () => {
     const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     if (storedUser && accessToken) {
       const user = JSON.parse(storedUser);
-      return { isLoggedIn: true, user, username: user.username };
+      return {
+        isLoggedIn: true,
+        user,
+        username: user.username,
+        token: accessToken,
+      };
     }
   } catch {
     if (import.meta.env.DEV) {
       // Error reading auth state from localStorage - handle silently
     }
   }
-  return { isLoggedIn: false, user: null, username: null };
+  return { isLoggedIn: false, user: null, username: null, token: null };
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
@@ -29,13 +34,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [authState, setAuthState] = useState(getInitialAuthState);
 
-  const login = (user: User) => {
+  const login = (user: User, token: string) => {
     if (!user || typeof user !== "object" || !user.username) {
       throw new Error("Invalid user object provided");
     }
 
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-    setAuthState({ isLoggedIn: true, user, username: user.username });
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+    setAuthState({ isLoggedIn: true, user, username: user.username, token });
   };
 
   const logout = async () => {
@@ -51,7 +57,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       } catch {
         // Error clearing localStorage - handle silently
       }
-      setAuthState({ isLoggedIn: false, user: null, username: null });
+      setAuthState({
+        isLoggedIn: false,
+        user: null,
+        username: null,
+        token: null,
+      });
     }
   };
 
@@ -61,6 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         isLoggedIn: authState.isLoggedIn,
         user: authState.user,
         username: authState.username,
+        token: authState.token,
         login,
         logout,
       }}

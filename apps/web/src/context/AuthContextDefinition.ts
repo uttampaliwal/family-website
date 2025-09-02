@@ -13,7 +13,8 @@ export interface AuthContextType {
   isLoggedIn: boolean;
   user: User | null;
   username: string | null;
-  login: (user: User) => void;
+  token: string | null;
+  login: (user: User, token: string) => void;
   logout: () => void;
 }
 

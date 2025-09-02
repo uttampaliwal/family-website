@@ -98,7 +98,7 @@ export const monitoringRateLimit = rateLimit({
         endpoint: req.path,
         method: req.method,
       },
-      "Monitoring rate limit exceeded"
+      "Monitoring rate limit exceeded",
     );
     res.status(429).json({
       error: "Too many monitoring requests, please try again later.",

@@ -41,8 +41,7 @@ const LoginPage: React.FC = () => {
 
       const data = response.data;
       if (data.user && data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        login(data.user);
+        login(data.user, data.accessToken);
         showToast(data.message || "Login successful!", "success");
         navigate(`/profile/${data.user.username}`);
       } else {
