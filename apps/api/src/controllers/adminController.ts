@@ -17,7 +17,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     );
 
     const users = await User.find({}).select(
-      "username email role createdAt isVerified adminApprovalStatus accessRevoked",
+      "name username email role createdAt isVerified adminApprovalStatus accessRevoked",
     );
 
     logger.info(
@@ -57,7 +57,7 @@ export const getPendingUsers = async (req: Request, res: Response) => {
     );
 
     const users = await User.find({ adminApprovalStatus: "pending" }).select(
-      "-password -refreshTokens",
+      "name username email role createdAt isVerified adminApprovalStatus accessRevoked",
     );
 
     logger.info(
@@ -99,7 +99,7 @@ export const getRejectedUsers = async (req: Request, res: Response) => {
     );
 
     const users = await User.find({ adminApprovalStatus: "rejected" }).select(
-      "-password -refreshTokens",
+      "name username email role createdAt isVerified adminApprovalStatus accessRevoked",
     );
 
     logger.info(
@@ -158,6 +158,7 @@ export const approveUser = async (req: Request, res: Response) => {
 
     const previousStatus = user.adminApprovalStatus;
     user.adminApprovalStatus = "approved";
+    user.approvedAt = new Date();
     user.auditLog.push({
       event: "Admin approved account",
       timestamp: new Date(),
@@ -219,7 +220,7 @@ export const approveUser = async (req: Request, res: Response) => {
 
 export const rejectUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const { reason } = req.body;
+  const { reason } = req.body; // This can be optional
 
   try {
     logger.info(
@@ -307,6 +308,95 @@ export const rejectUser = async (req: Request, res: Response) => {
     );
 
     return res.status(500).json({ message: "Error rejecting user", error });
+  }
+};
+
+export const restoreUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  try {
+    logger.info(
+      {
+        adminId: req.user?._id,
+        adminUsername: req.user?.username,
+        targetUserId: userId,
+        ip: req.ip,
+        operation: "restore_user_attempt",
+      },
+      "Admin attempting to restore user",
+    );
+
+    const user = await User.findById(userId);
+    if (!user) {
+      logger.warn(
+        {
+          adminId: req.user?._id,
+          targetUserId: userId,
+          operation: "restore_user_not_found",
+        },
+        "User not found for restoration",
+      );
+
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const previousStatus = user.adminApprovalStatus;
+    user.adminApprovalStatus = "pending";
+    user.auditLog.push({
+      event: "Admin restored account",
+      timestamp: new Date(),
+      details: `Restored by admin ${req.user?.username} (${req.user?._id}) from IP ${req.ip}`,
+    });
+    await user.save();
+
+    // Log admin action
+    logger.info(
+      {
+        adminId: req.user?._id,
+        adminUsername: req.user?.username,
+        targetUserId: userId,
+        targetUsername: user.username,
+        previousStatus,
+        newStatus: "pending",
+        ip: req.ip,
+        operation: "user_restored_success",
+      },
+      "User restored successfully",
+    );
+
+    // Add to admin's audit log
+    if (req.user) {
+      await User.findByIdAndUpdate(req.user._id, {
+        $push: {
+          auditLog: {
+            event: "User restoration action",
+            timestamp: new Date(),
+            details: `Restored user ${user.username} (${userId})`,
+          },
+        },
+      });
+    }
+
+    return res.status(200).json({
+      message: "User restored successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        status: user.adminApprovalStatus,
+      },
+    });
+  } catch (error) {
+    logger.error(
+      {
+        err: error,
+        adminId: req.user?._id,
+        targetUserId: userId,
+        operation: "restore_user_error",
+      },
+      "Error restoring user",
+    );
+
+    return res.status(500).json({ message: "Error restoring user", error });
   }
 };
 
@@ -553,6 +643,7 @@ export const approveUserWithConfirmation = async (
 
     const previousStatus = user.adminApprovalStatus;
     user.adminApprovalStatus = "approved";
+    user.approvedAt = new Date();
     user.auditLog.push({
       event: "Admin approved account with confirmation",
       timestamp: new Date(),

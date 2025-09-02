@@ -35,6 +35,7 @@ export interface IUser extends Document {
   role: "user" | "admin";
   isSuperAdmin: boolean;
   adminApprovalStatus: "pending" | "approved" | "rejected";
+  approvedAt?: Date;
   auditLog: {
     event: string;
     timestamp: Date;
@@ -241,6 +242,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ["pending", "approved", "rejected"],
     default: "pending",
+  },
+  approvedAt: {
+    type: Date,
   },
   auditLog: [
     {

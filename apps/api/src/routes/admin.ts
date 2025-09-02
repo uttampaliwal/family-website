@@ -16,6 +16,7 @@ import {
   getAllUsers,
   updateUserRole,
   deleteUser,
+  restoreUser,
 } from "../controllers/adminController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminMiddleware, {
@@ -48,6 +49,7 @@ router.post(
   approveUserWithConfirmation,
 );
 router.post("/users/:userId/reject", adminSessionMiddleware, rejectUser);
+router.post("/users/:userId/restore", adminSessionMiddleware, restoreUser);
 router.put("/users/:userId/role", adminSessionMiddleware, updateUserRole);
 router.delete("/users/:userId", adminSessionMiddleware, deleteUser);
 router.post(
