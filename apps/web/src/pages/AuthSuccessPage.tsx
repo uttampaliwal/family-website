@@ -12,15 +12,16 @@ const AuthSuccessPage: React.FC = () => {
     const handleOAuthSuccess = async () => {
       try {
         const userParam = searchParams.get("user");
+        const tokenParam = searchParams.get("token");
 
-        if (!userParam) {
-          throw new Error("No user data received");
+        if (!userParam || !tokenParam) {
+          throw new Error("No user data or token received");
         }
 
         const user = JSON.parse(decodeURIComponent(userParam));
 
         // Store user data and redirect
-        login(user);
+        login(user, tokenParam);
 
         // Redirect to home page
         navigate("/", { replace: true });

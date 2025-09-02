@@ -86,6 +86,7 @@ const MonitoringDashboardPage: React.FC = () => {
 
 // Main dashboard component (only rendered for admin users)
 const MonitoringDashboard: React.FC = () => {
+  const { token } = useAuth();
   const [dashboardData, setDashboardData] = useState<SystemMetrics | null>(
     null,
   );
@@ -216,9 +217,6 @@ const MonitoringDashboard: React.FC = () => {
   // Fetch dashboard data
   const fetchDashboardData = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      console.log("Fetching dashboard data with token:", token ? "present" : "missing");
-
       const [dashboardResponse, metricsResponse] = await Promise.all([
         fetch("/api/monitoring/dashboard", {
           headers: {
@@ -240,13 +238,17 @@ const MonitoringDashboard: React.FC = () => {
       if (!dashboardResponse.ok) {
         const errorText = await dashboardResponse.text();
         console.error("Dashboard API error:", errorText);
-        throw new Error(`Dashboard API error: ${dashboardResponse.status} - ${errorText}`);
+        throw new Error(
+          `Dashboard API error: ${dashboardResponse.status} - ${errorText}`,
+        );
       }
 
       if (!metricsResponse.ok) {
         const errorText = await metricsResponse.text();
         console.error("Metrics API error:", errorText);
-        throw new Error(`Metrics API error: ${metricsResponse.status} - ${errorText}`);
+        throw new Error(
+          `Metrics API error: ${metricsResponse.status} - ${errorText}`,
+        );
       }
 
       const dashboardData = await dashboardResponse.json();
@@ -260,13 +262,14 @@ const MonitoringDashboard: React.FC = () => {
       setLastUpdated(new Date().toLocaleTimeString());
       setError(null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch data";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch data";
       console.error("Failed to fetch dashboard data:", err);
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   // Update charts with new metrics
   const updateCharts = (metrics: RealtimeMetrics) => {
