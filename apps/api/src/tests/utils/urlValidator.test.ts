@@ -186,7 +186,7 @@ describe("URL Validator", () => {
       const urls = [
         `http://localhost:${mockServerPort}/valid`,
         `http://localhost:${mockServerPort}/notfound`,
-        "https://httpbin.org/status/200",
+        `http://localhost:${mockServerPort}/redirect`,
       ];
 
       const results = await validateUrls(urls, { allowLocal: true });
@@ -201,6 +201,11 @@ describe("URL Validator", () => {
         `http://localhost:${mockServerPort}/notfound`,
       );
       expect(notFoundResult?.isAccessible).toBe(false);
+
+      const redirectResult = results.get(
+        `http://localhost:${mockServerPort}/redirect`,
+      );
+      expect(redirectResult?.isAccessible).toBe(true);
     });
   });
 

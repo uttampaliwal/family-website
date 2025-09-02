@@ -68,6 +68,13 @@ export const authRateLimit = createRateLimiter({
   skipSuccessfulRequests: true,
 });
 
+// More lenient rate limiter for admin API endpoints
+export const adminApiRateLimit = createRateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 150, // 150 requests per window
+  message: "Too many API requests from this IP, please try again later.",
+});
+
 // Very strict rate limiter for password reset
 export const passwordResetRateLimit = createRateLimiter({
   windowMs: 60 * 60 * 1000, // 1 hour

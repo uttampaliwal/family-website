@@ -70,5 +70,5 @@ volumes:
   mongo-data:
 
 networks:
-  family-website-network:
+  family-portal-network:
     driver: bridge
