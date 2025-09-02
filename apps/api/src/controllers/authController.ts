@@ -88,6 +88,8 @@ export const register = async (
       verificationToken,
       verificationTokenExpires,
       auditLog: [{ event: "User account created" }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     await user.save();

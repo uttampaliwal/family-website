@@ -2,16 +2,20 @@ import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../services/axios";
 import { motion } from "framer-motion";
-import { FaUsers, FaTrash } from "react-icons/fa";
+import { FaUsers, FaTrash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { format } from "date-fns";
 
 // --- Type Definitions ---
+
 interface User {
   _id: string;
+  name: string;
   username: string;
   email: string;
   role: "user" | "admin";
   createdAt: string;
+  approvedAt?: string;
+  isVerified: boolean;
 }
 
 // --- API Fetching Functions ---
@@ -45,11 +49,32 @@ const deleteUser = async (userId: string) => {
   await api.delete(`/api/admin/users/${userId}`);
 };
 
+const rejectUser = async ({
+  userId,
+  reason,
+}: {
+  userId: string;
+  reason?: string;
+}) => {
+  await api.post(`/api/admin/users/${userId}/reject`, { reason });
+};
+
+const restoreUser = async (userId: string) => {
+  await api.post(`/api/admin/users/${userId}/restore`);
+};
+
+const approveUser = async (userId: string) => {
+  await api.post(`/api/admin/users/${userId}/approve`);
+};
+
 // --- Sub-components ---
 interface UserTableProps {
   users: User[];
   onRoleChange: (vars: { userId: string; role: string }) => void;
   onDeleteUser: (userId: string) => void;
+  onRejectUser?: (userId: string) => void;
+  onRestoreUser?: (userId: string) => void;
+  onApproveUser?: (userId: string) => void;
 }
 
 const UserTable: React.FC<UserTableProps> = ({
@@ -67,9 +92,12 @@ const UserTable: React.FC<UserTableProps> = ({
       <table className="w-full text-sm text-left">
         <thead className="bg-surface/50">
           <tr>
-            <th className="p-4 font-semibold">User</th>
+            <th className="p-4 font-semibold">Name</th>
+            <th className="p-4 font-semibold">Email</th>
             <th className="p-4 font-semibold">Role</th>
-            <th className="p-4 font-semibold">Joined</th>
+            <th className="p-4 font-semibold">Date of Applying</th>
+            <th className="p-4 font-semibold">Date of Joining</th>
+            <th className="p-4 font-semibold">Email Verification Status</th>
             <th className="p-4 font-semibold">Actions</th>
           </tr>
         </thead>
@@ -80,16 +108,31 @@ const UserTable: React.FC<UserTableProps> = ({
               className="border-b border-border last:border-b-0 hover:bg-surface/50 transition-colors"
             >
               <td className="p-4">
-                <div className="font-medium text-text-base">
-                  {user.username}
-                </div>
-                <div className="text-xs text-muted">{user.email}</div>
+                <div className="font-medium text-text-base">{user.name}</div>
+                <div className="text-xs text-muted">@{user.username}</div>
               </td>
+              <td className="p-4 text-muted">{user.email}</td>
               <td className="p-4 text-muted">{user.role}</td>
               <td className="p-4 text-muted">
                 {user.createdAt
-                  ? format(new Date(user.createdAt), "MMM d, yyyy")
+                  ? format(new Date(user.createdAt), "dd-MM-yyyy")
+                  : "Date not available"}
+              </td>
+              <td className="p-4 text-muted">
+                {user.approvedAt
+                  ? format(new Date(user.approvedAt), "dd-MM-yyyy")
                   : "N/A"}
+              </td>
+              <td className="p-4 text-muted">
+                {user.isVerified ? (
+                  <span className="flex items-center text-green-500">
+                    <FaCheckCircle className="mr-1" /> Verified
+                  </span>
+                ) : (
+                  <span className="flex items-center text-red-500">
+                    <FaTimesCircle className="mr-1" /> Not Verified
+                  </span>
+                )}
               </td>
               <td className="p-4">
                 <div className="flex items-center gap-2">
@@ -123,6 +166,8 @@ const PendingUserTable: React.FC<UserTableProps> = ({
   users,
   onRoleChange,
   onDeleteUser,
+  onRejectUser,
+  onApproveUser,
 }) => (
   <div className="card p-0 overflow-hidden">
     <div className="p-4 border-b border-border">
@@ -134,9 +179,11 @@ const PendingUserTable: React.FC<UserTableProps> = ({
       <table className="w-full text-sm text-left">
         <thead className="bg-surface/50">
           <tr>
-            <th className="p-4 font-semibold">User</th>
+            <th className="p-4 font-semibold">Name</th>
+            <th className="p-4 font-semibold">Email</th>
             <th className="p-4 font-semibold">Role</th>
-            <th className="p-4 font-semibold">Joined</th>
+            <th className="p-4 font-semibold">Date of Applying</th>
+            <th className="p-4 font-semibold">Email Verification Status</th>
             <th className="p-4 font-semibold">Actions</th>
           </tr>
         </thead>
@@ -147,16 +194,26 @@ const PendingUserTable: React.FC<UserTableProps> = ({
               className="border-b border-border last:border-b-0 hover:bg-surface/50 transition-colors"
             >
               <td className="p-4">
-                <div className="font-medium text-text-base">
-                  {user.username}
-                </div>
-                <div className="text-xs text-muted">{user.email}</div>
+                <div className="font-medium text-text-base">{user.name}</div>
+                <div className="text-xs text-muted">@{user.username}</div>
               </td>
+              <td className="p-4 text-muted">{user.email}</td>
               <td className="p-4 text-muted">{user.role}</td>
               <td className="p-4 text-muted">
                 {user.createdAt
-                  ? format(new Date(user.createdAt), "MMM d, yyyy")
-                  : "N/A"}
+                  ? format(new Date(user.createdAt), "dd-MM-yyyy")
+                  : "Date not available"}
+              </td>
+              <td className="p-4 text-muted">
+                {user.isVerified ? (
+                  <span className="flex items-center text-green-500">
+                    <FaCheckCircle className="mr-1" /> Verified
+                  </span>
+                ) : (
+                  <span className="flex items-center text-red-500">
+                    <FaTimesCircle className="mr-1" /> Not Verified
+                  </span>
+                )}
               </td>
               <td className="p-4">
                 <div className="flex items-center gap-2">
@@ -170,6 +227,18 @@ const PendingUserTable: React.FC<UserTableProps> = ({
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                   </select>
+                  <button
+                    onClick={() => onApproveUser && onApproveUser(user._id)}
+                    className="btn-success p-2 rounded-md"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => onRejectUser && onRejectUser(user._id)}
+                    className="btn-warning p-2 rounded-md"
+                  >
+                    Reject
+                  </button>
                   <button
                     onClick={() => onDeleteUser(user._id)}
                     className="btn-error p-2 rounded-md"
@@ -188,8 +257,8 @@ const PendingUserTable: React.FC<UserTableProps> = ({
 
 const RejectedUserTable: React.FC<UserTableProps> = ({
   users,
-  onRoleChange,
   onDeleteUser,
+  onRestoreUser,
 }) => (
   <div className="card p-0 overflow-hidden">
     <div className="p-4 border-b border-border">
@@ -201,9 +270,11 @@ const RejectedUserTable: React.FC<UserTableProps> = ({
       <table className="w-full text-sm text-left">
         <thead className="bg-surface/50">
           <tr>
-            <th className="p-4 font-semibold">User</th>
+            <th className="p-4 font-semibold">Name</th>
+            <th className="p-4 font-semibold">Email</th>
             <th className="p-4 font-semibold">Role</th>
-            <th className="p-4 font-semibold">Joined</th>
+            <th className="p-4 font-semibold">Date of Applying</th>
+            <th className="p-4 font-semibold">Email Verification Status</th>
             <th className="p-4 font-semibold">Actions</th>
           </tr>
         </thead>
@@ -214,29 +285,35 @@ const RejectedUserTable: React.FC<UserTableProps> = ({
               className="border-b border-border last:border-b-0 hover:bg-surface/50 transition-colors"
             >
               <td className="p-4">
-                <div className="font-medium text-text-base">
-                  {user.username}
-                </div>
-                <div className="text-xs text-muted">{user.email}</div>
+                <div className="font-medium text-text-base">{user.name}</div>
+                <div className="text-xs text-muted">@{user.username}</div>
               </td>
+              <td className="p-4 text-muted">{user.email}</td>
               <td className="p-4 text-muted">{user.role}</td>
               <td className="p-4 text-muted">
                 {user.createdAt
-                  ? format(new Date(user.createdAt), "MMM d, yyyy")
-                  : "N/A"}
+                  ? format(new Date(user.createdAt), "dd-MM-yyyy")
+                  : "Date not available"}
+              </td>
+              <td className="p-4 text-muted">
+                {user.isVerified ? (
+                  <span className="flex items-center text-green-500">
+                    <FaCheckCircle className="mr-1" /> Verified
+                  </span>
+                ) : (
+                  <span className="flex items-center text-red-500">
+                    <FaTimesCircle className="mr-1" /> Not Verified
+                  </span>
+                )}
               </td>
               <td className="p-4">
                 <div className="flex items-center gap-2">
-                  <select
-                    defaultValue={user.role}
-                    onChange={(e) =>
-                      onRoleChange({ userId: user._id, role: e.target.value })
-                    }
-                    className="input text-xs py-1 px-2 w-28"
+                  <button
+                    onClick={() => onRestoreUser && onRestoreUser(user._id)}
+                    className="btn-primary p-2 rounded-md"
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                    Restore to Pending
+                  </button>
                   <button
                     onClick={() => onDeleteUser(user._id)}
                     className="btn-error p-2 rounded-md"
@@ -293,9 +370,70 @@ const UserManagementPage: React.FC = () => {
     },
   });
 
+  const rejectUserMutation = useMutation({
+    mutationFn: rejectUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["pendingUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["rejectedUsers"] });
+    },
+  });
+
+  const restoreUserMutation = useMutation({
+    mutationFn: restoreUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["pendingUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["rejectedUsers"] });
+    },
+  });
+
+  const approveUserMutation = useMutation({
+    mutationFn: approveUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["pendingUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["rejectedUsers"] });
+    },
+  });
+
   const handleDeleteUser = (userId: string) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      deleteUserMutation.mutate(userId);
+    if (
+      window.confirm("Are you sure you want to permanently delete this user?")
+    ) {
+      if (
+        window.confirm(
+          "This will completely remove all user data from the database. Confirm deletion?",
+        )
+      ) {
+        deleteUserMutation.mutate(userId);
+      }
+    }
+  };
+
+  const handleRejectUser = (userId: string) => {
+    const reason = window.prompt(
+      "Please provide a reason for rejecting this user (optional):",
+    );
+    if (reason !== null) {
+      // Proceed even if reason is empty, but not if prompt is cancelled
+      rejectUserMutation.mutate({ userId, reason: reason || undefined });
+    }
+  };
+
+  const handleApproveUser = (userId: string) => {
+    if (window.confirm("Are you sure you want to approve this user?")) {
+      approveUserMutation.mutate(userId);
+    }
+  };
+
+  const handleRestoreUser = (userId: string) => {
+    if (
+      window.confirm(
+        "Are you sure you want to restore this user to pending status?",
+      )
+    ) {
+      restoreUserMutation.mutate(userId);
     }
   };
 
@@ -325,6 +463,8 @@ const UserManagementPage: React.FC = () => {
               users={pendingUsers}
               onRoleChange={roleMutation.mutate}
               onDeleteUser={handleDeleteUser}
+              onRejectUser={handleRejectUser}
+              onApproveUser={handleApproveUser}
             />
           )}
         </div>
@@ -334,6 +474,7 @@ const UserManagementPage: React.FC = () => {
               users={rejectedUsers}
               onRoleChange={roleMutation.mutate}
               onDeleteUser={handleDeleteUser}
+              onRestoreUser={handleRestoreUser}
             />
           )}
         </div>
