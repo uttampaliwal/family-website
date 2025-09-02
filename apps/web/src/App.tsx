@@ -44,6 +44,9 @@ const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
 const SystemSettingsPage = lazy(
   () => import("./pages/admin/SystemSettingsPage"),
 );
+const MonitoringDashboardPage = lazy(
+  () => import("./pages/admin/MonitoringDashboardPage"),
+);
 
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
@@ -271,6 +274,10 @@ function App() {
                       <Route
                         path="system-settings"
                         element={<SystemSettingsPage />}
+                      />
+                      <Route
+                        path="monitoring"
+                        element={<MonitoringDashboardPage />}
                       />
                     </Route>
                   </Routes>

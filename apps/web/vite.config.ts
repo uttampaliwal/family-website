@@ -23,4 +23,47 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // Optimize bundle splitting for better caching
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for React and related libraries
+          vendor: ["react", "react-dom", "react-router-dom"],
+          // UI components chunk
+          ui: ["@tanstack/react-query"],
+          // Utilities chunk
+          utils: ["axios", "date-fns"],
+        },
+      },
+    },
+    // Enable source maps for better debugging in production
+    sourcemap: true,
+    // Optimize chunk size warnings
+    chunkSizeWarningLimit: 1000,
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+    // Minify options
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true,
+      },
+    },
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "@tanstack/react-query",
+      "axios",
+    ],
+  },
+  // Enable CSS preprocessing optimizations
+  css: {
+    devSourcemap: true,
+  },
 });

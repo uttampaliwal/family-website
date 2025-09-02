@@ -8,6 +8,7 @@ import {
   FaCog,
   FaChevronDown,
   FaChevronUp,
+  FaDesktop,
 } from "react-icons/fa";
 
 interface NavItemProps {
@@ -86,6 +87,11 @@ const Sidebar: React.FC = () => {
       to: "/admin/system-settings",
       icon: <FaCog />,
       label: "System Settings",
+    },
+    {
+      to: "/admin/monitoring",
+      icon: <FaDesktop />,
+      label: "System Monitoring",
     },
   ];
 

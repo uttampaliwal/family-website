@@ -1,7 +1,43 @@
 import { Request, Response, NextFunction } from "express";
 import { logger } from "../utils/logger.js";
 
-// Performance monitoring middleware
+// Enhanced performance monitoring middleware with metrics collection
+interface PerformanceMetrics {
+  totalRequests: number;
+  averageResponseTime: number;
+  slowRequests: number;
+  errorRequests: number;
+  requestsPerSecond: number;
+  lastResetTime: number;
+}
+
+const performanceMetrics: PerformanceMetrics = {
+  totalRequests: 0,
+  averageResponseTime: 0,
+  slowRequests: 0,
+  errorRequests: 0,
+  requestsPerSecond: 0,
+  lastResetTime: Date.now(),
+};
+
+// Reset metrics every hour
+setInterval(
+  () => {
+    const now = Date.now();
+    const timeDiff = (now - performanceMetrics.lastResetTime) / 1000;
+    performanceMetrics.requestsPerSecond =
+      performanceMetrics.totalRequests / timeDiff;
+
+    // Reset counters but keep RPS for the last hour
+    performanceMetrics.totalRequests = 0;
+    performanceMetrics.averageResponseTime = 0;
+    performanceMetrics.slowRequests = 0;
+    performanceMetrics.errorRequests = 0;
+    performanceMetrics.lastResetTime = now;
+  },
+  60 * 60 * 1000,
+); // Every hour
+
 export const performanceMonitor = (
   req: Request,
   res: Response,
@@ -25,6 +61,22 @@ export const performanceMonitor = (
       external: endMemory.external - startMemory.external,
     };
 
+    // Update performance metrics
+    performanceMetrics.totalRequests++;
+    performanceMetrics.averageResponseTime =
+      (performanceMetrics.averageResponseTime *
+        (performanceMetrics.totalRequests - 1) +
+        responseTime) /
+      performanceMetrics.totalRequests;
+
+    if (responseTime > 1000) {
+      performanceMetrics.slowRequests++;
+    }
+
+    if (res.statusCode >= 400) {
+      performanceMetrics.errorRequests++;
+    }
+
     // Log performance metrics for slow requests or high memory usage
     if (
       responseTime > 1000 ||
@@ -40,31 +92,52 @@ export const performanceMonitor = (
           memoryDelta,
           userAgent: req.get("User-Agent"),
           ip: req.ip,
+          correlationId: req.headers["x-request-id"],
         },
         "Performance warning - slow request or high memory usage",
       );
     }
 
-    // Call original end method first
-    const result = originalEnd.call(this, chunk, encoding);
-
-    // Add performance headers only if headers haven't been sent
-    if (!res.headersSent) {
-      try {
-        res.setHeader("X-Response-Time", `${responseTime.toFixed(2)}ms`);
-        res.setHeader(
-          "X-Memory-Usage",
-          `${(endMemory.heapUsed / 1024 / 1024).toFixed(2)}MB`,
-        );
-      } catch {
-        // Headers already sent, ignore
-      }
+    // Add performance headers
+    try {
+      res.setHeader("X-Response-Time", `${responseTime.toFixed(2)}ms`);
+      res.setHeader(
+        "X-Memory-Usage",
+        `${(endMemory.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+      );
+      res.setHeader("X-Request-ID", req.headers["x-request-id"] || "unknown");
+    } catch {
+      // Headers already sent, ignore
     }
 
-    return result;
+    // Call original end method
+    return originalEnd.call(this, chunk, encoding);
   };
 
   next();
+};
+
+// Export performance metrics for health checks
+export const getPerformanceMetrics = (): PerformanceMetrics => ({
+  ...performanceMetrics,
+});
+
+// Export system health metrics
+export const getHealthMetrics = () => {
+  const memoryUsage = process.memoryUsage();
+  return {
+    uptime: process.uptime(),
+    memory: {
+      rss: Math.round(memoryUsage.rss / 1024 / 1024), // MB
+      heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024), // MB
+      heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024), // MB
+      external: Math.round(memoryUsage.external / 1024 / 1024), // MB
+    },
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    pid: process.pid,
+  };
 };
 
 // Memory usage monitoring
@@ -143,24 +216,4 @@ export const cpuMonitor = () => {
   return interval;
 };
 
-// Health check endpoint data
-export const getHealthMetrics = () => {
-  const usage = process.memoryUsage();
-  const uptime = process.uptime();
-
-  return {
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    uptime: Math.round(uptime),
-    memory: {
-      rss: Math.round(usage.rss / 1024 / 1024),
-      heapUsed: Math.round(usage.heapUsed / 1024 / 1024),
-      heapTotal: Math.round(usage.heapTotal / 1024 / 1024),
-      external: Math.round(usage.external / 1024 / 1024),
-    },
-    nodeVersion: process.version,
-    platform: process.platform,
-    arch: process.arch,
-    pid: process.pid,
-  };
-};
+// Duplicate function removed - using the one above
