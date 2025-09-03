@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "npm install --include=dev",
-  "buildCommand": "npx turbo run build --filter=web && mv apps/web/dist dist",
+  "buildCommand": "npx turbo run build --filter=web && cp -r apps/web/dist dist",
   "outputDirectory": "dist",
   "functions": {
     "apps/api/dist/index.js": {
