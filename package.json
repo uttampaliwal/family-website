@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "dotenv -e ./.env -- turbo dev",
     "db:seed:admin": "tsx --require dotenv/config apps/api/src/scripts/seedAdmin.ts",
-    "build": "dotenv -e ./.env -- turbo build",
+    "build": "dotenv -e ./.env -- turbo run build --filter=web --filter=api",
     "lint": "dotenv -e ./.env -- turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test": "npm test --workspace=api && npm test --workspace=web"
