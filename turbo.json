@@ -5,8 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [
-        "apps/web/dist/**",
-        "apps/api/dist/**"
+        "dist/**"
       ]
     },
     "lint": {},
