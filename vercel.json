@@ -3,16 +3,5 @@
   "framework": "vite",
   "installCommand": "npm install --include=dev",
   "buildCommand": "npx turbo run build --filter=web && ls -la apps/web/ && cp -r apps/web/dist/* dist/ 2>/dev/null || (mkdir -p dist && find . -name 'dist' -type d -path '*/web/*' -exec cp -r {}/* dist/ \\;)",
-  "outputDirectory": "dist",
-  "functions": {
-    "apps/api/dist/index.js": {
-      "memory": 2048
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/:match*",
-      "destination": "/apps/api/dist/index.js"
-    }
-  ]
+  "outputDirectory": "dist"
 }
