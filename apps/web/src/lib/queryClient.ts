@@ -22,7 +22,7 @@ export const queryClient = new QueryClient({
       },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       // Refetch on window focus in production
-      refetchOnWindowFocus: process.env.NODE_ENV === "production",
+      refetchOnWindowFocus: import.meta.env.PROD,
       // Refetch on reconnect
       refetchOnReconnect: true,
       // Don't refetch on mount if data is fresh

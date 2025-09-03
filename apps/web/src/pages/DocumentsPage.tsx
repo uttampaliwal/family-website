@@ -74,7 +74,7 @@ const DocumentsPage: React.FC = () => {
           setDocuments((prev) => prev.filter((doc) => doc._id !== id));
           showToast("Document deleted successfully", "success");
         } catch (error) {
-          if (process.env.NODE_ENV === "development") {
+          if (import.meta.env.DEV) {
             console.error(
               "Error deleting document:",
               JSON.stringify({

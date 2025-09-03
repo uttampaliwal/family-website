@@ -42,7 +42,7 @@ class EnhancedErrorBoundary extends Component<Props, State> {
     console.error("ErrorBoundary caught an error:", errorDetails);
 
     // Send error to monitoring service in production
-    if (process.env.NODE_ENV === "production") {
+    if (import.meta.env.PROD) {
       this.reportError(errorDetails);
     }
   }
@@ -127,7 +127,7 @@ class EnhancedErrorBoundary extends Component<Props, State> {
             </div>
 
             {/* Development error details */}
-            {process.env.NODE_ENV === "development" && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <details className="mt-6 text-left">
                 <summary className="cursor-pointer text-sm text-muted hover:text-base">
                   Error Details (Development)
