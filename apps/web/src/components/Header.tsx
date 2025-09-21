@@ -67,6 +67,15 @@ const Header = ({ scrolled }: HeaderProps) => {
               </Link>
             )}
 
+            {isLoggedIn && (
+              <Link
+                to="/chat"
+                className="p-2 rounded-md hover:bg-primary/10 transition-colors duration-300"
+              >
+                Chat
+              </Link>
+            )}
+
             {isLoggedIn && user?.role === "admin" && (
               <Link
                 to="/admin"
