@@ -54,7 +54,7 @@ const DocumentEditPage: React.FC = () => {
         setTitle(document.title);
         setContent(document.content);
       } catch (error) {
-        console.error("Error fetching document:", error);
+        logError(error, "fetch_document", { documentId: id });
         showToast("Failed to load document", "error");
         navigate("/documents");
       } finally {
@@ -123,7 +123,7 @@ const DocumentEditPage: React.FC = () => {
           timestamp: new Date().toISOString(),
           operation: isNewDocument ? "createDocument" : "updateDocument",
         };
-        console.error("Error saving document:", JSON.stringify(errorInfo));
+        logError(error, "save_document", { documentId: id, errorInfo });
 
         let displayMessage = "Failed to save document";
         if (errorMessage) {

@@ -4,6 +4,7 @@ import {
 } from "express";
 import { isHttpError } from "http-errors";
 import { sanitizeLog } from "../utils/logSanitizer.js";
+import { logError } from "../utils/logger.js";
 
 /**
  * A custom error interface to ensure statusCode is available.
@@ -16,21 +17,12 @@ export const errorHandler = (
 ) => {
   // In development, or for non-http errors, log the full error
   if (process.env.NODE_ENV !== "production" || !isHttpError(err)) {
-    const sanitizedError = {
-      name: err.name?.replace(/[\n\r\t]/g, "") || "Unknown",
-      message: err.message?.replace(/[\n\r\t]/g, "") || "Unknown error",
-      stack: err.stack?.replace(/[\n\r\t]/g, " ") || "No stack trace",
-    };
     // Use structured logging with appropriate log level
-    const logEntry = {
-      level: "error",
-      timestamp: new Date().toISOString(),
-      ...sanitizedError,
+    logError(err, "error_handler", {
       url: sanitizeLog(String(req.url || "")),
       method: sanitizeLog(String(req.method || "")),
       userAgent: sanitizeLog(req.get("User-Agent") || "Unknown"),
-    };
-    console.error(JSON.stringify(logEntry));
+    });
   }
 
   // If it's an HttpError from the http-errors package, use its properties
@@ -53,48 +45,28 @@ export const errorHandler = (
     try {
       res.status(statusCode).json(errorResponse);
     } catch (responseError) {
-      const errorLog = {
-        level: "ERROR",
+      // Log response error
+      logError(responseError as Error, "response_error", {
         message: "Failed to send JSON error response",
-        error: sanitizeLog(
-          responseError instanceof Error
-            ? responseError.message
-            : String(responseError),
-        ),
-        timestamp: new Date().toISOString(),
-      };
-      console.error(JSON.stringify(errorLog));
+      });
 
       // Fallback: send a basic text response
       try {
         res.status(500).send("Internal Server Error");
       } catch (fallbackError) {
-        const fallbackLog = {
-          level: "CRITICAL",
+        // Log fallback error
+        logError(fallbackError as Error, "fallback_response_error", {
           message: "Failed to send fallback error response",
-          error: sanitizeLog(
-            fallbackError instanceof Error
-              ? fallbackError.message
-              : String(fallbackError),
-          ),
-          timestamp: new Date().toISOString(),
-        };
-        console.error(JSON.stringify(fallbackLog));
+        });
 
         // Last resort: end the response
         try {
           res.end();
         } catch (endError) {
-          console.error(
-            JSON.stringify({
-              level: "FATAL",
-              message: "Failed to end response",
-              error: sanitizeLog(
-                endError instanceof Error ? endError.message : String(endError),
-              ),
-              timestamp: new Date().toISOString(),
-            }),
-          );
+          logError(endError as Error, "fatal_response_error", {
+            level: "FATAL",
+            message: "Failed to end response",
+          });
         }
       }
     }

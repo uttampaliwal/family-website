@@ -1,4 +1,52 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+// Define interfaces for better type safety
+export interface IEvent {
+  title: string;
+  description?: string;
+  date: Date;
+  location?: string;
+  participants: mongoose.Types.ObjectId[];
+  createdAt: Date;
+}
+
+export interface IPhoto {
+  title?: string;
+  description?: string;
+  caption?: string;
+  url?: string;
+  uploadDate?: Date;
+  tags?: string[];
+}
+
+export interface ITask {
+  title: string;
+  description?: string | null;
+  dueDate?: Date | null;
+  priority: "low" | "medium" | "high";
+  status: "pending" | "in-progress" | "completed";
+  assignedTo?: mongoose.Types.ObjectId[];
+  createdAt: Date;
+}
+
+export interface IEmergencyContact {
+  name: string;
+  relationship?: string | null;
+  phoneNumber: string;
+  email?: string | null;
+  address?: string | null;
+}
+
+export interface IUserData extends Document {
+  _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  events: IEvent[];
+  photos: IPhoto[];
+  tasks: ITask[];
+  emergencyContacts: IEmergencyContact[];
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Constants for better maintainability
 const PRIORITY_LEVELS = ["low", "medium", "high"] as const;
@@ -69,4 +117,4 @@ UserDataSchema.index({ userId: 1, "events.date": 1 });
 UserDataSchema.index({ userId: 1, "tasks.status": 1, "tasks.dueDate": 1 });
 UserDataSchema.index({ userId: 1, "photos.uploadDate": -1 });
 
-export default mongoose.model("UserData", UserDataSchema);
+export default mongoose.model<IUserData>("UserData", UserDataSchema);

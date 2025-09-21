@@ -14,7 +14,9 @@
     "build:web": "dotenv -e ./.env -- turbo run build --filter=web",
     "lint": "dotenv -e ./.env -- turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "test": "npm test --workspace=api && npm test --workspace=web"
+    "test": "npm test --workspace=api && npm test --workspace=web",
+    "test:coverage": "npm run test:coverage --workspace=api && npm run test:coverage --workspace=web",
+    "test:watch": "npm run test:watch --workspace=api & npm run test:watch --workspace=web"
   },
   "devDependencies": {
     "dotenv-cli": "^10.0.0",

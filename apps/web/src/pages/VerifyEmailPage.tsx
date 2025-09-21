@@ -82,8 +82,7 @@ const VerifyEmailPage: React.FC = () => {
   const verifyEmail = useCallback(
     async (token: string) => {
       try {
-        console.log("Verifying email with token:", token);
-        console.log("API Base URL:", import.meta.env.VITE_API_BASE_URL);
+        // Verifying email with provided token
 
         // First get CSRF token
         const csrfResponse = await fetch(
@@ -111,9 +110,8 @@ const VerifyEmailPage: React.FC = () => {
           },
         );
 
-        console.log("Verification response status:", response.status);
         const data = await response.json();
-        console.log("Verification response data:", data);
+        // Email verification successful
 
         if (response.ok) {
           handleVerificationSuccess(data);

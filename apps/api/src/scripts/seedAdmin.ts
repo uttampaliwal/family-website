@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import User from "../models/User";
+import User from "../models/User.js";
+import { logger } from "../utils/logger.js";
 
 const seedAdmin = async () => {
   const adminEmail = process.env.SEED_ADMIN_EMAIL;
@@ -9,14 +10,12 @@ const seedAdmin = async () => {
   const mongoDbName = process.env.MONGO_DB_NAME;
 
   if (!adminEmail) {
-    console.error("Error: SEED_ADMIN_EMAIL environment variable not set.");
+    logger.error("SEED_ADMIN_EMAIL environment variable not set");
     process.exit(1);
   }
 
   if (!mongoAppUsername || !mongoAppPassword || !mongoHost || !mongoDbName) {
-    console.error(
-      "Error: MongoDB connection environment variables (MONGO_APP_USERNAME, MONGO_APP_PASSWORD, MONGO_HOST, MONGO_DB_NAME) are not fully set.",
-    );
+    logger.error("MongoDB connection environment variables not fully set");
     process.exit(1);
   }
 
@@ -24,12 +23,12 @@ const seedAdmin = async () => {
 
   try {
     await mongoose.connect(mongoUri);
-    console.log("MongoDB connection established.");
+    logger.info("MongoDB connection established for admin seeding");
 
     const user = await User.findOne({ email: adminEmail });
 
     if (!user) {
-      console.error(`Error: User with email "${adminEmail}" not found.`);
+      logger.error("User not found for admin promotion");
       process.exit(1);
     }
 
@@ -42,14 +41,12 @@ const seedAdmin = async () => {
 
     await user.save();
 
-    console.log(
-      `Successfully promoted ${user.username} (${user.email}) to Admin.`,
-    );
+    logger.info("Successfully promoted user to Admin");
   } catch (error) {
-    console.error("An error occurred during the admin seeding process:", error);
+    logger.error(`Error during admin seeding process: ${String(error)}`);
   } finally {
     await mongoose.disconnect();
-    console.log("MongoDB connection closed.");
+    logger.info("MongoDB connection closed after admin seeding");
     process.exit(0);
   }
 };

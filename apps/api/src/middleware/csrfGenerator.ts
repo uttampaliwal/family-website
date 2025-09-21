@@ -4,6 +4,7 @@ import {
   NextFunction as ExpressNextFunction,
 } from "express";
 import crypto from "crypto";
+import { createLogContext } from "../utils/logger.js";
 
 // Middleware to generate and set a CSRF token if one doesn't already exist.
 const generateCsrfToken = (
@@ -11,8 +12,11 @@ const generateCsrfToken = (
   res: ExpressResponse,
   next: ExpressNextFunction,
 ): void => {
-  // Log when this middleware is hit
-  // CSRF generateCsrfToken middleware running
+  const logger = createLogContext("csrf.generate", {
+    method: req.method,
+    url: req.url,
+    userAgent: req.headers["user-agent"],
+  });
 
   // Check if the cookie already exists.
   if (!req.cookies?.["XSRF-TOKEN"]) {
@@ -23,9 +27,9 @@ const generateCsrfToken = (
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax", // allows cross-site on top-level navigation
     });
-    // CSRF XSRF-TOKEN cookie generated and set
+    logger.debug("CSRF token generated and set in cookie");
   } else {
-    // CSRF XSRF-TOKEN cookie already exists
+    logger.debug("CSRF token already exists in cookie");
   }
   // Pass control to the next middleware.
   next();
@@ -37,13 +41,18 @@ const validateCsrfToken = (
   res: ExpressResponse,
   next: ExpressNextFunction,
 ): void => {
-  // Log when this middleware is hit
-  console.log("CSRF validateCsrfToken middleware running");
+  const logger = createLogContext("csrf.validate", {
+    method: req.method,
+    url: req.url,
+    userAgent: req.headers["user-agent"],
+  });
+
+  logger.debug("CSRF validation middleware running");
 
   // CSRF validation is not needed for safe methods (e.g., GET, HEAD, OPTIONS)
   // as they should not have side effects.
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
-    console.log("CSRF Safe method, skipping validation");
+    logger.debug("Safe HTTP method, skipping CSRF validation");
     return next();
   }
 
@@ -56,10 +65,7 @@ const validateCsrfToken = (
 
   const cookieToken = req.cookies?.["XSRF-TOKEN"];
 
-  console.log("CSRF Debug - Headers:", JSON.stringify(req.headers));
-  console.log("CSRF Debug - Cookies:", JSON.stringify(req.cookies));
-  console.log("CSRF Debug - Client Token:", clientToken);
-  console.log("CSRF Debug - Cookie Token:", cookieToken);
+  logger.debug("CSRF token validation attempt");
 
   // 1. Validate that both tokens exist and are strings.
   if (
@@ -68,11 +74,7 @@ const validateCsrfToken = (
     typeof clientToken !== "string" ||
     typeof cookieToken !== "string"
   ) {
-    console.log("CSRF Validation failed: Token missing or has invalid type");
-    console.log("Client token exists:", !!clientToken);
-    console.log("Cookie token exists:", !!cookieToken);
-    console.log("Client token type:", typeof clientToken);
-    console.log("Cookie token type:", typeof cookieToken);
+    logger.warn("CSRF validation failed: Token missing or invalid type");
     res.status(403).json({
       message: "CSRF token is missing or invalid.",
       debug: {
@@ -90,10 +92,10 @@ const validateCsrfToken = (
   try {
     // Check if the token is already decoded
     decodedClientToken = decodeURIComponent(clientToken);
-    console.log("CSRF Debug - Decoded Client Token:", decodedClientToken);
+    logger.debug("Successfully decoded client token");
   } catch {
     // If decoding fails, use the original token
-    console.log("CSRF Debug - Token decoding failed, using original token");
+    logger.debug("Token decoding failed, using original token");
     decodedClientToken = clientToken;
   }
 
@@ -107,7 +109,7 @@ const validateCsrfToken = (
   // First, try direct comparison with the original token
   if (clientBuffer.length === cookieBuffer.length) {
     if (crypto.timingSafeEqual(clientBuffer, cookieBuffer)) {
-      console.log("CSRF Validation successful with original client token");
+      logger.debug("CSRF validation successful with original client token");
       return next();
     }
   }
@@ -115,7 +117,7 @@ const validateCsrfToken = (
   // Then, try with the decoded token
   if (decodedClientBuffer.length === cookieBuffer.length) {
     if (crypto.timingSafeEqual(decodedClientBuffer, cookieBuffer)) {
-      console.log("CSRF Validation successful with decoded client token");
+      logger.debug("CSRF validation successful with decoded client token");
       return next();
     }
   }
@@ -127,17 +129,17 @@ const validateCsrfToken = (
 
     if (clientBuffer.length === encodedCookieBuffer.length) {
       if (crypto.timingSafeEqual(clientBuffer, encodedCookieBuffer)) {
-        console.log("CSRF Validation successful with encoded cookie token");
+        logger.debug("CSRF validation successful with encoded cookie token");
         return next();
       }
     }
   } catch {
-    console.log("CSRF Debug - Cookie token encoding failed");
+    logger.debug("Cookie token encoding failed during validation");
   }
 
   // If all comparison strategies fail, return an error
-  console.log(
-    "CSRF Validation failed: Token mismatch after all comparison strategies",
+  logger.warn(
+    "CSRF validation failed: Token mismatch after all comparison strategies",
   );
   res.status(403).json({
     message: "CSRF token mismatch.",

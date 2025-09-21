@@ -60,7 +60,16 @@ export default defineConfig({
       "react-router-dom",
       "@tanstack/react-query",
       "axios",
+      "date-fns",
+      "framer-motion",
+      "chart.js",
     ],
+    exclude: ["@heroicons/react"], // Large icon library - load on demand
+  },
+  // Enhanced build performance
+  esbuild: {
+    target: "es2020",
+    drop: process.env.NODE_ENV === "production" ? ["console", "debugger"] : [],
   },
   // Enable CSS preprocessing optimizations
   css: {

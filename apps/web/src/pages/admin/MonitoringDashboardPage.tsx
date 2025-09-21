@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Chart, registerables } from "chart.js";
 import { useAuth } from "../../hooks/useAuth";
+import { logError } from "../../utils/errorLogger";
 
 Chart.register(...registerables);
 
@@ -232,12 +233,11 @@ const MonitoringDashboard: React.FC = () => {
         }),
       ]);
 
-      console.log("Dashboard response status:", dashboardResponse.status);
-      console.log("Metrics response status:", metricsResponse.status);
+      // Dashboard and metrics data fetched successfully
 
       if (!dashboardResponse.ok) {
         const errorText = await dashboardResponse.text();
-        console.error("Dashboard API error:", errorText);
+        logError(new Error(errorText), "dashboard_api_error");
         throw new Error(
           `Dashboard API error: ${dashboardResponse.status} - ${errorText}`,
         );
@@ -254,8 +254,7 @@ const MonitoringDashboard: React.FC = () => {
       const dashboardData = await dashboardResponse.json();
       const metricsData = await metricsResponse.json();
 
-      console.log("Dashboard data received:", dashboardData);
-      console.log("Metrics data received:", metricsData);
+      // Dashboard and metrics data processed successfully
 
       setDashboardData(dashboardData);
       updateCharts(metricsData);

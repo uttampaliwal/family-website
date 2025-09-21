@@ -41,9 +41,7 @@ const envSchema = z.object({
       const username = process.env.MONGO_APP_USERNAME; // No fallback
       const password = process.env.MONGO_APP_PASSWORD; // No fallback
 
-      console.log(
-        `[environment.ts] NODE_ENV: ${process.env.NODE_ENV}, host: ${host}`,
-      );
+      // Environment info logged through structured logging in validateEnvironment
 
       if (process.env.NODE_ENV === "development" && host === "localhost") {
         // Local development against local MongoDB

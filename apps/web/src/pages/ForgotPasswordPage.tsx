@@ -44,72 +44,21 @@ const ForgotPasswordPage: React.FC = () => {
     showToast("Sending password reset email...", "info");
 
     try {
-      console.log("🚀 Starting forgot password flow...");
-
-      // Check current CSRF token before ensuring it
-      const currentToken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("XSRF-TOKEN="))
-        ?.split("=")[1];
-      console.log("📋 Current CSRF token in cookie:", currentToken);
-
       // Ensure CSRF token is available before making the request
-      console.log("🔑 Ensuring CSRF token...");
       await ensureCsrfToken();
-
-      // Check CSRF token after ensuring it
-      const newToken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("XSRF-TOKEN="))
-        ?.split("=")[1];
-      console.log("🔑 CSRF token after ensure:", newToken);
-      console.log(
-        "🔓 Decoded token:",
-        newToken ? decodeURIComponent(newToken) : null,
-      );
 
       // Add a small delay to ensure CSRF token is properly set
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      console.log("📧 Making forgot password request...");
       const response = await api.post("/api/auth/forgot-password", { email });
-      console.log("✅ Response received:", response);
-
       const data = response.data;
-      console.log("📄 Response data:", data);
 
       showToast(data.message, "success");
     } catch (error) {
-      // Add detailed error logging for debugging
-      console.error("❌ Forgot password error details:", {
-        error,
-        type: typeof error,
-        constructor: error?.constructor?.name,
-        isAxiosError: error?.isAxiosError,
-        response: error?.response,
-        request: error?.request,
-        message: error?.message,
-        code: error?.code,
-        stack: error?.stack,
-      });
-
-      // Check if it's a specific type of error
-      if (
-        error?.code === "NETWORK_ERROR" ||
-        error?.message?.includes("Network Error")
-      ) {
-        console.error("🌐 Detected Network Error specifically");
+      // Log error for debugging in development only
+      if (import.meta.env.DEV) {
+        console.error("Forgot password error:", error);
       }
-
-      if (error?.response) {
-        console.error("📊 Response error details:", {
-          status: error.response.status,
-          statusText: error.response.statusText,
-          data: error.response.data,
-          headers: error.response.headers,
-        });
-      }
-
       handleForgotPasswordError(error);
     }
   };

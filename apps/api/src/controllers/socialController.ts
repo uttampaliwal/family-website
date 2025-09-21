@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import User from "../models/User";
+import User, { IUser } from "../models/User";
 import Group from "../models/Group";
 import { logger } from "../utils/logger";
 
@@ -12,7 +12,7 @@ export const sendFriendRequest = async (
 ): Promise<Response> => {
   try {
     const { userId } = req.body;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
     if (userId === currentUserId) {
       return res
@@ -20,12 +20,12 @@ export const sendFriendRequest = async (
         .json({ message: "Cannot send friend request to yourself" });
     }
 
-    const targetUser = await User.findById(userId);
+    const targetUser = await User.findById<IUser>(userId);
     if (!targetUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const currentUser = await User.findById(currentUserId);
+    const currentUser = await User.findById<IUser>(currentUserId);
     if (!currentUser) {
       return res.status(404).json({ message: "Current user not found" });
     }
@@ -83,10 +83,10 @@ export const acceptFriendRequest = async (
 ): Promise<Response> => {
   try {
     const { requestId } = req.params;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
-    const currentUser = await User.findById(currentUserId);
-    const requestingUser = await User.findById(requestId);
+    const currentUser = await User.findById<IUser>(currentUserId);
+    const requestingUser = await User.findById<IUser>(requestId);
 
     if (!currentUser || !requestingUser) {
       return res.status(404).json({ message: "User not found" });
@@ -139,10 +139,10 @@ export const rejectFriendRequest = async (
 ): Promise<Response> => {
   try {
     const { requestId } = req.params;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
-    const currentUser = await User.findById(currentUserId);
-    const requestingUser = await User.findById(requestId);
+    const currentUser = await User.findById<IUser>(currentUserId);
+    const requestingUser = await User.findById<IUser>(requestId);
 
     if (!currentUser || !requestingUser) {
       return res.status(404).json({ message: "User not found" });
@@ -178,9 +178,9 @@ export const getFriends = async (
   res: Response,
 ): Promise<Response> => {
   try {
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
-    const user = await User.findById(currentUserId)
+    const user = await User.findById<IUser>(currentUserId)
       .populate("friends", "username email avatar isOnline lastSeen")
       .exec();
 
@@ -200,9 +200,9 @@ export const getFriendRequests = async (
   res: Response,
 ): Promise<Response> => {
   try {
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
-    const user = await User.findById(currentUserId)
+    const user = await User.findById<IUser>(currentUserId)
       .populate("friendRequests.sent", "username email avatar")
       .populate("friendRequests.received", "username email avatar")
       .exec();
@@ -227,10 +227,10 @@ export const removeFriend = async (
 ): Promise<Response> => {
   try {
     const { friendId } = req.params;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
-    const currentUser = await User.findById(currentUserId);
-    const friend = await User.findById(friendId);
+    const currentUser = await User.findById<IUser>(currentUserId);
+    const friend = await User.findById<IUser>(friendId);
 
     if (!currentUser || !friend) {
       return res.status(404).json({ message: "User not found" });
@@ -258,13 +258,13 @@ export const searchUsers = async (
 ): Promise<Response> => {
   try {
     const { q } = req.query;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
     if (!q || typeof q !== "string") {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const users = await User.find({
+    const users = await User.find<IUser>({
       _id: { $ne: currentUserId },
       $or: [
         { username: { $regex: q, $options: "i" } },
@@ -290,7 +290,7 @@ export const createGroup = async (
 ): Promise<Response> => {
   try {
     const { name, description, type, privacy } = req.body;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
     const group = new Group({
       name,
@@ -326,9 +326,9 @@ export const getGroups = async (
   res: Response,
 ): Promise<Response> => {
   try {
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
-    const user = await User.findById(currentUserId)
+    const user = await User.findById<IUser>(currentUserId)
       .populate({
         path: "groups",
         populate: {
@@ -355,7 +355,7 @@ export const joinGroup = async (
 ): Promise<Response> => {
   try {
     const { groupId } = req.params;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
     const group = await Group.findById(groupId);
     if (!group) {
@@ -397,7 +397,7 @@ export const leaveGroup = async (
 ): Promise<Response> => {
   try {
     const { groupId } = req.params;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
     const group = await Group.findById(groupId);
     if (!group) {
@@ -432,7 +432,7 @@ export const inviteToGroup = async (
   try {
     const { groupId } = req.params;
     const { userId } = req.body;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
     const group = await Group.findById(groupId);
     if (!group) {
@@ -508,7 +508,7 @@ export const updateGroup = async (
   try {
     const { groupId } = req.params;
     const { name, description, privacy } = req.body;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
     const group = await Group.findById(groupId);
     if (!group) {
@@ -547,7 +547,7 @@ export const deleteGroup = async (
 ): Promise<Response> => {
   try {
     const { groupId } = req.params;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser as IUser as IUser)?.id;
 
     const group = await Group.findById(groupId);
     if (!group) {

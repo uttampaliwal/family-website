@@ -112,7 +112,13 @@ export default async function (
       tokenLength: token ? token.length : 0,
     };
     // Use structured logging for better monitoring and debugging
-    console.error("Auth middleware error:", sanitizedError);
+    logger.error(
+      {
+        ...sanitizedError,
+        operation: "authMiddleware",
+      },
+      "Authentication failed",
+    );
 
     res.status(401).json({ message: "Token is not valid" });
     return;

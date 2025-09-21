@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getDocuments, deleteDocument } from "../services/documents";
 import type { Document } from "../services/documents";
 import { useToast } from "../hooks/useToast";
+import { logError } from "../utils/errorLogger";
 import DocumentCard from "../components/DocumentCard";
 
 // Utility function to format date
@@ -49,14 +50,7 @@ const DocumentsPage: React.FC = () => {
         const data = await getDocuments();
         setDocuments(data);
       } catch (error) {
-        console.error(
-          "Error fetching documents:",
-          JSON.stringify({
-            message: error instanceof Error ? error.message : "Unknown error",
-            timestamp: new Date().toISOString(),
-            operation: "fetchDocuments",
-          }),
-        );
+        logError(error, "fetch_documents");
         showToast(getErrorMessage(error, "fetch"), "error");
       } finally {
         setLoading(false);
@@ -74,17 +68,7 @@ const DocumentsPage: React.FC = () => {
           setDocuments((prev) => prev.filter((doc) => doc._id !== id));
           showToast("Document deleted successfully", "success");
         } catch (error) {
-          if (import.meta.env.DEV) {
-            console.error(
-              "Error deleting document:",
-              JSON.stringify({
-                message:
-                  error instanceof Error ? error.message : "Unknown error",
-                timestamp: new Date().toISOString(),
-                operation: "deleteDocument",
-              }),
-            );
-          }
+          logError(error, "delete_document", { documentId: id });
           showToast(getErrorMessage(error, "delete"), "error");
         }
       }

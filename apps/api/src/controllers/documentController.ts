@@ -1,28 +1,29 @@
 import { Request, Response } from "express";
-import Document from "../models/Document";
-import User from "../models/User";
+import Document, { IDocument } from "../models/Document";
+import User, { IUser } from "../models/User";
 import mongoose from "mongoose";
 import path from "path";
 import fs from "fs";
 import { sanitizeLog } from "../utils/logSanitizer";
 
 import { htmlEncode } from "../utils/sanitization";
+import { logError } from "../utils/logger";
 
 // Get all documents for the logged-in user
 export const getDocuments = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
+    if (!(req.user as IUser)?.id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.user?.id)) {
+    if (!mongoose.Types.ObjectId.isValid((req.user as IUser)?.id)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
     const documents = await Document.find({
       $or: [
-        { owner: String(req.user?.id) },
-        { sharedWith: String(req.user?.id) },
+        { owner: String((req.user as IUser)?.id) },
+        { sharedWith: String((req.user as IUser)?.id) },
       ],
     })
       .populate("owner", "username name") // Populate owner information
@@ -31,7 +32,9 @@ export const getDocuments = async (req: Request, res: Response) => {
 
     return res.status(200).json(documents);
   } catch (error: unknown) {
-    console.error("Error fetching documents:", error);
+    logError(error as Error, "fetch_documents", {
+      userId: (req.user as IUser)?.id,
+    });
     return res.status(500).json({ message: "Failed to retrieve documents" });
   }
 };
@@ -39,12 +42,12 @@ export const getDocuments = async (req: Request, res: Response) => {
 // Get a single document by ID
 export const getDocumentById = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
+    if (!(req.user as IUser)?.id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     // Verify user exists
-    const user = await User.findById(String(req.user?.id));
+    const user = await User.findById<IUser>(String((req.user as IUser)?.id));
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -54,8 +57,8 @@ export const getDocumentById = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid document ID" });
     }
 
-    const sanitizedUserId = String(req.user?.id);
-    const document = await Document.findOne({
+    const sanitizedUserId = String((req.user as IUser)?.id);
+    const document = await Document.findOne<IDocument>({
       _id: documentId,
       $or: [{ owner: sanitizedUserId }, { sharedWith: sanitizedUserId }],
     });
@@ -71,7 +74,10 @@ export const getDocumentById = async (req: Request, res: Response) => {
     };
     return res.status(200).json(sanitizedDocument);
   } catch (error: unknown) {
-    console.error("Error fetching document:", error);
+    logError(error as Error, "fetch_document", {
+      userId: (req.user as IUser)?.id,
+      documentId: sanitizeLog(req.params.id || "unknown"),
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -89,12 +95,12 @@ interface DocumentCreationData {
 // Create a new document
 export const createDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
+    if (!(req.user as IUser)?.id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     // Verify user exists
-    const user = await User.findById(String(req.user?.id));
+    const user = await User.findById<IUser>(String((req.user as IUser)?.id));
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -115,7 +121,7 @@ export const createDocument = async (req: Request, res: Response) => {
     const documentData: DocumentCreationData = {
       title: sanitizedTitle,
       content: sanitizedContent,
-      owner: req.user?.id,
+      owner: (req.user as IUser)?.id,
     };
 
     if (req.file) {
@@ -134,7 +140,10 @@ export const createDocument = async (req: Request, res: Response) => {
     await newDocument.save();
     return res.status(201).json(newDocument);
   } catch (error: unknown) {
-    console.error("Error creating document:", error);
+    logError(error as Error, "create_document", {
+      userId: (req.user as IUser)?.id,
+      title: sanitizeLog(req.body.title || "unknown"),
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -142,7 +151,10 @@ export const createDocument = async (req: Request, res: Response) => {
 // Update a document
 export const updateDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user?.id)) {
+    if (
+      !(req.user as IUser)?.id ||
+      !mongoose.Types.ObjectId.isValid((req.user as IUser)?.id)
+    ) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -153,9 +165,9 @@ export const updateDocument = async (req: Request, res: Response) => {
     const { title, content } = req.body;
 
     // Find document and verify ownership
-    const document = await Document.findOne({
+    const document = await Document.findOne<IDocument>({
       _id: String(req.params.id),
-      owner: String(req.user?.id),
+      owner: String((req.user as IUser)?.id),
     });
     if (!document) {
       return res.status(404).json({
@@ -169,7 +181,10 @@ export const updateDocument = async (req: Request, res: Response) => {
     await document.save();
     return res.status(200).json(document);
   } catch (error: unknown) {
-    console.error("Error updating document:", error);
+    logError(error as Error, "update_document", {
+      userId: (req.user as IUser)?.id,
+      documentId: sanitizeLog(req.params.id || "unknown"),
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -177,7 +192,10 @@ export const updateDocument = async (req: Request, res: Response) => {
 // Delete a document
 export const deleteDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user?.id)) {
+    if (
+      !(req.user as IUser)?.id ||
+      !mongoose.Types.ObjectId.isValid((req.user as IUser)?.id)
+    ) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -185,9 +203,9 @@ export const deleteDocument = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid document ID" });
     }
 
-    const document = await Document.findOneAndDelete({
+    const document = await Document.findOneAndDelete<IDocument>({
       _id: req.params.id,
-      owner: String(req.user?.id),
+      owner: String((req.user as IUser)?.id),
     });
 
     if (!document) {
@@ -198,7 +216,10 @@ export const deleteDocument = async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: "Document deleted successfully" });
   } catch (error: unknown) {
-    console.error("Error deleting document:", error);
+    logError(error as Error, "delete_document", {
+      userId: (req.user as IUser)?.id,
+      documentId: sanitizeLog(req.params.id || "unknown"),
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -206,7 +227,7 @@ export const deleteDocument = async (req: Request, res: Response) => {
 // Download a document file
 export const downloadFile = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
+    if (!(req.user as IUser)?.id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -214,11 +235,11 @@ export const downloadFile = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid document ID" });
     }
 
-    const document = await Document.findOne({
+    const document = await Document.findOne<IDocument>({
       _id: req.params.id,
       $or: [
-        { owner: String(req.user?.id) },
-        { sharedWith: String(req.user?.id) },
+        { owner: String((req.user as IUser)?.id) },
+        { sharedWith: String((req.user as IUser)?.id) },
       ],
     });
 
@@ -263,7 +284,10 @@ export const downloadFile = async (req: Request, res: Response) => {
     fileStream.pipe(res);
     return;
   } catch (error: unknown) {
-    console.error("Error downloading file:", error);
+    logError(error as Error, "download_file", {
+      userId: (req.user as IUser)?.id,
+      documentId: sanitizeLog(req.params.id || "unknown"),
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -271,7 +295,10 @@ export const downloadFile = async (req: Request, res: Response) => {
 // Share a document with another user
 export const shareDocument = async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id || !mongoose.Types.ObjectId.isValid(req.user?.id)) {
+    if (
+      !(req.user as IUser)?.id ||
+      !mongoose.Types.ObjectId.isValid((req.user as IUser)?.id)
+    ) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -291,7 +318,7 @@ export const shareDocument = async (req: Request, res: Response) => {
     }
 
     // Verify target user exists using parameterized query to prevent NoSQL injection
-    const targetUser = await User.findOne({
+    const targetUser = await User.findOne<IUser>({
       username: { $eq: sanitizedUsername },
     });
     if (!targetUser) {
@@ -299,7 +326,7 @@ export const shareDocument = async (req: Request, res: Response) => {
     }
 
     // Prevent sharing with yourself
-    if (targetUser._id.toString() === String(req.user?.id)) {
+    if (targetUser._id.toString() === String((req.user as IUser)?.id)) {
       return res
         .status(400)
         .json({ message: "Cannot share document with yourself" });
@@ -310,9 +337,9 @@ export const shareDocument = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid document ID" });
     }
 
-    const document = await Document.findOne({
+    const document = await Document.findOne<IDocument>({
       _id: String(documentId),
-      owner: String(req.user?.id),
+      owner: String((req.user as IUser)?.id),
     });
 
     if (!document) {
@@ -334,10 +361,10 @@ export const shareDocument = async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: "Document shared successfully" });
   } catch (error: unknown) {
-    console.error(
-      "Error sharing document:",
-      sanitizeLog((error as Error).message || String(error)),
-    );
+    logError(error as Error, "share_document", {
+      userId: (req.user as IUser)?.id,
+      documentId: sanitizeLog(req.params.id || "unknown"),
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
