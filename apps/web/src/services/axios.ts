@@ -1,6 +1,7 @@
 import axios, { type AxiosRequestConfig } from "axios";
 import { getCsrfToken } from "../utils/csrf";
 import type { AuthResponse } from "../types/api";
+import { logError } from "../utils/errorLogger";
 
 interface RetryAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
@@ -38,14 +39,11 @@ const api = axios.create({
 // Request interceptor to attach JWT access token and handle CSRF token
 api.interceptors.request.use(
   (config) => {
-    console.log("🔧 Axios request interceptor triggered");
-    console.log("📍 URL:", config.url);
-    console.log("🔄 Method:", config.method);
+    // Request interceptor for adding auth and CSRF tokens
 
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
-      console.log("🔑 Added Authorization header");
     }
 
     // IMPORTANT: Disable Axios's automatic CSRF handling
@@ -60,26 +58,18 @@ api.interceptors.request.use(
         .find((row) => row.startsWith("XSRF-TOKEN="))
         ?.split("=")[1];
 
-      console.log("🍪 Raw CSRF token from cookie:", csrfToken);
-
       if (csrfToken) {
         // Decode the token if it exists (it might be URL-encoded)
         const decodedCsrfToken = decodeURIComponent(csrfToken);
-        console.log("🔓 Decoded CSRF token:", decodedCsrfToken);
 
         // Always set the decoded token manually
         config.headers["X-XSRF-TOKEN"] = decodedCsrfToken;
-        console.log("✅ Manually added decoded CSRF token to headers");
-      } else {
-        console.log("⚠️ No CSRF token found in cookies");
       }
     }
-
-    console.log("📋 Final headers:", config.headers);
     return config;
   },
   (error) => {
-    console.error("❌ Axios request interceptor error:", error);
+    logError(error, "axios_request_interceptor");
     return Promise.reject(error);
   },
 );
@@ -124,30 +114,25 @@ async function handleTokenRefresh(originalRequest: RetryAxiosRequestConfig) {
 // Response interceptor to handle token refreshing
 api.interceptors.response.use(
   (response) => {
-    console.log("✅ Axios response interceptor - success");
-    console.log("📊 Status:", response.status);
-    console.log("📄 Data:", response.data);
+    // Response successful
     return response;
   },
   async (error) => {
-    console.error("❌ Axios response interceptor - error");
-    console.error("🔍 Error type:", typeof error);
-    console.error("🏗️ Error constructor:", error?.constructor?.name);
-    console.error("📝 Error message:", error?.message);
-    console.error("🔢 Error code:", error?.code);
+    // Log error with structured context
+    const errorContext = {
+      errorType: typeof error,
+      constructor: error?.constructor?.name,
+      message: error?.message,
+      code: error?.code,
+      status: error.response?.status,
+      hasResponse: !!error.response,
+      hasRequest: !!error.request,
+      hasConfig: !!error.config,
+    };
 
-    if (error.response) {
-      console.error("📊 Response error - Status:", error.response.status);
-      console.error("📄 Response error - Data:", error.response.data);
-    } else if (error.request) {
-      console.error("🌐 Request error - No response received");
-      console.error("📡 Request details:", error.request);
-    } else {
-      console.error("⚙️ Setup error:", error.message);
-    }
+    logError(error, "axios_response_interceptor", errorContext);
 
     if (!error.response || !error.config) {
-      console.error("🚫 Early return - no response or config");
       return Promise.reject(error);
     }
 
@@ -158,16 +143,13 @@ api.interceptors.response.use(
     const isFirstRetry = !originalRequest._retry;
 
     if (isTokenExpired && isFirstRetry) {
-      console.log("🔄 Attempting token refresh...");
       try {
         return await handleTokenRefresh(originalRequest);
       } catch (refreshError) {
-        console.error("❌ Token refresh failed:", refreshError);
+        logError(refreshError, "token_refresh_failed");
         return Promise.reject(refreshError);
       }
     }
-
-    console.error("🔚 Rejecting error without retry");
     return Promise.reject(error);
   },
 );

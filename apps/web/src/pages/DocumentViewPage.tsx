@@ -8,6 +8,7 @@ import {
 import { useToast } from "../hooks/useToast";
 import ShareDocumentModal from "../components/ShareDocumentModal";
 import type { Document as DocumentType } from "../services/documents";
+import { logError } from "../utils/errorLogger";
 
 const DocumentViewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +33,7 @@ const DocumentViewPage: React.FC = () => {
 
       setDocument(data);
     } catch (error) {
-      console.error("Error fetching document:", error);
+      logError(error, "fetch_document", { documentId: id });
 
       let errorMessage = "Failed to load document";
       if (error instanceof Error) {
@@ -83,7 +84,7 @@ const DocumentViewPage: React.FC = () => {
         showToast("Document deleted successfully", "success");
         navigate("/documents");
       } catch (error) {
-        console.error("Error deleting document:", error);
+        logError(error, "delete_document", { documentId: id });
         showToast("Failed to delete document", "error");
       }
     }

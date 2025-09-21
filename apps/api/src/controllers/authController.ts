@@ -10,7 +10,7 @@ import {
   createPasswordChangeConfirmationTemplate,
 } from "../utils/emailContent";
 import { createSafeEmailUrl } from "../utils/urlValidator";
-import User from "../models/User";
+import User, { IUser } from "../models/User";
 import type {
   RegisterRequest,
   LoginRequest,
@@ -23,6 +23,7 @@ import type {
 } from "../types/auth";
 import { Gender, RelationshipType } from "../types/auth.enums";
 import { sanitizeLog } from "../utils/logSanitizer";
+import { logError, logWarn } from "../utils/logger";
 
 const jwtSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
@@ -51,7 +52,7 @@ export const register = async (
   try {
     // Sanitize email input to prevent NoSQL injection
     const sanitizedEmail = sanitizeForQuery(email);
-    let user = await User.findOne({ email: sanitizedEmail });
+    let user = await User.findOne<IUser>({ email: sanitizedEmail });
     if (user) {
       return res
         .status(400)
@@ -60,7 +61,7 @@ export const register = async (
 
     // Check username availability
     const sanitizedUsername = sanitizeForQuery(username);
-    user = await User.findOne({ username: sanitizedUsername });
+    user = await User.findOne<IUser>({ username: sanitizedUsername });
     if (user) {
       return res
         .status(400)
@@ -108,7 +109,7 @@ export const register = async (
         html: adminNotificationTemplate.html,
         text: adminNotificationTemplate.text,
       }).catch((err) =>
-        console.error("Failed to send admin notification email:", err),
+        logError(err as Error, "admin_notification_email", { userId: user.id }),
       ); // Log error but don't block registration
     }
 
@@ -139,10 +140,11 @@ export const register = async (
     });
 
     if (!sendResult.success) {
-      console.warn(
-        "Verification email failed to send:",
-        sanitizeLog(sendResult.error || "Unknown error"),
-      );
+      logWarn("Verification email failed to send", {
+        error: sanitizeLog(sendResult.error || "Unknown error"),
+        userId: user.id,
+        operation: "send_verification_email",
+      });
     }
 
     // Generate JWT tokens
@@ -203,7 +205,10 @@ export const register = async (
     });
   } catch (error) {
     // Registration error - handle with structured logging
-    console.error("Registration error:", sanitizeLog(String(error)));
+    logError(error as Error, "user_registration", {
+      email: sanitizeLog(email),
+      username: sanitizeLog(username),
+    });
     return res
       .status(500)
       .json({ message: "Registration failed. Please try again later." });
@@ -242,7 +247,7 @@ export const login = async (
 
   try {
     const sanitizedIdentifier = sanitizeForQuery(identifier);
-    const user = await User.findOne({
+    const user = await User.findOne<IUser>({
       $or: [{ email: sanitizedIdentifier }, { username: sanitizedIdentifier }],
     });
     if (!user) {
@@ -363,14 +368,10 @@ export const login = async (
   } catch (err) {
     const errorObject = err as Error & { stack?: string };
     // Log full error for diagnostics during development
-    console.error("Login error object:", errorObject);
-    console.error(
-      "Login error message:",
-      sanitizeLog(errorObject?.message || String(err)),
-    );
-    if (errorObject?.stack) {
-      console.error("Login error stack:", errorObject.stack);
-    }
+    logError(errorObject, "user_login", {
+      identifier: sanitizeLog(identifier),
+      hasStack: !!errorObject?.stack,
+    });
 
     const message =
       process.env.NODE_ENV === "development"
@@ -407,7 +408,7 @@ export const verifyEmail = async (
     const normalizedToken = token.toLowerCase();
 
     // Find user by token
-    const user = await User.findOne({
+    const user = await User.findOne<IUser>({
       verificationToken: normalizedToken,
     });
 
@@ -445,7 +446,9 @@ export const verifyEmail = async (
       .json({ message: "Email verified successfully! You can now sign in." });
   } catch (error) {
     // Email verification error - handle with structured logging
-    console.error("Email verification error:", sanitizeLog(String(error)));
+    logError(error as Error, "email_verification", {
+      token: sanitizeLog(token),
+    });
     return res
       .status(500)
       .json({ message: "Email verification failed. Please try again later." });
@@ -473,7 +476,7 @@ export const resendVerification = async (
     // Sanitize the input to prevent NoSQL injection
     const sanitizedInput = String(identifier).trim();
 
-    const user = await User.findOne({
+    const user = await User.findOne<IUser>({
       $or: [{ email: sanitizedInput }, { username: sanitizedInput }],
     });
 
@@ -548,7 +551,7 @@ export const refreshToken = async (
     const decoded = jwt.verify(refreshToken, refreshTokenSecret) as {
       id: string;
     };
-    const user = await User.findById(String(decoded.id));
+    const user = await User.findById<IUser>(String(decoded.id));
 
     if (!user || !user.refreshTokens.includes(refreshToken)) {
       return res.status(403).json({ message: "Invalid refresh token." });
@@ -610,7 +613,7 @@ export const getUserProfile = async (
   try {
     // Prevent NoSQL injection by using exact string comparison
     const username = String(req.params.username);
-    const user = await User.findOne({ username: username }).select(
+    const user = await User.findOne<IUser>({ username: username }).select(
       "-password -verificationToken",
     );
 
@@ -635,7 +638,9 @@ export const getUserProfile = async (
     return res.status(200).json(sanitizedUser);
   } catch (error) {
     // Error fetching user profile - handle with structured logging
-    console.error("Get user profile error:", sanitizeLog(String(error)));
+    logError(error as Error, "get_user_profile", {
+      username: sanitizeLog(req.params.username || "unknown"),
+    });
     return res
       .status(500)
       .json({ message: "Server error. Please try again later." });
@@ -657,7 +662,7 @@ export const forgotPassword = async (
       return res.status(400).json({ message: "Invalid email format" });
     }
     const sanitizedEmail = sanitizeForQuery(email);
-    const user = await User.findOne({ email: sanitizedEmail });
+    const user = await User.findOne<IUser>({ email: sanitizedEmail });
 
     // If user exists, proceed with token generation and email sending
     if (user) {
@@ -706,7 +711,9 @@ export const forgotPassword = async (
       .status(200)
       .json({ message: "Password reset link sent to your email." });
   } catch (err: unknown) {
-    console.error("Forgot password error:", err);
+    logError(err as Error, "forgot_password", {
+      email: sanitizeLog(email),
+    });
     return res
       .status(500)
       .json({ message: "Error sending password reset email." });
@@ -733,7 +740,7 @@ export const resetPassword = async (
     // Hash the token from the request to compare with stored hashed token
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const user = await User.findOne({
+    const user = await User.findOne<IUser>({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
     });
@@ -767,7 +774,9 @@ export const resetPassword = async (
 
     return res.status(200).json({ message: "Your password has been updated." });
   } catch (err: unknown) {
-    console.error("Reset password error:", err);
+    logError(err as Error, "reset_password", {
+      tokenProvided: !!token,
+    });
     return res.status(500).json({ message: "Error resetting password." });
   }
 };
@@ -786,7 +795,7 @@ export const logout = async (
       id: string;
     };
     const userId = String(decoded.id);
-    const user = await User.findById(userId);
+    const user = await User.findById<IUser>(userId);
 
     if (user) {
       user.refreshTokens = user.refreshTokens.filter(
@@ -802,10 +811,9 @@ export const logout = async (
 
     return res.status(200).json({ message: "Logged out successfully." });
   } catch (err: unknown) {
-    console.error(
-      "Logout error:",
-      sanitizeLog((err as Error).message || String(err)),
-    );
+    logError(err as Error, "user_logout", {
+      hasRefreshToken: !!refreshToken,
+    });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -822,7 +830,7 @@ export const changePassword = async (
   res: Response<AuthResponse>,
 ): Promise<Response<AuthResponse>> => {
   try {
-    if (!req.user) {
+    if (!(req.user as IUser)) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -831,7 +839,7 @@ export const changePassword = async (
       newPassword: string;
     };
 
-    const user = await User.findById(req.user?.id);
+    const user = await User.findById<IUser>((req.user as IUser as IUser)?.id);
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
@@ -853,7 +861,9 @@ export const changePassword = async (
 
     return res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
-    console.error("Change password error:", err);
+    logError(err as Error, "change_password", {
+      userId: (req.user as IUser)?.id,
+    });
     return res.status(500).json({ message: "Failed to change password." });
   }
 };
@@ -881,7 +891,7 @@ export const checkUsernameAvailability = async (
     }
 
     // Check if username exists
-    const existingUser = await User.findOne({
+    const existingUser = await User.findOne<IUser>({
       username: username.toLowerCase(),
     });
 
@@ -892,7 +902,9 @@ export const checkUsernameAvailability = async (
         : "Username is available",
     });
   } catch (error) {
-    console.error("Error checking username availability:", error);
+    logError(error as Error, "check_username_availability", {
+      username: sanitizeLog(req.params.username || "unknown"),
+    });
     return res.status(500).json({
       available: false,
       message: "Error checking username availability",
@@ -907,19 +919,19 @@ export const updateUserProfile = async (
   const { username } = req.params;
   const { name, dateOfBirth, phoneNumber, gender, relationship } = req.body;
 
-  if (!req.user) {
+  if (!(req.user as IUser)) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   // Ensure the user making the request is the user being updated
-  if (req.user?.username !== username) {
+  if ((req.user as IUser as IUser)?.username !== username) {
     return res
       .status(403)
       .json({ message: "Forbidden: You can only update your own profile." });
   }
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne<IUser>({ username });
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
@@ -1025,7 +1037,10 @@ export const updateUserProfile = async (
         details: anyErr?.message,
       });
     }
-    console.error("Update profile error:", err);
+    logError(err as Error, "update_user_profile", {
+      username: sanitizeLog(req.params.username || "unknown"),
+      userId: (req.user as IUser)?.id,
+    });
     return res.status(500).json({ message: "Error updating user profile." });
   }
 };

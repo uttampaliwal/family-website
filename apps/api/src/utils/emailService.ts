@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { logInfo, logError } from "./logger";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -38,12 +39,18 @@ export const sendEmail = async (options: EmailOptions) => {
       subject: options.subject,
       html: sanitizedHtml,
     });
-    // Use structured logging instead of console.log for production
+    // Use structured logging for email notifications
     if (process.env.NODE_ENV === "development") {
-      console.log("Email sent successfully to:", options.to);
+      logInfo("Email sent successfully", {
+        to: options.to,
+        subject: options.subject,
+      });
     }
   } catch (error) {
-    console.error("Email service error:", error);
+    logError(error as Error, "email_service", {
+      to: options.to,
+      subject: options.subject,
+    });
     throw new Error("Failed to send email");
   }
 };

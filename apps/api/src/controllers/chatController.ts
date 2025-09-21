@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
-import Chat from "../models/Chat";
+import Chat, { IChat, IReadBy } from "../models/Chat";
+import { IUser } from "../models/User";
 import { logger } from "../utils/logger";
+import mongoose from "mongoose";
 
 export const getChats = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
   try {
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser)?.id;
 
     const chats = await Chat.find({
       "participants.user": currentUserId,
@@ -32,7 +34,7 @@ export const getChats = async (
           unreadCount: chat.messages.filter(
             (msg) =>
               !msg.readBy.some(
-                (read) => read.user?.toString() === currentUserId,
+                (read) => (read as IReadBy).user?.toString() === currentUserId,
               ),
           ).length,
         };
@@ -52,7 +54,7 @@ export const createChat = async (
 ): Promise<Response> => {
   try {
     const { participantIds, groupId, name } = req.body;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser)?.id;
 
     let chatType: "direct" | "group";
     let participants: { user: string | undefined; role: string }[];
@@ -79,7 +81,7 @@ export const createChat = async (
       ];
 
       // Check if direct chat already exists
-      const existingChat = await Chat.findOne({
+      const existingChat = await Chat.findOne<IChat>({
         type: "direct",
         "participants.user": { $all: [currentUserId, participantIds[0]] },
       });
@@ -99,7 +101,7 @@ export const createChat = async (
 
     await chat.save();
 
-    const populatedChat = await Chat.findById(chat._id)
+    const populatedChat = await Chat.findById<IChat>(chat._id)
       .populate("participants.user", "username avatar isOnline")
       .populate("group", "name avatar")
       .exec();
@@ -118,7 +120,7 @@ export const getChatMessages = async (
   try {
     const { chatId } = req.params;
     const { page = 1, limit = 50 } = req.query;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser)?.id;
 
     const chat = await Chat.findById(chatId);
     if (!chat) {
@@ -167,7 +169,7 @@ export const sendMessage = async (
   try {
     const { chatId } = req.params;
     const { content, type = "text", attachments = [] } = req.body;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser)?.id;
 
     const chat = await Chat.findById(chatId);
     if (!chat) {
@@ -187,10 +189,12 @@ export const sendMessage = async (
       content,
       type,
       attachments,
-      readBy: [{ user: currentUserId }], // Mark as read by sender
+      readBy: [{ user: new mongoose.Types.ObjectId(currentUserId) }], // Mark as read by sender
     };
 
-    chat.messages.push(message);
+    // TypeScript workaround for Mongoose subdocument array typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (chat.messages as any).push(message);
     chat.lastActivity = new Date();
     await chat.save();
 
@@ -214,7 +218,7 @@ export const markAsRead = async (
 ): Promise<Response> => {
   try {
     const { chatId, messageId } = req.params;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser)?.id;
 
     const chat = await Chat.findById(chatId);
     if (!chat) {
@@ -229,17 +233,21 @@ export const markAsRead = async (
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const message = chat.messages.id(messageId);
+    const message = chat.messages.find(
+      (msg) => msg._id?.toString() === messageId,
+    );
     if (!message) {
       return res.status(404).json({ message: "Message not found" });
     }
 
     // Check if already marked as read
     const alreadyRead = message.readBy.some(
-      (read) => read.user?.toString() === currentUserId,
+      (read) => (read as IReadBy).user?.toString() === currentUserId,
     );
     if (!alreadyRead) {
-      message.readBy.push({ user: currentUserId });
+      message.readBy.push({
+        user: new mongoose.Types.ObjectId(currentUserId),
+      } as IReadBy);
       await chat.save();
     }
 
@@ -256,14 +264,16 @@ export const deleteMessage = async (
 ): Promise<Response> => {
   try {
     const { chatId, messageId } = req.params;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser)?.id;
 
     const chat = await Chat.findById(chatId);
     if (!chat) {
       return res.status(404).json({ message: "Chat not found" });
     }
 
-    const message = chat.messages.id(messageId);
+    const message = chat.messages.find(
+      (msg) => msg._id?.toString() === messageId,
+    );
     if (!message) {
       return res.status(404).json({ message: "Message not found" });
     }
@@ -292,14 +302,16 @@ export const editMessage = async (
   try {
     const { chatId, messageId } = req.params;
     const { content } = req.body;
-    const currentUserId = req.user?.id;
+    const currentUserId = (req.user as IUser)?.id;
 
     const chat = await Chat.findById(chatId);
     if (!chat) {
       return res.status(404).json({ message: "Chat not found" });
     }
 
-    const message = chat.messages.id(messageId);
+    const message = chat.messages.find(
+      (msg) => msg._id?.toString() === messageId,
+    );
     if (!message) {
       return res.status(404).json({ message: "Message not found" });
     }

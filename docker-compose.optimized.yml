@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: family-portal-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
+    volumes:
+      - mongo-data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    ports:
+      - "27017:27017"
+    networks:
+      - family-portal-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.optimized
+      args:
+        - TURBO_TELEMETRY_DISABLED=${TURBO_TELEMETRY_DISABLED:-1}
+      cache_from:
+        - node:20-alpine
+    container_name: family-portal-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - MONGO_HOST=mongo
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_APP_USERNAME=${MONGO_APP_USERNAME}
+      - MONGO_APP_PASSWORD=${MONGO_APP_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - PORT=3000
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - family-portal-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health-check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.optimized
+      args:
+        - TURBO_TELEMETRY_DISABLED=${TURBO_TELEMETRY_DISABLED:-1}
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+      cache_from:
+        - node:20-alpine
+        - nginx:stable-alpine
+    container_name: family-portal-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-80}:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - family-portal-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+volumes:
+  mongo-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MONGO_DATA_PATH:-./data/mongo}
+
+networks:
+  family-portal-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

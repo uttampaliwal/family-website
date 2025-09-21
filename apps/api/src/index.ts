@@ -12,6 +12,7 @@ import { logger, httpLogger } from "./utils/logger.js";
 // Import routes
 import authRoutes from "./routes/auth.js";
 import feedRoutes from "./routes/feed.js";
+import docsRoutes from "./routes/docs.js";
 import healthRoutes from "./routes/health.js";
 import documentRoutes from "./routes/documents.js";
 import socialRoutes from "./routes/social.js";
@@ -26,6 +27,7 @@ import passport from "./config/passport.js";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler.js";
+// Performance middleware available for advanced setups
 
 import {
   securityHeaders,
@@ -53,40 +55,6 @@ import {
 // Environment validation is now handled in ./config/environment.js
 
 // --- 2. Database Connection ---
-const connectDb = async () => {
-  try {
-    // Debug: Log the actual URI being used (commented out)
-    // console.log("🔍 DEBUG: Actual MONGO_URI being used:", env.MONGO_URI);
-
-    // Enhanced MongoDB connection with optimized pooling and resilience
-    await mongoose.connect(env.MONGO_URI, {
-      family: 4, // Force IPv4
-      maxPoolSize: 15, // Increased pool size for better concurrency
-      minPoolSize: 2, // Maintain minimum connections
-      maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
-      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-      bufferCommands: false, // Disable mongoose buffering
-      // bufferMaxEntries: 0, // Disable mongoose buffering queue - removed as not supported in current version
-      retryWrites: true, // Enable retryable writes
-      retryReads: true, // Enable retryable reads
-      readPreference: "primary", // Read from primary for consistency
-      heartbeatFrequencyMS: 10000, // Check server status every 10 seconds
-      connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
-    });
-
-    logger.info(
-      {
-        host: new URL(env.MONGO_URI).hostname,
-        database: new URL(env.MONGO_URI).pathname.slice(1),
-      },
-      "MongoDB connection established successfully",
-    );
-  } catch (error) {
-    logger.fatal({ err: error }, "Failed to connect to MongoDB");
-    process.exit(1);
-  }
-};
 
 // Enhanced Mongoose event listeners with structured logging
 mongoose.connection.on("connected", () => {
@@ -234,7 +202,7 @@ app.use("/api", healthRoutes);
 
 // Simple test route for debugging
 app.get("/api/test", (req, res) => {
-  console.log("Test route hit!");
+  logger.info("Test route accessed");
   res.json({ message: "API is working", timestamp: new Date().toISOString() });
 });
 
@@ -253,6 +221,7 @@ app.use("/api/weather", apiRateLimit, weatherRoutes);
 app.use("/api/admin", adminApiRateLimit, adminRoutes); // Admin routes get appropriate limits
 app.use("/api/policy", policyRoutes); // Policy routes don't need rate limiting
 app.use("/api/monitoring", monitoringRateLimit, monitoringRoutes); // Monitoring dashboard with high limits for frequent refreshes
+app.use("/api/docs", docsRoutes); // API documentation - no rate limiting needed
 
 // 404 handler for unmatched routes - Fixed for path-to-regexp compatibility
 app.use((req, res) => {
@@ -280,7 +249,13 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     // First, ensure the database is connected
-    await connectDb();
+    // Import enhanced database connection
+    const { connectDatabase, queryPerformanceMiddleware } = await import(
+      "./config/database.js"
+    );
+
+    queryPerformanceMiddleware();
+    await connectDatabase();
 
     // Then, start the Express server
     const server = app.listen(env.PORT, () => {

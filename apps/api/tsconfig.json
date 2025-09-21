@@ -15,7 +15,8 @@
     "isolatedModules": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "src/types/global.d.ts"
   ],
   "exclude": [
     "dist",

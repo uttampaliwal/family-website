@@ -1,4 +1,5 @@
 import React from "react";
+import { useErrorHandler } from "../hooks/useErrorHandler";
 import { useForm, FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,6 +29,7 @@ export function Form<T extends FieldValues>({
   className = "",
   isLoading = false,
 }: FormProps<T>) {
+  const { logError } = useErrorHandler();
   const methods = useForm<T>({
     resolver: zodResolver(schema),
     defaultValues,
@@ -38,7 +40,10 @@ export function Form<T extends FieldValues>({
     try {
       await onSubmit(data);
     } catch (error) {
-      console.error("Form submission error:", error);
+      logError(error as Error, {
+        operation: "form_submission",
+        metadata: { formSchema: schema._def.typeName || "unknown" },
+      });
     }
   };
 

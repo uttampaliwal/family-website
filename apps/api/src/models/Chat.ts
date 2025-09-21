@@ -1,4 +1,57 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+// Define interfaces for subdocuments
+export interface IReadBy {
+  user: mongoose.Types.ObjectId;
+  readAt?: Date;
+}
+
+// Define the Message interface
+export interface IMessage extends Document {
+  _id: mongoose.Types.ObjectId;
+  sender: mongoose.Types.ObjectId;
+  content: string;
+  type: "text" | "image" | "file" | "system";
+  attachments: {
+    filename: string;
+    originalName: string;
+    mimetype: string;
+    size: number;
+    url: string;
+  }[];
+  readBy: IReadBy[];
+  editedAt?: Date;
+  isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Define the Chat interface
+export interface IChat extends Document {
+  _id: mongoose.Types.ObjectId;
+  name?: string;
+  type: "direct" | "group";
+  participants: {
+    user: mongoose.Types.ObjectId;
+    joinedAt: Date;
+    leftAt?: Date;
+    role: "member" | "admin";
+  }[];
+  group?: mongoose.Types.ObjectId;
+  messages: IMessage[];
+  lastMessage?: mongoose.Types.ObjectId;
+  lastActivity: Date;
+  settings: {
+    muteNotifications: {
+      user: mongoose.Types.ObjectId;
+      mutedUntil?: Date;
+    }[];
+    allowFileSharing: boolean;
+  };
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const MessageSchema = new mongoose.Schema(
   {
@@ -131,4 +184,4 @@ ChatSchema.pre("save", function (next) {
   }
 });
 
-export default mongoose.model("Chat", ChatSchema);
+export default mongoose.model<IChat>("Chat", ChatSchema);

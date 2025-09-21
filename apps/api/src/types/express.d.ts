@@ -1,8 +1,16 @@
-import { IUser } from "../models/User";
+import "express";
+import { IUser } from "../models/User.js";
 
 declare global {
   namespace Express {
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface User extends IUser {}
+    interface Request {
+      queryHints?: {
+        useIndex?: string;
+        limit?: number;
+        sort?: string;
+      };
+      user?: IUser;
+      requestId?: string;
+    }
   }
 }

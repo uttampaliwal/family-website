@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import UserData from "../models/UserData";
-import User from "../models/User";
+import UserData, { IUserData } from "../models/UserData";
+import User, { IUser } from "../models/User";
 import mongoose from "mongoose";
-import { sanitizeLog } from "../utils/logSanitizer";
+import { logError } from "../utils/logger";
 
 import { htmlEncode } from "../utils/sanitization";
 
@@ -81,7 +81,7 @@ export const getUserData = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid user ID format" });
     }
 
-    const userData = await UserData.findOne({
+    const userData = await UserData.findOne<IUserData>({
       userId: { $eq: String(userId) },
     });
 
@@ -132,7 +132,10 @@ export const getUserData = async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
       operation: "getUserData",
     };
-    console.error("Error fetching user data:", JSON.stringify(sanitizedError));
+    logError(error as Error, "fetch_user_data", {
+      userId: (req.user as IUser)?.id,
+      sanitizedError,
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -147,13 +150,15 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
     }
 
     // Check if user exists
-    const user = await User.findById(userId);
+    const user = await User.findById<IUser>(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Find existing user data or create new
-    let userData = await UserData.findOne({ userId: String(userId) });
+    let userData = await UserData.findOne<IUserData>({
+      userId: String(userId),
+    });
 
     if (!userData) {
       userData = new UserData({ userId });
@@ -193,7 +198,10 @@ export const createOrUpdateUserData = async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
       operation: "createOrUpdateUserData",
     };
-    console.error("Error updating user data:", JSON.stringify(sanitizedError));
+    logError(error as Error, "update_user_data", {
+      userId: (req.user as IUser)?.id,
+      sanitizedError,
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -216,7 +224,9 @@ export const addEvent = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid user ID format" });
     }
 
-    let userData = await UserData.findOne({ userId: { $eq: String(userId) } });
+    let userData = await UserData.findOne<IUserData>({
+      userId: { $eq: String(userId) },
+    });
 
     if (!userData) {
       userData = new UserData({ userId, events: [eventData] });
@@ -234,7 +244,9 @@ export const addEvent = async (req: Request, res: Response) => {
       event: sanitizedEvent,
     });
   } catch (error: unknown) {
-    console.error("Error adding event:", error);
+    logError(error as Error, "add_event", {
+      userId: (req.user as IUser)?.id,
+    });
     return res.status(500).json({
       message: "Server error",
       error: htmlEncode((error as Error).message || String(error)),
@@ -259,7 +271,9 @@ export const addPhoto = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid user ID format" });
     }
 
-    let userData = await UserData.findOne({ userId: { $eq: String(userId) } });
+    let userData = await UserData.findOne<IUserData>({
+      userId: { $eq: String(userId) },
+    });
 
     if (!userData) {
       userData = new UserData({ userId, photos: [photoData] });
@@ -280,7 +294,9 @@ export const addPhoto = async (req: Request, res: Response) => {
       photo: sanitizedPhoto,
     });
   } catch (error: unknown) {
-    console.error("Error adding photo:", error);
+    logError(error as Error, "add_photo", {
+      userId: (req.user as IUser)?.id,
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -306,7 +322,9 @@ export const addTask = async (req: Request, res: Response) => {
     // Sanitize userId to prevent NoSQL injection
     const sanitizedUserId = String(userId).trim();
 
-    let userData = await UserData.findOne({ userId: sanitizedUserId });
+    let userData = await UserData.findOne<IUserData>({
+      userId: sanitizedUserId,
+    });
 
     if (!userData) {
       userData = new UserData({ userId: sanitizedUserId, tasks: [taskData] });
@@ -325,7 +343,9 @@ export const addTask = async (req: Request, res: Response) => {
       task: sanitizedTask,
     });
   } catch (error: unknown) {
-    console.error("Error adding task:", error);
+    logError(error as Error, "add_task", {
+      userId: (req.user as IUser)?.id,
+    });
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -348,7 +368,9 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
       relationship: rawContactData.relationship,
     });
 
-    let userData = await UserData.findOne({ userId: { $eq: String(userId) } });
+    let userData = await UserData.findOne<IUserData>({
+      userId: { $eq: String(userId) },
+    });
 
     if (!userData) {
       userData = new UserData({
@@ -371,10 +393,9 @@ export const addEmergencyContact = async (req: Request, res: Response) => {
       contact: sanitizedContact,
     });
   } catch (error: unknown) {
-    console.error(
-      "Error adding emergency contact:",
-      sanitizeLog((error as Error).message || String(error)),
-    );
+    logError(error as Error, "add_emergency_contact", {
+      userId: (req.user as IUser)?.id,
+    });
     return res.status(500).json({
       message: "Server error",
       error: htmlEncode((error as Error).message || String(error)),

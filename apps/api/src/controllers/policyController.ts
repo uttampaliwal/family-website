@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import PolicyVersion, { IPolicyVersion } from "../models/PolicyVersion.js";
 import AdminAction from "../models/AdminAction.js";
 import { logger } from "../utils/logger.js";
+import { IUser } from "../models/User.js";
 
 // Get current active policy
 export const getCurrentPolicy = async (req: Request, res: Response) => {
@@ -12,7 +13,7 @@ export const getCurrentPolicy = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid policy type" });
     }
 
-    const policy = await PolicyVersion.findOne({
+    const policy = await PolicyVersion.findOne<IPolicyVersion>({
       policyType: type,
       isActive: true,
     }).populate("createdBy", "username");
@@ -76,14 +77,15 @@ export const createPolicyVersion = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid policy type" });
     }
 
-    // Get current active policy to set as previous version
-    const currentPolicy = await PolicyVersion.findOne({
+    const currentPolicy = await PolicyVersion.findOne<IPolicyVersion>({
       policyType,
       isActive: true,
     });
 
     // Generate version number
-    const lastVersion = await PolicyVersion.findOne({ policyType }).sort({
+    const lastVersion = await PolicyVersion.findOne<IPolicyVersion>({
+      policyType,
+    }).sort({
       createdAt: -1,
     });
 
@@ -105,7 +107,7 @@ export const createPolicyVersion = async (req: Request, res: Response) => {
       title,
       content,
       version: versionNumber,
-      createdBy: req.user?._id,
+      createdBy: (req.user as IUser)?._id,
       changeLog,
       effectiveDate: new Date(effectiveDate),
       isActive: true,
@@ -116,7 +118,7 @@ export const createPolicyVersion = async (req: Request, res: Response) => {
 
     // Log admin action
     await AdminAction.create({
-      adminId: req.user?._id,
+      adminId: (req.user as IUser)?._id,
       action: "policy_create",
       targetType: "policy",
       targetId: newPolicy._id,
@@ -136,7 +138,7 @@ export const createPolicyVersion = async (req: Request, res: Response) => {
 
     logger.info(
       {
-        adminId: req.user?._id,
+        adminId: (req.user as IUser)?._id,
         policyType,
         version: versionNumber,
         action: "policy_created",
@@ -162,7 +164,7 @@ export const updatePolicyVersion = async (req: Request, res: Response) => {
     const { policyId } = req.params;
     const { title, content, changeLog, effectiveDate } = req.body;
 
-    const policy = await PolicyVersion.findById(policyId);
+    const policy = await PolicyVersion.findById<IPolicyVersion>(policyId);
     if (!policy) {
       return res.status(404).json({ message: "Policy version not found" });
     }
@@ -193,7 +195,7 @@ export const updatePolicyVersion = async (req: Request, res: Response) => {
 
     // Log admin action
     await AdminAction.create({
-      adminId: req.user?._id,
+      adminId: (req.user as IUser)?._id,
       action: "policy_update",
       targetType: "policy",
       targetId: policy._id,

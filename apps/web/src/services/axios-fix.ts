@@ -13,31 +13,20 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-    console.log(
-      "🚀 Request starting:",
-      config.method?.toUpperCase(),
-      config.url,
-    );
-
     // Add CSRF token from cookies to headers if it exists
     if (
       config.method &&
       ["post", "put", "patch", "delete"].includes(config.method.toLowerCase())
     ) {
-      console.log("🔒 Checking for CSRF token for non-GET request");
-
       // Get the CSRF token from cookies
       const csrfToken = document.cookie
         .split("; ")
         .find((row) => row.startsWith("XSRF-TOKEN="))
         ?.split("=")[1];
 
-      console.log("🍪 Raw CSRF token from cookie:", csrfToken);
-
       if (csrfToken) {
         // Decode the token if it exists (it might be URL-encoded)
         const decodedCsrfToken = decodeURIComponent(csrfToken);
-        console.log("🔓 Decoded CSRF token:", decodedCsrfToken);
 
         // Only set manually if not already set by Axios
         if (
@@ -45,20 +34,14 @@ api.interceptors.request.use(
           !config.headers["x-xsrf-token"]
         ) {
           config.headers["X-XSRF-TOKEN"] = decodedCsrfToken;
-          console.log("✅ Manually added CSRF token to headers");
-        } else {
-          console.log("🔄 CSRF token already set by Axios");
         }
-      } else {
-        console.log("⚠️ No CSRF token found in cookies");
       }
     }
 
-    console.log("📋 Final headers:", config.headers);
     return config;
   },
   (error) => {
-    console.error("❌ Axios request interceptor error:", error);
+    console.error("Axios request interceptor error:", error);
     return Promise.reject(error);
   },
 );
@@ -66,20 +49,15 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log("✅ Response received:", response.status, response.config.url);
     return response;
   },
   (error: AxiosError) => {
-    console.error("❌ API Error:", error);
-
     // Handle specific error cases
     if (error.response) {
       const status = error.response.status;
-      //const data = error.response.data as any;
 
       // Handle authentication errors
       if (status === 401) {
-        console.log("🔐 Authentication error - redirecting to login");
         // Redirect to login page if not already there
         if (window.location.pathname !== "/login") {
           window.location.href = "/login";
