@@ -29,6 +29,7 @@ const ContactPage = lazy(() => import("./pages/ContactPage"));
 const FamilyTreePage = lazy(() => import("./pages/FamilyTreePage"));
 const AuthSuccessPage = lazy(() => import("./pages/AuthSuccessPage"));
 const ChatPage = lazy(() => import("./pages/ChatPage"));
+const FamilySocialPage = lazy(() => import("./pages/FamilySocialPage"));
 
 const SitemapPage = lazy(() => import("./pages/SitemapPage"));
 const SystemHealthPage = lazy(() => import("./pages/SystemHealthPage"));
@@ -223,6 +224,14 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <ChatPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/social"
+                      element={
+                        <ProtectedRoute>
+                          <FamilySocialPage />
                         </ProtectedRoute>
                       }
                     />
