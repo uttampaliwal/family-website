@@ -7,6 +7,7 @@ import RouteFocusManager from "./components/RouteFocusManager";
 import EnhancedErrorBoundary from "./components/EnhancedErrorBoundary";
 import ModernFooter from "./components/ModernFooter";
 import Header from "./components/Header";
+import MobileBottomNav from "./components/MobileBottomNav";
 
 import UserProfileSkeleton from "./components/UserProfileSkeleton";
 
@@ -305,6 +306,9 @@ function App() {
 
             {/* Footer */}
             <ModernFooter />
+
+            {/* Mobile Bottom Navigation */}
+            <MobileBottomNav />
 
             {/* Social Features - Only show when logged in */}
             {isLoggedIn && (
