@@ -100,6 +100,65 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Quick Actions Section */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mb-12"
+        >
+          <h2 className="text-2xl font-bold text-center mb-8 text-on-background">
+            Quick Actions
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <Link
+              to="/documents/new"
+              className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="text-4xl mb-3">📄</div>
+              <div className="font-semibold text-on-surface mb-1">
+                New Document
+              </div>
+              <div className="text-sm text-muted">Create & share</div>
+            </Link>
+
+            <Link
+              to="/chat"
+              className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="text-4xl mb-3">💬</div>
+              <div className="font-semibold text-on-surface mb-1">
+                Family Chat
+              </div>
+              <div className="text-sm text-muted">Stay connected</div>
+            </Link>
+
+            <Link
+              to="/social-enhanced"
+              className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="text-4xl mb-3">📸</div>
+              <div className="font-semibold text-on-surface mb-1">
+                Share Photo
+              </div>
+              <div className="text-sm text-muted">Capture moments</div>
+            </Link>
+
+            <Link
+              to="/family-tree"
+              className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="text-4xl mb-3">🌳</div>
+              <div className="font-semibold text-on-surface mb-1">
+                Family Tree
+              </div>
+              <div className="text-sm text-muted">Explore heritage</div>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
