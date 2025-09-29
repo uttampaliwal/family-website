@@ -21,7 +21,7 @@
   "devDependencies": {
     "dotenv-cli": "^10.0.0",
     "prettier": "^3.3.3",
-    "turbo": "^2.5.6"
+    "turbo": "^2.5.8"
   },
   "overrides": {
     "inflight": "npm:@isaacs/inflight@^1.0.6",
