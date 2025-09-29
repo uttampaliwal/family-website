@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useState } from "react";
 import HamburgerMenu from "./HamburgerMenu";
 import ThemeToggleButton from "./ThemeToggleButton";
 import LiveDateTime from "./LiveDateTime";
@@ -12,6 +13,18 @@ interface HeaderProps {
 
 const Header = ({ scrolled }: HeaderProps) => {
   const { isLoggedIn, user } = useAuth();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // For now, navigate to documents page with search term
+      // Future: implement global search results page
+      navigate(`/documents?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
 
   return (
     <header
@@ -43,26 +56,34 @@ const Header = ({ scrolled }: HeaderProps) => {
         <div className="flex items-center">
           {/* Global Search Bar */}
           <div className="hidden lg:flex items-center mr-6">
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
-                placeholder="Search family content..."
+                placeholder="Search documents, family members..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-64 px-4 py-2 pl-10 bg-gray-100 dark:bg-gray-700 border border-transparent rounded-lg focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors text-sm"
               />
-              <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <button
+                type="submit"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                aria-label="Search"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </button>
+            </form>
           </div>
 
           <div className="hidden md:flex items-center space-x-3">
@@ -102,7 +123,7 @@ const Header = ({ scrolled }: HeaderProps) => {
 
             {isLoggedIn && (
               <Link
-                to="/social"
+                to="/social-ultimate"
                 className="p-2 rounded-md hover:bg-primary/10 transition-colors duration-300"
               >
                 Social

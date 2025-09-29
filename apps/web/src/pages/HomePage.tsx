@@ -135,7 +135,7 @@ const HomePage: React.FC = () => {
             </Link>
 
             <Link
-              to="/social-enhanced"
+              to="/social-ultimate"
               className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
             >
               <div className="text-4xl mb-3">📸</div>

@@ -13,11 +13,11 @@ import { logger } from "../utils/logger.js";
  * @param res - Express response object
  * @param next - Express next function to continue middleware chain
  */
-export default async function (
+export const authMiddleware = async (
   req: ExpressRequest,
   res: ExpressResponse,
   next: ExpressNextFunction,
-): Promise<void> {
+): Promise<void> => {
   // Get token from Authorization header (Bearer token format) or x-auth-token header
   const authHeader = req.headers.authorization as string;
   const token = authHeader?.startsWith("Bearer ")
@@ -123,4 +123,6 @@ export default async function (
     res.status(401).json({ message: "Token is not valid" });
     return;
   }
-}
+};
+
+export default authMiddleware;
