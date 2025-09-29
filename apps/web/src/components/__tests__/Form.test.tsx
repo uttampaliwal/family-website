@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import Form from "../Form";
+import { Form } from "../FormLegacy";
 import { ToastProvider } from "../../context/ToastProvider";
 
 // Mock the useToast hook
@@ -48,8 +48,8 @@ describe("Form Component", () => {
       <Form fields={fields} onSubmit={mockSubmit} submitLabel="Submit" />,
     );
 
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument();
   });
 
@@ -97,8 +97,8 @@ describe("Form Component", () => {
       <Form fields={fields} onSubmit={mockSubmit} submitLabel="Submit" />,
     );
 
-    const emailInput = screen.getByLabelText("Email");
-    const messageInput = screen.getByLabelText("Message");
+    const emailInput = screen.getByLabelText(/Email/i);
+    const messageInput = screen.getByLabelText(/Message/i);
     const submitButton = screen.getByRole("button", { name: "Submit" });
 
     fireEvent.change(emailInput, { target: { value: "test@example.com" } });
@@ -128,7 +128,7 @@ describe("Form Component", () => {
       <Form fields={fields} onSubmit={mockSubmit} submitLabel="Submit" />,
     );
 
-    const emailInput = screen.getByLabelText("Email");
+    const emailInput = screen.getByLabelText(/Email/i);
     const submitButton = screen.getByRole("button", { name: "Submit" });
 
     fireEvent.change(emailInput, { target: { value: "invalid-email" } });
@@ -157,7 +157,7 @@ describe("Form Component", () => {
       <Form fields={fields} onSubmit={failingSubmit} submitLabel="Submit" />,
     );
 
-    const emailInput = screen.getByLabelText("Email");
+    const emailInput = screen.getByLabelText(/Email/i);
     const submitButton = screen.getByRole("button", { name: "Submit" });
 
     fireEvent.change(emailInput, { target: { value: "test@example.com" } });
@@ -192,7 +192,7 @@ describe("Form Component", () => {
       <Form fields={fields} onSubmit={slowSubmit} submitLabel="Submit" />,
     );
 
-    const emailInput = screen.getByLabelText("Email");
+    const emailInput = screen.getByLabelText(/Email/i);
     const submitButton = screen.getByRole("button", { name: "Submit" });
 
     fireEvent.change(emailInput, { target: { value: "test@example.com" } });

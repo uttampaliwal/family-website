@@ -34,7 +34,7 @@ const MobileBottomNav: React.FC = () => {
       activeIcon: "💬",
     },
     {
-      path: "/social-enhanced",
+      path: "/social-ultimate",
       label: "Social",
       icon: "📸",
       activeIcon: "📸",

@@ -31,6 +31,9 @@ const FamilyTreePage = lazy(() => import("./pages/FamilyTreePage"));
 const AuthSuccessPage = lazy(() => import("./pages/AuthSuccessPage"));
 const ChatPage = lazy(() => import("./pages/ChatPage"));
 const FamilySocialPage = lazy(() => import("./pages/FamilySocialPage"));
+const UltimateFamilySocialPage = lazy(
+  () => import("./pages/UltimateFamilySocialPage"),
+);
 
 const SitemapPage = lazy(() => import("./pages/SitemapPage"));
 const SystemHealthPage = lazy(() => import("./pages/SystemHealthPage"));
@@ -233,6 +236,14 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <FamilySocialPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/social-ultimate"
+                      element={
+                        <ProtectedRoute>
+                          <UltimateFamilySocialPage />
                         </ProtectedRoute>
                       }
                     />

@@ -21,21 +21,40 @@ import {
 import authMiddleware from "../middleware/authMiddleware.js";
 import { adminApiRateLimit } from "../middleware/security.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
+import {
+  adminPerformanceMiddleware,
+  getPerformanceMetrics,
+} from "../middleware/performanceMonitoring.js";
 
 const router = express.Router();
 
-// Apply authentication and admin middleware to all routes
+// Apply authentication, admin middleware, and performance monitoring to all routes
 router.use(authMiddleware);
 router.use(adminMiddleware);
+router.use(adminPerformanceMiddleware());
 
 // Admin dashboard routes with session validation
-router.get("/dashboard/stats", adminApiRateLimit, getAdminDashboardStats);
+router.get(
+  "/dashboard/stats",
+  adminApiRateLimit,
+  adminPerformanceMiddleware("dashboard_stats"),
+  getAdminDashboardStats,
+);
 router.get(
   "/dashboard/enhanced-stats",
   adminApiRateLimit,
+  adminPerformanceMiddleware("enhanced_dashboard_stats"),
   getEnhancedDashboardStats,
 );
-router.get("/activity-logs", adminApiRateLimit, getAdminActivityLogs);
+router.get(
+  "/activity-logs",
+  adminApiRateLimit,
+  adminPerformanceMiddleware("activity_logs"),
+  getAdminActivityLogs,
+);
+
+// Performance monitoring endpoints
+router.get("/performance/metrics", adminApiRateLimit, getPerformanceMetrics);
 
 // User management routes
 router.get("/users", adminApiRateLimit, getAllUsers);
