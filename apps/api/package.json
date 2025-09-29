@@ -5,16 +5,34 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
+    "start:prod": "cross-env NODE_ENV=production node dist/index.js",
     "dev": "cross-env NODE_ENV=development node --import tsx/esm --require dotenv/config --watch ./src/index.ts",
     "dev:local": "cross-env MONGO_HOST=localhost node --import tsx/esm --require dotenv/config --watch ./src/index.ts",
     "dev:docker": "cross-env MONGO_HOST=mongo node --import tsx/esm --require dotenv/config --watch ./src/index.ts",
+    "dev:debug": "cross-env NODE_ENV=development node --inspect --import tsx/esm --require dotenv/config --watch ./src/index.ts",
     "build": "tsc --build",
+    "build:watch": "tsc --build --watch",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:coverage:open": "npm run test:coverage && open coverage/lcov-report/index.html",
+    "test:unit": "jest --testPathPattern=unit",
+    "test:integration": "jest --testPathPattern=integration",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf dist coverage .turbo",
+    "preview": "npm run build && npm run start",
+    "health-check": "curl -f http://localhost:5000/health || exit 1",
     "activate-promotions": "cross-env NODE_ENV=production node --import tsx/esm --require dotenv/config ./src/scripts/activatePromotions.ts",
     "seed-admin": "cross-env NODE_ENV=development node --import tsx/esm --require dotenv/config ./src/scripts/seedAdmin.ts",
-    "test:coverage": "jest --coverage"
+    "db:migrate": "node --import tsx/esm --require dotenv/config ./src/scripts/migrate.ts",
+    "db:seed": "node --import tsx/esm --require dotenv/config ./src/scripts/seed.ts",
+    "db:reset": "node --import tsx/esm --require dotenv/config ./src/scripts/reset.ts",
+    "logs": "tail -f logs/app.log 2>/dev/null || echo 'No log file found'",
+    "deps:audit": "npm audit --audit-level=moderate"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",
@@ -72,7 +90,9 @@
     "ts-jest": "^29.2.5",
     "tsx": "^4.20.4",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.39.1"
+    "typescript-eslint": "^8.39.1",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1"
   },
   "overrides": {
     "inflight": "npm:@isaacs/inflight@^1.0.6",

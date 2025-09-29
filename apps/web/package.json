@@ -5,11 +5,31 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:host": "vite --host",
+    "dev:debug": "vite --debug",
     "build": "vite build",
-    "lint": "npx eslint .",
+    "build:analyze": "npm run build && npx vite-bundle-analyzer dist",
+    "build:watch": "vite build --watch",
+    "start": "npm run preview",
     "preview": "vite preview",
+    "preview:host": "vite preview --host",
+    "lint": "npx eslint .",
+    "lint:fix": "npx eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "type-check": "tsc --noEmit",
     "test": "vitest",
-    "test:coverage": "vitest --coverage"
+    "test:run": "vitest run",
+    "test:watch": "vitest watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:coverage:open": "npm run test:coverage && open coverage/index.html",
+    "test:unit": "vitest run src/**/*.test.{ts,tsx}",
+    "test:integration": "vitest run src/**/*.integration.test.{ts,tsx}",
+    "test:e2e": "vitest run src/**/*.e2e.test.{ts,tsx}",
+    "clean": "rimraf dist coverage .turbo node_modules/.vite",
+    "health-check": "curl -f http://localhost:4173/health || echo 'Health check endpoint not available'",
+    "deps:audit": "npm audit --audit-level=moderate"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
@@ -50,6 +70,9 @@
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.34.1",
     "vite": "^7.1.2",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "@vitest/ui": "^3.2.4"
   }
 }
