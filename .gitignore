@@ -7,6 +7,25 @@
 
 # testing
 /coverage
+**/coverage/
+coverage/
+apps/*/coverage/
+*.lcov
+lcov.info
+coverage-final.json
+coverage-summary.json
+
+# Jest and Vitest coverage artifacts  
+.nyc_output
+junit.xml
+test-results.xml
+
+# Coverage report files that change frequently
+**/coverage/**/*.html
+**/coverage/**/*.js
+**/coverage/**/*.css
+**/coverage/lcov-report/**
+**/coverage/tmp/**
 
 # production
 /build

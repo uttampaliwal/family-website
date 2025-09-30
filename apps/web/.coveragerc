@@ -1,0 +1,9 @@
+# Coverage configuration to reduce git noise
+[report]
+skip_covered = False
+skip_empty = True
+precision = 1
+
+[html]
+skip_covered = False
+skip_empty = True
