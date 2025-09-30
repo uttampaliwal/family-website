@@ -23,9 +23,8 @@ export const createDatabaseIndexes = async (): Promise<void> => {
     // Document collection indexes
     await db.collection("documents").createIndex({ author: 1 });
     await db.collection("documents").createIndex({ isPublic: 1 });
-    await db
-      .collection("documents")
-      .createIndex({ title: "text", content: "text" }); // Text search
+    // Text search index - commented out to prevent duplicate index error
+    // await db.collection("documents").createIndex({ title: "text", content: "text" });
     await db.collection("documents").createIndex({ createdAt: -1 });
     await db.collection("documents").createIndex({ author: 1, isPublic: 1 }); // Compound index
 

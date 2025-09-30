@@ -56,6 +56,7 @@ const DocumentSchema: Schema = new Schema(
 // Create optimized compound indexes for efficient document retrieval
 DocumentSchema.index({ owner: 1, updatedAt: -1 });
 DocumentSchema.index({ sharedWith: 1, updatedAt: -1 }); // For shared documents
-DocumentSchema.index({ owner: 1, title: "text" }); // Text index for title searches
+// Text index for title searches - removed to prevent duplicate index error
+// DocumentSchema.index({ owner: 1, title: "text" });
 
 export default mongoose.model<IDocument>("Document", DocumentSchema);
