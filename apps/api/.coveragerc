@@ -1,0 +1,16 @@
+# Coverage configuration to reduce git noise
+[report]
+skip_covered = False
+skip_empty = True
+precision = 1
+
+[html]
+skip_covered = False
+skip_empty = True
+
+# Exclude timestamp-related files
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
