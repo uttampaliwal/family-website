@@ -25,7 +25,7 @@
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist coverage .turbo",
     "preview": "npm run build && npm run start",
-    "health-check": "curl -f http://localhost:5000/health || exit 1",
+    "health-check": "curl -f http://localhost:3000/api/health-check || exit 1",
     "activate-promotions": "cross-env NODE_ENV=production node --import tsx/esm --require dotenv/config ./src/scripts/activatePromotions.ts",
     "seed-admin": "cross-env NODE_ENV=development node --import tsx/esm --require dotenv/config ./src/scripts/seedAdmin.ts",
     "db:migrate": "node --import tsx/esm --require dotenv/config ./src/scripts/migrate.ts",
