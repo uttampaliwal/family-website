@@ -8,15 +8,18 @@ export default defineConfig({
     setupFiles: ["./src/setupTests.ts"],
     globals: true,
     coverage: {
-      provider: 'v8',
+      provider: "v8",
       reporter: [
-        'text',
-        'text-summary',
-        'json-summary',
-        ['html', { 
-          skipEmpty: true,
-          subdir: '.'
-        }]
+        "text",
+        "text-summary",
+        "json-summary",
+        [
+          "html",
+          {
+            skipEmpty: true,
+            subdir: ".",
+          },
+        ],
       ],
       exclude: [
         "node_modules/",
@@ -25,7 +28,7 @@ export default defineConfig({
         "**/*.test.{ts,tsx}",
         "**/__tests__/**",
         "dist/**",
-        "coverage/**"
+        "coverage/**",
       ],
       // Reduce file system noise
       reportOnFailure: true,
