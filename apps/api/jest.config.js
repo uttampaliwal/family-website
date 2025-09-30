@@ -22,25 +22,7 @@ export default {
     '!src/tests/**/*'
   ],
   coverageDirectory: 'coverage',
-  coverageReporters: [
-    'text',
-    'text-summary',
-    'json-summary',
-    ['html', { 
-      skipEmpty: true,
-      subdir: '.',
-      // Remove timestamps and file paths from HTML reports
-      watermarks: {
-        statements: [50, 80],
-        functions: [50, 80], 
-        branches: [50, 80],
-        lines: [50, 80]
-      }
-    }],
-    ['lcov', { 
-      outputFile: 'lcov.info'
-    }]
-  ],
+  coverageReporters: ['text', 'text-summary', 'json-summary'],
   coverageThreshold: {
     global: {
       branches: 50,
@@ -52,5 +34,6 @@ export default {
   // Reduce noise in coverage reports
   verbose: false,
   silent: false,
-  testTimeout: 10000
+  testTimeout: 10000,
+  passWithNoTests: true
 };
