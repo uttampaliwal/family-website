@@ -1,5 +1,6 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
+import PasswordStrength from "./PasswordStrength";
 
 interface AccountInformationFormProps {
   loading: boolean;
@@ -10,6 +11,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
 }) => {
   const {
     register,
+    watch,
     formState: { errors },
   } = useFormContext();
   const [showPassword, setShowPassword] = React.useState(false);
@@ -118,6 +120,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
             {errors.password.message as string}
           </p>
         )}
+        <PasswordStrength password={watch("password") || ""} />
       </div>
       <div className="relative">
         <label

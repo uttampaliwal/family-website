@@ -1,9 +1,18 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../services/axios";
 import { motion } from "framer-motion";
-import { FaUsers, FaTrash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import {
+  FaUsers,
+  FaTrash,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaSearch,
+  FaSortUp,
+  FaSortDown,
+} from "react-icons/fa";
 import { format } from "date-fns";
+import Breadcrumb from "../../components/Breadcrumb";
 
 // --- Type Definitions ---
 
@@ -70,7 +79,7 @@ const approveUser = async (userId: string) => {
 // --- Sub-components ---
 interface UserTableProps {
   users: User[];
-  onRoleChange: (vars: { userId: string; role: string }) => void;
+  onRoleChange?: (vars: { userId: string; role: string }) => void;
   onDeleteUser: (userId: string) => void;
   onRejectUser?: (userId: string) => void;
   onRestoreUser?: (userId: string) => void;
@@ -139,9 +148,11 @@ const UserTable: React.FC<UserTableProps> = ({
                   <select
                     value={user.role}
                     onChange={(e) =>
+                      onRoleChange &&
                       onRoleChange({ userId: user._id, role: e.target.value })
                     }
                     className="input text-xs py-1 px-2 w-28"
+                    disabled={!onRoleChange}
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
@@ -220,9 +231,11 @@ const PendingUserTable: React.FC<UserTableProps> = ({
                   <select
                     value={user.role}
                     onChange={(e) =>
+                      onRoleChange &&
                       onRoleChange({ userId: user._id, role: e.target.value })
                     }
                     className="input text-xs py-1 px-2 w-28"
+                    disabled={!onRoleChange}
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
@@ -332,6 +345,9 @@ const RejectedUserTable: React.FC<UserTableProps> = ({
 
 const UserManagementPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState<keyof User>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["adminUsers"],
@@ -394,6 +410,79 @@ const UserManagementPage: React.FC = () => {
     },
   });
 
+  // Filter and sort users
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+    return users
+      .filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.username.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .sort((a, b) => {
+        let aVal: unknown = a[sortField];
+        let bVal: unknown = b[sortField];
+        if (sortField === "createdAt") {
+          aVal = new Date(aVal as string).getTime();
+          bVal = new Date(bVal as string).getTime();
+        }
+        if ((aVal as number) < (bVal as number))
+          return sortOrder === "asc" ? -1 : 1;
+        if ((aVal as number) > (bVal as number))
+          return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [users, searchTerm, sortField, sortOrder]);
+
+  const filteredPendingUsers = useMemo(() => {
+    if (!pendingUsers) return [];
+    return pendingUsers
+      .filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.username.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .sort((a, b) => {
+        let aVal: unknown = a[sortField];
+        let bVal: unknown = b[sortField];
+        if (sortField === "createdAt") {
+          aVal = new Date(aVal as string).getTime();
+          bVal = new Date(bVal as string).getTime();
+        }
+        if ((aVal as number) < (bVal as number))
+          return sortOrder === "asc" ? -1 : 1;
+        if ((aVal as number) > (bVal as number))
+          return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [pendingUsers, searchTerm, sortField, sortOrder]);
+
+  const filteredRejectedUsers = useMemo(() => {
+    if (!rejectedUsers) return [];
+    return rejectedUsers
+      .filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.username.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .sort((a, b) => {
+        let aVal: unknown = a[sortField];
+        let bVal: unknown = b[sortField];
+        if (sortField === "createdAt") {
+          aVal = new Date(aVal as string).getTime();
+          bVal = new Date(bVal as string).getTime();
+        }
+        if ((aVal as number) < (bVal as number))
+          return sortOrder === "asc" ? -1 : 1;
+        if ((aVal as number) > (bVal as number))
+          return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+  }, [rejectedUsers, searchTerm, sortField, sortOrder]);
+
   const handleDeleteUser = (userId: string) => {
     if (
       window.confirm("Are you sure you want to permanently delete this user?")
@@ -435,7 +524,38 @@ const UserManagementPage: React.FC = () => {
   };
 
   if (isLoadingUsers || isLoadingPendingUsers || isLoadingRejectedUsers) {
-    return <p>Loading users...</p>;
+    return (
+      <div className="space-y-8">
+        {/* Skeleton for search */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1 h-10 bg-muted rounded-lg animate-pulse"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-20 h-6 bg-muted rounded animate-pulse"></div>
+            <div className="w-32 h-10 bg-muted rounded animate-pulse"></div>
+            <div className="w-8 h-8 bg-muted rounded animate-pulse"></div>
+          </div>
+        </div>
+        {/* Skeleton for tables */}
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-surface rounded-lg p-6 animate-pulse">
+            <div className="w-48 h-6 bg-muted rounded mb-4"></div>
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, j) => (
+                <div key={j} className="flex items-center space-x-4">
+                  <div className="w-12 h-4 bg-muted rounded"></div>
+                  <div className="w-32 h-4 bg-muted rounded"></div>
+                  <div className="w-16 h-4 bg-muted rounded"></div>
+                  <div className="w-20 h-4 bg-muted rounded"></div>
+                  <div className="w-16 h-4 bg-muted rounded"></div>
+                  <div className="w-20 h-4 bg-muted rounded"></div>
+                  <div className="w-24 h-8 bg-muted rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
@@ -444,20 +564,57 @@ const UserManagementPage: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      <Breadcrumb
+        items={[{ label: "Admin", to: "/admin" }, { label: "User Management" }]}
+      />
+
+      {/* Search and Sort Controls */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
+          <input
+            type="text"
+            placeholder="Search users by name, email, or username..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="input pl-10 w-full"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted">Sort by:</span>
+          <select
+            value={sortField}
+            onChange={(e) => setSortField(e.target.value as keyof User)}
+            className="input"
+          >
+            <option value="createdAt">Date Created</option>
+            <option value="name">Name</option>
+            <option value="email">Email</option>
+            <option value="role">Role</option>
+          </select>
+          <button
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="btn btn-secondary p-2"
+          >
+            {sortOrder === "asc" ? <FaSortUp /> : <FaSortDown />}
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-8">
         <div>
-          {users && (
+          {filteredUsers && (
             <UserTable
-              users={users}
+              users={filteredUsers}
               onRoleChange={roleMutation.mutate}
               onDeleteUser={handleDeleteUser}
             />
           )}
         </div>
         <div>
-          {pendingUsers && (
+          {filteredPendingUsers && (
             <PendingUserTable
-              users={pendingUsers}
+              users={filteredPendingUsers}
               onRoleChange={roleMutation.mutate}
               onDeleteUser={handleDeleteUser}
               onRejectUser={handleRejectUser}
@@ -466,9 +623,10 @@ const UserManagementPage: React.FC = () => {
           )}
         </div>
         <div>
-          {rejectedUsers && (
+          {filteredRejectedUsers && (
             <RejectedUserTable
-              users={rejectedUsers}
+              users={filteredRejectedUsers}
+              onRoleChange={roleMutation.mutate}
               onDeleteUser={handleDeleteUser}
               onRestoreUser={handleRestoreUser}
             />
