@@ -42,7 +42,11 @@ const RegisterPage: React.FC = () => {
   React.useEffect(() => {
     const errorValues = Object.values(errors);
     if (errorValues.length > 0) {
-      showToast(errorValues[0].message || "An error occurred", "error");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      showToast(
+        (errorValues[0] as any)?.message || "An error occurred",
+        "error",
+      );
     }
   }, [errors, showToast]);
 
@@ -123,12 +127,12 @@ const RegisterPage: React.FC = () => {
         <div className="auth-form">
           <div className="auth-header"></div>
 
-          <div className="p-8">
+          <div className="p-4 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
                 <div
                   className={
-                    "w-8 h-8 rounded-full flex items-center justify-center " +
+                    "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm " +
                     (step === 1
                       ? "bg-primary text-on-primary"
                       : "bg-surface text-muted")
@@ -138,18 +142,20 @@ const RegisterPage: React.FC = () => {
                 </div>
                 <span
                   className={
-                    "ml-2 text-sm " +
-                    (step === 1 ? "text-base font-medium" : "text-muted")
+                    "ml-2 text-xs sm:text-sm " +
+                    (step === 1
+                      ? "text-sm sm:text-base font-medium"
+                      : "text-muted")
                   }
                 >
                   Personal Details
                 </span>
               </div>
-              <div className="flex-1 mx-4 h-1 bg-border"></div>
+              <div className="flex-1 mx-2 sm:mx-4 h-0.5 sm:h-1 bg-border"></div>
               <div className="flex items-center">
                 <div
                   className={
-                    "w-8 h-8 rounded-full flex items-center justify-center " +
+                    "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm " +
                     (step === 2
                       ? "bg-primary text-on-primary"
                       : "bg-surface text-muted")
@@ -159,8 +165,10 @@ const RegisterPage: React.FC = () => {
                 </div>
                 <span
                   className={
-                    "ml-2 text-sm " +
-                    (step === 2 ? "text-base font-medium" : "text-muted")
+                    "ml-2 text-xs sm:text-sm " +
+                    (step === 2
+                      ? "text-sm sm:text-base font-medium"
+                      : "text-muted")
                   }
                 >
                   Account Info
@@ -172,7 +180,7 @@ const RegisterPage: React.FC = () => {
           <FormProvider {...methods}>
             <form
               onSubmit={methods.handleSubmit(onSubmit)}
-              className="p-8 pt-2"
+              className="p-4 sm:p-8 pt-2"
             >
               {step === 1 && <PersonalDetailsForm loading={loading} />}
               {step === 2 && <AccountInformationForm loading={loading} />}
