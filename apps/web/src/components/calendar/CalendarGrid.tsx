@@ -13,13 +13,13 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   getEventsForDate,
 }) => {
   return (
-    <table className="w-full border-collapse bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+    <table className="w-full border-collapse bg-surface rounded-lg overflow-hidden border border-border">
       <thead>
         <tr>
           {weekdayLabels.map((day) => (
             <th
               key={day}
-              className="p-2 text-center text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800"
+              className="p-2 text-center text-sm font-semibold text-on-surface bg-surface/80 border-b border-border"
             >
               {day}
             </th>

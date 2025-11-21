@@ -30,7 +30,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   return (
     <div className="flex justify-between items-center mb-6">
       <div className="flex items-center space-x-4">
-        <h3 className="text-xl font-semibold text-base">
+        <h3 className="text-xl font-semibold text-on-surface">
           {selectedDate.toLocaleString("default", {
             month: "long",
             year: "numeric",
@@ -39,14 +39,14 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         <div className="flex space-x-2">
           <button
             onClick={handlePrevMonth}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-2 rounded-lg hover:bg-surface text-on-surface"
             aria-label="Previous month"
           >
             &larr;
           </button>
           <button
             onClick={handleNextMonth}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-2 rounded-lg hover:bg-surface text-on-surface"
             aria-label="Next month"
           >
             &rarr;
@@ -60,8 +60,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             onClick={() => setView(viewType)}
             className={`px-3 py-1 rounded-lg ${
               view === viewType
-                ? "bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300"
-                : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                ? "bg-primary text-on-primary"
+                : "hover:bg-surface text-on-surface"
             }`}
           >
             {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
@@ -69,7 +69,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         ))}
         <button
           onClick={onNewEvent}
-          className="px-3 py-1 rounded-lg bg-primary-500 text-white hover:bg-primary-600"
+          className="px-3 py-1 rounded-lg bg-primary text-on-primary hover:bg-primary/80"
         >
           + New Event
         </button>

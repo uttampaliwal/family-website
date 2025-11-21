@@ -11,13 +11,11 @@ const Day: React.FC<DayProps> = ({ day, events }) => {
   const { date, isCurrentMonth } = day;
 
   const dayClasses = `min-h-[120px] p-2 ${
-    isCurrentMonth ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900"
+    isCurrentMonth ? "bg-surface" : "bg-surface/30"
   }`;
 
-  const dateClasses = `text-sm ${
-    isCurrentMonth
-      ? "text-gray-900 dark:text-white"
-      : "text-gray-400 dark:text-gray-600"
+  const dateClasses = `text-sm font-medium ${
+    isCurrentMonth ? "text-on-surface" : "text-muted"
   }`;
 
   return (

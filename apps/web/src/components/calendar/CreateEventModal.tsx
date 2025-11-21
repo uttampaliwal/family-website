@@ -46,14 +46,16 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">Create New Event</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+      <div className="bg-surface p-6 rounded-lg shadow-xl w-full max-w-md border border-border">
+        <h2 className="text-2xl font-bold mb-4 text-on-surface">
+          Create New Event
+        </h2>
+        {error && <p className="text-error mb-4">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
               htmlFor="title"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-on-surface"
             >
               Title
             </label>
