@@ -4,11 +4,11 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        "dist/**"
-      ]
+      "outputs": ["dist/**"]
     },
     "lint": {},
+    "lint:fix": {},
+    "type-check": {},
     "test": {},
     "dev": {
       "cache": false,
