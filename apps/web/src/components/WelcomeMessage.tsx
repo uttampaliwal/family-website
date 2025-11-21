@@ -28,7 +28,7 @@ const WelcomeMessage: React.FC = () => {
         >
           युवा कुल्या
         </h1>
-        <h2 className="text-3xl md:text-4xl font-semibold text-primary/80 mb-4 font-playfair-display text-lg">
+        <h2 className="text-3xl md:text-4xl font-semibold text-on-surface mb-4 font-playfair-display">
           Yuva Kulya
         </h2>
         <p className="text-lg text-muted italic">
@@ -38,10 +38,10 @@ const WelcomeMessage: React.FC = () => {
 
       {/* Personal Greeting */}
       <div className="bg-gradient-to-r from-surface/50 to-background/50 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-primary/20">
-        <h3 className="text-2xl md:text-3xl font-bold gradient-text mb-2">
+        <h3 className="text-2xl md:text-3xl font-bold text-on-surface mb-2">
           {greeting}, {user?.name || "Dear Family Member"}!
         </h3>
-        <p className="body-lg text-readable-muted">
+        <p className="text-muted">
           Welcome to our vibrant family portal where memories are made and bonds
           grow stronger.
         </p>
