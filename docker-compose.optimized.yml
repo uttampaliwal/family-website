@@ -1,8 +1,8 @@
-version: '3.8'
+version: "3.8"
 
 services:
   mongo:
-    image: mongo:7.0
+    image: mongo:8
     container_name: family-portal-mongo
     restart: unless-stopped
     environment:
@@ -25,10 +25,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 1G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
 
   api:
@@ -69,10 +69,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 1G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
     logging:
       driver: "json-file"
@@ -108,10 +108,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 256M
     logging:
       driver: "json-file"
