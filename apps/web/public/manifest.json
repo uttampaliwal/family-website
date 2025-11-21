@@ -1,0 +1,21 @@
+{
+  "name": "Family Portal",
+  "short_name": "FamilyPortal",
+  "description": "A comprehensive family management portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f4e3",
+  "theme_color": "#8b4513",
+  "icons": [
+    {
+      "src": "/family-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/family-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

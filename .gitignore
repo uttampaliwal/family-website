@@ -63,6 +63,7 @@ packages/tests/
 .grok
 .env
 .env.example
+.env.production
 docker-compose.prod.yml
 commit_message.txt
 example.txt

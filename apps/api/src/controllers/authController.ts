@@ -209,9 +209,10 @@ export const register = async (
       email: sanitizeLog(email),
       username: sanitizeLog(username),
     });
-    return res
-      .status(500)
-      .json({ message: "Registration failed. Please try again later." });
+    return res.status(500).json({
+      message:
+        "We encountered an issue while creating your account. Please try again.",
+    });
   }
 };
 
@@ -376,7 +377,7 @@ export const login = async (
     const message =
       process.env.NODE_ENV === "development"
         ? `Login failed: ${errorObject?.message || "Unknown error"}`
-        : "An error occurred during login.";
+        : "We couldn't sign you in right now. Please try again.";
 
     return res.status(500).json({ message });
   }
