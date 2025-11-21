@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: mongo:7.0
+    image: mongo:8
     container_name: family-website-mongo
     volumes:
       - mongo-data:/data/db
@@ -14,9 +14,9 @@ services:
       # This simpler form passes credentials as separate arguments, which is more robust and less
       # prone to errors from special characters in passwords than using a full URI string.
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s   # Check every 10 seconds
-      timeout: 10s    # The check must complete within 10 seconds
-      retries: 3      # Retry 3 times before failing
+      interval: 10s # Check every 10 seconds
+      timeout: 10s # The check must complete within 10 seconds
+      retries: 3 # Retry 3 times before failing
       start_period: 30s # A more reasonable 30-second grace period
     env_file:
       - ./.env

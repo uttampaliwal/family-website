@@ -32,25 +32,23 @@ const envSchema = z.object({
   MONGO_DB_NAME: z.string().default("family-portal"),
   MONGO_APP_USERNAME: z.string().min(1, "MONGO_APP_USERNAME is required"),
   MONGO_APP_PASSWORD: z.string().min(1, "MONGO_APP_PASSWORD is required"),
-  MONGO_URI: z
-    .string()
-    .optional()
-    .transform(() => {
-      const host = process.env.MONGO_HOST || "localhost";
-      const database = process.env.MONGO_DB_NAME || "family-portal"; // Use MONGO_DB_NAME
-      const username = process.env.MONGO_APP_USERNAME; // No fallback
-      const password = process.env.MONGO_APP_PASSWORD; // No fallback
+  MONGO_URI: z.any().transform(() => {
+    const host = process.env.MONGO_HOST || "localhost";
+    const database = process.env.MONGO_DB_NAME || "family-portal";
+    const username = process.env.MONGO_APP_USERNAME;
+    const password = process.env.MONGO_APP_PASSWORD;
 
-      // Environment info logged through structured logging in validateEnvironment
+    if (
+      (process.env.NODE_ENV || "development") === "development" &&
+      host === "localhost"
+    ) {
+      // Local development against local MongoDB (no auth)
+      return `mongodb://localhost:27017/${database}`;
+    }
 
-      if (process.env.NODE_ENV === "development" && host === "localhost") {
-        // Local development against local MongoDB
-        return `mongodb://localhost:27017/${database}`;
-      }
-
-      // Docker and other environments
-      return `mongodb://${username}:${password}@${host}:27017/${database}?authSource=admin`;
-    }),
+    // Docker and production environments (with auth)
+    return `mongodb://${username}:${password}@${host}:27017/${database}?authSource=admin`;
+  }),
 
   // JWT Configuration
   JWT_SECRET: z

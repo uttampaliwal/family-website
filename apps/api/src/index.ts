@@ -125,30 +125,36 @@ app.use(
 // Re-enable the original CORS library with correct configuration
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests without origin (mobile apps, curl)
-      if (!origin) return callback(null, true);
+    origin:
+      env.NODE_ENV === "development"
+        ? true
+        : (origin, callback) => {
+            // Allow requests without origin (mobile apps, curl)
+            if (!origin) return callback(null, true);
 
-      // Support comma-separated env of allowed origins
-      const configured = (env.FRONTEND_URL || "")
-        .split(",")
-        .map((o) => o.trim())
-        .filter(Boolean);
+            // Support comma-separated env of allowed origins
+            const configured = (env.FRONTEND_URL || "")
+              .split(",")
+              .map((o) => o.trim())
+              .filter(Boolean);
 
-      const isConfiguredAllowed = configured.includes(origin);
+            const isConfiguredAllowed = configured.includes(origin);
 
-      // Allow localhost:5173 and 127.0.0.1:5173
-      const isLocalDev =
-        /^(http:\/\/localhost:5173|http:\/\/127\.0\.0\.1:5173)$/i.test(origin);
+            // Allow localhost on any port
+            const isLocalDev =
+              /^http:\/\/localhost:\d+$/i.test(origin) ||
+              /^http:\/\/127\.0\.0\.1:\d+$/i.test(origin);
 
-      // Allow any LAN IPv4 at port 5173, e.g., http://192.168.x.y:5173
-      const isLanDev = /^http:\/\/\d{1,3}(?:\.\d{1,3}){3}:5173$/i.test(origin);
+            // Allow any LAN IPv4 on any port
+            const isLanDev = /^http:\/\/\d{1,3}(?:\.\d{1,3}){3}:\d+$/i.test(
+              origin,
+            );
 
-      if (isConfiguredAllowed || isLocalDev || isLanDev) {
-        return callback(null, true);
-      }
-      return callback(new Error(`CORS: Origin not allowed: ${origin}`));
-    },
+            if (isConfiguredAllowed || isLocalDev || isLanDev) {
+              return callback(null, true);
+            }
+            return callback(new Error(`CORS: Origin not allowed: ${origin}`));
+          },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
@@ -260,7 +266,7 @@ const startServer = async () => {
     await connectDatabase();
 
     // Then, start the Express server
-    const server = app.listen(env.PORT, () => {
+    const server = app.listen(env.PORT, "0.0.0.0", () => {
       logger.info(
         {
           port: env.PORT,
