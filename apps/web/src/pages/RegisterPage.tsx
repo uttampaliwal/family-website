@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useForm, FormProvider } from "react-hook-form";
-import type { SubmitHandler } from "react-hook-form";
+import type { SubmitHandler, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { isAxiosError } from "axios";
@@ -42,9 +42,8 @@ const RegisterPage: React.FC = () => {
   React.useEffect(() => {
     const errorValues = Object.values(errors);
     if (errorValues.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       showToast(
-        (errorValues[0] as any)?.message || "An error occurred",
+        (errorValues[0] as FieldError)?.message || "An error occurred",
         "error",
       );
     }
