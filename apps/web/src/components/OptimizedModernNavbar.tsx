@@ -135,6 +135,23 @@ const OptimizedModernNavbar: React.FC<OptimizedModernNavbarProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "k") {
+        event.preventDefault();
+        setIsSearchOpen(true);
+      }
+      if (event.key === "Escape") {
+        setIsSearchOpen(false);
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleLogout = async () => {
     try {
       await logout();
