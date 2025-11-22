@@ -18,7 +18,24 @@
     "quickActions": "फैमिली हब",
     "recentActivity": "हाल की गतिविधियां",
     "familyTools": "पारिवारिक उपकरण",
-    "viewAll": "सभी देखें"
+    "viewAll": "सभी देखें",
+    "searchPlaceholder": "परिवार, दस्तावेज़, कार्यक्रम खोजें..."
+  },
+  "header": {
+    "features": "सुविधाएँ",
+    "family": "परिवार",
+    "documents": "दस्तावेज़",
+    "admin": "व्यवस्थापक"
+  },
+  "welcome": {
+    "goodMorning": "सुप्रभात",
+    "goodAfternoon": "नमस्कार",
+    "goodEvening": "शुभ संध्या",
+    "member": "परिवार के सदस्य",
+    "subtitle": "आपके परिवार के डिजिटल अभयारण्य में आपका स्वागत है।"
+  },
+  "announcements": {
+    "label": "पारिवारिक घोषणाएं"
   },
   "actions": {
     "familyTree": "वंशावली",

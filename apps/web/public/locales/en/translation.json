@@ -18,7 +18,24 @@
     "quickActions": "Family Hub",
     "recentActivity": "Recent Activity",
     "familyTools": "Family Tools",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "searchPlaceholder": "Search family, documents, events..."
+  },
+  "header": {
+    "features": "Features",
+    "family": "Family",
+    "documents": "Documents",
+    "admin": "Admin"
+  },
+  "welcome": {
+    "goodMorning": "Good Morning",
+    "goodAfternoon": "Good Afternoon",
+    "goodEvening": "Good Evening",
+    "member": "Family Member",
+    "subtitle": "Welcome to your family's digital sanctuary."
+  },
+  "announcements": {
+    "label": "FAMILY ANNOUNCEMENTS"
   },
   "actions": {
     "familyTree": "Family Tree",
