@@ -45,21 +45,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ isOpen, onToggle }) => {
         leaveFrom="transform opacity-100 scale-100 translate-y-0"
         leaveTo="transform opacity-0 scale-95 -translate-y-2"
       >
-        <div
-          className="absolute right-0 mt-2 w-56 origin-top-right bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-2xl overflow-hidden z-50 dark:bg-gray-900/80 focus:outline-none"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-            backdropFilter: "blur(20px) saturate(180%)",
-            WebkitBackdropFilter: "blur(20px) saturate(180%)",
-          }}
-        >
+        <div className="absolute right-0 mt-2 w-56 origin-top-right bg-surface/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 focus:outline-none">
           <div className="p-1">
-            <div className="px-3 py-2 border-b border-white/10 mb-1">
-              <p className="text-xs text-text-muted dark:text-white/60">
-                Signed in as
-              </p>
-              <p className="font-medium text-text-base dark:text-white truncate">
+            <div className="px-3 py-2 border-b border-border/50 mb-1">
+              <p className="text-xs text-text-muted">Signed in as</p>
+              <p className="font-medium text-text-base truncate">
                 {user.username}
               </p>
             </div>
@@ -67,7 +57,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ isOpen, onToggle }) => {
             <Link
               to={`/profile/${encodeURIComponent(user.username)}`}
               onClick={onToggle}
-              className="group flex items-center w-full px-3 py-2 text-sm rounded-lg text-text-base dark:text-white/90 hover:bg-white/5 dark:hover:bg-gray-700/30 transition-all duration-200"
+              className="group flex items-center w-full px-3 py-2 text-sm rounded-lg text-text-base hover:bg-primary/5 transition-all duration-200"
             >
               <span className="mr-3">👤</span>
               Profile
@@ -76,13 +66,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ isOpen, onToggle }) => {
             <Link
               to="/settings"
               onClick={onToggle}
-              className="group flex items-center w-full px-3 py-2 text-sm rounded-lg text-text-base dark:text-white/90 hover:bg-white/5 dark:hover:bg-gray-700/30 transition-all duration-200"
+              className="group flex items-center w-full px-3 py-2 text-sm rounded-lg text-text-base hover:bg-primary/5 transition-all duration-200"
             >
               <span className="mr-3">⚙️</span>
               Settings
             </Link>
 
-            <div className="border-t border-white/10 mt-1 pt-1">
+            <div className="border-t border-border/50 mt-1 pt-1">
               <button
                 onClick={() => {
                   logout();

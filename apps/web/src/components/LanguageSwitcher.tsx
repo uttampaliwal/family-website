@@ -57,15 +57,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         leaveFrom="transform opacity-100 scale-100 translate-y-0"
         leaveTo="transform opacity-0 scale-95 -translate-y-2"
       >
-        <div
-          className="absolute right-0 mt-2 w-40 origin-top-right bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-2xl overflow-hidden z-50 dark:bg-gray-900/80 focus:outline-none"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-            backdropFilter: "blur(20px) saturate(180%)",
-            WebkitBackdropFilter: "blur(20px) saturate(180%)",
-          }}
-        >
+        <div className="absolute right-0 mt-2 w-40 origin-top-right bg-surface/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 focus:outline-none">
           <div className="p-1">
             {languages.map((language) => (
               <button
@@ -73,8 +65,8 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
                 onClick={() => changeLanguage(language.code)}
                 className={`${
                   currentLanguage.code === language.code
-                    ? "bg-white/10 dark:bg-gray-700/50 text-primary dark:text-white"
-                    : "text-text-base dark:text-white/90 hover:bg-white/5 dark:hover:bg-gray-700/30"
+                    ? "bg-primary/10 text-primary"
+                    : "text-text-base hover:bg-primary/5"
                 } group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-all duration-200`}
               >
                 <span className="mr-3 text-lg">{language.flag}</span>
