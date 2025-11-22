@@ -11,7 +11,6 @@ import Logo from "./Logo";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {
   ChevronDownIcon,
-  HomeIcon,
   DocumentTextIcon,
   ChatBubbleLeftRightIcon,
   UserGroupIcon,
@@ -178,13 +177,7 @@ const Header = ({ scrolled }: HeaderProps) => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="absolute top-full left-0 mt-2 w-72 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-2xl overflow-hidden z-50 dark:bg-gray-900/80"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-            backdropFilter: "blur(20px) saturate(180%)",
-            WebkitBackdropFilter: "blur(20px) saturate(180%)",
-          }}
+          className="absolute top-full left-0 mt-2 w-72 bg-surface/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden z-50"
         >
           <div className="p-2">
             {items.map((item) => (
@@ -192,13 +185,15 @@ const Header = ({ scrolled }: HeaderProps) => {
                 key={item.to}
                 to={item.to}
                 onClick={onClose}
-                className="group flex items-center p-3 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/50 transition-all duration-200 text-text-base dark:text-white/90 hover:text-primary dark:hover:text-white"
+                className="group flex items-center p-3 rounded-lg hover:bg-primary/5 transition-all duration-200"
               >
                 <item.icon className="h-5 w-5 mr-3 text-secondary group-hover:text-primary transition-colors" />
                 <div>
-                  <div className="font-medium text-sm">{item.label}</div>
+                  <div className="font-medium text-sm text-text-base group-hover:text-primary transition-colors">
+                    {item.label}
+                  </div>
                   {item.description && (
-                    <div className="text-xs text-text-muted dark:text-white/60 group-hover:text-text-base dark:group-hover:text-white/80">
+                    <div className="text-xs text-text-muted group-hover:text-text-base transition-colors">
                       {item.description}
                     </div>
                   )}
@@ -216,13 +211,13 @@ const Header = ({ scrolled }: HeaderProps) => {
       role="banner"
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-white/10 ${
         scrolled
-          ? "bg-surface/95 backdrop-blur-md shadow-lg py-2"
-          : "bg-surface/80 backdrop-blur-sm py-3"
+          ? "bg-surface/95 backdrop-blur-md shadow-lg h-16"
+          : "bg-surface/80 backdrop-blur-sm h-20"
       }`}
     >
-      <div className="container mx-auto px-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-full flex items-center justify-between">
         {/* Logo Section */}
-        <div className="flex items-center w-[250px]">
+        <div className="flex items-center w-[250px] shrink-0">
           <Link to="/" className="flex items-center group gap-3">
             <div
               className={`relative flex items-center justify-center bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all duration-300 ${
@@ -278,17 +273,8 @@ const Header = ({ scrolled }: HeaderProps) => {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 w-[450px] justify-end">
+        <div className="flex items-center gap-2 min-w-[450px] w-[450px] justify-end shrink-0">
           <div className="hidden md:flex items-center gap-1">
-            {/* Home Link */}
-            <Link
-              to="/"
-              className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
-              title={t("common:nav.home")}
-            >
-              <HomeIcon className="h-6 w-6" />
-            </Link>
-
             {/* Features dropdown for non-logged users */}
             {!isLoggedIn && (
               <div
@@ -299,7 +285,7 @@ const Header = ({ scrolled }: HeaderProps) => {
               >
                 <button
                   onClick={() => toggleDropdown("features")}
-                  className={`flex items-center justify-center w-[110px] px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center justify-center w-[110px] h-10 px-3 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                     openDropdown === "features"
                       ? "text-primary bg-primary/10"
                       : "text-text-base hover:text-primary hover:bg-primary/5"
@@ -329,7 +315,7 @@ const Header = ({ scrolled }: HeaderProps) => {
                 >
                   <button
                     onClick={() => toggleDropdown("family")}
-                    className={`p-2 rounded-lg transition-all duration-200 ${
+                    className={`h-10 w-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                       openDropdown === "family"
                         ? "text-primary bg-primary/10"
                         : "text-text-muted hover:text-primary hover:bg-primary/5"
@@ -354,7 +340,7 @@ const Header = ({ scrolled }: HeaderProps) => {
                 >
                   <button
                     onClick={() => toggleDropdown("documents")}
-                    className={`p-2 rounded-lg transition-all duration-200 ${
+                    className={`h-10 w-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                       openDropdown === "documents"
                         ? "text-primary bg-primary/10"
                         : "text-text-muted hover:text-primary hover:bg-primary/5"
@@ -374,7 +360,7 @@ const Header = ({ scrolled }: HeaderProps) => {
                 {user?.role === "admin" && (
                   <Link
                     to="/admin"
-                    className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
+                    className="h-10 w-10 flex items-center justify-center rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
                     title="Admin"
                   >
                     <ShieldCheckIcon className="h-6 w-6" />
