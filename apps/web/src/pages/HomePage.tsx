@@ -56,48 +56,34 @@ const HomePage: React.FC = () => {
     <div className="min-h-screen bg-background">
       {/* Enhanced Hero section with dynamic background */}
       {/* Enhanced Hero section with dynamic background */}
-      <div className="relative h-64 overflow-hidden bg-surface/50">
+      {/* Enhanced Hero section with dynamic background */}
+      <div className="relative h-80 overflow-hidden bg-surface">
         {/* Animated background gradients */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10"></div>
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, 5, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute -top-10 -right-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1.1, 1, 1.1],
-            rotate: [0, -3, 0],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute -bottom-10 -left-10 w-48 h-48 bg-secondary/5 rounded-full blur-2xl"
-        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-surface to-secondary/5"></div>
+
+        {/* Decorative Elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-1/2 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
+        </div>
 
         {/* Hero content */}
-        <div className="relative z-10 h-full flex items-center justify-center text-center px-4">
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 pb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-6xl font-extrabold text-text-base mb-2 tracking-tight">
-              Welcome to <span className="text-primary">Yuva Kulya</span>
+            <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4 tracking-wide uppercase">
+              The Official Family Portal
+            </span>
+            <h1 className="text-5xl md:text-7xl font-extrabold text-text-base mb-2 tracking-tight leading-tight">
+              Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Yuva Kulya</span>
             </h1>
-            <h2 className="text-2xl md:text-3xl font-bold text-secondary mb-4 font-serif">
+            <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-6 font-serif">
               युवा कुल्या
             </h2>
-            <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium">
+            <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium leading-relaxed">
               Your secure family hub for generations to come.
             </p>
           </motion.div>
