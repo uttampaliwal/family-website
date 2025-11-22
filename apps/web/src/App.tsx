@@ -163,10 +163,17 @@ function App() {
         <ToastProvider>
           <RouteFocusManager />
           <div className="bg-background text-text-base app-root">
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 btn btn-primary"
+            >
+              Skip to main content
+            </a>
             <Header scrolled={scrolled} />
 
             {/* Main Content Area */}
             <main
+              id="main-content"
               role="main"
               className="w-full pt-28 main-flex-auto"
               tabIndex={-1}
