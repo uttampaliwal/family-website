@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
 
 // Configuration constants for better maintainability
 const SERVER_CONFIG = {
@@ -11,6 +12,13 @@ const SERVER_CONFIG = {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      // Force single React instance to prevent "Cannot read properties of null" errors
+      react: path.resolve(__dirname, "../../node_modules/react"),
+      "react-dom": path.resolve(__dirname, "../../node_modules/react-dom"),
+    },
+  },
   server: {
     host: SERVER_CONFIG.HOST,
     port: SERVER_CONFIG.PORT,
