@@ -38,6 +38,7 @@
     "@tanstack/react-virtual": "^3.13.12",
     "autoprefixer": "^10.4.21",
     "axios": "^1.10.0",
+    "breezeconnect": "^1.0.29",
     "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",

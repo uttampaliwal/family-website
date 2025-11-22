@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "axios-cookiejar-support": "^6.0.4",
+    "breezeconnect": "^1.0.29",
     "tough-cookie": "^5.1.2"
   },
   "lint-staged": {
