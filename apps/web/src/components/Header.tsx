@@ -262,7 +262,7 @@ const Header = ({ scrolled }: HeaderProps) => {
             <form onSubmit={handleSearch}>
               <input
                 type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-border rounded-xl leading-5 bg-background/50 text-text-base placeholder-text-muted focus:outline-none focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-border rounded-xl leading-5 bg-surface text-text-base placeholder:text-text-muted placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
                 placeholder="Search family, documents, events..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

@@ -78,7 +78,7 @@ const HomePage: React.FC = () => {
               The Official Family Portal
             </span>
             <h1 className="text-5xl md:text-7xl font-extrabold text-text-base mb-2 tracking-tight leading-tight">
-              Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Yuva Kulya</span>
+              Welcome to <span className="text-primary">Yuva Kulya</span>
             </h1>
             <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-6 font-serif">
               युवा कुल्या

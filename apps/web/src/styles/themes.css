@@ -4,8 +4,8 @@
 
   :root {
     /* 👑 Light Mode - Royal Heritage */
-    --color-background: 248 250 252;
-    /* Slate 50 - Clean, crisp background */
+    --color-background: 247 249 252;
+    /* Slate 50 with slight blue tint - Warmer than pure white */
     --color-surface: 255 255 255;
     /* Pure White */
     --color-primary: 30 58 138;
@@ -68,8 +68,8 @@
 
   .dark {
     /* 🌙 Dark Mode - Midnight Royal */
-    --color-background: 15 23 42;
-    /* Slate 900 - Deep Midnight */
+    --color-background: 12 19 35;
+    /* Very dark blue-gray - Warmer than pure black */
     --color-surface: 30 41 59;
     /* Slate 800 */
     --color-primary: 250 204 21;
