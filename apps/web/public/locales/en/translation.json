@@ -1,0 +1,34 @@
+{
+  "app": {
+    "title": "Yuva Kulya",
+    "subtitle": "The Official Family Portal"
+  },
+  "nav": {
+    "home": "Home",
+    "tree": "Family Tree",
+    "gallery": "Gallery",
+    "chat": "Chat",
+    "documents": "Documents",
+    "login": "Login",
+    "profile": "Profile"
+  },
+  "home": {
+    "welcome": "Welcome to <1>Yuva Kulya</1>",
+    "tagline": "Your secure family hub for generations to come.",
+    "quickActions": "Family Hub",
+    "recentActivity": "Recent Activity",
+    "familyTools": "Family Tools",
+    "viewAll": "View All"
+  },
+  "actions": {
+    "familyTree": "Family Tree",
+    "familyChat": "Family Chat",
+    "photoGallery": "Photo Gallery",
+    "documents": "Documents"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "welcomeBack": "Welcome Back"
+  }
+}
