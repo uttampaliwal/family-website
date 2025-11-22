@@ -1,5 +1,5 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import React, { StrictMode } from "react";
+import ReactDOM, { createRoot } from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import axios from "axios";
@@ -31,6 +31,13 @@ createRoot(rootElement).render(
     </QueryClientProvider>
   </StrictMode>,
 );
+
+// Initialize accessibility testing in development
+if (import.meta.env.DEV) {
+  import("@axe-core/react").then((axe) => {
+    axe.default(React, ReactDOM, 1000);
+  });
+}
 
 // Register service worker
 if ("serviceWorker" in navigator) {

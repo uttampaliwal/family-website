@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // Configuration constants for better maintainability
 const SERVER_CONFIG = {
@@ -11,7 +12,16 @@ const SERVER_CONFIG = {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    process.env.ANALYZE === "true" &&
+      visualizer({
+        open: true,
+        gzipSize: true,
+        filename: "dist/stats.html",
+      }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       // Force single React instance to prevent "Cannot read properties of null" errors
