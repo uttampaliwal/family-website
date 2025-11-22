@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import api from "../../services/axios"; // Import the configured axios instance
 
 interface CreateEventModalProps {
@@ -10,6 +11,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
   onClose,
   onEventCreated,
 }) => {
+  // const { t } = useTranslation("common");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -44,151 +46,177 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-surface p-6 rounded-lg shadow-xl w-full max-w-md border border-border">
-        <h2 className="text-2xl font-bold mb-4 text-on-surface">
-          Create New Event
-        </h2>
-        {error && <p className="text-error mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-on-surface"
-            >
-              Title
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label
-                htmlFor="startDate"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Start Date
-              </label>
-              <input
-                type="datetime-local"
-                id="startDate"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                required
-              />
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Backdrop with blur */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      ></div>
+
+      {/* Modal Content */}
+      <div className="relative bg-surface text-text-base rounded-2xl shadow-2xl w-full max-w-md border border-border overflow-hidden animate-scale-in z-10">
+        <div className="p-6">
+          <h2 className="text-2xl font-bold mb-6 text-text-base">
+            Create New Event
+          </h2>
+
+          {error && (
+            <div className="mb-4 p-3 bg-error/10 border border-error/20 rounded-lg text-error text-sm">
+              {error}
             </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
-                htmlFor="endDate"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                htmlFor="title"
+                className="block text-sm font-medium text-text-muted mb-1"
               >
-                End Date
-              </label>
-              <input
-                type="datetime-local"
-                id="endDate"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                required
-              />
-            </div>
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="location"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Location
-            </label>
-            <input
-              type="text"
-              id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Category
+                Title
               </label>
               <input
                 type="text"
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="input"
+                placeholder="Event title"
                 required
+                autoFocus
               />
             </div>
+
             <div>
               <label
-                htmlFor="color"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                htmlFor="description"
+                className="block text-sm font-medium text-text-muted mb-1"
               >
-                Color
+                Description
               </label>
-              <select
-                id="color"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              >
-                <option value="blue">Blue</option>
-                <option value="green">Green</option>
-                <option value="red">Red</option>
-                <option value="purple">Purple</option>
-                <option value="yellow">Yellow</option>
-              </select>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="input min-h-[80px]"
+                placeholder="Add details..."
+              />
             </div>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600"
-              disabled={loading}
-            >
-              {loading ? "Creating..." : "Create Event"}
-            </button>
-          </div>
-        </form>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="startDate"
+                  className="block text-sm font-medium text-text-muted mb-1"
+                >
+                  Start Date
+                </label>
+                <input
+                  type="datetime-local"
+                  id="startDate"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="input"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="endDate"
+                  className="block text-sm font-medium text-text-muted mb-1"
+                >
+                  End Date
+                </label>
+                <input
+                  type="datetime-local"
+                  id="endDate"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="input"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="location"
+                className="block text-sm font-medium text-text-muted mb-1"
+              >
+                Location
+              </label>
+              <input
+                type="text"
+                id="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="input"
+                placeholder="Add location"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-text-muted mb-1"
+                >
+                  Category
+                </label>
+                <input
+                  type="text"
+                  id="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="input"
+                  placeholder="e.g. Family, Work"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="color"
+                  className="block text-sm font-medium text-text-muted mb-1"
+                >
+                  Color
+                </label>
+                <select
+                  id="color"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="input"
+                >
+                  <option value="blue">Blue</option>
+                  <option value="green">Green</option>
+                  <option value="red">Red</option>
+                  <option value="purple">Purple</option>
+                  <option value="yellow">Yellow</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4 border-t border-border/50">
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn btn-ghost"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "Creating..." : "Create Event"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
