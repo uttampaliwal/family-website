@@ -1,0 +1,47 @@
+import React from "react";
+
+interface LogoProps {
+  className?: string;
+}
+
+const Logo: React.FC<LogoProps> = ({ className = "w-10 h-10" }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 200 200"
+      fill="none"
+      className={className}
+    >
+      <defs>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0.7" />
+        </linearGradient>
+      </defs>
+      {/* Stylized Family Tree / Connection Node */}
+      <path
+        d="M100 20 C 60 20, 30 50, 30 90 C 30 130, 60 160, 100 160 C 140 160, 170 130, 170 90 C 170 50, 140 20, 100 20 Z M 100 140 C 70 140, 50 120, 50 90 C 50 60, 70 40, 100 40 C 130 40, 150 60, 150 90 C 150 120, 130 140, 100 140 Z"
+        fill="url(#logoGradient)"
+        opacity="0.2"
+      />
+
+      {/* Central Unity Symbol (Intertwined Loops) */}
+      <path
+        d="M85 70 C 75 70, 65 80, 65 95 C 65 110, 75 120, 85 120 C 95 120, 100 110, 100 100 C 100 110, 105 120, 115 120 C 125 120, 135 110, 135 95 C 135 80, 125 70, 115 70 C 105 70, 100 80, 100 90 C 100 80, 95 70, 85 70 Z M 85 80 C 90 80, 92 85, 92 95 C 92 105, 90 110, 85 110 C 80 110, 78 105, 78 95 C 78 85, 80 80, 85 80 Z M 115 80 C 120 80, 122 85, 122 95 C 122 105, 120 110, 115 110 C 110 110, 108 105, 108 95 C 108 85, 110 80, 115 80 Z"
+        fill="currentColor"
+      />
+
+      {/* Bottom Curve (Support/Foundation) */}
+      <path
+        d="M40 130 Q 100 180, 160 130"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.8"
+      />
+    </svg>
+  );
+};
+
+export default Logo;

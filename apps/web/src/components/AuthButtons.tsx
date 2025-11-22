@@ -28,10 +28,10 @@ const AuthButtons: React.FC = () => {
   const renderUnauthenticatedButtons = () => (
     <>
       <Link to={ROUTES.LOGIN}>
-        <Button label="Login" variant="secondary" />
+        <Button label="Sign In" variant="ghost" />
       </Link>
       <Link to={ROUTES.REGISTER}>
-        <Button label="Register" className="ml-2.5" variant="primary" />
+        <Button label="Register" variant="primary" />
       </Link>
     </>
   );
@@ -39,7 +39,7 @@ const AuthButtons: React.FC = () => {
   if (!showAuthButtons) return null;
 
   return (
-    <div className="text-center mt-5">
+    <div className="flex items-center gap-2">
       {isLoggedIn
         ? renderAuthenticatedButtons()
         : renderUnauthenticatedButtons()}

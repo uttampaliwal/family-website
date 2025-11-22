@@ -3,74 +3,74 @@
   /* Two sides of the same coin - warm, welcoming, and connected */
 
   :root {
-    /* 🌾 Light Mode - Morning Warmth */
-    --color-background: 248 244 235; /* Soothing Warm Beige - more calming and family-friendly */
-    --color-surface: 240 230 210; /* Soft Linen */
-    --color-primary: 139 69 19; /* Rich Saddle Brown */
-    --color-secondary: 218 165 32; /* Warm Goldenrod */
-    --color-accent: 205 133 63; /* Peru/Terracotta */
-    --color-text-base: 62 39 35; /* Dark Chocolate */
-    --color-text-muted: 90 60 30; /* Darker Medium Brown for better contrast */
-    --color-success: 107 142 35; /* Olive Green */
-    --color-warning: 255 140 0; /* Dark Orange */
-    --color-error: 178 34 34; /* Fire Brick */
-    --color-info: 70 130 180; /* Steel Blue */
+    /* 👑 Light Mode - Royal Heritage */
+    --color-background: 248 250 252; /* Slate 50 - Clean, crisp background */
+    --color-surface: 255 255 255; /* Pure White */
+    --color-primary: 30 58 138; /* Royal Blue (Blue 900) - Trust & Stability */
+    --color-secondary: 202 138 4; /* Dark Gold (Yellow 600) - Warmth & Prosperity */
+    --color-accent: 59 130 246; /* Bright Blue (Blue 500) */
+    --color-text-base: 15 23 42; /* Slate 900 - Sharp contrast */
+    --color-text-muted: 71 85 105; /* Slate 600 */
+    --color-success: 21 128 61; /* Green 700 */
+    --color-warning: 180 83 9; /* Amber 700 */
+    --color-error: 185 28 28; /* Red 700 */
+    --color-info: 14 116 144; /* Cyan 700 */
 
     /* 🎨 Additional semantic colors */
-    --color-border: 180 150 120; /* Darker Tan border for better definition */
-    --color-input: 248 245 240; /* Input background */
-    --color-muted-foreground: 120 113 108; /* Muted text */
+    --color-border: 203 213 225; /* Slate 300 */
+    --color-input: 241 245 249; /* Slate 100 */
+    --color-muted-foreground: 100 116 139; /* Slate 500 */
 
     /* 🔔 Toast notification colors */
-    --color-toast-success: 107 142 35; /* Olive Green */
-    --color-toast-error: 178 34 34; /* Fire Brick */
-    --color-toast-info: 70 130 180; /* Steel Blue */
-    --color-toast-warning: 255 140 0; /* Dark Orange */
+    --color-toast-success: 21 128 61;
+    --color-toast-error: 185 28 28;
+    --color-toast-info: 14 116 144;
+    --color-toast-warning: 180 83 9;
   }
 
   .light {
-    /* 🌅 Light Mode - Warm Morning Coffee */
-    --color-background: 248 244 235; /* Soothing Warm Beige - more calming and family-friendly */
-    --color-surface: 240 230 210; /* Soft Linen */
-    --color-primary: 139 69 19; /* Rich Saddle Brown */
-    --color-secondary: 218 165 32; /* Warm Goldenrod */
-    --color-accent: 205 133 63; /* Peru/Terracotta */
-    --color-text-base: 62 39 35; /* Dark Chocolate - High contrast */
-    --color-text-muted: 90 60 30; /* Darker Medium Brown for better contrast */
-    --color-success: 107 142 35; /* Olive Green */
-    --color-warning: 255 140 0; /* Dark Orange */
-    --color-error: 178 34 34; /* Fire Brick */
-    --color-info: 70 130 180; /* Steel Blue */
-    --color-border: 210 180 140; /* Tan border */
-    --color-input: 248 245 240; /* Input background */
-    --color-muted-foreground: 120 113 108; /* Muted text */
-    --color-text-on-primary: 252 248 240; /* Cream text on dark backgrounds */
-    --color-text-readable: 62 39 35; /* Always readable text */
+    /* 👑 Light Mode - Royal Heritage */
+    --color-background: 248 250 252;
+    --color-surface: 255 255 255;
+    --color-primary: 30 58 138;
+    --color-secondary: 202 138 4;
+    --color-accent: 59 130 246;
+    --color-text-base: 15 23 42;
+    --color-text-muted: 71 85 105;
+    --color-success: 21 128 61;
+    --color-warning: 180 83 9;
+    --color-error: 185 28 28;
+    --color-info: 14 116 144;
+    --color-border: 203 213 225;
+    --color-input: 241 245 249;
+    --color-muted-foreground: 100 116 139;
+    --color-text-on-primary: 255 255 255;
+    --color-text-readable: 15 23 42;
   }
 
   .dark {
-    /* 🌙 Dark Mode - Cozy Evening Fireplace */
-    --color-background: 40 35 31; /* Deep Espresso */
-    --color-surface: 54 47 42; /* Rich Coffee */
-    --color-primary: 218 165 32; /* Warm Gold (inverted from secondary) */
-    --color-secondary: 205 133 63; /* Warm Terracotta */
-    --color-accent: 255 140 0; /* Warm Orange Glow */
-    --color-text-base: 245 240 235; /* Warm Cream Text - High contrast */
-    --color-text-muted: 220 190 150; /* Lighter Tan for better contrast */
-    --color-success: 144 238 144; /* Soft Green */
-    --color-warning: 255 193 7; /* Amber */
-    --color-error: 255 107 107; /* Soft Red */
-    --color-info: 135 206 235; /* Sky Blue */
-    --color-border: 120 90 60; /* Lighter Brown border for better visibility */
-    --color-input: 54 47 42; /* Input background */
-    --color-muted-foreground: 160 150 140; /* Muted text */
+    /* 🌙 Dark Mode - Midnight Royal */
+    --color-background: 15 23 42; /* Slate 900 - Deep Midnight */
+    --color-surface: 30 41 59; /* Slate 800 */
+    --color-primary: 250 204 21; /* Bright Gold (Yellow 400) - Pops on dark */
+    --color-secondary: 96 165 250; /* Soft Blue (Blue 400) */
+    --color-accent: 234 179 8; /* Yellow 500 */
+    --color-text-base: 248 250 252; /* Slate 50 */
+    --color-text-muted: 148 163 184; /* Slate 400 */
+    --color-success: 74 222 128; /* Green 400 */
+    --color-warning: 251 191 36; /* Amber 400 */
+    --color-error: 248 113 113; /* Red 400 */
+    --color-info: 34 211 238; /* Cyan 400 */
+    --color-border: 51 65 85; /* Slate 700 */
+    --color-input: 30 41 59; /* Slate 800 */
+    --color-muted-foreground: 148 163 184;
 
     /* 🔔 Toast notification colors - Dark mode */
-    --color-toast-success: 144 238 144; /* Soft Green */
-    --color-toast-error: 255 107 107; /* Soft Red */
-    --color-toast-info: 135 206 235; /* Sky Blue */
-    --color-toast-warning: 255 193 7; /* Amber */
-    --color-text-on-primary: 40 35 31; /* Dark text on light backgrounds */
-    --color-text-readable: 245 240 235; /* Always readable text */
+    --color-toast-success: 74 222 128;
+    --color-toast-error: 248 113 113;
+    --color-toast-info: 34 211 238;
+    --color-toast-warning: 251 191 36;
+    --color-text-on-primary: 15 23 42; /* Dark text on Gold primary */
+    --color-text-readable: 248 250 252;
   }
 }

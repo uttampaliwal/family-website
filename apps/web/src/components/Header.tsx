@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HamburgerMenu from "./HamburgerMenu";
 import ThemeToggleButton from "./ThemeToggleButton";
-import LiveDateTime from "./LiveDateTime";
 import AuthButtons from "./AuthButtons";
 import UserMenu from "./UserMenu";
+import Logo from "./Logo";
 import {
   ChevronDownIcon,
   HomeIcon,
@@ -211,84 +211,89 @@ const Header = ({ scrolled }: HeaderProps) => {
   return (
     <header
       role="banner"
-      className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${
-        scrolled ? "shadow-xl py-2" : "py-4"
-      } navbar-glass`}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-white/10 ${
+        scrolled
+          ? "bg-surface/95 backdrop-blur-md shadow-lg py-2"
+          : "bg-surface/80 backdrop-blur-sm py-3"
+      }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
+        {/* Logo Section */}
         <div className="flex items-center">
-          <Link to="/" className="flex items-center group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-sm opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-              <img
-                src="/family-logo.svg"
-                className="h-20 object-contain transition-all duration-300 group-hover:scale-110 relative z-10"
-                alt="Family Website"
-              />
-              <div className="absolute inset-0 rounded-full border-2 border-secondary/30 group-hover:border-secondary/50 transition-all duration-300 scale-105"></div>
+          <Link to="/" className="flex items-center group gap-3">
+            <div className="relative w-10 h-10 flex items-center justify-center bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors duration-300">
+              <Logo className="w-8 h-8 text-primary" />
             </div>
-            <div className="ml-4 hidden sm:block">
-              <span className="text-3xl font-extrabold tracking-wide">
-                Family <span className="text-secondary">Portal</span>
+            <div className="hidden sm:flex flex-col">
+              <span className="text-xl font-bold text-text-base leading-tight tracking-tight">
+                Yuva Kulya
+              </span>
+              <span className="text-xs text-text-muted font-medium tracking-wide">
+                FAMILY PORTAL
               </span>
             </div>
           </Link>
         </div>
 
-        <div className="flex items-center">
-          {/* Global Search Bar */}
-          <div className="hidden lg:flex items-center mr-6">
-            <form onSubmit={handleSearch} className="relative">
+        {/* Center Navigation & Search */}
+        <div className="flex-1 flex items-center justify-center px-8">
+          {/* Global Search Bar - Desktop */}
+          <div className="hidden lg:block w-full max-w-md relative group">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg
+                className="h-5 w-5 text-text-muted group-focus-within:text-primary transition-colors"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <form onSubmit={handleSearch}>
               <input
                 type="text"
-                placeholder="Search documents, family members..."
+                className="block w-full pl-10 pr-3 py-2 border border-border rounded-xl leading-5 bg-background/50 text-text-base placeholder-text-muted focus:outline-none focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
+                placeholder="Search family, documents, events..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 px-4 py-2 pl-10 bg-gray-100 dark:bg-gray-700 border border-transparent rounded-lg focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors text-sm"
               />
-              <button
-                type="submit"
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Search"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </button>
             </form>
           </div>
+        </div>
 
-          <div className="hidden md:flex items-center space-x-1">
+        {/* Right Actions */}
+        <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-1">
             {/* Home Link */}
             <Link
               to="/"
-              className="flex items-center px-3 py-2 rounded-lg text-text-base dark:text-white/90 hover:text-primary dark:hover:text-white hover:bg-primary/10 dark:hover:bg-white/10 transition-all duration-200 font-medium"
+              className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
+              title="Home"
             >
-              <HomeIcon className="h-5 w-5 mr-2" />
-              Home
+              <HomeIcon className="h-6 w-6" />
             </Link>
 
             {/* Features dropdown for non-logged users */}
             {!isLoggedIn && (
               <div
                 className="relative"
-                ref={(el) => (dropdownRefs.current.features = el)}
+                ref={(el) => {
+                  dropdownRefs.current.features = el;
+                }}
               >
                 <button
                   onClick={() => toggleDropdown("features")}
-                  className="flex items-center px-3 py-2 rounded-lg text-text-base dark:text-white/90 hover:text-primary dark:hover:text-white hover:bg-primary/10 dark:hover:bg-white/10 transition-all duration-200 font-medium"
+                  className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    openDropdown === "features"
+                      ? "text-primary bg-primary/10"
+                      : "text-text-base hover:text-primary hover:bg-primary/5"
+                  }`}
                 >
-                  <UserGroupIcon className="h-5 w-5 mr-2" />
                   Features
                   <ChevronDownIcon
                     className={`h-4 w-4 ml-1 transition-transform duration-200 ${openDropdown === "features" ? "rotate-180" : ""}`}
@@ -307,17 +312,20 @@ const Header = ({ scrolled }: HeaderProps) => {
                 {/* Family Dropdown */}
                 <div
                   className="relative"
-                  ref={(el) => (dropdownRefs.current.family = el)}
+                  ref={(el) => {
+                    dropdownRefs.current.family = el;
+                  }}
                 >
                   <button
                     onClick={() => toggleDropdown("family")}
-                    className="flex items-center px-3 py-2 rounded-lg text-text-base dark:text-white/90 hover:text-primary dark:hover:text-white hover:bg-primary/10 dark:hover:bg-white/10 transition-all duration-200 font-medium"
+                    className={`p-2 rounded-lg transition-all duration-200 ${
+                      openDropdown === "family"
+                        ? "text-primary bg-primary/10"
+                        : "text-text-muted hover:text-primary hover:bg-primary/5"
+                    }`}
+                    title="Family"
                   >
-                    <UsersIcon className="h-5 w-5 mr-2" />
-                    Family
-                    <ChevronDownIcon
-                      className={`h-4 w-4 ml-1 transition-transform duration-200 ${openDropdown === "family" ? "rotate-180" : ""}`}
-                    />
+                    <UsersIcon className="h-6 w-6" />
                   </button>
                   <DropdownMenu
                     items={navigationConfig.family.items}
@@ -329,17 +337,20 @@ const Header = ({ scrolled }: HeaderProps) => {
                 {/* Documents Dropdown */}
                 <div
                   className="relative"
-                  ref={(el) => (dropdownRefs.current.documents = el)}
+                  ref={(el) => {
+                    dropdownRefs.current.documents = el;
+                  }}
                 >
                   <button
                     onClick={() => toggleDropdown("documents")}
-                    className="flex items-center px-3 py-2 rounded-lg text-text-base dark:text-white/90 hover:text-primary dark:hover:text-white hover:bg-primary/10 dark:hover:bg-white/10 transition-all duration-200 font-medium"
+                    className={`p-2 rounded-lg transition-all duration-200 ${
+                      openDropdown === "documents"
+                        ? "text-primary bg-primary/10"
+                        : "text-text-muted hover:text-primary hover:bg-primary/5"
+                    }`}
+                    title="Documents"
                   >
-                    <DocumentTextIcon className="h-5 w-5 mr-2" />
-                    Documents
-                    <ChevronDownIcon
-                      className={`h-4 w-4 ml-1 transition-transform duration-200 ${openDropdown === "documents" ? "rotate-180" : ""}`}
-                    />
+                    <DocumentTextIcon className="h-6 w-6" />
                   </button>
                   <DropdownMenu
                     items={navigationConfig.documents.items}
@@ -352,30 +363,28 @@ const Header = ({ scrolled }: HeaderProps) => {
                 {user?.role === "admin" && (
                   <Link
                     to="/admin"
-                    className="flex items-center px-3 py-2 rounded-lg text-text-base dark:text-white/90 hover:text-primary dark:hover:text-white hover:bg-primary/10 dark:hover:bg-white/10 transition-all duration-200 font-medium admin-link"
+                    className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
+                    title="Admin"
                   >
-                    <ShieldCheckIcon className="h-5 w-5 mr-2" />
-                    Admin
+                    <ShieldCheckIcon className="h-6 w-6" />
                   </Link>
                 )}
               </>
             )}
-
-            {/* User Menu or Auth Buttons */}
-            <div className="ml-2">
-              {isLoggedIn ? <UserMenu /> : <AuthButtons />}
-            </div>
           </div>
 
-          <div className="hidden lg:block mx-4">
-            <LiveDateTime />
+          <div className="h-6 w-px bg-border mx-2 hidden md:block"></div>
+
+          {/* Theme Toggle */}
+          <ThemeToggleButton />
+
+          {/* Auth / User Menu */}
+          <div className="ml-2">
+            {isLoggedIn ? <UserMenu /> : <AuthButtons />}
           </div>
 
-          <div className="ml-4">
-            <ThemeToggleButton />
-          </div>
-
-          <div className="md:hidden ml-4">
+          {/* Mobile Menu Button */}
+          <div className="md:hidden ml-2">
             <HamburgerMenu
               isLoggedIn={isLoggedIn}
               username={user?.username || ""}

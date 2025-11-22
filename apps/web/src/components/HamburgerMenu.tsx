@@ -114,7 +114,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
                     className="block px-4 py-2 text-blue-700 dark:text-blue-400 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                   >
-                    Login
+                    Sign In
                   </Link>
                   <Link
                     to="/register"
