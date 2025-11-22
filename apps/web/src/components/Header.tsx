@@ -278,7 +278,7 @@ const Header = ({ scrolled }: HeaderProps) => {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 min-w-[500px] justify-end">
+        <div className="flex items-center gap-2 min-w-[450px] justify-end">
           <div className="hidden md:flex items-center gap-1">
             {/* Home Link */}
             <Link
