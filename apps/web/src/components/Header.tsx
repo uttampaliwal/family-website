@@ -387,7 +387,7 @@ const Header = ({ scrolled }: HeaderProps) => {
           <div className="h-6 w-px bg-border mx-2 hidden md:block"></div>
 
           {/* Language Switcher */}
-          <div className="hidden md:block mr-2">
+          <div className="hidden md:block mr-2 flex-shrink-0">
             <LanguageSwitcher />
           </div>
 
