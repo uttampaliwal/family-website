@@ -124,6 +124,8 @@ button:focus-visible {
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(var(--color-border), 0.3);
   box-shadow: 0 8px 32px rgba(var(--color-primary), 0.1);
+  contain: layout style;
+  /* Prevent layout recalculation affecting rest of page */
 }
 
 /* 🧱 Layout Stabilizers */
