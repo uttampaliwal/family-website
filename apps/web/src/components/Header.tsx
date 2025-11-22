@@ -211,18 +211,23 @@ const Header = ({ scrolled }: HeaderProps) => {
   return (
     <header
       role="banner"
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-white/10 ${
-        scrolled
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-white/10 ${scrolled
           ? "bg-surface/95 backdrop-blur-md shadow-lg py-2"
           : "bg-surface/80 backdrop-blur-sm py-3"
-      }`}
+        }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo Section */}
         <div className="flex items-center">
           <Link to="/" className="flex items-center group gap-3">
-            <div className="relative w-10 h-10 flex items-center justify-center bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors duration-300">
-              <Logo className="w-8 h-8 text-primary" />
+            <div
+              className={`relative flex items-center justify-center bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all duration-300 ${scrolled ? "w-10 h-10" : "w-12 h-12"
+                }`}
+            >
+              <Logo
+                className={`text-primary transition-all duration-300 ${scrolled ? "w-8 h-8" : "w-10 h-10"
+                  }`}
+              />
             </div>
             <div className="hidden sm:flex flex-col">
               <span className="text-xl font-bold text-text-base leading-tight tracking-tight">
@@ -288,11 +293,10 @@ const Header = ({ scrolled }: HeaderProps) => {
               >
                 <button
                   onClick={() => toggleDropdown("features")}
-                  className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    openDropdown === "features"
+                  className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${openDropdown === "features"
                       ? "text-primary bg-primary/10"
                       : "text-text-base hover:text-primary hover:bg-primary/5"
-                  }`}
+                    }`}
                 >
                   Features
                   <ChevronDownIcon
@@ -318,11 +322,10 @@ const Header = ({ scrolled }: HeaderProps) => {
                 >
                   <button
                     onClick={() => toggleDropdown("family")}
-                    className={`p-2 rounded-lg transition-all duration-200 ${
-                      openDropdown === "family"
+                    className={`p-2 rounded-lg transition-all duration-200 ${openDropdown === "family"
                         ? "text-primary bg-primary/10"
                         : "text-text-muted hover:text-primary hover:bg-primary/5"
-                    }`}
+                      }`}
                     title="Family"
                   >
                     <UsersIcon className="h-6 w-6" />
@@ -343,11 +346,10 @@ const Header = ({ scrolled }: HeaderProps) => {
                 >
                   <button
                     onClick={() => toggleDropdown("documents")}
-                    className={`p-2 rounded-lg transition-all duration-200 ${
-                      openDropdown === "documents"
+                    className={`p-2 rounded-lg transition-all duration-200 ${openDropdown === "documents"
                         ? "text-primary bg-primary/10"
                         : "text-text-muted hover:text-primary hover:bg-primary/5"
-                    }`}
+                      }`}
                     title="Documents"
                   >
                     <DocumentTextIcon className="h-6 w-6" />
