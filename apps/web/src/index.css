@@ -22,6 +22,7 @@ body,
 
 html {
   overflow-y: scroll;
+  scrollbar-gutter: stable;
   /* Prevent layout shift from scrollbar appearing/disappearing */
 }
 
