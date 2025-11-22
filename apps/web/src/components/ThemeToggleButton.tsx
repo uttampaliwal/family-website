@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ThemeToggleButton = () => {
+  const { t } = useTranslation();
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
       try {
@@ -78,8 +80,8 @@ const ThemeToggleButton = () => {
         ) : (
           <Moon className="h-5 w-5 text-primary" />
         )}
-        <span className="text-sm font-medium hidden sm:block text-text-base">
-          {theme === "light" ? "Light" : "Dark"}
+        <span className="text-sm font-medium hidden sm:block text-text-base w-[40px] text-center">
+          {theme === "light" ? t("theme.light") : t("theme.dark")}
         </span>
         {isIncognito && <Monitor className="h-4 w-4 text-text-muted" />}
       </button>
