@@ -67,15 +67,6 @@ const HomePage: React.FC = () => {
           <div className="absolute top-1/2 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
         </div>
 
-        {/* Creative peacock feather decoration */}
-        <div className="absolute top-4 left-4 pointer-events-none select-none">
-          <img
-            src="/peacock.jpg"
-            alt="Peacock feather decoration"
-            className="w-24 h-24 object-contain opacity-20 rotate-12"
-          />
-        </div>
-
         {/* Hero content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 pb-12">
           <motion.div
@@ -83,9 +74,6 @@ const HomePage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4 tracking-wide uppercase">
-              {t("common:app.subtitle")}
-            </span>
             <h1 className="text-5xl md:text-7xl font-extrabold text-text-base mb-2 tracking-tight leading-tight">
               {t("home:welcome")}
             </h1>
