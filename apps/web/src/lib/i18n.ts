@@ -3,12 +3,12 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
 // Import translation files directly
-import commonEn from "../../public/locales/en/common.json";
-import commonHi from "../../public/locales/hi/common.json";
-import homeEn from "../../public/locales/en/home.json";
-import homeHi from "../../public/locales/hi/home.json";
-import footerEn from "../../public/locales/en/footer.json";
-import footerHi from "../../public/locales/hi/footer.json";
+import commonEn from "../locales/en/common.json";
+import commonHi from "../locales/hi/common.json";
+import homeEn from "../locales/en/home.json";
+import homeHi from "../locales/hi/home.json";
+import footerEn from "../locales/en/footer.json";
+import footerHi from "../locales/hi/footer.json";
 
 const resources = {
   en: {
