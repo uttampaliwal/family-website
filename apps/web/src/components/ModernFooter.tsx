@@ -206,15 +206,6 @@ const ModernFooter: React.FC = () => {
                   </motion.a>
                 ))}
               </div>
-
-              {/* Language Selector Placeholder */}
-              <div>
-                <select className="bg-surface/50 border border-primary/20 rounded-md px-3 py-2 text-sm text-muted focus:outline-none focus:ring-2 focus:ring-primary">
-                  <option>English</option>
-                  <option>हिन्दी</option>
-                  <option>Español</option>
-                </select>
-              </div>
             </div>
           </div>
         </motion.div>
