@@ -184,8 +184,12 @@ const HomePage: React.FC = () => {
         {/* Recent Activity */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="headline text-on-surface">Recent Activity</h2>
-            <button className="btn btn-ghost font-medium">View All</button>
+            <h2 className="headline text-on-surface">
+              {t("home.recentActivity")}
+            </h2>
+            <button className="btn btn-ghost font-medium">
+              {t("home.viewAll")}
+            </button>
           </div>
 
           <div className="bg-surface/50 backdrop-blur-sm rounded-xl shadow-lg p-6 card-float">
@@ -214,8 +218,12 @@ const HomePage: React.FC = () => {
         {/* Family Tools Grid */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="headline text-on-surface">Family Tools</h2>
-            <button className="btn btn-secondary">Customize Tools</button>
+            <h2 className="headline text-on-surface">
+              {t("home.familyTools")}
+            </h2>
+            <button className="btn btn-secondary">
+              {t("home.customizeTools")}
+            </button>
           </div>
           <Suspense fallback={<ComponentSkeleton rows={2} height="h-48" />}>
             <FamilyTools />
@@ -227,7 +235,7 @@ const HomePage: React.FC = () => {
           <div className="lg:col-span-2">
             <div className="card">
               <h2 className="headline mb-6 text-on-surface">
-                Important Updates
+                {t("home.importantUpdates")}
               </h2>
               <Suspense fallback={<ComponentSkeleton rows={3} height="h-24" />}>
                 <ImportantNotifications />
@@ -237,7 +245,7 @@ const HomePage: React.FC = () => {
           <div>
             <div className="card">
               <h2 className="text-2xl font-bold mb-6 text-base">
-                Local Weather
+                {t("home.localWeather")}
               </h2>
               <Suspense fallback={<ComponentSkeleton rows={1} height="h-64" />}>
                 <WeatherWidget />
@@ -248,7 +256,9 @@ const HomePage: React.FC = () => {
 
         {/* Family Calendar */}
         <section className="mb-12">
-          <h2 className="headline mb-6 text-on-surface">Family Calendar</h2>
+          <h2 className="headline mb-6 text-on-surface">
+            {t("home.familyCalendar")}
+          </h2>
           <div className="card">
             <Suspense fallback={<ComponentSkeleton rows={1} height="h-96" />}>
               <Calendar />

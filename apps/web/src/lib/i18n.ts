@@ -27,6 +27,10 @@ const resources = {
         familyTools: "Family Tools",
         viewAll: "View All",
         searchPlaceholder: "Search family, documents, events...",
+        customizeTools: "Customize Tools",
+        importantUpdates: "Important Updates",
+        localWeather: "Local Weather",
+        familyCalendar: "Family Calendar",
       },
       header: {
         features: "Features",
@@ -56,6 +60,10 @@ const resources = {
         signOut: "Sign Out",
         welcomeBack: "Welcome Back",
       },
+      theme: {
+        light: "Light",
+        dark: "Dark",
+      },
     },
   },
   hi: {
@@ -81,6 +89,10 @@ const resources = {
         familyTools: "पारिवारिक उपकरण",
         viewAll: "सभी देखें",
         searchPlaceholder: "परिवार, दस्तावेज़, कार्यक्रम खोजें...",
+        customizeTools: "उपकरण अनुकूलित करें",
+        importantUpdates: "महत्वपूर्ण अपडेट",
+        localWeather: "स्थानीय मौसम",
+        familyCalendar: "पारिवारिक कैलेंडर",
       },
       header: {
         features: "सुविधाएँ",
@@ -109,6 +121,10 @@ const resources = {
         register: "रजिस्टर करें",
         signOut: "साइन आउट करें",
         welcomeBack: "वापसी पर स्वागत है",
+      },
+      theme: {
+        light: "लाइट",
+        dark: "डार्क",
       },
     },
   },
