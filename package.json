@@ -40,11 +40,14 @@
     "docker:logs": "docker-compose logs -f",
     "health-check": "npm run health-check --workspace=api",
     "deps:update": "npx npm-check-updates -u && npm install",
-    "deps:audit": "npm audit && npm audit --workspace=api && npm audit --workspace=web"
+    "deps:audit": "npm audit && npm audit --workspace=api && npm audit --workspace=web",
+    "prepare": "husky"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",
     "dotenv-cli": "^10.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "npm-check-updates": "^17.1.11",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
@@ -57,5 +60,16 @@
   "dependencies": {
     "axios-cookiejar-support": "^6.0.4",
     "tough-cookie": "^5.1.2"
+  },
+  "lint-staged": {
+    "apps/**/*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{css,md}": [
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
   }
 }

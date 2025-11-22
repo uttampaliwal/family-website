@@ -1,5 +1,7 @@
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Component } from "react";
+import type { ErrorInfo, ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { createLogger } from "../utils/logger";
 
 interface Props {
   children: ReactNode;
@@ -11,6 +13,8 @@ interface State {
   error?: Error;
   errorInfo?: ErrorInfo;
 }
+
+const logger = createLogger("ErrorBoundary");
 
 class EnhancedErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -39,7 +43,7 @@ class EnhancedErrorBoundary extends Component<Props, State> {
       userId: localStorage.getItem("userId") || "anonymous",
     };
 
-    console.error("ErrorBoundary caught an error:", errorDetails);
+    logger.error("ErrorBoundary caught an error:", errorDetails);
 
     // Send error to monitoring service in production
     if (import.meta.env.PROD) {
@@ -66,7 +70,7 @@ class EnhancedErrorBoundary extends Component<Props, State> {
         body: JSON.stringify(errorDetails),
       });
     } catch (reportingError) {
-      console.error("Failed to report error:", reportingError);
+      logger.error("Failed to report error:", reportingError);
     }
   };
 
