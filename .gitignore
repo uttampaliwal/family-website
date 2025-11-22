@@ -55,6 +55,7 @@ yarn-error.log*
 # Custom additions
 docs
 packages/tests/
+test/
 *.log
 .turbo/
 .zencoder/
@@ -71,4 +72,6 @@ cookies.txt
 logs.txt
 acli.exe
 deployment_guide.md
+PROJECT_STATUS.md
+
 .vercel

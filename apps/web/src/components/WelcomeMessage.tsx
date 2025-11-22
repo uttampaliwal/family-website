@@ -13,27 +13,11 @@ const WelcomeMessage: React.FC = () => {
   const greeting = getGreeting();
 
   return (
-    <div className="text-center my-12 relative">
+    <div className="text-center my-8 relative">
       {/* Decorative background elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-24 h-24 bg-gradient-to-br from-accent/10 to-primary/10 rounded-full blur-2xl"></div>
-      </div>
-
-      {/* Sanskrit and English Family Name */}
-      <div className="mb-6">
-        <h1
-          className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-2"
-          style={{ fontFamily: "'Dancing Script', 'Brush Script MT', cursive" }}
-        >
-          युवा कुल्या
-        </h1>
-        <h2 className="text-3xl md:text-4xl font-semibold text-on-surface mb-4 font-playfair-display">
-          Yuva Kulya
-        </h2>
-        <p className="text-lg text-muted italic">
-          "Where Young Hearts Unite as One Family"
-        </p>
       </div>
 
       {/* Personal Greeting */}

@@ -8,7 +8,6 @@
     "packages/*"
   ],
   "scripts": {
-    "prepare": "husky",
     "dev": "dotenv -e ./.env -- turbo dev",
     "dev:api": "npm run dev --workspace=api",
     "dev:web": "npm run dev --workspace=web",
@@ -46,7 +45,6 @@
   "devDependencies": {
     "concurrently": "^9.1.0",
     "dotenv-cli": "^10.0.0",
-    "husky": "^9.1.7",
     "npm-check-updates": "^17.1.11",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",

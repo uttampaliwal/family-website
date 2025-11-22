@@ -55,9 +55,10 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Hero section with dynamic background */}
-      <div className="relative h-48 overflow-hidden">
+      {/* Enhanced Hero section with dynamic background */}
+      <div className="relative h-64 overflow-hidden bg-surface/50">
         {/* Animated background gradients */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/15 to-accent/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10"></div>
         <motion.div
           animate={{
             scale: [1, 1.1, 1],
@@ -68,7 +69,7 @@ const HomePage: React.FC = () => {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute -top-10 -right-10 w-64 h-64 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-3xl"
+          className="absolute -top-10 -right-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
@@ -80,7 +81,7 @@ const HomePage: React.FC = () => {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute -bottom-10 -left-10 w-48 h-48 bg-gradient-to-br from-accent/10 to-primary/10 rounded-full blur-2xl"
+          className="absolute -bottom-10 -left-10 w-48 h-48 bg-secondary/5 rounded-full blur-2xl"
         />
 
         {/* Hero content */}
@@ -90,11 +91,14 @@ const HomePage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-3">
-              Welcome to Yuva Kulya
+            <h1 className="text-4xl md:text-6xl font-extrabold text-text-base mb-2 tracking-tight">
+              Welcome to <span className="text-primary">Yuva Kulya</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto">
-              Welcome to the family hub.
+            <h2 className="text-2xl md:text-3xl font-bold text-secondary mb-4 font-serif">
+              युवा कुल्या
+            </h2>
+            <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium">
+              Your secure family hub for generations to come.
             </p>
           </motion.div>
         </div>
