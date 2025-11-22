@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Button from "./Button";
 import { useAuth } from "../hooks/useAuth";
 
@@ -15,23 +16,35 @@ const EXCLUDED_PATHS = [ROUTES.LOGIN, ROUTES.REGISTER];
 const AuthButtons: React.FC = () => {
   const location = useLocation();
   const { isLoggedIn, username } = useAuth();
+  const { t } = useTranslation();
   const showAuthButtons = !EXCLUDED_PATHS.includes(
     location.pathname as (typeof EXCLUDED_PATHS)[number],
   );
 
   const renderAuthenticatedButtons = () => (
     <Link to={ROUTES.PROFILE}>
-      <Button label={username || "Profile"} />
+      <Button
+        label={username || t("nav.profile")}
+        className="w-[120px] justify-center"
+      />
     </Link>
   );
 
   const renderUnauthenticatedButtons = () => (
     <>
       <Link to={ROUTES.LOGIN}>
-        <Button label="Sign In" variant="ghost" />
+        <Button
+          label={t("auth.signIn")}
+          variant="ghost"
+          className="w-[120px] justify-center"
+        />
       </Link>
       <Link to={ROUTES.REGISTER}>
-        <Button label="Register" variant="primary" />
+        <Button
+          label={t("auth.register")}
+          variant="primary"
+          className="w-[120px] justify-center"
+        />
       </Link>
     </>
   );
