@@ -8,7 +8,6 @@ import "./styles/themes.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext";
 import { queryClient } from "./lib/queryClient";
-import logger from "./utils/logger";
 
 // Configure axios to send credentials with every request
 axios.defaults.withCredentials = true;
@@ -39,16 +38,4 @@ if (import.meta.env.DEV) {
   });
 }
 
-// Register service worker
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        logger.info("SW registered: ", registration);
-      })
-      .catch((registrationError) => {
-        logger.error("SW registration failed: ", registrationError);
-      });
-  });
-}
+// Service worker is now handled by vite-plugin-pwa
