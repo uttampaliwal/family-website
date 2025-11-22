@@ -235,11 +235,11 @@ const Header = ({ scrolled }: HeaderProps) => {
                 }`}
               />
             </div>
-            <div className="hidden sm:flex flex-col">
-              <span className="text-xl font-bold text-text-base leading-tight tracking-tight">
+            <div className="hidden sm:flex flex-col w-[180px]">
+              <span className="text-xl font-bold text-text-base leading-tight tracking-tight truncate">
                 {t("app.title")}
               </span>
-              <span className="text-xs text-text-muted font-medium tracking-wide">
+              <span className="text-xs text-text-muted font-medium tracking-wide truncate">
                 {t("app.subtitle")}
               </span>
             </div>
@@ -299,7 +299,7 @@ const Header = ({ scrolled }: HeaderProps) => {
               >
                 <button
                   onClick={() => toggleDropdown("features")}
-                  className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center justify-center w-[110px] px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     openDropdown === "features"
                       ? "text-primary bg-primary/10"
                       : "text-text-base hover:text-primary hover:bg-primary/5"
