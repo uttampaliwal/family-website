@@ -18,9 +18,10 @@ npm run db:seed:admin
 
 ### **Access the Application**
 
-- **Web App**: http://localhost:3000
-- **API Server**: http://localhost:5000
-- **API Health**: http://localhost:5000/health
+- **Web App**: http://localhost:5175
+- **API Server**: http://localhost:3000
+- **API Health**: http://localhost:3000/api/health-check
+
 
 ---
 

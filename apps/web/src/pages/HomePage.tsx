@@ -55,8 +55,6 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Hero section with dynamic background */}
-      {/* Enhanced Hero section with dynamic background */}
-      {/* Enhanced Hero section with dynamic background */}
       <div className="relative h-80 overflow-hidden bg-surface">
         {/* Animated background gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-surface to-secondary/5"></div>
