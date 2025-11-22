@@ -21,7 +21,7 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
-        <Menu.Button className="inline-flex items-center justify-center p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200 focus:outline-none">
+        <Menu.Button className="inline-flex items-center justify-center w-16 p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200 focus:outline-none">
           <span className="text-sm font-medium uppercase">
             {currentLanguage.code}
           </span>
