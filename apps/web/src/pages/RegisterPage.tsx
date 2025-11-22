@@ -116,61 +116,64 @@ const RegisterPage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="auth-card"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
-            Create Account
-          </h1>
-          <p className="text-muted">Join our family portal today</p>
+        <div className="auth-header flex justify-center py-6 bg-primary/5">
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+            <img src="/family-portal-logo.svg" alt="Logo" className="w-10 h-10 text-primary" />
+          </div>
         </div>
 
-        <div className="auth-form">
-          <div className="auth-header"></div>
+        <div className="auth-form px-8 pb-8 pt-6">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-2 text-primary">
+              Create Account
+            </h1>
+            <p className="text-text-muted">Join our family portal today</p>
+          </div>
 
-          <div className="p-4 sm:p-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center">
+          <div className="mb-8">
+            <div className="flex items-center justify-between relative">
+              {/* Progress Bar Background */}
+              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-border rounded-full -z-10"></div>
+
+              {/* Progress Bar Active */}
+              <div
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-primary rounded-full -z-10 transition-all duration-300"
+                style={{ width: step === 1 ? '50%' : '100%' }}
+              ></div>
+
+              {/* Step 1 */}
+              <div className="flex flex-col items-center bg-surface px-2">
                 <div
-                  className={
-                    "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm " +
-                    (step === 1
-                      ? "bg-primary text-on-primary"
-                      : "bg-surface text-muted")
-                  }
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${step >= 1
+                      ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
+                      : "bg-surface border-border text-text-muted"
+                    }`}
                 >
                   1
                 </div>
                 <span
-                  className={
-                    "ml-2 text-xs sm:text-sm " +
-                    (step === 1
-                      ? "text-sm sm:text-base font-medium"
-                      : "text-muted")
-                  }
+                  className={`mt-2 text-xs font-medium transition-colors duration-300 ${step >= 1 ? "text-primary" : "text-text-muted"
+                    }`}
                 >
-                  Personal Details
+                  Personal
                 </span>
               </div>
-              <div className="flex-1 mx-2 sm:mx-4 h-0.5 sm:h-1 bg-border"></div>
-              <div className="flex items-center">
+
+              {/* Step 2 */}
+              <div className="flex flex-col items-center bg-surface px-2">
                 <div
-                  className={
-                    "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm " +
-                    (step === 2
-                      ? "bg-primary text-on-primary"
-                      : "bg-surface text-muted")
-                  }
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${step >= 2
+                      ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
+                      : "bg-surface border-border text-text-muted"
+                    }`}
                 >
                   2
                 </div>
                 <span
-                  className={
-                    "ml-2 text-xs sm:text-sm " +
-                    (step === 2
-                      ? "text-sm sm:text-base font-medium"
-                      : "text-muted")
-                  }
+                  className={`mt-2 text-xs font-medium transition-colors duration-300 ${step >= 2 ? "text-primary" : "text-text-muted"
+                    }`}
                 >
-                  Account Info
+                  Account
                 </span>
               </div>
             </div>

@@ -104,65 +104,6 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Actions Section */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-12"
-        >
-          <h2 className="text-2xl font-bold text-center mb-8 text-on-background">
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <Link
-              to="/documents/new"
-              className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
-            >
-              <div className="text-4xl mb-3">📄</div>
-              <div className="font-semibold text-on-surface mb-1">
-                New Document
-              </div>
-              <div className="text-sm text-muted">Create & share</div>
-            </Link>
-
-            <Link
-              to="/chat"
-              className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
-            >
-              <div className="text-4xl mb-3">💬</div>
-              <div className="font-semibold text-on-surface mb-1">
-                Family Chat
-              </div>
-              <div className="text-sm text-muted">Stay connected</div>
-            </Link>
-
-            <Link
-              to="/social-ultimate"
-              className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
-            >
-              <div className="text-4xl mb-3">📸</div>
-              <div className="font-semibold text-on-surface mb-1">
-                Share Photo
-              </div>
-              <div className="text-sm text-muted">Capture moments</div>
-            </Link>
-
-            <Link
-              to="/family-tree"
-              className="group bg-surface rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700"
-            >
-              <div className="text-4xl mb-3">🌳</div>
-              <div className="font-semibold text-on-surface mb-1">
-                Family Tree
-              </div>
-              <div className="text-sm text-muted">Explore heritage</div>
-            </Link>
-          </div>
-        </motion.div>
-      </div>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -180,7 +121,7 @@ const HomePage: React.FC = () => {
         <section className="mb-12">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-primary mb-2">Family Hub</h2>
-            <p className="text-muted">
+            <p className="text-text-muted">
               Everything you need to stay connected and organized
             </p>
           </div>
@@ -188,29 +129,40 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               {
-                icon: "📅",
-                label: "Add Event",
-                color: "from-blue-500/20 to-purple-500/20",
+                icon: "🌳",
+                label: "Family Tree",
+                desc: "Explore heritage",
+                to: "/family-tree",
+                color: "from-amber-500/20 to-orange-500/20",
+                border: "border-amber-300/30",
+                text: "text-amber-700 dark:text-amber-300",
+              },
+              {
+                icon: "💬",
+                label: "Family Chat",
+                desc: "Stay connected",
+                to: "/chat",
+                color: "from-blue-500/20 to-indigo-500/20",
                 border: "border-blue-300/30",
+                text: "text-blue-700 dark:text-blue-300",
               },
               {
                 icon: "📸",
-                label: "Share Photo",
+                label: "Photo Gallery",
+                desc: "Share memories",
+                to: "/social-ultimate",
                 color: "from-pink-500/20 to-rose-500/20",
                 border: "border-pink-300/30",
+                text: "text-pink-700 dark:text-pink-300",
               },
               {
-                icon: "✅",
-                label: "Add Task",
-                color: "from-green-500/20 to-emerald-500/20",
-                border: "border-green-300/30",
-              },
-              {
-                icon: "🌳",
-                label: "Family Tree",
-                color: "from-amber-500/20 to-orange-500/20",
-                border: "border-amber-300/30",
-                to: "/family-tree",
+                icon: "📄",
+                label: "Documents",
+                desc: "Secure storage",
+                to: "/documents",
+                color: "from-emerald-500/20 to-teal-500/20",
+                border: "border-emerald-300/30",
+                text: "text-emerald-700 dark:text-emerald-300",
               },
             ].map((action, index) => (
               <motion.div
@@ -222,28 +174,20 @@ const HomePage: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 className={`relative bg-gradient-to-br ${action.color} backdrop-blur-sm rounded-2xl border ${action.border} p-6 cursor-pointer group transition-all duration-300 hover:shadow-xl`}
               >
-                {action.to ? (
-                  <Link to={action.to} className="block text-center">
-                    <div className="text-5xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                      {action.icon}
-                    </div>
-                    <span className="font-semibold text-on-surface group-hover:text-primary transition-colors duration-300">
-                      {action.label}
-                    </span>
-                  </Link>
-                ) : (
-                  <div className="text-center">
-                    <div className="text-5xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                      {action.icon}
-                    </div>
-                    <span className="font-semibold text-on-surface group-hover:text-primary transition-colors duration-300">
-                      {action.label}
-                    </span>
+                <Link to={action.to} className="block text-center">
+                  <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 filter drop-shadow-sm">
+                    {action.icon}
                   </div>
-                )}
+                  <h3 className={`font-bold text-lg mb-1 ${action.text}`}>
+                    {action.label}
+                  </h3>
+                  <p className="text-sm text-text-muted font-medium">
+                    {action.desc}
+                  </p>
+                </Link>
 
                 {/* Hover effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
               </motion.div>
             ))}
           </div>

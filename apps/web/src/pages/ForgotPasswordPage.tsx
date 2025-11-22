@@ -71,14 +71,18 @@ const ForgotPasswordPage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="auth-card"
       >
-        <div className="auth-header"></div>
+        <div className="auth-header flex justify-center py-6 bg-primary/5">
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+            <img src="/family-portal-logo.svg" alt="Logo" className="w-10 h-10 text-primary" />
+          </div>
+        </div>
 
-        <div className="auth-form">
+        <div className="auth-form px-8 pb-8 pt-6">
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
+            <h1 className="text-3xl font-bold mb-2 text-primary">
               Forgot Password
             </h1>
-            <p className="text-muted">
+            <p className="text-text-muted">
               Enter your email to reset your password
             </p>
           </div>
