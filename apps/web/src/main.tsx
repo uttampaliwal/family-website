@@ -8,6 +8,7 @@ import "./styles/themes.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext";
 import { queryClient } from "./lib/queryClient";
+import "./lib/i18n"; // Initialize i18n
 
 // Configure axios to send credentials with every request
 axios.defaults.withCredentials = true;

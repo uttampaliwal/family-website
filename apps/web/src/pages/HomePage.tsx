@@ -1,8 +1,10 @@
 import React, { Suspense, lazy } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useTranslation, Trans } from "react-i18next";
 import ComponentSkeleton from "../components/ComponentSkeleton";
 import AnnouncementTicker from "../components/AnnouncementTicker";
+import WelcomeMessage from "../components/WelcomeMessage";
 
 // Lazy loaded components for better performance
 const Calendar = lazy(() =>
@@ -23,8 +25,6 @@ interface ActivityItem {
   time: string;
   icon: string;
 }
-
-import WelcomeMessage from "../components/WelcomeMessage";
 
 // Static data moved outside component to prevent recreation
 const recentActivity: ActivityItem[] = [
@@ -52,11 +52,13 @@ const recentActivity: ActivityItem[] = [
 ];
 
 const HomePage: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Hero section with dynamic background */}
       <div className="relative h-80 overflow-hidden bg-surface">
-        {/* Animated background gradients */}
+        {/* ... (backgrounds) */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-surface to-secondary/5"></div>
 
         {/* Decorative Elements */}
@@ -73,16 +75,18 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.8 }}
           >
             <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4 tracking-wide uppercase">
-              The Official Family Portal
+              {t("app.subtitle")}
             </span>
             <h1 className="text-5xl md:text-7xl font-extrabold text-text-base mb-2 tracking-tight leading-tight">
-              Welcome to <span className="text-primary">Yuva Kulya</span>
+              <Trans i18nKey="home.welcome">
+                Welcome to <span className="text-primary">Yuva Kulya</span>
+              </Trans>
             </h1>
             <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-6 font-serif">
-              युवा कुल्या
+              {t("app.title")}
             </h2>
             <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium leading-relaxed">
-              Your secure family hub for generations to come.
+              {t("home.tagline")}
             </p>
           </motion.div>
         </div>
@@ -104,18 +108,18 @@ const HomePage: React.FC = () => {
         {/* Enhanced Quick Actions */}
         <section className="mb-12">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-primary mb-2">Family Hub</h2>
-            <p className="text-text-muted">
-              Everything you need to stay connected and organized
-            </p>
+            <h2 className="text-3xl font-bold text-primary mb-2">
+              {t("home.quickActions")}
+            </h2>
+            <p className="text-text-muted">{t("home.tagline")}</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               {
                 icon: "🌳",
-                label: "Family Tree",
-                desc: "Explore heritage",
+                label: t("actions.familyTree"),
+                desc: t("nav.tree"),
                 to: "/family-tree",
                 color: "from-amber-500/20 to-orange-500/20",
                 border: "border-amber-300/30",
@@ -123,8 +127,8 @@ const HomePage: React.FC = () => {
               },
               {
                 icon: "💬",
-                label: "Family Chat",
-                desc: "Stay connected",
+                label: t("actions.familyChat"),
+                desc: t("nav.chat"),
                 to: "/chat",
                 color: "from-blue-500/20 to-indigo-500/20",
                 border: "border-blue-300/30",
@@ -132,8 +136,8 @@ const HomePage: React.FC = () => {
               },
               {
                 icon: "📸",
-                label: "Photo Gallery",
-                desc: "Share memories",
+                label: t("actions.photoGallery"),
+                desc: t("nav.gallery"),
                 to: "/social-ultimate",
                 color: "from-pink-500/20 to-rose-500/20",
                 border: "border-pink-300/30",
@@ -141,8 +145,8 @@ const HomePage: React.FC = () => {
               },
               {
                 icon: "📄",
-                label: "Documents",
-                desc: "Secure storage",
+                label: t("actions.documents"),
+                desc: t("nav.documents"),
                 to: "/documents",
                 color: "from-emerald-500/20 to-teal-500/20",
                 border: "border-emerald-300/30",
