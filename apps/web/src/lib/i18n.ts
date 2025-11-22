@@ -52,6 +52,7 @@ const resources = {
       },
       auth: {
         signIn: "Sign In",
+        register: "Register",
         signOut: "Sign Out",
         welcomeBack: "Welcome Back",
       },
@@ -105,6 +106,7 @@ const resources = {
       },
       auth: {
         signIn: "साइन इन करें",
+        register: "रजिस्टर करें",
         signOut: "साइन आउट करें",
         welcomeBack: "वापसी पर स्वागत है",
       },
