@@ -112,7 +112,11 @@ const SystemHealthPage: React.FC = () => {
   };
 
   return (
-    <InfoPageLayout title="System Health" backTo="/">
+    <InfoPageLayout
+      title="System Health"
+      subtitle="Monitor the health and status of system services"
+      backTo="/"
+    >
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-primary">Service Status</h2>

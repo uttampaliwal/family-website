@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaInstagram, FaTwitter, FaFacebook, FaLinkedin } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import StockMarketTicker from "./StockMarketTicker";
 
 const ModernFooter: React.FC = () => {
   const { t } = useTranslation("footer");
@@ -208,6 +209,9 @@ const ModernFooter: React.FC = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Stock Market Ticker - Bottom most part */}
+      <StockMarketTicker />
     </footer>
   );
 };

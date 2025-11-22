@@ -44,7 +44,11 @@ const sitemapSections = [
 
 const SitemapPage: React.FC = () => {
   return (
-    <InfoPageLayout title="Sitemap" backTo="/">
+    <InfoPageLayout
+      title="Sitemap"
+      subtitle="Navigate through all available pages and sections"
+      backTo="/"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {sitemapSections.map((section, index) => (
           <motion.div
