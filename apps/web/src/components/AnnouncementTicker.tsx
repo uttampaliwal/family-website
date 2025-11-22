@@ -21,8 +21,7 @@ const AnnouncementTicker: React.FC = () => {
     {
       id: "1",
       type: "celebration",
-      message:
-        "🎉 Happy Birthday to Priya! Join us for the virtual celebration at 7 PM today!",
+      message: t("announcementContent.birthday"),
       icon: "🎂",
       priority: "high",
       timestamp: new Date(),
@@ -30,8 +29,7 @@ const AnnouncementTicker: React.FC = () => {
     {
       id: "2",
       type: "reminder",
-      message:
-        "📅 Family video call scheduled for this Sunday at 6 PM. Don't forget to join!",
+      message: t("announcementContent.videoCall"),
       icon: "📞",
       priority: "medium",
       timestamp: new Date(),
@@ -39,8 +37,7 @@ const AnnouncementTicker: React.FC = () => {
     {
       id: "3",
       type: "update",
-      message:
-        "📸 New family photos have been uploaded to the gallery. Check them out!",
+      message: t("announcementContent.newPhotos"),
       icon: "🖼️",
       priority: "medium",
       timestamp: new Date(),
@@ -48,8 +45,7 @@ const AnnouncementTicker: React.FC = () => {
     {
       id: "4",
       type: "info",
-      message:
-        "🌟 Welcome to our new family portal! Explore all the amazing features we've built together.",
+      message: t("announcementContent.welcome"),
       icon: "✨",
       priority: "low",
       timestamp: new Date(),
@@ -57,8 +53,7 @@ const AnnouncementTicker: React.FC = () => {
     {
       id: "5",
       type: "celebration",
-      message:
-        "💑 Congratulations to Raj and Meera on their 5th anniversary! Wishing you many more years of happiness!",
+      message: t("announcementContent.anniversary"),
       icon: "💕",
       priority: "high",
       timestamp: new Date(),

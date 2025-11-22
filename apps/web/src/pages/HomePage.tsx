@@ -26,33 +26,33 @@ interface ActivityItem {
   icon: string;
 }
 
-// Static data moved outside component to prevent recreation
-const recentActivity: ActivityItem[] = [
-  {
-    id: "1",
-    type: "event",
-    title: "Added new event",
-    time: "1 hour ago",
-    icon: "📅",
-  },
-  {
-    id: "2",
-    type: "photo",
-    title: "Shared family photo",
-    time: "2 hours ago",
-    icon: "📸",
-  },
-  {
-    id: "3",
-    type: "task",
-    title: "Completed task",
-    time: "3 hours ago",
-    icon: "✅",
-  },
-];
-
 const HomePage: React.FC = () => {
   const { t } = useTranslation();
+
+  // Static data - in a real app, this would come from an API
+  const recentActivity: ActivityItem[] = [
+    {
+      id: "1",
+      type: "event",
+      title: t("activity.addedEvent"),
+      time: t("activity.hourAgo"),
+      icon: "📅",
+    },
+    {
+      id: "2",
+      type: "photo",
+      title: t("activity.sharedPhoto"),
+      time: t("activity.hoursAgo"),
+      icon: "📸",
+    },
+    {
+      id: "3",
+      type: "task",
+      title: t("activity.completedTask"),
+      time: t("activity.hoursAgo3"),
+      icon: "✅",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
