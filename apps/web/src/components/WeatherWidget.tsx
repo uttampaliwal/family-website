@@ -6,6 +6,7 @@ interface WeatherData {
   condition: string;
   humidity: number;
   windSpeed: number;
+  location: string;
   forecast: {
     date: string;
     temperature: number;
@@ -154,6 +155,7 @@ const WeatherWidget: React.FC = () => {
         <h3 className="text-xl font-semibold text-base mb-2">
           Current Weather
         </h3>
+        <p className="text-sm text-text-muted mb-4">{weather.location}</p>
         <div className="flex items-center">
           <div
             className="text-6xl mr-4"

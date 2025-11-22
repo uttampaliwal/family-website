@@ -6,6 +6,7 @@ interface WeatherData {
   condition: string;
   humidity: number;
   windSpeed: number;
+  location: string;
   forecast: {
     date: string;
     temperature: number;
@@ -91,19 +92,15 @@ export const getWeather = async (req: Request, res: Response) => {
       if (!currentResponse.ok) {
         const status = currentResponse.status;
         if (status === 401) {
-          return res
-            .status(500)
-            .json({
-              message:
-                "Weather service authentication failed - check your API key",
-            });
+          return res.status(500).json({
+            message:
+              "Weather service authentication failed - check your API key",
+          });
         }
         if (status === 404) {
-          return res
-            .status(500)
-            .json({
-              message: "Weather service not available for your location",
-            });
+          return res.status(500).json({
+            message: "Weather service not available for your location",
+          });
         }
         if (status === 429) {
           return res
@@ -168,6 +165,7 @@ export const getWeather = async (req: Request, res: Response) => {
       condition: currentData.weather[0].main,
       humidity: currentData.main.humidity,
       windSpeed: Math.round(currentData.wind.speed * 3.6),
+      location: currentData.name,
       forecast,
     };
 

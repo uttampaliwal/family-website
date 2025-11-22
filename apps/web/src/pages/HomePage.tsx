@@ -67,6 +67,15 @@ const HomePage: React.FC = () => {
           <div className="absolute top-1/2 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
         </div>
 
+        {/* Creative peacock feather decoration */}
+        <div className="absolute top-4 left-4 pointer-events-none select-none">
+          <img
+            src="/peacock.jpg"
+            alt="Peacock feather decoration"
+            className="w-24 h-24 object-contain opacity-20 rotate-12"
+          />
+        </div>
+
         {/* Hero content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 pb-12">
           <motion.div

@@ -49,10 +49,19 @@ const ModernFooter: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-surface via-background to-surface border-t border-primary/20 mt-16">
+    <footer className="bg-gradient-to-br from-surface via-background to-surface border-t border-primary/20 mt-16 relative overflow-hidden">
+      {/* Creative peacock feather decoration in footer */}
+      <div className="absolute bottom-0 right-0 pointer-events-none select-none">
+        <img
+          src="/peacock.jpg"
+          alt="Peacock feather decoration"
+          className="w-32 h-32 object-contain opacity-10 rotate-45"
+        />
+      </div>
+
       <div className="h-1 bg-gradient-to-r from-primary via-secondary to-accent"></div>
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Family Brand Section */}
           <div className="lg:col-span-1">
