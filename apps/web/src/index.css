@@ -20,6 +20,11 @@ body,
   min-height: 100vh;
 }
 
+html {
+  overflow-y: scroll;
+  /* Prevent layout shift from scrollbar appearing/disappearing */
+}
+
 body {
   font-family:
     "Inter",

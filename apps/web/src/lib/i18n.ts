@@ -75,6 +75,26 @@ const resources = {
         copyright: "Made with ❤️ for our family.",
         portalActive: "Family Portal Active",
       },
+      announcementContent: {
+        birthday:
+          "🎉 Happy Birthday to Priya! Join us for the virtual celebration at 7 PM today!",
+        videoCall:
+          "📅 Family video call scheduled for this Sunday at 6 PM. Don't forget to join!",
+        newPhotos:
+          "📸 New family photos have been uploaded to the gallery. Check them out!",
+        welcome:
+          "🌟 Welcome to our new family portal! Explore all the amazing features we've built together.",
+        anniversary:
+          "💑 Congratulations to Raj and Meera on their 5th anniversary! Wishing you many more years of happiness!",
+      },
+      activity: {
+        addedEvent: "Added new event",
+        sharedPhoto: "Shared family photo",
+        completedTask: "Completed task",
+        hourAgo: "1 hour ago",
+        hoursAgo: "2 hours ago",
+        hoursAgo3: "3 hours ago",
+      },
     },
   },
   hi: {
@@ -148,6 +168,26 @@ const resources = {
         subscribe: "सदस्यता लें",
         copyright: "हमारे परिवार के लिए ❤️ के साथ बनाया गया।",
         portalActive: "परिवार पोर्टल सक्रिय",
+      },
+      announcementContent: {
+        birthday:
+          "🎉 प्रिया को जन्मदिन की शुभकामनाएँ! आज शाम 7 बजे वर्चुअल उत्सव में शामिल हों!",
+        videoCall:
+          "📅 इस रविवार शाम 6 बजे परिवार की वीडियो कॉल शेड्यूल है। शामिल होना न भूलें!",
+        newPhotos:
+          "📸 नई पारिवारिक तस्वीरें गैलरी में अपलोड की गई हैं। उन्हें देखें!",
+        welcome:
+          "🌟 हमारे नए पारिवारिक पोर्टल में आपका स्वागत है! हमने मिलकर बनाई गई सभी अद्भुत सुविधाओं का अन्वेषण करें।",
+        anniversary:
+          "💑 राज और मीरा को उनकी 5वीं वर्षगांठ पर बधाई! आपको खुशियों के कई और वर्षों की शुभकामनाएं!",
+      },
+      activity: {
+        addedEvent: "नया कार्यक्रम जोड़ा गया",
+        sharedPhoto: "पारिवारिक फोटो साझा की गई",
+        completedTask: "कार्य पूरा किया",
+        hourAgo: "1 घंटे पहले",
+        hoursAgo: "2 घंटे पहले",
+        hoursAgo3: "3 घंटे पहले",
       },
     },
   },
