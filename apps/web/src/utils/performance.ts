@@ -1,4 +1,8 @@
 // Performance monitoring and optimization utilities
+import React from "react";
+import { createLogger } from "./logger";
+
+const logger = createLogger("Performance");
 
 // Lazy loading wrapper for components
 export const lazy = <T extends React.ComponentType<Record<string, unknown>>>(
@@ -70,13 +74,11 @@ export const observeWebVitals = () => {
       if (entries.length > 0) {
         const lastEntry = entries[entries.length - 1];
 
-        if (import.meta.env.DEV) {
-          console.log("LCP:", lastEntry.startTime);
-        }
+        logger.debug("LCP:", lastEntry.startTime);
 
         // Send to analytics if needed
         if (lastEntry.startTime > 2500) {
-          console.warn("Poor LCP performance:", lastEntry.startTime);
+          logger.warn("Poor LCP performance:", lastEntry.startTime);
         }
       }
     });
@@ -108,15 +110,13 @@ export const monitorMemoryUsage = () => {
       const total = memory.totalJSHeapSize / 1048576;
       const limit = memory.jsHeapSizeLimit / 1048576;
 
-      if (import.meta.env.DEV) {
-        console.log(
-          `Memory usage: ${used.toFixed(2)}MB / ${total.toFixed(2)}MB (limit: ${limit.toFixed(2)}MB)`,
-        );
-      }
+      logger.debug(
+        `Memory usage: ${used.toFixed(2)}MB / ${total.toFixed(2)}MB (limit: ${limit.toFixed(2)}MB)`,
+      );
 
       // Warn if memory usage is high
       if (used / limit > 0.9) {
-        console.warn("High memory usage detected:", used, "MB");
+        logger.warn("High memory usage detected:", used, "MB");
       }
     }
   };
@@ -130,7 +130,7 @@ export const monitorMemoryUsage = () => {
 // Bundle analyzer helper
 export const logBundleInfo = () => {
   if (import.meta.env.DEV) {
-    console.log("Bundle info:", {
+    logger.info("Bundle info:", {
       mode: import.meta.env.MODE,
       dev: import.meta.env.DEV,
       prod: import.meta.env.PROD,
@@ -144,10 +144,10 @@ export const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator && import.meta.env.PROD) {
     try {
       const registration = await navigator.serviceWorker.register("/sw.js");
-      console.log("Service Worker registered:", registration);
+      logger.info("Service Worker registered:", registration);
       return registration;
     } catch (error) {
-      console.warn("Service Worker registration failed:", error);
+      logger.warn("Service Worker registration failed:", error);
     }
   }
 };
@@ -167,5 +167,3 @@ export const inlineCriticalCSS = (css: string) => {
   style.textContent = css;
   document.head.appendChild(style);
 };
-
-import React from "react";
