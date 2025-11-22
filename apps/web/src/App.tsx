@@ -165,7 +165,7 @@ function App() {
           <div className="bg-background text-text-base app-root">
             <a
               href="#main-content"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 btn btn-primary"
+              className="fixed top-0 left-0 -translate-y-full focus:translate-y-0 z-[100] bg-primary text-white px-4 py-2 rounded-br-lg shadow-lg transition-transform duration-200 font-medium outline-none"
             >
               Skip to main content
             </a>

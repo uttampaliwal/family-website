@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface Announcement {
   id: string;
@@ -11,6 +12,7 @@ interface Announcement {
 }
 
 const AnnouncementTicker: React.FC = () => {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -115,14 +117,14 @@ const AnnouncementTicker: React.FC = () => {
           <div className="flex items-center space-x-2">
             <span className="text-lg">{currentAnnouncement.icon}</span>
             <span className="text-xs font-semibold text-primary uppercase tracking-wide">
-              Family Announcements
+              {t("announcements.label")}
             </span>
             <span className="text-xs">
               {getPriorityIndicator(currentAnnouncement.priority)}
             </span>
           </div>
 
-          {/* Controls */}
+          {/* ... (Controls) */}
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
@@ -186,7 +188,7 @@ const AnnouncementTicker: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 className="px-3 py-1 text-xs font-medium bg-primary/20 hover:bg-primary/30 text-primary rounded-full border border-primary/30 transition-all duration-200"
               >
-                Learn More
+                {t("home.viewAll")}
               </motion.button>
             </div>
           </motion.div>

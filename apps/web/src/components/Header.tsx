@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -126,6 +127,7 @@ const navigationConfig = {
 const Header = ({ scrolled }: HeaderProps) => {
   const { isLoggedIn, user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation(); // Add useTranslation hook
   const [searchQuery, setSearchQuery] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -235,10 +237,10 @@ const Header = ({ scrolled }: HeaderProps) => {
             </div>
             <div className="hidden sm:flex flex-col">
               <span className="text-xl font-bold text-text-base leading-tight tracking-tight">
-                Yuva Kulya
+                {t("app.title")}
               </span>
               <span className="text-xs text-text-muted font-medium tracking-wide">
-                FAMILY PORTAL
+                {t("app.subtitle")}
               </span>
             </div>
           </Link>
@@ -267,7 +269,7 @@ const Header = ({ scrolled }: HeaderProps) => {
               <input
                 type="text"
                 className="block w-full pl-10 pr-3 py-2 border border-border rounded-xl leading-5 bg-surface text-text-base placeholder:text-text-muted placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
-                placeholder="Search family, documents, events..."
+                placeholder={t("home.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -282,7 +284,7 @@ const Header = ({ scrolled }: HeaderProps) => {
             <Link
               to="/"
               className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
-              title="Home"
+              title={t("nav.home")}
             >
               <HomeIcon className="h-6 w-6" />
             </Link>
@@ -303,7 +305,7 @@ const Header = ({ scrolled }: HeaderProps) => {
                       : "text-text-base hover:text-primary hover:bg-primary/5"
                   }`}
                 >
-                  Features
+                  {t("header.features")}
                   <ChevronDownIcon
                     className={`h-4 w-4 ml-1 transition-transform duration-200 ${openDropdown === "features" ? "rotate-180" : ""}`}
                   />
