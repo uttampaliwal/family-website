@@ -2,13 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaInstagram, FaTwitter, FaFacebook, FaLinkedin } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const ModernFooter: React.FC = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const footerSections = [
     {
-      title: "Quick Links",
+      title: t("footer.quickLinks"),
       links: [
         { to: "/privacy-policy", label: "Privacy Policy", icon: "🔒" },
         { to: "/terms-of-service", label: "Terms of Service", icon: "📋" },
@@ -69,8 +71,7 @@ const ModernFooter: React.FC = () => {
                 Yuva Kulya
               </h4>
               <p className="text-muted text-sm leading-relaxed">
-                A digital sanctuary where our family bonds flourish, memories
-                are preserved, and love transcends distance.
+                {t("footer.tagline")}
               </p>
             </motion.div>
           </div>
@@ -123,7 +124,7 @@ const ModernFooter: React.FC = () => {
           >
             <h5 className="text-lg font-semibold text-primary mb-4 flex items-center">
               <span className="w-2 h-2 bg-secondary rounded-full mr-2"></span>
-              Contact Us
+              {t("footer.contactUs")}
             </h5>
             <div className="text-muted space-y-2 text-sm">
               <p>123 Family Grove</p>
@@ -141,10 +142,10 @@ const ModernFooter: React.FC = () => {
           >
             <h5 className="text-lg font-semibold text-primary mb-4 flex items-center">
               <span className="w-2 h-2 bg-secondary rounded-full mr-2"></span>
-              Stay Connected
+              {t("footer.stayConnected")}
             </h5>
             <p className="text-muted text-sm mb-3">
-              Subscribe to our newsletter for family updates.
+              {t("footer.newsletterText")}
             </p>
             <form className="flex">
               <input
@@ -156,7 +157,7 @@ const ModernFooter: React.FC = () => {
                 type="submit"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 rounded-r-md font-semibold text-sm transition-colors"
               >
-                Subscribe
+                {t("footer.subscribe")}
               </button>
             </form>
           </motion.div>
@@ -174,9 +175,8 @@ const ModernFooter: React.FC = () => {
             <div className="text-center md:text-left">
               <p className="text-muted text-sm">
                 © {currentYear}{" "}
-                <span className="font-semibold text-primary">Yuva Kulya</span>.
-                Made with <span className="text-red-500 animate-pulse">❤️</span>{" "}
-                for our family.
+                <span className="font-semibold text-primary">Yuva Kulya</span>.{" "}
+                {t("footer.copyright")}
               </p>
             </div>
 
@@ -184,7 +184,7 @@ const ModernFooter: React.FC = () => {
               {/* Family Stats */}
               <div className="flex items-center text-sm text-muted">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                <span>Family Portal Active</span>
+                <span>{t("footer.portalActive")}</span>
               </div>
 
               {/* Social Media Links */}

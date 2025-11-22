@@ -64,6 +64,17 @@ const resources = {
         light: "Light",
         dark: "Dark",
       },
+      footer: {
+        tagline:
+          "A digital sanctuary where our family bonds flourish, memories are preserved, and love transcends distance.",
+        quickLinks: "Quick Links",
+        contactUs: "Contact Us",
+        stayConnected: "Stay Connected",
+        newsletterText: "Subscribe to our newsletter for family updates.",
+        subscribe: "Subscribe",
+        copyright: "Made with ❤️ for our family.",
+        portalActive: "Family Portal Active",
+      },
     },
   },
   hi: {
@@ -125,6 +136,18 @@ const resources = {
       theme: {
         light: "लाइट",
         dark: "डार्क",
+      },
+      footer: {
+        tagline:
+          "एक डिजिटल अभयारण्य जहाँ हमारे पारिवारिक बंधन फलते-फूलते हैं, यादें संरक्षित होती हैं, और प्यार दूरी से परे होता है।",
+        quickLinks: "त्वरित लिंक",
+        contactUs: "संपर्क करें",
+        stayConnected: "जुड़े रहें",
+        newsletterText:
+          "पारिवारिक अपडेट के लिए हमारे न्यूज़लेटर की सदस्यता लें।",
+        subscribe: "सदस्यता लें",
+        copyright: "हमारे परिवार के लिए ❤️ के साथ बनाया गया।",
+        portalActive: "परिवार पोर्टल सक्रिय",
       },
     },
   },
