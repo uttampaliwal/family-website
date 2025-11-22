@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import i18n from "../lib/i18n";
 
 interface Announcement {
   id: string;
@@ -12,53 +13,68 @@ interface Announcement {
 }
 
 const AnnouncementTicker: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation("home");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
+  // Map language codes to locale codes for date formatting
+  const getLocale = (lang: string) => {
+    switch (lang) {
+      case "hi":
+        return "hi-IN";
+      case "en":
+        return "en-US";
+      default:
+        return lang;
+    }
+  };
+
   // Sample announcements - in a real app, this would come from an API
-  const announcements: Announcement[] = [
-    {
-      id: "1",
-      type: "celebration",
-      message: t("announcementContent.birthday"),
-      icon: "🎂",
-      priority: "high",
-      timestamp: new Date(),
-    },
-    {
-      id: "2",
-      type: "reminder",
-      message: t("announcementContent.videoCall"),
-      icon: "📞",
-      priority: "medium",
-      timestamp: new Date(),
-    },
-    {
-      id: "3",
-      type: "update",
-      message: t("announcementContent.newPhotos"),
-      icon: "🖼️",
-      priority: "medium",
-      timestamp: new Date(),
-    },
-    {
-      id: "4",
-      type: "info",
-      message: t("announcementContent.welcome"),
-      icon: "✨",
-      priority: "low",
-      timestamp: new Date(),
-    },
-    {
-      id: "5",
-      type: "celebration",
-      message: t("announcementContent.anniversary"),
-      icon: "💕",
-      priority: "high",
-      timestamp: new Date(),
-    },
-  ];
+  const announcements: Announcement[] = useMemo(
+    () => [
+      {
+        id: "1",
+        type: "update",
+        message: t("announcements.newFeature"),
+        icon: "🚀",
+        priority: "high",
+        timestamp: new Date(),
+      },
+      {
+        id: "2",
+        type: "reminder",
+        message: t("announcements.maintenance"),
+        icon: "🔧",
+        priority: "high",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+      },
+      {
+        id: "3",
+        type: "celebration",
+        message: t("announcements.birthday"),
+        icon: "🎉",
+        priority: "high",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+      },
+      {
+        id: "4",
+        type: "reminder",
+        message: t("announcements.videoCall"),
+        icon: "📅",
+        priority: "medium",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
+      },
+      {
+        id: "5",
+        type: "update",
+        message: t("announcements.newPhotos"),
+        icon: "📸",
+        priority: "low",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
+      },
+    ],
+    [t, i18n.language],
+  );
 
   // Auto-advance ticker
   useEffect(() => {
@@ -169,7 +185,10 @@ const AnnouncementTicker: React.FC = () => {
                 {currentAnnouncement.message}
               </p>
               <p className="text-xs text-muted mt-1">
-                {currentAnnouncement.timestamp.toLocaleDateString()} •
+                {currentAnnouncement.timestamp.toLocaleString(
+                  getLocale(i18n.language),
+                )}{" "}
+                •
                 <span className="ml-1 capitalize">
                   {currentAnnouncement.type}
                 </span>
@@ -183,7 +202,7 @@ const AnnouncementTicker: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 className="px-3 py-1 text-xs font-medium bg-primary/20 hover:bg-primary/30 text-primary rounded-full border border-primary/30 transition-all duration-200"
               >
-                {t("home.viewAll")}
+                {t("viewAll")}
               </motion.button>
             </div>
           </motion.div>

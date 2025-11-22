@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useForm, FormProvider } from "react-hook-form";
 import type { SubmitHandler, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +18,7 @@ import AccountInformationForm from "../components/AccountInformationForm";
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const RegisterPage: React.FC = () => {
+  const { t } = useTranslation("common");
   const [step, setStep] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
   const { showToast } = useToast();
@@ -118,16 +120,20 @@ const RegisterPage: React.FC = () => {
       >
         <div className="auth-header flex justify-center py-6 bg-primary/5">
           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-            <img src="/family-portal-logo.svg" alt="Logo" className="w-10 h-10 text-primary" />
+            <img
+              src="/family-portal-logo.svg"
+              alt="Logo"
+              className="w-10 h-10 text-primary"
+            />
           </div>
         </div>
 
         <div className="auth-form px-8 pb-8 pt-6">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2 text-primary">
-              Create Account
+              {t("auth.createAccount")}
             </h1>
-            <p className="text-text-muted">Join our family portal today</p>
+            <p className="text-text-muted">{t("auth.joinFamilyPortal")}</p>
           </div>
 
           <div className="mb-8">
@@ -138,22 +144,24 @@ const RegisterPage: React.FC = () => {
               {/* Progress Bar Active */}
               <div
                 className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-primary rounded-full -z-10 transition-all duration-300"
-                style={{ width: step === 1 ? '50%' : '100%' }}
+                style={{ width: step === 1 ? "50%" : "100%" }}
               ></div>
 
               {/* Step 1 */}
               <div className="flex flex-col items-center bg-surface px-2">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${step >= 1
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
+                    step >= 1
                       ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
                       : "bg-surface border-border text-text-muted"
-                    }`}
+                  }`}
                 >
                   1
                 </div>
                 <span
-                  className={`mt-2 text-xs font-medium transition-colors duration-300 ${step >= 1 ? "text-primary" : "text-text-muted"
-                    }`}
+                  className={`mt-2 text-xs font-medium transition-colors duration-300 ${
+                    step >= 1 ? "text-primary" : "text-text-muted"
+                  }`}
                 >
                   Personal
                 </span>
@@ -162,16 +170,18 @@ const RegisterPage: React.FC = () => {
               {/* Step 2 */}
               <div className="flex flex-col items-center bg-surface px-2">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${step >= 2
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
+                    step >= 2
                       ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
                       : "bg-surface border-border text-text-muted"
-                    }`}
+                  }`}
                 >
                   2
                 </div>
                 <span
-                  className={`mt-2 text-xs font-medium transition-colors duration-300 ${step >= 2 ? "text-primary" : "text-text-muted"
-                    }`}
+                  className={`mt-2 text-xs font-medium transition-colors duration-300 ${
+                    step >= 2 ? "text-primary" : "text-text-muted"
+                  }`}
                 >
                   Account
                 </span>
@@ -195,7 +205,7 @@ const RegisterPage: React.FC = () => {
                     disabled={loading}
                     className="btn btn-secondary w-1/2"
                   >
-                    Back
+                    {t("auth.back")}
                   </button>
                 )}
                 {step === 1 ? (
@@ -205,7 +215,7 @@ const RegisterPage: React.FC = () => {
                     disabled={loading}
                     className="btn btn-primary w-full"
                   >
-                    Next
+                    {t("auth.next")}
                   </button>
                 ) : (
                   <button
@@ -213,7 +223,7 @@ const RegisterPage: React.FC = () => {
                     disabled={loading}
                     className="btn btn-primary w-1/2"
                   >
-                    {loading ? "Registering..." : "Register"}
+                    {loading ? t("auth.registering") : t("auth.register")}
                   </button>
                 )}
               </div>
@@ -223,12 +233,12 @@ const RegisterPage: React.FC = () => {
 
         <div className="text-center mt-6">
           <p className="text-muted">
-            Already have an account?{" "}
+            {t("auth.alreadyHaveAccount")}{" "}
             <Link
               to="/login"
               className="font-medium text-primary hover:text-secondary transition-colors"
             >
-              Sign in
+              {t("auth.signIn")}
             </Link>
           </p>
         </div>

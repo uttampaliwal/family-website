@@ -88,6 +88,11 @@ const envSchema = z.object({
     .min(16, "CSRF_SECRET must be at least 16 characters long")
     .optional(),
 
+  // Weather API Configuration
+  OPENWEATHER_API_KEY: z
+    .string()
+    .min(1, "OPENWEATHER_API_KEY is required for weather functionality"),
+
   // Turbo Configuration
   TURBO_TELEMETRY_DISABLED: z.string().optional(),
 });

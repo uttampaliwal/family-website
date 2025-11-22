@@ -1,5 +1,5 @@
 {
-  "welcome": "Welcome to <1>Yuva Kulya</1>",
+  "welcome": "Welcome to Yuva Kulya",
   "tagline": "Your secure family hub for generations to come.",
   "quickActions": "Family Hub",
   "recentActivity": "Recent Activity",
@@ -15,7 +15,9 @@
     "videoCall": "📅 Family video call scheduled for this Sunday at 6 PM. Don't forget to join!",
     "newPhotos": "📸 New family photos have been uploaded to the gallery. Check them out!",
     "welcome": "🌟 Welcome to our new family portal! Explore all the amazing features we've built together.",
-    "anniversary": "💑 Congratulations to Raj and Meera on their 5th anniversary! Wishing you many more years of happiness!"
+    "anniversary": "💑 Congratulations to Raj and Meera on their 5th anniversary! Wishing you many more years of happiness!",
+    "newFeature": "We have just launched a new feature that you might like!",
+    "maintenance": "The system will be down for scheduled maintenance on Saturday at 10 PM."
   },
   "activity": {
     "addedEvent": "Added new event",
@@ -24,6 +26,34 @@
     "hourAgo": "1 hour ago",
     "hoursAgo": "2 hours ago",
     "hoursAgo3": "3 hours ago"
+  },
+  "viewAll": "View All",
+  "weather": {
+    "currentWeather": "Current Weather",
+    "humidity": "Humidity",
+    "windSpeed": "Wind Speed",
+    "threeDayForecast": "3-Day Forecast"
+  },
+  "calendar": {
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "newEvent": "+ New Event"
+  },
+  "tools": {
+    "familyDocuments": "Family Documents",
+    "familyDocumentsDesc": "Securely store and manage important family documents",
+    "expenseTracker": "Expense Tracker",
+    "expenseTrackerDesc": "Track and manage family expenses",
+    "taskManager": "Task Manager",
+    "taskManagerDesc": "Organize and assign family tasks",
+    "photoGallery": "Photo Gallery",
+    "photoGalleryDesc": "Share and preserve family memories",
+    "shoppingList": "Shopping List",
+    "shoppingListDesc": "Collaborative family shopping list",
+    "emergencyInfo": "Emergency Info",
+    "emergencyInfoDesc": "Quick access to emergency contacts and procedures",
+    "open": "Open"
   },
   "welcome_message": {
     "goodMorning": "Good Morning",

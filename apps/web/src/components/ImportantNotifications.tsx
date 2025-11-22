@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface Notification {
   id: string;
@@ -22,65 +23,117 @@ const NOTIFICATION_STYLES = {
 
 const sanitizeString = (str: string) => String(str).replace(/[<>"'&]/g, "");
 
+// Translation map for notification messages
+const notificationTranslations: Record<string, Record<string, string>> = {
+  "New Feature Announcement": {
+    en: "New Feature Announcement",
+    hi: "नई सुविधा की घोषणा",
+  },
+  "We have just launched a new feature that you might like!": {
+    en: "We have just launched a new feature that you might like!",
+    hi: "हमने अभी एक नई सुविधा लॉन्च की है जो आपको पसंद आ सकती है!",
+  },
+  "Scheduled Maintenance": {
+    en: "Scheduled Maintenance",
+    hi: "निर्धारित रखरखाव",
+  },
+  "The system will be down for scheduled maintenance on Saturday at 10 PM.": {
+    en: "The system will be down for scheduled maintenance on Saturday at 10 PM.",
+    hi: "सिस्टम शनिवार को शाम 10 बजे निर्धारित रखरखाव के लिए बंद रहेगा।",
+  },
+};
+
 const ImportantNotifications: React.FC = () => {
+  const { i18n } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const translateNotification = useCallback(
+    (notification: Notification): Notification => {
+      const currentLang = i18n.language === "hi" ? "hi" : "en";
+      return {
+        ...notification,
+        title:
+          notificationTranslations[notification.title]?.[currentLang] ||
+          notification.title,
+        message:
+          notificationTranslations[notification.message]?.[currentLang] ||
+          notification.message,
+      };
+    },
+    [i18n.language],
+  );
+
+  const getLocale = useCallback((lang: string) => {
+    switch (lang) {
+      case "hi":
+        return "hi-IN";
+      case "en":
+        return "en-US";
+      default:
+        return lang;
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const base = import.meta.env.VITE_API_BASE_URL || "";
+    const url = `${base ? base : ""}/api/notifications/important`;
+
+    const fetchWithRetry = async (attempt = 1): Promise<Response> => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/notifications/important`,
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        const res = await fetch(url, {
+          signal: controller.signal,
+          headers: { Accept: "application/json" },
+        });
+        clearTimeout(timeoutId);
+        if (res.ok) return res;
+        if (attempt < 3 && res.status >= 500) {
+          await new Promise((r) => setTimeout(r, 500 * attempt));
+          return fetchWithRetry(attempt + 1);
         }
+        throw new Error(`HTTP ${res.status}`);
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (attempt < 3) {
+          await new Promise((r) => setTimeout(r, 500 * attempt));
+          return fetchWithRetry(attempt + 1);
+        }
+        throw err;
+      }
+    };
+
+    const load = async () => {
+      try {
+        const response = await fetchWithRetry();
         const data = await response.json();
         setNotifications(data);
       } catch (error) {
-        // Structured error logging with context
-        const errorInfo = {
-          message: error instanceof Error ? error.message : "Unknown error",
-          timestamp: new Date().toISOString(),
-          operation: "fetchNotifications",
-          url: `${import.meta.env.VITE_API_BASE_URL}/api/notifications/important`,
-        };
-        console.error(
-          "Error fetching notifications:",
-          JSON.stringify(errorInfo),
-        );
-
-        const getErrorMessage = (error: unknown): string => {
+        const msg = (() => {
           if (!(error instanceof Error)) return "Failed to load notifications";
-
-          const errorMap: Record<string, string> = {
+          const map: Record<string, string> = {
             "404": "Notifications service not available.",
             "403": "You do not have permission to view notifications.",
             "401": "You do not have permission to view notifications.",
             "500": "Server error. Please try again later.",
+            aborted: "Request timed out. Please try again.",
             network: "Network error. Please check your connection.",
-            fetch: "Network error. Please check your connection.",
           };
-
-          for (const [key, message] of Object.entries(errorMap)) {
-            if (error.message.toLowerCase().includes(key.toLowerCase())) {
-              return message;
-            }
+          const text = error.message.toLowerCase();
+          for (const [key, val] of Object.entries(map)) {
+            if (text.includes(key)) return val;
           }
-
           return "An unexpected error occurred. Please try again.";
-        };
-
-        const errorMessage = getErrorMessage(error);
-
-        setError(errorMessage);
+        })();
+        setError(msg);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNotifications();
+    load();
   }, []);
 
   const getNotificationStyles = useCallback((type: Notification["type"]) => {
@@ -88,18 +141,21 @@ const ImportantNotifications: React.FC = () => {
   }, []);
 
   const sanitizedNotifications = useMemo(() => {
-    return notifications.map((notification) => ({
-      ...notification,
-      title: sanitizeString(notification.title),
-      message: sanitizeString(notification.message),
-      action: notification.action
-        ? {
-          ...notification.action,
-          label: sanitizeString(notification.action.label),
-        }
-        : undefined,
-    }));
-  }, [notifications]);
+    return notifications.map((notification) => {
+      const translated = translateNotification(notification);
+      return {
+        ...translated,
+        title: sanitizeString(translated.title),
+        message: sanitizeString(translated.message),
+        action: translated.action
+          ? {
+              ...translated.action,
+              label: sanitizeString(translated.action.label),
+            }
+          : undefined,
+      };
+    });
+  }, [notifications, translateNotification]);
 
   if (loading) {
     return (
@@ -138,7 +194,9 @@ const ImportantNotifications: React.FC = () => {
                   {notification.message}
                 </p>
                 <time className="block mt-2 text-sm text-muted">
-                  {new Date(notification.timestamp).toLocaleString()}
+                  {new Date(notification.timestamp).toLocaleString(
+                    getLocale(i18n.language),
+                  )}
                 </time>
               </div>
               {notification.action && (

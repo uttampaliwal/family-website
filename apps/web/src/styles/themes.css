@@ -16,8 +16,8 @@
     /* Bright Blue (Blue 500) */
     --color-text-base: 15 23 42;
     /* Slate 900 - Sharp contrast */
-    --color-text-muted: 71 85 105;
-    /* Slate 600 */
+    --color-text-muted: 51 65 85;
+    /* Slate 700 - Better contrast for accessibility */
     --color-success: 21 128 61;
     /* Green 700 */
     --color-warning: 180 83 9;
@@ -32,8 +32,8 @@
     /* Slate 300 */
     --color-input: 241 245 249;
     /* Slate 100 */
-    --color-muted-foreground: 100 116 139;
-    /* Slate 500 */
+    --color-muted-foreground: 71 85 105;
+    /* Slate 600 */
 
     /* 🔔 Toast notification colors */
     --color-toast-success: 21 128 61;

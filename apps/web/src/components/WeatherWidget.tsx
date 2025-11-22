@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 interface WeatherData {
   temperature: number;
   condition: string;
-  icon: string;
   humidity: number;
   windSpeed: number;
   forecast: {
@@ -14,6 +13,32 @@ interface WeatherData {
     icon: string;
   }[];
 }
+
+// Helper function to get weather emoji based on condition
+const getWeatherEmoji = (condition: string): string => {
+  if (!condition) return "🌤️"; // Default if condition is missing
+
+  switch (condition) {
+    case "Clear":
+      return "☀️";
+    case "Clouds":
+      return "☁️";
+    case "Rain":
+      return "🌧️";
+    case "Drizzle":
+      return "🌦️";
+    case "Thunderstorm":
+      return "⛈️";
+    case "Snow":
+      return "❄️";
+    case "Mist":
+    case "Fog":
+    case "Haze":
+      return "🌫️";
+    default:
+      return "🌤️";
+  }
+};
 
 const WeatherWidget: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -130,18 +155,18 @@ const WeatherWidget: React.FC = () => {
           Current Weather
         </h3>
         <div className="flex items-center">
-          <img
-            src={weather.icon}
-            alt={weather.condition}
-            className="w-16 h-16 mr-4"
-          />
+          <div
+            className="text-6xl mr-4"
+            role="img"
+            aria-label={weather.condition}
+          >
+            {getWeatherEmoji(weather.condition)}
+          </div>
           <div>
             <div className="text-3xl font-bold text-text-base">
-              {Math.round(weather.temperature)}°C
+              {weather.temperature}°C
             </div>
-            <div className="text-text-muted">
-              {weather.condition}
-            </div>
+            <div className="text-text-muted">{weather.condition}</div>
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-4">
@@ -170,13 +195,15 @@ const WeatherWidget: React.FC = () => {
               <div className="text-xs text-text-muted mb-1">
                 {day.formattedDate}
               </div>
-              <img
-                src={day.icon}
-                alt={day.condition}
-                className="w-8 h-8 mx-auto"
-              />
+              <div
+                className="text-3xl my-1"
+                role="img"
+                aria-label={day.condition}
+              >
+                {day.icon}
+              </div>
               <div className="text-sm font-semibold text-text-base">
-                {Math.round(day.temperature)}°C
+                {day.temperature}°C
               </div>
             </div>
           ))}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface InfoPageLayoutProps {
   title: string;
@@ -13,6 +14,7 @@ const InfoPageLayout: React.FC<InfoPageLayoutProps> = ({
   subtitle,
   children,
 }) => {
+  const { t, i18n } = useTranslation("common");
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -28,12 +30,15 @@ const InfoPageLayout: React.FC<InfoPageLayoutProps> = ({
             </h1>
             <p className="text-muted text-lg">{subtitle}</p>
             <div className="mt-4 text-sm text-muted">
-              <strong>Last updated:</strong>{" "}
-              {new Date().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              <strong>{t("lastUpdated")}:</strong>{" "}
+              {new Date().toLocaleDateString(
+                i18n.language === "hi" ? "hi-IN" : "en-US",
+                {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                },
+              )}
             </div>
           </div>
 
@@ -58,7 +63,7 @@ const InfoPageLayout: React.FC<InfoPageLayoutProps> = ({
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              Back to Home
+              {t("backToHome")}
             </Link>
           </div>
         </motion.div>
