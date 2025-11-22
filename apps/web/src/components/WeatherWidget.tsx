@@ -136,20 +136,20 @@ const WeatherWidget: React.FC = () => {
             className="w-16 h-16 mr-4"
           />
           <div>
-            <div className="text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="text-3xl font-bold text-text-base">
               {Math.round(weather.temperature)}°C
             </div>
-            <div className="text-gray-600 dark:text-gray-300">
+            <div className="text-text-muted">
               {weather.condition}
             </div>
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="text-gray-600 dark:text-gray-300">
+          <div className="text-text-muted">
             <span className="text-sm">Humidity</span>
             <div className="font-semibold">{weather.humidity}%</div>
           </div>
-          <div className="text-gray-600 dark:text-gray-300">
+          <div className="text-text-muted">
             <span className="text-sm">Wind Speed</span>
             <div className="font-semibold">{weather.windSpeed} km/h</div>
           </div>
@@ -158,16 +158,16 @@ const WeatherWidget: React.FC = () => {
 
       {/* Forecast */}
       <div>
-        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+        <h4 className="text-sm font-semibold text-text-base mb-2">
           3-Day Forecast
         </h4>
         <div className="grid grid-cols-3 gap-2">
           {forecastWithFormattedDates.map((day) => (
             <div
               key={day.date}
-              className="text-center p-2 bg-gray-50 dark:bg-gray-700 rounded-lg"
+              className="text-center p-2 bg-primary/5 rounded-lg"
             >
-              <div className="text-xs text-gray-600 dark:text-gray-300 mb-1">
+              <div className="text-xs text-text-muted mb-1">
                 {day.formattedDate}
               </div>
               <img
@@ -175,7 +175,7 @@ const WeatherWidget: React.FC = () => {
                 alt={day.condition}
                 className="w-8 h-8 mx-auto"
               />
-              <div className="text-sm font-semibold text-gray-900 dark:text-white">
+              <div className="text-sm font-semibold text-text-base">
                 {Math.round(day.temperature)}°C
               </div>
             </div>

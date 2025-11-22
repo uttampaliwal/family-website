@@ -98,11 +98,11 @@ const FamilyTools: React.FC = () => {
             </span>
             <h3 className="text-xl font-semibold text-base">{tool.name}</h3>
           </div>
-          <p className="text-gray-600 dark:text-gray-300">{tool.description}</p>
+          <p className="text-text-muted">{tool.description}</p>
           <div className="mt-4 flex justify-end">
             <button
-              className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 
-                         inline-flex items-center transition-colors duration-200"
+              className="text-primary hover:text-secondary 
+                         inline-flex items-center transition-colors duration-200 font-medium"
             >
               Open
               <svg

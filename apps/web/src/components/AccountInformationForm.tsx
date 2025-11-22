@@ -180,7 +180,7 @@ const AccountInformationForm: React.FC<AccountInformationFormProps> = ({
           </p>
         )}
       </div>
-      <div className="text-xs text-gray-500 dark:text-gray-400">
+      <div className="text-xs text-text-muted">
         Password must contain at least 8 characters, one uppercase letter, one
         lowercase letter, one number, and one special character.
       </div>

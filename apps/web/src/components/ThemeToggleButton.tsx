@@ -63,7 +63,7 @@ const ThemeToggleButton = () => {
   return (
     <div className="flex items-center gap-2">
       {isIncognito && (
-        <span className="text-xs text-muted-foreground hidden sm:block">
+        <span className="text-xs text-text-muted hidden sm:block">
           Incognito mode
         </span>
       )}
@@ -78,10 +78,10 @@ const ThemeToggleButton = () => {
         ) : (
           <Moon className="h-5 w-5 text-primary" />
         )}
-        <span className="text-sm font-medium hidden sm:block">
+        <span className="text-sm font-medium hidden sm:block text-text-base">
           {theme === "light" ? "Light" : "Dark"}
         </span>
-        {isIncognito && <Monitor className="h-4 w-4 text-muted-foreground" />}
+        {isIncognito && <Monitor className="h-4 w-4 text-text-muted" />}
       </button>
     </div>
   );

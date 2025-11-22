@@ -94,9 +94,9 @@ const ImportantNotifications: React.FC = () => {
       message: sanitizeString(notification.message),
       action: notification.action
         ? {
-            ...notification.action,
-            label: sanitizeString(notification.action.label),
-          }
+          ...notification.action,
+          label: sanitizeString(notification.action.label),
+        }
         : undefined,
     }));
   }, [notifications]);
@@ -178,7 +178,7 @@ const ImportantNotifications: React.FC = () => {
       </AnimatePresence>
 
       {notifications.length === 0 && (
-        <div className="text-center p-8 text-gray-500 dark:text-gray-400">
+        <div className="text-center p-8 text-text-muted">
           No important notifications at this time
         </div>
       )}

@@ -21,13 +21,13 @@ const WelcomeMessage: React.FC = () => {
       </div>
 
       {/* Personal Greeting */}
-      <div className="bg-gradient-to-r from-surface/50 to-background/50 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-primary/20">
-        <h3 className="text-2xl md:text-3xl font-bold text-on-surface mb-2">
-          {greeting}, {user?.name || "Dear Family Member"}!
+      <div className="bg-surface rounded-2xl p-8 shadow-xl border border-primary/10 relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-primary opacity-50"></div>
+        <h3 className="text-3xl md:text-4xl font-bold text-primary mb-3 font-serif tracking-tight">
+          {greeting}, {user?.name || "Family Member"}
         </h3>
-        <p className="text-muted">
-          Welcome to our vibrant family portal where memories are made and bonds
-          grow stronger.
+        <p className="text-text-muted text-lg max-w-2xl mx-auto">
+          Welcome to your family's digital sanctuary.
         </p>
       </div>
     </div>

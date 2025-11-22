@@ -53,7 +53,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
             <div className="py-2">
               <Link
                 to="/"
-                className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                className="block px-4 py-2 text-text-base hover:bg-primary/10 transition-colors duration-200"
                 onClick={() => setIsOpen(false)}
               >
                 Home
@@ -62,7 +62,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
               {isLoggedIn && (
                 <Link
                   to="/documents"
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  className="block px-4 py-2 text-text-base hover:bg-primary/10 transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
                   Documents
@@ -72,7 +72,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
               {isLoggedIn && (
                 <Link
                   to="/family-tree"
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  className="block px-4 py-2 text-text-base hover:bg-primary/10 transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
                   Family Tree
@@ -82,7 +82,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
               {isLoggedIn && (
                 <Link
                   to="/chat"
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  className="block px-4 py-2 text-text-base hover:bg-primary/10 transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
                   Chat
@@ -92,7 +92,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
               {isLoggedIn && (
                 <Link
                   to="/social-ultimate"
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  className="block px-4 py-2 text-text-base hover:bg-primary/10 transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
                   Social
@@ -102,7 +102,7 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
               {isLoggedIn ? (
                 <Link
                   to={`/profile/${sanitizeUsername(username).toLowerCase()}`}
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  className="block px-4 py-2 text-text-base hover:bg-primary/10 transition-colors duration-200"
                   onClick={() => setIsOpen(false)}
                 >
                   {sanitizeUsername(username)}
@@ -111,14 +111,14 @@ function HamburgerMenu({ isLoggedIn, username }: HamburgerMenuProps) {
                 <>
                   <Link
                     to="/login"
-                    className="block px-4 py-2 text-blue-700 dark:text-blue-400 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    className="block px-4 py-2 text-primary font-medium hover:bg-primary/10 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
-                    className="block px-4 py-2 text-purple-600 dark:text-purple-400 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    className="block px-4 py-2 text-secondary font-medium hover:bg-primary/10 transition-colors duration-200"
                     onClick={() => setIsOpen(false)}
                   >
                     Register
