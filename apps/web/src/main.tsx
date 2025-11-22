@@ -8,6 +8,7 @@ import "./styles/themes.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext";
 import { queryClient } from "./lib/queryClient";
+import logger from "./utils/logger";
 
 // Configure axios to send credentials with every request
 axios.defaults.withCredentials = true;
@@ -37,10 +38,10 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("/sw.js")
       .then((registration) => {
-        console.log("SW registered: ", registration);
+        logger.info("SW registered: ", registration);
       })
       .catch((registrationError) => {
-        console.log("SW registration failed: ", registrationError);
+        logger.error("SW registration failed: ", registrationError);
       });
   });
 }
