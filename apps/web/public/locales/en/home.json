@@ -1,0 +1,35 @@
+{
+  "welcome": "Welcome to <1>Yuva Kulya</1>",
+  "tagline": "Your secure family hub for generations to come.",
+  "quickActions": "Family Hub",
+  "recentActivity": "Recent Activity",
+  "familyTools": "Family Tools",
+  "searchPlaceholder": "Search family, documents, events...",
+  "customizeTools": "Customize Tools",
+  "importantUpdates": "Important Updates",
+  "localWeather": "Local Weather",
+  "familyCalendar": "Family Calendar",
+  "announcements": {
+    "label": "FAMILY ANNOUNCEMENTS",
+    "birthday": "🎉 Happy Birthday to Priya! Join us for the virtual celebration at 7 PM today!",
+    "videoCall": "📅 Family video call scheduled for this Sunday at 6 PM. Don't forget to join!",
+    "newPhotos": "📸 New family photos have been uploaded to the gallery. Check them out!",
+    "welcome": "🌟 Welcome to our new family portal! Explore all the amazing features we've built together.",
+    "anniversary": "💑 Congratulations to Raj and Meera on their 5th anniversary! Wishing you many more years of happiness!"
+  },
+  "activity": {
+    "addedEvent": "Added new event",
+    "sharedPhoto": "Shared family photo",
+    "completedTask": "Completed task",
+    "hourAgo": "1 hour ago",
+    "hoursAgo": "2 hours ago",
+    "hoursAgo3": "3 hours ago"
+  },
+  "welcome_message": {
+    "goodMorning": "Good Morning",
+    "goodAfternoon": "Good Afternoon",
+    "goodEvening": "Good Evening",
+    "member": "Family Member",
+    "subtitle": "Welcome to your family's digital sanctuary."
+  }
+}

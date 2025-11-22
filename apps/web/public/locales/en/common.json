@@ -1,0 +1,40 @@
+{
+  "app": {
+    "title": "Yuva Kulya",
+    "subtitle": "The Official Family Portal"
+  },
+  "nav": {
+    "home": "Home",
+    "tree": "Family Tree",
+    "gallery": "Gallery",
+    "chat": "Chat",
+    "documents": "Documents",
+    "login": "Login",
+    "profile": "Profile"
+  },
+  "header": {
+    "features": "Features",
+    "family": "Family",
+    "documents": "Documents",
+    "admin": "Admin"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "register": "Register",
+    "signOut": "Sign Out",
+    "welcomeBack": "Welcome Back"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "viewAll": "View All",
+    "close": "Close",
+    "submit": "Submit"
+  }
+}

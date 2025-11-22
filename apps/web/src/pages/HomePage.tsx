@@ -27,29 +27,29 @@ interface ActivityItem {
 }
 
 const HomePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["home", "common"]);
 
   // Static data - in a real app, this would come from an API
   const recentActivity: ActivityItem[] = [
     {
       id: "1",
       type: "event",
-      title: t("activity.addedEvent"),
-      time: t("activity.hourAgo"),
+      title: t("home:activity.addedEvent"),
+      time: t("home:activity.hourAgo"),
       icon: "📅",
     },
     {
       id: "2",
       type: "photo",
-      title: t("activity.sharedPhoto"),
-      time: t("activity.hoursAgo"),
+      title: t("home:activity.sharedPhoto"),
+      time: t("home:activity.hoursAgo"),
       icon: "📸",
     },
     {
       id: "3",
       type: "task",
-      title: t("activity.completedTask"),
-      time: t("activity.hoursAgo3"),
+      title: t("home:activity.completedTask"),
+      time: t("home:activity.hoursAgo3"),
       icon: "✅",
     },
   ];
