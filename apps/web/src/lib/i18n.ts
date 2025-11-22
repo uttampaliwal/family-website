@@ -1,12 +1,118 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import Backend from "i18next-http-backend";
+
+// English Translations
+const resources = {
+  en: {
+    translation: {
+      app: {
+        title: "Yuva Kulya",
+        subtitle: "The Official Family Portal",
+      },
+      nav: {
+        home: "Home",
+        tree: "Family Tree",
+        gallery: "Gallery",
+        chat: "Chat",
+        documents: "Documents",
+        login: "Login",
+        profile: "Profile",
+      },
+      home: {
+        welcome: "Welcome to <1>Yuva Kulya</1>",
+        tagline: "Your secure family hub for generations to come.",
+        quickActions: "Family Hub",
+        recentActivity: "Recent Activity",
+        familyTools: "Family Tools",
+        viewAll: "View All",
+        searchPlaceholder: "Search family, documents, events...",
+      },
+      header: {
+        features: "Features",
+        family: "Family",
+        documents: "Documents",
+        admin: "Admin",
+      },
+      welcome: {
+        goodMorning: "Good Morning",
+        goodAfternoon: "Good Afternoon",
+        goodEvening: "Good Evening",
+        member: "Family Member",
+        subtitle: "Welcome to your family's digital sanctuary.",
+      },
+      announcements: {
+        label: "FAMILY ANNOUNCEMENTS",
+      },
+      actions: {
+        familyTree: "Family Tree",
+        familyChat: "Family Chat",
+        photoGallery: "Photo Gallery",
+        documents: "Documents",
+      },
+      auth: {
+        signIn: "Sign In",
+        signOut: "Sign Out",
+        welcomeBack: "Welcome Back",
+      },
+    },
+  },
+  hi: {
+    translation: {
+      app: {
+        title: "युवा कुल्या",
+        subtitle: "आधिकारिक परिवार पोर्टल",
+      },
+      nav: {
+        home: "होम",
+        tree: "वंशावली",
+        gallery: "गैलरी",
+        chat: "चैट",
+        documents: "दस्तावेज़",
+        login: "लॉग इन",
+        profile: "प्रोफाइल",
+      },
+      home: {
+        welcome: "<1>युवा कुल्या</1> में आपका स्वागत है",
+        tagline: "आने वाली पीढ़ियों के लिए आपका सुरक्षित पारिवारिक केंद्र।",
+        quickActions: "फैमिली हब",
+        recentActivity: "हाल की गतिविधियां",
+        familyTools: "पारिवारिक उपकरण",
+        viewAll: "सभी देखें",
+        searchPlaceholder: "परिवार, दस्तावेज़, कार्यक्रम खोजें...",
+      },
+      header: {
+        features: "सुविधाएँ",
+        family: "परिवार",
+        documents: "दस्तावेज़",
+        admin: "व्यवस्थापक",
+      },
+      welcome: {
+        goodMorning: "सुप्रभात",
+        goodAfternoon: "नमस्कार",
+        goodEvening: "शुभ संध्या",
+        member: "परिवार के सदस्य",
+        subtitle: "आपके परिवार के डिजिटल अभयारण्य में आपका स्वागत है।",
+      },
+      announcements: {
+        label: "पारिवारिक घोषणाएं",
+      },
+      actions: {
+        familyTree: "वंशावली",
+        familyChat: "पारिवारिक चैट",
+        photoGallery: "फोटो गैलरी",
+        documents: "दस्तावेज़",
+      },
+      auth: {
+        signIn: "साइन इन करें",
+        signOut: "साइन आउट करें",
+        welcomeBack: "वापसी पर स्वागत है",
+      },
+    },
+  },
+};
 
 i18n
-  // load translation using http -> see /public/locales (i.e. https://github.com/i18next/react-i18next/tree/master/example/react/public/locales)
-  // learn more: https://github.com/i18next/i18next-http-backend
-  .use(Backend)
   // detect user language
   // learn more: https://github.com/i18next/i18next-browser-languageDetector
   .use(LanguageDetector)
@@ -15,6 +121,7 @@ i18n
   // init i18next
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
+    resources,
     fallbackLng: "en",
     debug: import.meta.env.DEV,
 
@@ -23,11 +130,7 @@ i18n
     },
 
     // Common languages for a family website
-    supportedLngs: ["en", "hi", "gu", "mr"], // English, Hindi, Gujarati, Marathi (common in India)
-
-    backend: {
-      loadPath: "/locales/{{lng}}/{{ns}}.json",
-    },
+    supportedLngs: ["en", "hi"],
   });
 
 export default i18n;
