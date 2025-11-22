@@ -222,7 +222,7 @@ const Header = ({ scrolled }: HeaderProps) => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo Section */}
-        <div className="flex items-center">
+        <div className="flex items-center w-[250px]">
           <Link to="/" className="flex items-center group gap-3">
             <div
               className={`relative flex items-center justify-center bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all duration-300 ${
@@ -278,7 +278,7 @@ const Header = ({ scrolled }: HeaderProps) => {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 min-w-[450px] justify-end">
+        <div className="flex items-center gap-2 w-[450px] justify-end">
           <div className="hidden md:flex items-center gap-1">
             {/* Home Link */}
             <Link
