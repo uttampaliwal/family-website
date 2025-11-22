@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import api from "../services/axios";
@@ -14,6 +15,7 @@ import type {
 import { isAxiosError } from "axios";
 
 const LoginPage: React.FC = () => {
+  const { t } = useTranslation("common");
   const [identifier, setIdentifier] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -140,16 +142,20 @@ const LoginPage: React.FC = () => {
       >
         <div className="auth-header flex justify-center py-6 bg-primary/5">
           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-            <img src="/family-portal-logo.svg" alt="Logo" className="w-10 h-10 text-primary" />
+            <img
+              src="/family-portal-logo.svg"
+              alt="Logo"
+              className="w-10 h-10 text-primary"
+            />
           </div>
         </div>
 
         <div className="auth-form px-8 pb-8 pt-6">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2 text-primary">
-              Welcome Back
+              {t("auth.welcomeBack")}
             </h1>
-            <p className="text-text-muted">Sign in to continue to your account</p>
+            <p className="text-text-muted">{t("auth.signInToContinue")}</p>
           </div>
 
           {/* OAuth Buttons */}
@@ -161,7 +167,7 @@ const LoginPage: React.FC = () => {
                 htmlFor="identifier"
                 className="block text-sm font-medium text-base mb-2"
               >
-                Email or Username
+                {t("auth.emailOrUsername")}
               </label>
               <input
                 type="text"
@@ -171,7 +177,7 @@ const LoginPage: React.FC = () => {
                 required
                 disabled={loading}
                 className="input"
-                placeholder="Enter your email or username"
+                placeholder={t("auth.enterEmailOrUsername")}
               />
             </div>
 
@@ -180,7 +186,7 @@ const LoginPage: React.FC = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-base mb-2"
               >
-                Password
+                {t("auth.password")}
               </label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -190,13 +196,15 @@ const LoginPage: React.FC = () => {
                 required
                 disabled={loading}
                 className="input pr-10"
-                placeholder="Enter your password"
+                placeholder={t("auth.enterPassword")}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showPassword ? t("auth.hidePassword") : t("auth.showPassword")
+                }
               >
                 {showPassword ? (
                   <svg
@@ -244,7 +252,7 @@ const LoginPage: React.FC = () => {
                   htmlFor="remember-me"
                   className="ml-2 block text-sm text-base"
                 >
-                  Remember me
+                  {t("auth.rememberMe")}
                 </label>
               </div>
 
@@ -252,7 +260,7 @@ const LoginPage: React.FC = () => {
                 to="/forgot-password"
                 className="text-sm font-medium text-primary hover:text-secondary transition-colors"
               >
-                Forgot password?
+                {t("auth.forgotPassword")}
               </Link>
             </div>
 
@@ -283,10 +291,10 @@ const LoginPage: React.FC = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Signing in...
+                  {t("auth.signIn")}...
                 </>
               ) : (
-                "Sign In"
+                t("auth.signIn")
               )}
             </button>
           </form>
@@ -298,19 +306,19 @@ const LoginPage: React.FC = () => {
                 disabled={loading}
                 className="btn btn-ghost w-full"
               >
-                Resend Verification Email
+                {t("auth.resendVerification")}
               </button>
             </div>
           )}
 
           <div className="text-center mt-6">
             <p className="text-muted">
-              Don't have an account?{" "}
+              {t("auth.dontHaveAccount")}{" "}
               <Link
                 to="/register"
                 className="font-medium text-primary hover:text-secondary transition-colors"
               >
-                Sign up now
+                {t("auth.createAccount")}
               </Link>
             </p>
           </div>

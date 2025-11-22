@@ -24,7 +24,7 @@ const AuthButtons: React.FC = () => {
   const renderAuthenticatedButtons = () => (
     <Link to={ROUTES.PROFILE}>
       <Button
-        label={username || t("nav.profile")}
+        label={username || t("common:nav.profile")}
         className="w-[120px] justify-center"
       />
     </Link>

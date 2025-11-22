@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface Tool {
   id: string;
@@ -9,51 +10,6 @@ interface Tool {
   link: string;
 }
 
-const tools: Tool[] = [
-  {
-    id: "documents",
-    name: "Family Documents",
-    description: "Securely store and manage important family documents",
-    icon: "📄",
-    link: "/documents",
-  },
-  {
-    id: "expenses",
-    name: "Expense Tracker",
-    description: "Track and manage family expenses",
-    icon: "💰",
-    link: "/expenses",
-  },
-  {
-    id: "tasks",
-    name: "Task Manager",
-    description: "Organize and assign family tasks",
-    icon: "✅",
-    link: "/tasks",
-  },
-  {
-    id: "photos",
-    name: "Photo Gallery",
-    description: "Share and preserve family memories",
-    icon: "📸",
-    link: "/photos",
-  },
-  {
-    id: "shopping",
-    name: "Shopping List",
-    description: "Collaborative family shopping list",
-    icon: "🛒",
-    link: "/shopping",
-  },
-  {
-    id: "emergency",
-    name: "Emergency Info",
-    description: "Quick access to emergency contacts and procedures",
-    icon: "🚨",
-    link: "/emergency",
-  },
-];
-
 // Constants for better maintainability
 const ANIMATION_CONFIG = {
   duration: 0.3,
@@ -62,6 +18,56 @@ const ANIMATION_CONFIG = {
 } as const;
 
 const FamilyTools: React.FC = () => {
+  const { t, i18n } = useTranslation("home");
+
+  const tools: Tool[] = useMemo(
+    () => [
+      {
+        id: "documents",
+        name: t("tools.familyDocuments"),
+        description: t("tools.familyDocumentsDesc"),
+        icon: "📄",
+        link: "/documents",
+      },
+      {
+        id: "expenses",
+        name: t("tools.expenseTracker"),
+        description: t("tools.expenseTrackerDesc"),
+        icon: "💰",
+        link: "/expenses",
+      },
+      {
+        id: "tasks",
+        name: t("tools.taskManager"),
+        description: t("tools.taskManagerDesc"),
+        icon: "✅",
+        link: "/tasks",
+      },
+      {
+        id: "photos",
+        name: t("tools.photoGallery"),
+        description: t("tools.photoGalleryDesc"),
+        icon: "📸",
+        link: "/photos",
+      },
+      {
+        id: "shopping",
+        name: t("tools.shoppingList"),
+        description: t("tools.shoppingListDesc"),
+        icon: "🛒",
+        link: "/shopping",
+      },
+      {
+        id: "emergency",
+        name: t("tools.emergencyInfo"),
+        description: t("tools.emergencyInfoDesc"),
+        icon: "🚨",
+        link: "/emergency",
+      },
+    ],
+    [t, i18n.language],
+  );
+
   const handleToolClick = useCallback((link: string) => {
     if (!link || typeof link !== "string") {
       // Invalid link provided - handle error silently
@@ -101,10 +107,10 @@ const FamilyTools: React.FC = () => {
           <p className="text-text-muted">{tool.description}</p>
           <div className="mt-4 flex justify-end">
             <button
-              className="text-primary hover:text-secondary 
+              className="text-primary hover:text-secondary
                          inline-flex items-center transition-colors duration-200 font-medium"
             >
-              Open
+              {t("tools.open")}
               <svg
                 className="w-5 h-5 ml-2"
                 fill="none"

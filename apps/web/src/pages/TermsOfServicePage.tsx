@@ -1,12 +1,15 @@
 import React from "react";
 import InfoPageLayout from "../components/InfoPageLayout";
 import Section from "../components/Section";
+import { useTranslation } from "react-i18next";
 
 const TermsOfServicePage: React.FC = () => {
+  const { t } = useTranslation("common");
+
   return (
     <InfoPageLayout
-      title="Terms of Service"
-      subtitle="Please read these terms carefully before using our service."
+      title={t("termsOfService")}
+      subtitle={t("termsOfServiceSubtitle")}
     >
       <Section title="Introduction" number={1}>
         <p className="text-base leading-relaxed mb-4">

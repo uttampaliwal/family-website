@@ -1,11 +1,14 @@
 import React from "react";
 import InfoPageLayout from "../components/InfoPageLayout";
+import { useTranslation } from "react-i18next";
 
 const PrivacyPolicyPage: React.FC = () => {
+  const { t } = useTranslation("common");
+
   return (
     <InfoPageLayout
-      title="Privacy Policy"
-      subtitle="Your privacy matters to us. Learn how we protect and handle your information."
+      title={t("privacyPolicy")}
+      subtitle={t("privacyPolicySubtitle")}
     >
       {/* Introduction */}
       <section className="mb-10">
@@ -25,9 +28,10 @@ const PrivacyPolicyPage: React.FC = () => {
             members.
           </p>
           <p className="text-text-base leading-relaxed">
-            By accessing or using our website, you agree to the collection and use
-            of information in accordance with this Privacy Policy. If you do not
-            agree with our policies and practices, please do not use our website.
+            By accessing or using our website, you agree to the collection and
+            use of information in accordance with this Privacy Policy. If you do
+            not agree with our policies and practices, please do not use our
+            website.
           </p>
         </div>
       </section>

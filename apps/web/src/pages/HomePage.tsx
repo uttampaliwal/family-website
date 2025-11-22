@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useTranslation, Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import ComponentSkeleton from "../components/ComponentSkeleton";
 import AnnouncementTicker from "../components/AnnouncementTicker";
 import WelcomeMessage from "../components/WelcomeMessage";
@@ -27,7 +27,7 @@ interface ActivityItem {
 }
 
 const HomePage: React.FC = () => {
-  const { t } = useTranslation(["home", "common"]);
+  const { t, i18n } = useTranslation(["home", "common"]);
 
   // Static data - in a real app, this would come from an API
   const recentActivity: ActivityItem[] = [
@@ -75,18 +75,16 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.8 }}
           >
             <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4 tracking-wide uppercase">
-              {t("app.subtitle")}
+              {t("common:app.subtitle")}
             </span>
             <h1 className="text-5xl md:text-7xl font-extrabold text-text-base mb-2 tracking-tight leading-tight">
-              <Trans i18nKey="home.welcome">
-                Welcome to <span className="text-primary">Yuva Kulya</span>
-              </Trans>
+              {t("home:welcome")}
             </h1>
             <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-6 font-serif">
-              {t("app.title")}
+              {t("common:app.title")}
             </h2>
             <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium leading-relaxed">
-              {t("home.tagline")}
+              {t("home:tagline")}
             </p>
           </motion.div>
         </div>
@@ -102,24 +100,24 @@ const HomePage: React.FC = () => {
 
         {/* Announcement Ticker */}
         <section className="mb-8">
-          <AnnouncementTicker />
+          <AnnouncementTicker key={i18n.language} />
         </section>
 
         {/* Enhanced Quick Actions */}
         <section className="mb-12">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-primary mb-2">
-              {t("home.quickActions")}
+              {t("home:quickActions")}
             </h2>
-            <p className="text-text-muted">{t("home.tagline")}</p>
+            <p className="text-text-muted">{t("home:tagline")}</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               {
                 icon: "🌳",
-                label: t("actions.familyTree"),
-                desc: t("nav.tree"),
+                label: t("common:actions.familyTree"),
+                desc: t("common:nav.tree"),
                 to: "/family-tree",
                 color: "from-amber-500/20 to-orange-500/20",
                 border: "border-amber-300/30",
@@ -127,8 +125,8 @@ const HomePage: React.FC = () => {
               },
               {
                 icon: "💬",
-                label: t("actions.familyChat"),
-                desc: t("nav.chat"),
+                label: t("common:actions.familyChat"),
+                desc: t("common:nav.chat"),
                 to: "/chat",
                 color: "from-blue-500/20 to-indigo-500/20",
                 border: "border-blue-300/30",
@@ -136,8 +134,8 @@ const HomePage: React.FC = () => {
               },
               {
                 icon: "📸",
-                label: t("actions.photoGallery"),
-                desc: t("nav.gallery"),
+                label: t("common:actions.photoGallery"),
+                desc: t("common:nav.gallery"),
                 to: "/social-ultimate",
                 color: "from-pink-500/20 to-rose-500/20",
                 border: "border-pink-300/30",
@@ -145,8 +143,8 @@ const HomePage: React.FC = () => {
               },
               {
                 icon: "📄",
-                label: t("actions.documents"),
-                desc: t("nav.documents"),
+                label: t("common:actions.documents"),
+                desc: t("common:nav.documents"),
                 to: "/documents",
                 color: "from-emerald-500/20 to-teal-500/20",
                 border: "border-emerald-300/30",
@@ -185,10 +183,10 @@ const HomePage: React.FC = () => {
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="headline text-on-surface">
-              {t("home.recentActivity")}
+              {t("home:recentActivity")}
             </h2>
             <button className="btn btn-ghost font-medium">
-              {t("home.viewAll")}
+              {t("home:viewAll")}
             </button>
           </div>
 
@@ -219,14 +217,14 @@ const HomePage: React.FC = () => {
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="headline text-on-surface">
-              {t("home.familyTools")}
+              {t("home:familyTools")}
             </h2>
             <button className="btn btn-secondary">
-              {t("home.customizeTools")}
+              {t("home:customizeTools")}
             </button>
           </div>
           <Suspense fallback={<ComponentSkeleton rows={2} height="h-48" />}>
-            <FamilyTools />
+            <FamilyTools key={i18n.language} />
           </Suspense>
         </section>
 
@@ -235,17 +233,17 @@ const HomePage: React.FC = () => {
           <div className="lg:col-span-2">
             <div className="card">
               <h2 className="headline mb-6 text-on-surface">
-                {t("home.importantUpdates")}
+                {t("home:importantUpdates")}
               </h2>
               <Suspense fallback={<ComponentSkeleton rows={3} height="h-24" />}>
-                <ImportantNotifications />
+                <ImportantNotifications key={i18n.language} />
               </Suspense>
             </div>
           </div>
           <div>
             <div className="card">
               <h2 className="text-2xl font-bold mb-6 text-base">
-                {t("home.localWeather")}
+                {t("home:localWeather")}
               </h2>
               <Suspense fallback={<ComponentSkeleton rows={1} height="h-64" />}>
                 <WeatherWidget />
@@ -257,7 +255,7 @@ const HomePage: React.FC = () => {
         {/* Family Calendar */}
         <section className="mb-12">
           <h2 className="headline mb-6 text-on-surface">
-            {t("home.familyCalendar")}
+            {t("home:familyCalendar")}
           </h2>
           <div className="card">
             <Suspense fallback={<ComponentSkeleton rows={1} height="h-96" />}>

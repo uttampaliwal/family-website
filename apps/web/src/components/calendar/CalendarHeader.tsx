@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface CalendarHeaderProps {
   selectedDate: Date;
@@ -15,6 +16,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   setView,
   onNewEvent,
 }) => {
+  const { t } = useTranslation("home");
   const handlePrevMonth = () => {
     setSelectedDate(
       new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1),
@@ -64,14 +66,14 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
                 : "hover:bg-surface text-on-surface"
             }`}
           >
-            {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
+            {t(`calendar.${viewType}`)}
           </button>
         ))}
         <button
           onClick={onNewEvent}
           className="px-3 py-1 rounded-lg bg-primary text-on-primary hover:bg-primary/80"
         >
-          + New Event
+          {t("calendar.newEvent")}
         </button>
       </div>
     </div>

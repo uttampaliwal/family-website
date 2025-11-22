@@ -269,7 +269,7 @@ const Header = ({ scrolled }: HeaderProps) => {
               <input
                 type="text"
                 className="block w-full pl-10 pr-3 py-2 border border-border rounded-xl leading-5 bg-surface text-text-base placeholder:text-text-muted placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
-                placeholder={t("home.searchPlaceholder")}
+                placeholder={t("home:searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -284,7 +284,7 @@ const Header = ({ scrolled }: HeaderProps) => {
             <Link
               to="/"
               className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
-              title={t("nav.home")}
+              title={t("common:nav.home")}
             >
               <HomeIcon className="h-6 w-6" />
             </Link>
