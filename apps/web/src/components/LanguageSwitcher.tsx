@@ -20,8 +20,8 @@ const LanguageSwitcher: React.FC = () => {
 
   return (
     <Menu as="div" className="relative inline-block text-left">
-      <div>
-        <Menu.Button className="inline-flex items-center justify-center w-10 h-10 text-sm font-medium text-text-base bg-surface rounded-md hover:bg-surface-hover focus:outline-none focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 transition-colors duration-200">
+      <div className="flex-shrink-0">
+        <Menu.Button className="inline-flex items-center justify-center w-10 h-10 text-sm font-medium text-text-base bg-surface rounded-md hover:bg-surface-hover focus:outline-none focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 transition-colors duration-200 flex-shrink-0">
           <span className="text-xl">{currentLanguage.flag}</span>
         </Menu.Button>
       </div>
