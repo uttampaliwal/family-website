@@ -16,8 +16,8 @@
     /* Bright Blue (Blue 500) */
     --color-text-base: 15 23 42;
     /* Slate 900 - Sharp contrast */
-    --color-text-muted: 51 65 85;
-    /* Slate 700 - Better contrast for accessibility */
+    --color-text-muted: 30 41 59;
+    /* Slate 800 - Better contrast for accessibility (WCAG AA compliant) */
     --color-success: 21 128 61;
     /* Green 700 */
     --color-warning: 180 83 9;
@@ -54,7 +54,8 @@
     --color-secondary: 202 138 4;
     --color-accent: 59 130 246;
     --color-text-base: 15 23 42;
-    --color-text-muted: 71 85 105;
+    --color-text-muted: 51 65 85;
+    /* Slate 700 - Better contrast for accessibility (WCAG AA compliant) */
     --color-success: 21 128 61;
     --color-warning: 180 83 9;
     --color-error: 185 28 28;
@@ -80,8 +81,8 @@
     /* Yellow 500 */
     --color-text-base: 248 250 252;
     /* Slate 50 */
-    --color-text-muted: 148 163 184;
-    /* Slate 400 */
+    --color-text-muted: 203 213 225;
+    /* Slate 300 - Better contrast for accessibility (WCAG AA compliant) */
     --color-success: 74 222 128;
     /* Green 400 */
     --color-warning: 251 191 36;

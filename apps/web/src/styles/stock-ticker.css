@@ -1,0 +1,67 @@
+/* Stock Market Ticker Styles */
+.stock-ticker-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.stock-ticker-content {
+  display: flex;
+  will-change: transform;
+}
+
+.stock-ticker-item {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Smooth scrolling performance */
+.stock-ticker-scroll {
+  animation: scroll-ticker 30s linear infinite;
+}
+
+.stock-ticker-scroll:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Market status indicators */
+.market-open {
+  background-color: #10b981;
+}
+
+.market-closed {
+  background-color: #ef4444;
+}
+
+.live-indicator {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stock-ticker-item {
+    font-size: 0.75rem;
+  }
+
+  .stock-ticker-scroll {
+    animation-duration: 20s;
+  }
+}

@@ -37,6 +37,9 @@ const AuthSuccessPage: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
+        <h1 className="text-2xl font-bold text-text-base mb-4">
+          Authentication Successful
+        </h1>
         <LoadingIndicator size="large" />
         <p className="mt-4 text-text-muted">Completing sign in...</p>
       </div>

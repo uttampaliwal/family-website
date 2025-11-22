@@ -5,14 +5,16 @@ import { useTranslation } from "react-i18next";
 
 interface InfoPageLayoutProps {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   children: React.ReactNode;
+  backTo?: string;
 }
 
 const InfoPageLayout: React.FC<InfoPageLayoutProps> = ({
   title,
   subtitle,
   children,
+  backTo = "/",
 }) => {
   const { t, i18n } = useTranslation("common");
   return (
@@ -28,7 +30,7 @@ const InfoPageLayout: React.FC<InfoPageLayoutProps> = ({
             <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">
               {title}
             </h1>
-            <p className="text-muted text-lg">{subtitle}</p>
+            {subtitle && <p className="text-muted text-lg">{subtitle}</p>}
             <div className="mt-4 text-sm text-muted">
               <strong>{t("lastUpdated")}:</strong>{" "}
               {new Date().toLocaleDateString(
@@ -49,7 +51,10 @@ const InfoPageLayout: React.FC<InfoPageLayoutProps> = ({
 
           {/* Back to Home */}
           <div className="text-center mt-12 pt-8 border-t border-border">
-            <Link to="/" className="btn btn-primary inline-flex items-center">
+            <Link
+              to={backTo}
+              className="btn btn-primary inline-flex items-center"
+            >
               <svg
                 className="w-4 h-4 mr-2"
                 fill="none"
