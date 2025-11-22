@@ -387,16 +387,36 @@ const Header = ({ scrolled }: HeaderProps) => {
           <div className="h-6 w-px bg-border mx-2 hidden md:block"></div>
 
           {/* Language Switcher */}
-          <div className="hidden md:block mr-2 flex-shrink-0">
-            <LanguageSwitcher />
+          <div
+            className="hidden md:block mr-2 flex-shrink-0"
+            ref={(el) => {
+              dropdownRefs.current.language = el;
+            }}
+          >
+            <LanguageSwitcher
+              isOpen={openDropdown === "language"}
+              onToggle={() => toggleDropdown("language")}
+            />
           </div>
 
           {/* Theme Toggle */}
           <ThemeToggleButton />
 
           {/* Auth / User Menu */}
-          <div className="ml-2">
-            {isLoggedIn ? <UserMenu /> : <AuthButtons />}
+          <div
+            className="ml-2"
+            ref={(el) => {
+              dropdownRefs.current.user = el;
+            }}
+          >
+            {isLoggedIn ? (
+              <UserMenu
+                isOpen={openDropdown === "user"}
+                onToggle={() => toggleDropdown("user")}
+              />
+            ) : (
+              <AuthButtons />
+            )}
           </div>
 
           {/* Mobile Menu Button */}
