@@ -3,9 +3,12 @@ import { motion } from "framer-motion";
 
 interface WeatherData {
   temperature: number;
+  minTemp: number;
+  maxTemp: number;
   condition: string;
   humidity: number;
   windSpeed: number;
+  aqi?: number; // Air Quality Index (optional as it might not always be available)
   location: string;
   forecast: {
     date: string;
@@ -164,22 +167,45 @@ const WeatherWidget: React.FC = () => {
           >
             {getWeatherEmoji(weather.condition)}
           </div>
-          <div>
+          <div className="flex-1">
             <div className="text-3xl font-bold text-text-base">
               {weather.temperature}°C
             </div>
-            <div className="text-text-muted">{weather.condition}</div>
+            <div className="text-sm text-text-muted mt-1">
+              H: {weather.maxTemp}° L: {weather.minTemp}°
+            </div>
+            <div className="text-text-muted mt-1">{weather.condition}</div>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="mt-4 grid grid-cols-3 gap-3">
           <div className="text-text-muted">
-            <span className="text-sm">Humidity</span>
-            <div className="font-semibold">{weather.humidity}%</div>
+            <span className="text-xs block mb-1">💧 Humidity</span>
+            <div className="font-semibold text-text-base">
+              {weather.humidity}%
+            </div>
           </div>
           <div className="text-text-muted">
-            <span className="text-sm">Wind Speed</span>
-            <div className="font-semibold">{weather.windSpeed} km/h</div>
+            <span className="text-xs block mb-1">💨 Wind</span>
+            <div className="font-semibold text-text-base">
+              {weather.windSpeed} km/h
+            </div>
           </div>
+          {weather.aqi !== undefined && (
+            <div className="text-text-muted">
+              <span className="text-xs block mb-1">🌫️ AQI</span>
+              <div
+                className={`font-semibold ${
+                  weather.aqi <= 50
+                    ? "text-success"
+                    : weather.aqi <= 100
+                      ? "text-warning"
+                      : "text-error"
+                }`}
+              >
+                {weather.aqi}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

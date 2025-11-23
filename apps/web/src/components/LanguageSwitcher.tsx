@@ -57,7 +57,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         leaveFrom="transform opacity-100 scale-100 translate-y-0"
         leaveTo="transform opacity-0 scale-95 -translate-y-2"
       >
-        <div className="absolute right-0 mt-2 w-40 origin-top-right bg-surface/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 focus:outline-none">
+        <div className="absolute right-0 mt-2 w-40 origin-top-right bg-surface/98 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden z-[100] focus:outline-none">
           <div className="p-1">
             {languages.map((language) => (
               <button
