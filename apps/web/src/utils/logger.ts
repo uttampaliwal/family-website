@@ -26,7 +26,7 @@ class Logger {
   /**
    * Debug level logging - only in development mode
    */
-  debug(...args: any[]): void {
+  debug(...args: unknown[]): void {
     if (this.config.enableDebug) {
       console.debug(this.config.prefix, ...args);
     }
@@ -35,7 +35,7 @@ class Logger {
   /**
    * Info level logging - only in development mode by default
    */
-  info(...args: any[]): void {
+  info(...args: unknown[]): void {
     if (this.config.enableInfo) {
       console.info(this.config.prefix, ...args);
     }
@@ -44,14 +44,14 @@ class Logger {
   /**
    * Warning level logging - always enabled
    */
-  warn(...args: any[]): void {
+  warn(...args: unknown[]): void {
     console.warn(this.config.prefix, ...args);
   }
 
   /**
    * Error level logging - always enabled
    */
-  error(...args: any[]): void {
+  error(...args: unknown[]): void {
     console.error(this.config.prefix, ...args);
   }
 
@@ -71,7 +71,7 @@ class Logger {
   /**
    * Table logging for structured data
    */
-  table(data: any): void {
+  table(data: unknown): void {
     if (this.config.enableDebug || this.config.enableInfo) {
       console.table(data);
     }

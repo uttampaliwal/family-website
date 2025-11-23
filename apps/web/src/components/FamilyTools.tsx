@@ -18,7 +18,7 @@ const ANIMATION_CONFIG = {
 } as const;
 
 const FamilyTools: React.FC = () => {
-  const { t, i18n } = useTranslation("home");
+  const { t } = useTranslation("home");
 
   const tools: Tool[] = useMemo(
     () => [
@@ -65,7 +65,7 @@ const FamilyTools: React.FC = () => {
         link: "/emergency",
       },
     ],
-    [t, i18n.language],
+    [t],
   );
 
   const handleToolClick = useCallback((link: string) => {
