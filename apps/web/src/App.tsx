@@ -62,7 +62,6 @@ import SocialSidebar from "./components/SocialSidebar";
 import ChatWindow from "./components/ChatWindow";
 
 function App() {
-  const [scrolled, setScrolled] = useState(false);
   const { isLoggedIn, logout } = useAuth();
   const [socialSidebarOpen, setSocialSidebarOpen] = useState(false);
 
@@ -117,21 +116,6 @@ function App() {
   const [activeChatId, setActiveChatId] = useState<string>("");
   const [activeChatName, setActiveChatName] = useState<string>("");
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 20;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
-      }
-    };
-
-    document.addEventListener("scroll", handleScroll);
-
-    return () => {
-      document.removeEventListener("scroll", handleScroll);
-    };
-  }, [scrolled]);
-
   const handleStartChat = async (friendId: string, friendName: string) => {
     try {
       // Create or get existing chat
@@ -169,13 +153,13 @@ function App() {
             >
               Skip to main content
             </a>
-            <Header scrolled={scrolled} />
+            <Header />
 
             {/* Main Content Area */}
             <main
               id="main-content"
               role="main"
-              className="w-full pt-28 main-flex-auto"
+              className="w-full pt-4 main-flex-auto"
               tabIndex={-1}
             >
               <EnhancedErrorBoundary>

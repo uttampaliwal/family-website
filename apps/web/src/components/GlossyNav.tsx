@@ -11,7 +11,6 @@ interface NavItem {
 interface GlossyNavProps {
   navItems: NavItem[];
   authItems: NavItem[];
-  children?: React.ReactNode; // For embedding other components like ThemeToggleButton
   ariaLabel?: string;
 }
 
@@ -50,7 +49,6 @@ const NavItemComponent: React.FC<{ item: NavItem; onClick: () => void }> = ({
 const GlossyNav: React.FC<GlossyNavProps> = ({
   navItems = [],
   authItems = [],
-  children,
   ariaLabel = "Main navigation",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -286,10 +284,6 @@ const GlossyNav: React.FC<GlossyNavProps> = ({
             gap: 8px;
         }
 
-        .glossy-nav-children-container {
-            padding-top: 16px;
-        }
-        
         .visually-hidden {
           position: absolute;
           width: 1px;
@@ -379,13 +373,6 @@ const GlossyNav: React.FC<GlossyNavProps> = ({
                   />
                 ))}
               </div>
-            </>
-          )}
-
-          {children && (
-            <>
-              <hr className="glossy-nav-separator" />
-              <div className="glossy-nav-children-container">{children}</div>
             </>
           )}
         </div>
