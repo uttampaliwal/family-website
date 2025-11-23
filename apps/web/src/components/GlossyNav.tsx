@@ -147,13 +147,13 @@ const GlossyNav: React.FC<GlossyNavProps> = ({
     <>
       <style>{`
         :root {
-          --nav-bg-light: rgba(255, 255, 255, 0.2);
+          --nav-bg-light: rgba(255, 255, 255, 0.75);
           --nav-border-light: rgba(255, 255, 255, 0.3);
           --nav-text-light: #1a1a1a;
           --nav-hover-bg-light: rgba(255, 255, 255, 0.5);
           --nav-focus-ring-light: #005fcc;
 
-          --nav-bg-dark: rgba(20, 20, 20, 0.2);
+          --nav-bg-dark: rgba(20, 20, 20, 0.75);
           --nav-border-dark: rgba(255, 255, 255, 0.2);
           --nav-text-dark: #f0f0f0;
           --nav-hover-bg-dark: rgba(50, 50, 50, 0.6);
@@ -214,8 +214,8 @@ const GlossyNav: React.FC<GlossyNavProps> = ({
           max-width: 90vw;
           
           /* Glassmorphism */
-          -webkit-backdrop-filter: blur(12px);
-          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(16px);
+          backdrop-filter: blur(16px);
           
           /* Animation */
           transform-origin: top right;
