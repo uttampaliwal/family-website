@@ -198,7 +198,7 @@ const Header = (props: HeaderProps) => {
               {!isLoggedIn && (
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                  className="px-4 py-2 text-sm font-medium rounded-full shadow-md bg-primary text-white border border-solid border-gray-400 dark:border-gray-600 hover:bg-primary/90 transition-colors"
                 >
                   Sign In
                 </Link>
