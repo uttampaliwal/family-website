@@ -2,136 +2,59 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth";
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import HamburgerMenu from "./HamburgerMenu";
 import ThemeToggleButton from "./ThemeToggleButton";
-import AuthButtons from "./AuthButtons";
-import UserMenu from "./UserMenu";
 import Logo from "./Logo";
 import LanguageSwitcher from "./LanguageSwitcher";
-import {
-  ChevronDownIcon,
-  DocumentTextIcon,
-  ChatBubbleLeftRightIcon,
-  UserGroupIcon,
-  CameraIcon,
-  CalendarIcon,
-  ClockIcon,
-  UsersIcon,
-  ShieldCheckIcon,
-} from "@heroicons/react/24/outline";
+import GlossyNav from "./GlossyNav"; // Import the new component
 
 interface HeaderProps {
-  scrolled: boolean;
+  // scrolled prop is no longer needed
 }
 
-// Navigation structure with organized dropdowns
+// Keep the same navigation config
 const navigationConfig = {
-  // Public navigation (available to all users)
   public: {
     features: {
       label: "Features",
-      icon: UserGroupIcon,
       items: [
-        {
-          to: "/features/family-tree",
-          label: "Family Tree",
-          icon: UsersIcon,
-          description: "Connect your family heritage",
-        },
-        {
-          to: "/features/chat",
-          label: "Family Chat",
-          icon: ChatBubbleLeftRightIcon,
-          description: "Stay connected with loved ones",
-        },
-        {
-          to: "/features/documents",
-          label: "Document Sharing",
-          icon: DocumentTextIcon,
-          description: "Share important family documents",
-        },
-        {
-          to: "/features/photos",
-          label: "Photo Gallery",
-          icon: CameraIcon,
-          description: "Preserve precious memories",
-        },
+        { to: "/features/family-tree", label: "Family Tree" },
+        { to: "/features/chat", label: "Family Chat" },
+        { to: "/features/documents", label: "Document Sharing" },
+        { to: "/features/photos", label: "Photo Gallery" },
       ],
     },
   },
-  // Authenticated navigation (for logged-in users)
   family: {
     label: "Family",
-    icon: UsersIcon,
     items: [
-      {
-        to: "/family-tree",
-        label: "Family Tree",
-        icon: UsersIcon,
-        description: "Explore your family connections",
-      },
-      {
-        to: "/chat",
-        label: "Family Chat",
-        icon: ChatBubbleLeftRightIcon,
-        description: "Stay connected with family",
-      },
-      {
-        to: "/social-ultimate",
-        label: "Social Feed",
-        icon: UserGroupIcon,
-        description: "Share moments & updates",
-      },
-      {
-        to: "/family-photos",
-        label: "Photos",
-        icon: CameraIcon,
-        description: "Share precious memories",
-      },
-      {
-        to: "/family-calendar",
-        label: "Calendar",
-        icon: CalendarIcon,
-        description: "Family events & schedules",
-      },
+      { to: "/family-tree", label: "Family Tree" },
+      { to: "/chat", label: "Family Chat" },
+      { to: "/social-ultimate", label: "Social Feed" },
+      { to: "/family-photos", label: "Photos" },
+      { to: "/family-calendar", label: "Calendar" },
     ],
   },
   documents: {
     label: "Documents",
-    icon: DocumentTextIcon,
     items: [
-      {
-        to: "/documents",
-        label: "All Documents",
-        icon: DocumentTextIcon,
-        description: "View all documents",
-      },
-      {
-        to: "/documents/shared",
-        label: "Shared",
-        icon: UserGroupIcon,
-        description: "Shared with family",
-      },
-      {
-        to: "/documents/recent",
-        label: "Recent",
-        icon: ClockIcon,
-        description: "Recently viewed",
-      },
+      { to: "/documents", label: "All Documents" },
+      { to: "/documents/shared", label: "Shared" },
+      { to: "/documents/recent", label: "Recent" },
     ],
   },
 };
 
-const Header = ({ scrolled }: HeaderProps) => {
-  const { isLoggedIn, user } = useAuth();
+const Header = (props: HeaderProps) => {
+  // Removed scrolled from props
+  const { isLoggedIn, user, logout } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation(); // Add useTranslation hook
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Close dropdowns when clicking outside
+  // Logic for independent dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const isClickInside = Object.values(dropdownRefs.current).some((ref) =>
@@ -146,104 +69,74 @@ const Header = ({ scrolled }: HeaderProps) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const toggleDropdown = (dropdown: string) => {
+    setOpenDropdown(openDropdown === dropdown ? null : dropdown);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // For now, navigate to documents page with search term
-      // Future: implement global search results page
       navigate(`/documents?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
     }
   };
 
-  const toggleDropdown = (dropdown: string) => {
-    setOpenDropdown(openDropdown === dropdown ? null : dropdown);
-  };
+  // Consolidate Nav Items for GlossyNav
+  const navItems: { label: string; href: string }[] = [];
+  const authItems: { label: string; href?: string; onClick?: () => void }[] =
+    [];
 
-  const DropdownMenu = ({
-    items,
-    isOpen,
-    onClose,
-  }: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    items: any[];
-    isOpen: boolean;
-    onClose: () => void;
-  }) => (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.95 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="absolute top-full left-0 mt-2 w-72 bg-surface/98 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden z-[100]"
-        >
-          <div className="p-2">
-            {items.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={onClose}
-                className="group flex items-center p-3 rounded-lg hover:bg-primary/5 transition-all duration-200"
-              >
-                <item.icon className="h-5 w-5 mr-3 text-secondary group-hover:text-primary transition-colors" />
-                <div>
-                  <div className="font-medium text-sm text-text-base group-hover:text-primary transition-colors">
-                    {item.label}
-                  </div>
-                  {item.description && (
-                    <div className="text-xs text-text-muted group-hover:text-text-base transition-colors">
-                      {item.description}
-                    </div>
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+  if (isLoggedIn && user) {
+    navItems.push(
+      ...navigationConfig.family.items.map((i) => ({ ...i, href: i.to })),
+    );
+    navItems.push(
+      ...navigationConfig.documents.items.map((i) => ({ ...i, href: i.to })),
+    );
+    if (user.role === "admin") {
+      navItems.push({ to: "/admin", label: "Admin", href: "/admin" });
+    }
+
+    authItems.push({
+      label: "Profile",
+      href: `/profile/${encodeURIComponent(user.username)}`,
+    });
+    authItems.push({ label: "Settings", href: "/settings" });
+    authItems.push({ label: "Sign Out", onClick: () => logout() });
+  } else {
+    navItems.push(
+      ...navigationConfig.public.features.items.map((i) => ({
+        ...i,
+        href: i.to,
+      })),
+    );
+  }
 
   return (
     <header
       role="banner"
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-white/10 ${
-        scrolled
-          ? "bg-surface/95 backdrop-blur-md shadow-lg h-16"
-          : "bg-surface/80 backdrop-blur-sm h-20"
-      }`}
+      className="relative container mx-auto mt-4 z-50" // Changed classes for floating pill design
     >
-      <div className="container mx-auto px-4 h-full flex items-center justify-between">
+      <div className="h-16 px-6 flex items-center justify-between rounded-full bg-surface/95 backdrop-blur-md shadow-lg border border-border/20">
         {/* Logo Section */}
         <div className="flex items-center w-[250px] shrink-0">
           <Link to="/" className="flex items-center group gap-3">
-            <div
-              className={`relative flex items-center justify-center bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all duration-300 ${
-                scrolled ? "w-10 h-10" : "w-14 h-14"
-              }`}
-            >
-              <Logo
-                className={`text-primary transition-all duration-300 ${
-                  scrolled ? "w-6 h-6" : "w-9 h-9"
-                }`}
-              />
+            <div className="relative flex items-center justify-center bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-all duration-300 w-10 h-10">
+              <Logo className="text-primary transition-all duration-300 w-6 h-6" />
             </div>
             <div className="hidden sm:flex flex-col w-[180px]">
-              <span className="text-xl font-bold text-text-base leading-tight tracking-tight truncate">
+              <span className="text-xl font-bold text-text-base leading-tight tracking-tight">
                 {t("app.title")}
               </span>
-              <span className="text-xs text-text-muted font-medium tracking-wide truncate">
+              <span className="text-xs text-text-muted font-medium tracking-wide">
                 {t("app.subtitle")}
               </span>
             </div>
           </Link>
         </div>
 
-        {/* Center Navigation & Search */}
+        {/* Center Search */}
         <div className="flex-1 flex items-center justify-center px-8">
-          {/* Global Search Bar - Desktop */}
           <div className="hidden lg:block w-full max-w-md relative group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
@@ -273,136 +166,32 @@ const Header = ({ scrolled }: HeaderProps) => {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 min-w-[450px] w-[450px] justify-end shrink-0">
-          <div className="hidden md:flex items-center gap-1">
-            {/* Features dropdown for non-logged users */}
+        <div className="flex items-center gap-4 justify-end shrink-0 min-w-[250px]">
+          <div className="hidden md:flex items-center gap-2">
+            <GlossyNav navItems={navItems} authItems={authItems} />
+
             {!isLoggedIn && (
-              <div
-                className="relative"
-                ref={(el) => {
-                  dropdownRefs.current.features = el;
-                }}
+              <Link
+                to="/login"
+                className="px-4 py-2 text-sm font-medium rounded-full shadow-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                <button
-                  onClick={() => toggleDropdown("features")}
-                  className={`flex items-center justify-center w-[110px] h-10 px-3 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                    openDropdown === "features"
-                      ? "text-primary bg-primary/10"
-                      : "text-text-base hover:text-primary hover:bg-primary/5"
-                  }`}
-                >
-                  {t("header.features")}
-                  <ChevronDownIcon
-                    className={`h-4 w-4 ml-1 transition-transform duration-200 ${openDropdown === "features" ? "rotate-180" : ""}`}
-                  />
-                </button>
-                <DropdownMenu
-                  items={navigationConfig.public.features.items}
-                  isOpen={openDropdown === "features"}
-                  onClose={() => setOpenDropdown(null)}
-                />
-              </div>
+                Sign In
+              </Link>
             )}
 
-            {isLoggedIn && (
-              <>
-                {/* Family Dropdown */}
-                <div
-                  className="relative"
-                  ref={(el) => {
-                    dropdownRefs.current.family = el;
-                  }}
-                >
-                  <button
-                    onClick={() => toggleDropdown("family")}
-                    className={`h-10 w-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                      openDropdown === "family"
-                        ? "text-primary bg-primary/10"
-                        : "text-text-muted hover:text-primary hover:bg-primary/5"
-                    }`}
-                    title="Family"
-                  >
-                    <UsersIcon className="h-6 w-6" />
-                  </button>
-                  <DropdownMenu
-                    items={navigationConfig.family.items}
-                    isOpen={openDropdown === "family"}
-                    onClose={() => setOpenDropdown(null)}
-                  />
-                </div>
+            <div className="h-6 w-px bg-border/50"></div>
 
-                {/* Documents Dropdown */}
-                <div
-                  className="relative"
-                  ref={(el) => {
-                    dropdownRefs.current.documents = el;
-                  }}
-                >
-                  <button
-                    onClick={() => toggleDropdown("documents")}
-                    className={`h-10 w-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                      openDropdown === "documents"
-                        ? "text-primary bg-primary/10"
-                        : "text-text-muted hover:text-primary hover:bg-primary/5"
-                    }`}
-                    title="Documents"
-                  >
-                    <DocumentTextIcon className="h-6 w-6" />
-                  </button>
-                  <DropdownMenu
-                    items={navigationConfig.documents.items}
-                    isOpen={openDropdown === "documents"}
-                    onClose={() => setOpenDropdown(null)}
-                  />
-                </div>
-
-                {/* Admin Link (if admin) */}
-                {user?.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    className="h-10 w-10 flex items-center justify-center rounded-lg text-text-muted hover:text-primary hover:bg-primary/5 transition-all duration-200"
-                    title="Admin"
-                  >
-                    <ShieldCheckIcon className="h-6 w-6" />
-                  </Link>
-                )}
-              </>
-            )}
-          </div>
-
-          <div className="h-6 w-px bg-border mx-2 hidden md:block"></div>
-
-          {/* Language Switcher */}
-          <div
-            className="hidden md:block mr-2 flex-shrink-0"
-            ref={(el) => {
-              dropdownRefs.current.language = el;
-            }}
-          >
-            <LanguageSwitcher
-              isOpen={openDropdown === "language"}
-              onToggle={() => toggleDropdown("language")}
-            />
-          </div>
-
-          {/* Theme Toggle */}
-          <ThemeToggleButton />
-
-          {/* Auth / User Menu */}
-          <div
-            className="ml-2"
-            ref={(el) => {
-              dropdownRefs.current.user = el;
-            }}
-          >
-            {isLoggedIn ? (
-              <UserMenu
-                isOpen={openDropdown === "user"}
-                onToggle={() => toggleDropdown("user")}
+            <div
+              ref={(el) => {
+                dropdownRefs.current.language = el;
+              }}
+            >
+              <LanguageSwitcher
+                isOpen={openDropdown === "language"}
+                onToggle={() => toggleDropdown("language")}
               />
-            ) : (
-              <AuthButtons />
-            )}
+            </div>
+            <ThemeToggleButton />
           </div>
 
           {/* Mobile Menu Button */}
