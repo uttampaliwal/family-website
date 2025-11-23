@@ -18,7 +18,7 @@ import {
   deleteUser,
   restoreUser,
 } from "../controllers/adminController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect as authMiddleware } from "../middleware/authMiddleware";
 import { adminApiRateLimit } from "../middleware/security.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
 import {

@@ -1,80 +1,65 @@
-import React, { useState, type ReactNode } from "react";
+import React, { useState, type ReactNode, useEffect, useCallback } from "react";
 import api from "../services/axios";
 import { AuthContext, type User } from "./AuthContextDefinition";
-
-// Constants for better maintainability
-const STORAGE_KEYS = {
-  USER: import.meta.env.VITE_USER_KEY || "user",
-  ACCESS_TOKEN: import.meta.env.VITE_ACCESS_TOKEN_KEY || "accessToken",
-} as const;
-
-const getInitialAuthState = () => {
-  try {
-    const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
-    const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-    if (storedUser && accessToken) {
-      const user = JSON.parse(storedUser);
-      return {
-        isLoggedIn: true,
-        user,
-        username: user.username,
-        token: accessToken,
-      };
-    }
-  } catch {
-    if (import.meta.env.DEV) {
-      // Error reading auth state from localStorage - handle silently
-    }
-  }
-  return { isLoggedIn: false, user: null, username: null, token: null };
-};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [authState, setAuthState] = useState(getInitialAuthState);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = (user: User, token: string) => {
-    if (!user || typeof user !== "object" || !user.username) {
-      throw new Error("Invalid user object provided");
+  const checkAuth = useCallback(async () => {
+    try {
+      const { data } = await api.get("/api/auth/me");
+      if (data) {
+        setUser(data);
+        setIsLoggedIn(true);
+      }
+    } catch {
+      setUser(null);
+      setIsLoggedIn(false);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
 
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
-    setAuthState({ isLoggedIn: true, user, username: user.username, token });
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  const login = async (credentials: object) => {
+    const response = await api.post("/api/auth/login", credentials);
+    await checkAuth();
+    return response;
+  };
+
+  const register = async (data: object) => {
+    const response = await api.post("/api/auth/register", data);
+    await checkAuth();
+    return response;
   };
 
   const logout = async () => {
     try {
       await api.post("/api/auth/logout");
     } catch {
-      // Logout API call failed - handle silently
-      // Don't throw error here as we still want to clear local state
-    } finally {
-      try {
-        localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.USER);
-      } catch {
-        // Error clearing localStorage - handle silently
-      }
-      setAuthState({
-        isLoggedIn: false,
-        user: null,
-        username: null,
-        token: null,
-      });
+      // Fail silently, as the client-side state will be cleared anyway.
     }
+    setUser(null);
+    setIsLoggedIn(false);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn: authState.isLoggedIn,
-        user: authState.user,
-        username: authState.username,
-        token: authState.token,
+        isLoggedIn,
+        isLoading,
+        user,
         login,
+        register,
         logout,
+        checkAuth,
       }}
     >
       {children}

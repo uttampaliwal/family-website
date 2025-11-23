@@ -7,9 +7,8 @@ import type { SubmitHandler, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { isAxiosError } from "axios";
-import api from "../services/axios";
 import { useToast } from "../hooks/useToast";
-import { ensureCsrfToken } from "../utils/csrf";
+import { useAuth } from "../hooks/useAuth";
 import { normalizeGender } from "../lib/gender";
 import { registerSchema } from "../lib/validationSchemas";
 import PersonalDetailsForm from "../components/PersonalDetailsForm";
@@ -23,6 +22,7 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const { register } = useAuth(); // Use the register function from context
 
   const methods = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -51,37 +51,21 @@ const RegisterPage: React.FC = () => {
     }
   }, [errors, showToast]);
 
-  const onSubmit: SubmitHandler<RegisterFormValues> = async () => {
+  const onSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
     setLoading(true);
-    const isValid = await methods.trigger();
-    if (!isValid) {
-      setLoading(false);
-      return;
-    }
 
     try {
-      await ensureCsrfToken();
-      const allData = methods.getValues();
-      const response = await api.post(
-        `${import.meta.env.VITE_API_BASE_URL || ""}/api/auth/register`,
-        {
-          ...allData,
-          gender: normalizeGender(allData.gender),
-        },
-      );
+      const response = await register({
+        ...data,
+        gender: normalizeGender(data.gender),
+      });
 
-      if (response.status === 201) {
-        showToast(
-          "Registration successful! Please check your email for verification.",
-          "success",
-        );
-        setTimeout(() => navigate("/login"), 3000);
-      } else {
-        showToast(
-          response.data.message || "An unexpected error occurred.",
-          "error",
-        );
-      }
+      showToast(
+        response.data.message || "Registration successful! Redirecting...",
+        "success",
+      );
+      // Redirect to profile page as user is now logged in
+      navigate(`/profile/${response.data.username}`);
     } catch (error) {
       let errorMessage = "An unexpected error occurred. Please try again.";
       if (isAxiosError(error)) {
@@ -101,7 +85,8 @@ const RegisterPage: React.FC = () => {
       "relationship",
       "mobileNumber",
     ]);
-    if (isValid && methods.formState.isValid) {
+    if (isValid) {
+      // react-hook-form's `isValid` is not reliable after trigger, so we check just for trigger success
       setStep(2);
     }
   };

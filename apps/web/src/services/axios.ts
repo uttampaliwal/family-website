@@ -1,69 +1,28 @@
-import axios, { type AxiosRequestConfig } from "axios";
-import { getCsrfToken } from "../utils/csrf";
-import type { AuthResponse } from "../types/api";
+import axios from "axios";
 import { logError } from "../utils/errorLogger";
 
-interface RetryAxiosRequestConfig extends AxiosRequestConfig {
-  _retry?: boolean;
-}
-
-// Constants for better maintainability
-
-const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY || "accessToken";
-const USERNAME_KEY = import.meta.env.VITE_USERNAME_KEY || "username";
-const LOGIN_PATH = import.meta.env.VITE_LOGIN_PATH || "/login";
-const ROOT_PATH = "/";
-
-const derivedBaseUrl = (() => {
-  try {
-    const override = window?.localStorage?.getItem("apiBaseUrl");
-    if (override && /^https?:\/\//i.test(override)) {
-      return override.replace(/\/$/, "");
-    }
-    const protocol = window?.location?.protocol || "http:";
-    const host = window?.location?.hostname || "localhost";
-    const port = "3000";
-    return `${protocol}//${host}:${port}`;
-  } catch {
-    return "http://localhost:3000";
-  }
-})();
-
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || derivedBaseUrl,
-  withCredentials: true, // Important for sending HttpOnly cookies
-  xsrfCookieName: "XSRF-TOKEN", // The name of the cookie to use as a value for the XSRF token
-  xsrfHeaderName: "X-XSRF-TOKEN", // The name of the HTTP header to send the XSRF token in
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+  withCredentials: true, // Crucial for sending/receiving httpOnly cookies
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN",
 });
 
-// Request interceptor to attach JWT access token and handle CSRF token
+// Request interceptor to manually handle CSRF token for cross-origin setup
 api.interceptors.request.use(
   (config) => {
-    // Request interceptor for adding auth and CSRF tokens
-
-    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-
-    // IMPORTANT: Disable Axios's automatic CSRF handling
-    // We need to manually handle it to ensure proper decoding
-    if (
-      config.method !== "get" &&
-      config.method !== "head" &&
-      config.method !== "options"
-    ) {
+    // For non-safe methods, we must manually attach the CSRF token.
+    // Axios's automatic handling doesn't work across different ports (e.g., 5173 vs 3000).
+    if (config.method && !["get", "head", "options"].includes(config.method)) {
       const csrfToken = document.cookie
         .split("; ")
         .find((row) => row.startsWith("XSRF-TOKEN="))
         ?.split("=")[1];
 
       if (csrfToken) {
-        // Decode the token if it exists (it might be URL-encoded)
-        const decodedCsrfToken = decodeURIComponent(csrfToken);
-
-        // Always set the decoded token manually
-        config.headers["X-XSRF-TOKEN"] = decodedCsrfToken;
+        // The token from the cookie might be URL-encoded. Decoding it ensures it matches
+        // what the backend's `csurf` middleware expects.
+        config.headers["X-XSRF-TOKEN"] = decodeURIComponent(csrfToken);
       }
     }
     return config;
@@ -74,108 +33,22 @@ api.interceptors.request.use(
   },
 );
 
-// Helper function to refresh access token
-async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const csrfToken = getCsrfToken();
-    const response = await axios.post<AuthResponse>(
-      `${import.meta.env.VITE_API_BASE_URL || "http://localhost:3000"}/api/auth/refresh-token`,
-      {},
-      {
-        withCredentials: true,
-        headers: csrfToken ? { "X-XSRF-TOKEN": csrfToken } : undefined,
-      },
-    );
-    return response.data.accessToken || null;
-  } catch (error) {
-    handleAuthFailure();
-    throw error;
-  }
-}
-
-// Helper function to handle token refresh and retry
-async function handleTokenRefresh(originalRequest: RetryAxiosRequestConfig) {
-  originalRequest._retry = true;
-
-  const newAccessToken = await refreshAccessToken();
-  if (newAccessToken) {
-    // Sanitize token to prevent XSS
-    const sanitizedToken = String(newAccessToken).replace(/[<>"'&]/g, "");
-    localStorage.setItem(ACCESS_TOKEN_KEY, sanitizedToken);
-    if (!originalRequest.headers) {
-      originalRequest.headers = {};
-    }
-    originalRequest.headers.Authorization = `Bearer ${sanitizedToken}`;
-    return api(originalRequest);
-  }
-  throw new Error("Failed to refresh token");
-}
-
-// Response interceptor to handle token refreshing
+// Simplified response interceptor for logging only.
 api.interceptors.response.use(
   (response) => {
-    // Response successful
     return response;
   },
-  async (error) => {
-    // Log error with structured context
+  (error) => {
     const errorContext = {
-      errorType: typeof error,
-      constructor: error?.constructor?.name,
       message: error?.message,
       code: error?.code,
       status: error.response?.status,
       hasResponse: !!error.response,
       hasRequest: !!error.request,
-      hasConfig: !!error.config,
     };
-
     logError(error, "axios_response_interceptor", errorContext);
-
-    if (!error.response || !error.config) {
-      return Promise.reject(error);
-    }
-
-    const originalRequest = error.config;
-    // This logic should specifically check for a 401 Unauthorized for token expiry,
-    // not a 403 Forbidden, which is now correctly used for CSRF errors.
-    const isTokenExpired = error.response.status === 401;
-    const isFirstRetry = !originalRequest._retry;
-
-    if (isTokenExpired && isFirstRetry) {
-      try {
-        return await handleTokenRefresh(originalRequest);
-      } catch (refreshError) {
-        logError(refreshError, "token_refresh_failed");
-        return Promise.reject(refreshError);
-      }
-    }
     return Promise.reject(error);
   },
 );
-
-// Helper function to handle authentication failures
-function handleAuthFailure() {
-  try {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(USERNAME_KEY);
-  } catch {
-    // Continue execution as this is not critical
-  }
-
-  try {
-    const isValidPath = LOGIN_PATH.startsWith("/") && !LOGIN_PATH.includes("<");
-    const redirectPath = isValidPath ? LOGIN_PATH : ROOT_PATH;
-    window.location.replace(redirectPath);
-  } catch {
-    // Fallback: try to redirect to root
-    try {
-      window.location.href = ROOT_PATH;
-    } catch {
-      // Last resort: reload the page
-      window.location.reload();
-    }
-  }
-}
 
 export default api;

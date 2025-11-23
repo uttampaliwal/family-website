@@ -6,13 +6,13 @@ import {
 import { cache } from "../utils/simpleCache.js";
 import { logger } from "../utils/logger.js";
 import mongoose from "mongoose";
-import authenticateToken from "../middleware/authMiddleware.js";
-import adminOnly from "../middleware/adminMiddleware.js";
+import { protect as authMiddleware } from "../middleware/authMiddleware";
+import adminOnly from "../middleware/adminMiddleware";
 
 const router = Router();
 
 // Apply authentication and admin-only middleware to all monitoring routes
-router.use(authenticateToken);
+router.use(authMiddleware);
 router.use(adminOnly);
 
 // Monitoring dashboard endpoint

@@ -1,79 +1,54 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDocuments, deleteDocument } from "../services/documents";
 import type { Document } from "../services/documents";
 import { useToast } from "../hooks/useToast";
-import { logError } from "../utils/errorLogger";
+import { getApiErrorMessage } from "../utils/errorHandler";
 import DocumentCard from "../components/DocumentCard";
+import DocumentCardSkeleton from "../components/DocumentCardSkeleton";
 
 // Utility function to format date
 const formatDate = (dateString: string) => {
+  if (!dateString) return "N/A";
   const date = new Date(dateString);
   return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 };
 
-// Utility function to handle document operation errors
-const getErrorMessage = (
-  error: unknown,
-  operation: "fetch" | "delete",
-): string => {
-  if (!(error instanceof Error))
-    return `Failed to ${operation} document${operation === "fetch" ? "s" : ""}`;
-
-  const message = error.message.toLowerCase();
-  if (message.includes("404")) {
-    return operation === "fetch"
-      ? "Documents service not available. Please try again later."
-      : "Document not found or already deleted.";
-  }
-  if (message.includes("403") || message.includes("unauthorized")) {
-    return `You do not have permission to ${operation} ${operation === "fetch" ? "documents" : "this document"}.`;
-  }
-  if (message.includes("network")) {
-    return "Network error. Please check your connection.";
-  }
-  if (message.includes("500")) {
-    return "Server error. Please try again later.";
-  }
-  return `Failed to ${operation} document${operation === "fetch" ? "s" : ""}`;
-};
-
 const DocumentsPage: React.FC = () => {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      try {
-        const data = await getDocuments();
-        setDocuments(data);
-      } catch (error) {
-        logError(error, "fetch_documents");
-        showToast(getErrorMessage(error, "fetch"), "error");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: documents = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Document[], Error>({
+    queryKey: ["documents"],
+    queryFn: getDocuments,
+  });
 
-    fetchDocuments();
-  }, [showToast]);
+  const deleteMutation = useMutation({
+    mutationFn: deleteDocument,
+    onSuccess: () => {
+      showToast("Document deleted successfully", "success");
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+    onError: (err) => {
+      const errorMessage = getApiErrorMessage(err);
+      showToast(errorMessage, "error");
+    },
+  });
 
   const handleDelete = useCallback(
-    async (id: string) => {
+    (id: string) => {
       if (window.confirm("Are you sure you want to delete this document?")) {
-        try {
-          await deleteDocument(id);
-          setDocuments((prev) => prev.filter((doc) => doc._id !== id));
-          showToast("Document deleted successfully", "success");
-        } catch (error) {
-          logError(error, "delete_document", { documentId: id });
-          showToast(getErrorMessage(error, "delete"), "error");
-        }
+        deleteMutation.mutate(id);
       }
     },
-    [showToast],
+    [deleteMutation],
   );
 
   const handleNewDocument = useCallback(() => {
@@ -87,13 +62,59 @@ const DocumentsPage: React.FC = () => {
     }));
   }, [documents]);
 
-  if (loading) {
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <DocumentCardSkeleton key={index} />
+          ))}
+        </div>
+      );
+    }
+
+    if (isError) {
+      return (
+        <div className="card text-center">
+          <h2 className="text-xl font-semibold text-error mb-2">
+            Error Fetching Documents
+          </h2>
+          <p className="text-readable-muted mb-4">
+            {getApiErrorMessage(error)}
+          </p>
+          <button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["documents"] })
+            }
+            className="btn btn-primary"
+          >
+            Try Again
+          </button>
+        </div>
+      );
+    }
+
+    if (documents.length === 0) {
+      return (
+        <div className="card text-center">
+          <p className="text-readable-muted mb-4">
+            You don't have any documents yet.
+          </p>
+          <button onClick={handleNewDocument} className="btn btn-primary">
+            Create Your First Document
+          </button>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {documentsWithFormattedDates.map((doc) => (
+          <DocumentCard key={doc._id} doc={doc} onDelete={handleDelete} />
+        ))}
       </div>
     );
-  }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -102,6 +123,7 @@ const DocumentsPage: React.FC = () => {
         <button
           onClick={handleNewDocument}
           className="btn btn-primary flex items-center"
+          disabled={deleteMutation.isPending}
         >
           <svg
             className="w-5 h-5 mr-2"
@@ -120,23 +142,7 @@ const DocumentsPage: React.FC = () => {
           New Document
         </button>
       </div>
-
-      {documents.length === 0 ? (
-        <div className="card text-center">
-          <p className="text-readable-muted mb-4">
-            You don't have any documents yet.
-          </p>
-          <button onClick={handleNewDocument} className="btn btn-primary">
-            Create Your First Document
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {documentsWithFormattedDates.map((doc) => (
-            <DocumentCard key={doc._id} doc={doc} onDelete={handleDelete} />
-          ))}
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 };

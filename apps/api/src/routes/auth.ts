@@ -12,17 +12,23 @@ import {
   changePassword,
   updateUserProfile,
   checkUsernameAvailability,
-} from "../controllers/authController.js";
-import { protect } from "../middleware/authMiddleware.js";
+} from "../controllers/authController";
+import { protect } from "../middleware/authMiddleware";
+import passport from "../config/passport";
 import {
-  csrfProtection,
-  generateCsrfToken,
-} from "../middleware/csrfGenerator.js";
-import {
-  authRateLimit,
-  passwordResetRateLimit,
-} from "../middleware/security.js";
-import { logger } from "../utils/logger.js";
+  validate,
+  registerSchema,
+  loginSchema,
+  verifyEmailSchema,
+  resendVerificationSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  changePasswordSchema,
+} from "../middleware/validate";
+import { csrfProtection, generateCsrfToken } from "../middleware/csrfGenerator";
+import { apiRateLimit, authRateLimit } from "../middleware/enhancedSecurity";
+import { passwordResetRateLimit } from "../middleware/security";
+import { logger } from "../utils/logger";
 
 const router = express.Router();
 
@@ -59,16 +65,15 @@ const authLogger = (
 // Apply auth logging to all routes
 router.use(authLogger);
 
-// CSRF Token endpoint - GET request to generate and return CSRF token
+// CSRF Token endpoint
 router.get("/csrf-token", generateCsrfToken, (req, res) => {
-  // The CSRF token is already set in the cookie by the middleware
   res.json({
     message: "CSRF token generated",
     token: req.cookies?.["XSRF-TOKEN"] || null,
   });
 });
 
-// Register Route - Enhanced with validation and rate limiting
+// Register Route - Strict rate limit
 router.post(
   "/register",
   ...csrfProtection,
@@ -77,7 +82,7 @@ router.post(
   register,
 );
 
-// Sign In Route - Strict rate limiting for login attempts
+// Sign In Route - Strict rate limit
 router.post(
   "/login",
   ...csrfProtection,
@@ -86,39 +91,39 @@ router.post(
   login,
 );
 
-// Verify Email Route
+// Verify Email Route - General rate limit
 router.post(
   "/verify-email",
   ...csrfProtection,
-  authRateLimit,
+  apiRateLimit,
   validate(verifyEmailSchema),
   verifyEmail,
 );
 
-// Resend Verification Email Route
+// Resend Verification Email Route - General rate limit
 router.post(
   "/resend-verification",
   ...csrfProtection,
-  authRateLimit,
+  apiRateLimit,
   validate(resendVerificationSchema),
   resendVerification,
 );
 
-// New route to get current user data
-router.get("/me", protect, getMe);
+// New route to get current user data - General rate limit
+router.get("/me", apiRateLimit, protect, getMe);
 
-// Check Username Availability - Public endpoint
+// Check Username Availability - General rate limit
 router.get(
   "/check-username/:username",
-  authRateLimit,
+  apiRateLimit,
   checkUsernameAvailability,
 );
 
-// Get User Profile by Username - Public endpoint with basic rate limiting
+// Get User Profile by Username - General rate limit
 router.get(
   "/profile/:username",
   protect,
-  authRateLimit,
+  apiRateLimit,
   (req: express.Request<{ username: string }>, res, next) => {
     try {
       getUserProfile(req, res);
@@ -133,11 +138,11 @@ router.put(
   "/profile/:username",
   ...csrfProtection,
   protect,
-  authRateLimit,
+  apiRateLimit,
   updateUserProfile,
 );
 
-// Forgot Password Route - Very strict rate limiting
+// Forgot Password Route - Very strict rate limit
 router.post(
   "/forgot-password",
   ...csrfProtection,
@@ -146,7 +151,7 @@ router.post(
   forgotPassword,
 );
 
-// Reset Password Route with token in body
+// Reset Password Route - Very strict rate limit
 router.post(
   "/reset-password",
   ...csrfProtection,
@@ -155,15 +160,15 @@ router.post(
   resetPassword,
 );
 
-// Logout Route
-router.post("/logout", ...csrfProtection, authRateLimit, logout);
+// Logout Route - General rate limit
+router.post("/logout", ...csrfProtection, apiRateLimit, logout);
 
-// Change password (authenticated user)
+// Change password (authenticated user) - General rate limit
 router.post(
   "/change-password",
   ...csrfProtection,
   protect,
-  authRateLimit,
+  apiRateLimit,
   validate(changePasswordSchema),
   changePassword,
 );

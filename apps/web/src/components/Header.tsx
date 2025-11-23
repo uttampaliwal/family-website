@@ -8,10 +8,6 @@ import Logo from "./Logo";
 import LanguageSwitcher from "./LanguageSwitcher";
 import GlossyNav from "./GlossyNav"; // Import the new component
 
-interface HeaderProps {
-  // No props needed
-}
-
 const navigationConfig = {
   public: {
     features: {
@@ -46,7 +42,7 @@ const navigationConfig = {
 
 const HEADER_HEIGHT = 96; // Corresponds to h-16 (64px) + mt-4 (16px) * 2 for top/bottom space approx.
 
-const Header = (props: HeaderProps) => {
+const Header = () => {
   const { isLoggedIn, user, logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -181,12 +177,13 @@ const Header = (props: HeaderProps) => {
               <form onSubmit={handleSearch}>
                 <input
                   type="text"
+                  aria-label="Search documents and content across the site"
                   className="block w-full pl-10 pr-3 py-2 border border-border rounded-xl leading-5 bg-surface text-text-base placeholder:text-text-muted placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
                   placeholder={t("home:searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              </form>
+              </form>{" "}
             </div>
           </div>
 

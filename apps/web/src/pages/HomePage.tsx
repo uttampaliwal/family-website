@@ -6,6 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 import ComponentSkeleton from "../components/ComponentSkeleton";
 import AnnouncementTicker from "../components/AnnouncementTicker";
 import WelcomeMessage from "../components/WelcomeMessage";
+import StockMarketTicker from "../components/StockMarketTicker";
 
 // Lazy loaded components for better performance
 const Calendar = lazy(() =>
@@ -58,62 +59,53 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Enhanced Hero section with dynamic background */}
-      <div className="relative h-80 overflow-hidden bg-surface">
-        {/* ... (backgrounds) */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-surface to-secondary/5"></div>
-
-        {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-1/2 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
-        </div>
-
-        {/* Hero content */}
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 pb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-5xl md:text-7xl font-extrabold text-text-base mb-2 tracking-tight leading-tight">
-              {t("home:welcome")}
-            </h1>
-            <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium leading-relaxed">
-              {t("home:tagline")}
-            </p>
-          </motion.div>
-        </div>
-      </div>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="container mx-auto px-4 py-8"
       >
-        {/* Weather Widget */}
-        <div className="flex justify-center mb-8">
-          <div className="w-full max-w-sm">
-            <div className="card">
-              <h2 className="text-2xl font-bold mb-6 text-base text-center">
-                {t("home:localWeather")}
-              </h2>
-              <Suspense fallback={<ComponentSkeleton rows={1} height="h-64" />}>
-                <WeatherWidget />
-              </Suspense>
-            </div>
-          </div>
-        </div>
-
-        <WelcomeMessage />
-
         {/* Announcement Ticker */}
         {isLoggedIn && (
           <section className="mb-8">
             <AnnouncementTicker key={i18n.language} />
           </section>
         )}
+
+        {/* Enhanced Hero section with dynamic background */}
+        <div className="relative h-80 overflow-hidden bg-surface">
+          {/* ... (backgrounds) */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-surface to-secondary/5"></div>
+
+          {/* Decorative Elements */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute top-1/2 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
+          </div>
+
+          {/* Stock Market Ticker - Above welcome message */}
+          <div className="relative z-20 pt-4">
+            <StockMarketTicker />
+          </div>
+
+          {/* Hero content */}
+          <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 pb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="text-5xl md:text-7xl font-extrabold text-text-base mb-2 tracking-tight leading-tight">
+                {t("home:welcome")}
+              </h1>
+              <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium leading-relaxed">
+                {t("home:tagline")}
+              </p>
+            </motion.div>
+          </div>
+        </div>
+
+        <WelcomeMessage />
 
         {/* Enhanced Quick Actions */}
         {isLoggedIn && (

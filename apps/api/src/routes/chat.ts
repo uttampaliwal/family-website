@@ -8,7 +8,7 @@ import {
   deleteMessage,
   editMessage,
 } from "../controllers/chatController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect as authMiddleware } from "../middleware/authMiddleware";
 import { authRateLimit } from "../middleware/security.js";
 
 const router = express.Router();
