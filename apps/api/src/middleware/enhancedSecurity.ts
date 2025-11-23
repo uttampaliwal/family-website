@@ -31,7 +31,7 @@ export const authRateLimit = rateLimit({
 
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Higher limit for general API endpoints
+  max: 2000, // Higher limit for general API endpoints (increased for stock ticker)
   message: {
     error: "Too many API requests, please try again later.",
     retryAfter: "15 minutes",
@@ -102,6 +102,32 @@ export const monitoringRateLimit = rateLimit({
     );
     res.status(429).json({
       error: "Too many monitoring requests, please try again later.",
+      retryAfter: "15 minutes",
+    });
+  },
+});
+
+export const adminApiRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 150, // 150 requests per window for admin endpoints
+  message: {
+    error: "Too many admin API requests, please try again later.",
+    retryAfter: "15 minutes",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req: Request, res: Response) => {
+    logger.warn(
+      {
+        ip: req.ip,
+        userAgent: req.get("User-Agent"),
+        endpoint: req.path,
+        method: req.method,
+      },
+      "Admin API rate limit exceeded",
+    );
+    res.status(429).json({
+      error: "Too many admin API requests, please try again later.",
       retryAfter: "15 minutes",
     });
   },

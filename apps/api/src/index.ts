@@ -6,28 +6,29 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 
 // Import configuration and utilities
-import { env } from "./config/environment.js";
-import { logger, httpLogger } from "./utils/logger.js";
+import { env } from "./config/environment";
+import { logger, httpLogger } from "./utils/logger";
 
 // Import routes
-import authRoutes from "./routes/auth.js";
-import feedRoutes from "./routes/feed.js";
-import docsRoutes from "./routes/docs.js";
-import healthRoutes from "./routes/health.js";
-import documentRoutes from "./routes/documents.js";
-import socialRoutes from "./routes/social.js";
-import socialFeedRoutes from "./routes/socialFeed.js";
-import chatRoutes from "./routes/chat.js";
-import calendarRoutes from "./routes/calendar.js";
-import notificationsRoutes from "./routes/notifications.js";
-import weatherRoutes from "./routes/weather.js";
-import adminRoutes from "./routes/admin.js";
-import policyRoutes from "./routes/policy.js";
-import monitoringRoutes from "./routes/monitoring.js";
-import passport from "./config/passport.js";
+import authRoutes from "./routes/auth";
+import feedRoutes from "./routes/feed";
+import docsRoutes from "./routes/docs";
+import healthRoutes from "./routes/health";
+import documentRoutes from "./routes/documents";
+import socialRoutes from "./routes/social";
+import socialFeedRoutes from "./routes/socialFeed";
+import chatRoutes from "./routes/chat";
+import calendarRoutes from "./routes/calendar";
+import notificationsRoutes from "./routes/notifications";
+import weatherRoutes from "./routes/weather";
+import adminRoutes from "./routes/admin";
+import policyRoutes from "./routes/policy";
+import monitoringRoutes from "./routes/monitoring";
+import stockRoutes from "./routes/stock"; // New import
+import passport from "./config/passport";
 
 // Import middleware
-import { errorHandler } from "./middleware/errorHandler.js";
+import { errorHandler } from "./middleware/errorHandler";
 // Performance middleware available for advanced setups
 
 import {
@@ -36,21 +37,20 @@ import {
   requestSizeLimiter,
   speedLimiter,
   generalRateLimit,
-  adminApiRateLimit,
-} from "./middleware/security.js";
+} from "./middleware/security";
 import {
   memoryMonitor,
   cpuMonitor,
   performanceMonitor,
-} from "./middleware/performance.js";
+} from "./middleware/performance";
 import {
   enhancedCSP,
   securityEventMonitor,
   sessionSecurity,
-  authRateLimit,
   apiRateLimit,
   monitoringRateLimit,
-} from "./middleware/enhancedSecurity.js";
+  adminApiRateLimit,
+} from "./middleware/enhancedSecurity";
 
 // --- 1. Environment Setup ---
 // Environment validation is now handled in ./config/environment.js
@@ -217,7 +217,7 @@ app.get("/api/test", (req, res) => {
 // Removed global CSRF protection - now applied per route for better control
 
 // API routes with enhanced logging and per-endpoint rate limiting
-app.use("/api/auth", authRateLimit, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/feed", apiRateLimit, feedRoutes);
 app.use("/api/documents", apiRateLimit, documentRoutes);
 app.use("/api/social", apiRateLimit, socialRoutes);
@@ -226,6 +226,7 @@ app.use("/api/chat", apiRateLimit, chatRoutes);
 app.use("/api/calendar", apiRateLimit, calendarRoutes);
 app.use("/api/notifications", apiRateLimit, notificationsRoutes);
 app.use("/api/weather", apiRateLimit, weatherRoutes);
+app.use("/api/stocks", apiRateLimit, stockRoutes); // New route
 app.use("/api/admin", adminApiRateLimit, adminRoutes); // Admin routes get appropriate limits
 app.use("/api/policy", policyRoutes); // Policy routes don't need rate limiting
 app.use("/api/monitoring", monitoringRateLimit, monitoringRoutes); // Monitoring dashboard with high limits for frequent refreshes
@@ -259,7 +260,7 @@ const startServer = async () => {
     // First, ensure the database is connected
     // Import enhanced database connection
     const { connectDatabase, queryPerformanceMiddleware } = await import(
-      "./config/database.js"
+      "./config/database"
     );
 
     queryPerformanceMiddleware();

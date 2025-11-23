@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getEvents, createEvent } from "../controllers/calendarController";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect as authMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 

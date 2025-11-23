@@ -6,7 +6,7 @@ import {
   updatePolicyVersion,
   getAllCurrentPolicies,
 } from "../controllers/policyController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect as authMiddleware } from "../middleware/authMiddleware";
 import adminMiddleware, {
   adminSessionMiddleware,
 } from "../middleware/adminMiddleware.js";

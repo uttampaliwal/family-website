@@ -141,8 +141,8 @@ const StockMarketTicker: React.FC = () => {
 
     fetchStockData();
 
-    // Update stock data every 30 seconds
-    const interval = setInterval(fetchStockData, 30000);
+    // Update stock data every 60 seconds
+    const interval = setInterval(fetchStockData, 60000);
 
     return () => clearInterval(interval);
   }, []);

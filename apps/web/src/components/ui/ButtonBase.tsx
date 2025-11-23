@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "../../lib/utils";
 
 export type ButtonVariant =
   | "default"
@@ -28,7 +29,6 @@ const ButtonBase: React.FC<ButtonBaseProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = "btn";
   const variantClassMap: Record<ButtonVariant, string> = {
     default: "btn-ghost",
     primary: "btn-primary",
@@ -44,16 +44,16 @@ const ButtonBase: React.FC<ButtonBaseProps> = ({
     lg: "px-6 py-3 text-lg",
   };
 
-  const classes = [
-    baseClasses,
+  const classes = cn(
+    "btn",
     variantClassMap[variant],
     sizeClassMap[size],
-    loading && "opacity-75 cursor-not-allowed",
-    (disabled || loading) && "opacity-50 cursor-not-allowed",
+    {
+      "opacity-75 cursor-not-allowed": loading,
+      "opacity-50 cursor-not-allowed": disabled && !loading,
+    },
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <button className={classes} disabled={disabled || loading} {...props}>

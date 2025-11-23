@@ -10,10 +10,10 @@ interface AdminProtectedRouteProps {
 const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
   children,
 }) => {
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, isLoading } = useAuth();
 
   // Show loading while auth state is being determined
-  if (isLoggedIn === undefined) {
+  if (isLoading) {
     return <LoadingIndicator fullScreen />;
   }
 

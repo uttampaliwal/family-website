@@ -4,13 +4,13 @@ import {
   createPost,
   toggleLike,
   addComment,
-} from "../controllers/socialFeedController.js";
-import authenticateJWT from "../middleware/authMiddleware.js";
+} from "../controllers/socialFeedController";
+import { protect as authMiddleware } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
 // Apply authentication middleware to all routes
-router.use(authenticateJWT);
+router.use(authMiddleware);
 
 // GET /api/social/feed - Get social feed posts
 router.get("/feed", getFeedPosts);

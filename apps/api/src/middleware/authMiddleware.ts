@@ -1,19 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import User, { IUser } from "../models/User";
+import User from "../models/User";
 import { logError } from "../utils/logger";
 
 const jwtSecret = process.env.JWT_SECRET as string;
-
-// Extend the Express Request interface to include the user property
-// This is a common practice to avoid TypeScript errors when attaching properties to the request object.
-declare global {
-  namespace Express {
-    interface Request {
-      user?: IUser;
-    }
-  }
-}
 
 /**
  * Middleware to protect routes by verifying a JWT from an httpOnly cookie.
@@ -51,7 +41,7 @@ export const protect = async (
     }
 
     // Proceed to the next middleware or the route handler
-    next();
+    return next();
   } catch (error) {
     logError(error as Error, "auth_middleware_token_validation");
     return res

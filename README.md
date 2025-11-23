@@ -22,7 +22,6 @@ npm run db:seed:admin
 - **API Server**: http://localhost:3000
 - **API Health**: http://localhost:3000/api/health-check
 
-
 ---
 
 ## 📚 **Complete Documentation**

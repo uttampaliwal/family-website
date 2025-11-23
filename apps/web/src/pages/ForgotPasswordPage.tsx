@@ -73,7 +73,11 @@ const ForgotPasswordPage: React.FC = () => {
       >
         <div className="auth-header flex justify-center py-6 bg-primary/5">
           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-            <img src="/family-portal-logo.svg" alt="Logo" className="w-10 h-10 text-primary" />
+            <img
+              src="/family-portal-logo.svg"
+              alt="Logo"
+              className="w-10 h-10 text-primary"
+            />
           </div>
         </div>
 

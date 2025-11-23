@@ -8,7 +8,7 @@ import {
   addTask,
   addEmergencyContact,
 } from "../controllers/userDataController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect as authMiddleware } from "../middleware/authMiddleware";
 import { csrfProtection } from "../middleware/csrfGenerator.js";
 
 const router = express.Router();

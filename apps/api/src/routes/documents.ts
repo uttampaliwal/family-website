@@ -9,7 +9,7 @@ import {
   shareDocument,
   downloadFile,
 } from "../controllers/documentController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect as authMiddleware } from "../middleware/authMiddleware";
 import { csrfProtection } from "../middleware/csrfGenerator.js";
 import upload from "../middleware/fileUpload.js";
 import path from "path";

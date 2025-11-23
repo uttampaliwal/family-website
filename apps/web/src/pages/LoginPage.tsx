@@ -5,14 +5,9 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import api from "../services/axios";
-import { ensureCsrfToken } from "../utils/csrf";
+import { getApiErrorMessage } from "../utils/errorHandler";
 import OAuthButtons from "../components/OAuthButtons";
-import type {
-  LoginRequest,
-  AuthResponse,
-  ResendVerificationRequest,
-} from "../types/api";
-import { isAxiosError } from "axios";
+import type { AuthResponse, ResendVerificationRequest } from "../types/api";
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation("common");
@@ -29,62 +24,22 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Toast clearing is now handled automatically by the ToastProvider
     setLoading(true);
 
     try {
-      // Ensure CSRF token is available before making the request
-      await ensureCsrfToken();
-
-      const response = await api.post<AuthResponse>("/api/auth/login", {
-        identifier,
-        password,
-      } as LoginRequest);
+      // The login function from context now handles the API call
+      const response = await login({ identifier, password });
 
       const data = response.data;
-      if (data.user && data.accessToken) {
-        login(data.user, data.accessToken);
-        showToast(data.message || "Login successful!", "success");
-        navigate(`/profile/${data.user.username}`);
-      } else {
-        throw new Error("Invalid response: missing user data");
-      }
+      showToast(data.message || "Login successful!", "success");
+      // Navigate to profile using the username from the response
+      navigate(`/profile/${data.user.username}`);
     } catch (error) {
-      let errorMessage = "An unexpected error occurred. Please try again.";
-
-      if (isAxiosError(error)) {
-        if (error.response) {
-          if (error.response.status === 400 || error.response.status === 401) {
-            if (typeof error.response.data === "string") {
-              errorMessage = error.response.data;
-            } else {
-              errorMessage =
-                error.response.data?.message || "Invalid credentials";
-            }
-            if (
-              error.response.data?.message ===
-              "Please verify your email before logging in."
-            ) {
-              setShowResendButton(true);
-            }
-          } else if (error.response.status >= 500) {
-            errorMessage = "Server error. Please try again later.";
-          } else {
-            errorMessage =
-              error.response.data?.message ||
-              error.response.statusText ||
-              errorMessage;
-          }
-        } else if (error.request) {
-          errorMessage =
-            "Network error. Please check your internet connection or try again later.";
-        } else {
-          errorMessage = error.message || errorMessage;
-        }
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
+      const errorMessage = getApiErrorMessage(error);
+      // Specific UI logic based on error message
+      if (errorMessage.includes("Please verify your email")) {
+        setShowResendButton(true);
       }
-
       showToast(errorMessage, "error");
     } finally {
       setLoading(false);
@@ -93,7 +48,6 @@ const LoginPage: React.FC = () => {
 
   const handleResendVerification = async () => {
     setLoading(true);
-    // Note: Toast clearing is now handled automatically by the ToastProvider
     try {
       const response = await api.post<AuthResponse>(
         "/api/auth/resend-verification",
@@ -108,24 +62,7 @@ const LoginPage: React.FC = () => {
       );
       setShowResendButton(false);
     } catch (error) {
-      let errorMessage =
-        "An error occurred while resending verification email.";
-
-      if (isAxiosError(error)) {
-        if (error.response) {
-          if (error.response.status === 404) {
-            errorMessage =
-              "User not found. Please check your email or username.";
-          } else if (error.response.status >= 500) {
-            errorMessage = "Server error. Please try again later.";
-          } else if (error.response.data?.message) {
-            errorMessage = error.response.data.message;
-          }
-        } else if (error.request) {
-          errorMessage = "Network error. Please check your connection.";
-        }
-      }
-
+      const errorMessage = getApiErrorMessage(error);
       showToast(errorMessage, "error");
     } finally {
       setLoading(false);
@@ -201,7 +138,7 @@ const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none"
+                className="absolute right-3 top-[38px] text-muted hover:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-sm"
                 aria-label={
                   showPassword ? t("auth.hidePassword") : t("auth.showPassword")
                 }
