@@ -4,7 +4,7 @@ import {
   login,
   verifyEmail,
   resendVerification,
-  refreshToken,
+  getMe,
   getUserProfile,
   forgotPassword,
   resetPassword,
@@ -13,18 +13,7 @@ import {
   updateUserProfile,
   checkUsernameAvailability,
 } from "../controllers/authController.js";
-import passport from "../config/passport.js";
-import {
-  validate,
-  registerSchema,
-  loginSchema,
-  verifyEmailSchema,
-  resendVerificationSchema,
-  forgotPasswordSchema,
-  resetPasswordSchema,
-  changePasswordSchema,
-} from "../middleware/validate.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 import {
   csrfProtection,
   generateCsrfToken,
@@ -115,8 +104,8 @@ router.post(
   resendVerification,
 );
 
-// Refresh Token Route
-router.post("/refresh-token", ...csrfProtection, authRateLimit, refreshToken);
+// New route to get current user data
+router.get("/me", protect, getMe);
 
 // Check Username Availability - Public endpoint
 router.get(
@@ -128,7 +117,7 @@ router.get(
 // Get User Profile by Username - Public endpoint with basic rate limiting
 router.get(
   "/profile/:username",
-  authMiddleware,
+  protect,
   authRateLimit,
   (req: express.Request<{ username: string }>, res, next) => {
     try {
@@ -143,7 +132,7 @@ router.get(
 router.put(
   "/profile/:username",
   ...csrfProtection,
-  authMiddleware,
+  protect,
   authRateLimit,
   updateUserProfile,
 );
@@ -173,7 +162,7 @@ router.post("/logout", ...csrfProtection, authRateLimit, logout);
 router.post(
   "/change-password",
   ...csrfProtection,
-  authMiddleware,
+  protect,
   authRateLimit,
   validate(changePasswordSchema),
   changePassword,
