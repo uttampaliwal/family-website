@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import i18n from "../lib/i18n";
 
 interface Announcement {
   id: string;
@@ -73,7 +72,7 @@ const AnnouncementTicker: React.FC = () => {
         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
       },
     ],
-    [t, i18n.language],
+    [t],
   );
 
   // Auto-advance ticker

@@ -136,30 +136,6 @@ const fallbackNSEStocks: StockData[] = [
   },
 ];
 
-// Popular Indian stock symbols for real-time data
-const POPULAR_STOCKS = [
-  "RELIANCE",
-  "TCS",
-  "HDFCBANK",
-  "INFY",
-  "ICICIBANK",
-  "HINDUNILVR",
-  "SBIN",
-  "BHARTIARTL",
-  "KOTAKBANK",
-  "WIPRO",
-  "AXISBANK",
-  "HCLTECH",
-  "TECHM",
-  "MARUTI",
-  "LT",
-  "SUNPHARMA",
-  "M&M",
-  "ULTRACEMCO",
-  "NESTLEIND",
-  "DRREDDY",
-];
-
 // API endpoints for Indian stock market data
 // Keeping only Groww API as it's the most reliable free option
 
@@ -292,7 +268,7 @@ const fetchBatchFromGroww = async (symbols: string[]): Promise<StockData[]> => {
     const batchPromises = batch.map((symbol) => fetchFromGroww(symbol));
     const batchResults = await Promise.all(batchPromises);
 
-    batchResults.forEach((stock, index) => {
+    batchResults.forEach((stock) => {
       if (stock) {
         results.push(stock);
       }
