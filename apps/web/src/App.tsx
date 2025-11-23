@@ -159,7 +159,7 @@ function App() {
             <main
               id="main-content"
               role="main"
-              className="w-full pt-4 main-flex-auto"
+              className="w-full pt-32 main-flex-auto"
               tabIndex={-1}
             >
               <EnhancedErrorBoundary>
