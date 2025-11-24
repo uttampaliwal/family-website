@@ -1,0 +1,254 @@
+/* 🌟 GlossyNav Component Styles */
+/* Glassmorphism navigation menu with theme support */
+
+/* Color Variables */
+:root {
+  /* Light mode colors */
+  --nav-bg-light: rgba(255, 255, 255, 0.75);
+  --nav-border-light: rgba(255, 255, 255, 0.3);
+  --nav-text-light: #1a1a1a;
+  --nav-hover-bg-light: rgba(255, 255, 255, 0.5);
+  --nav-focus-ring-light: #005fcc;
+
+  /* Dark mode colors */
+  --nav-bg-dark: rgba(20, 20, 20, 0.75);
+  --nav-border-dark: rgba(255, 255, 255, 0.2);
+  --nav-text-dark: #f0f0f0;
+  --nav-hover-bg-dark: rgba(50, 50, 50, 0.6);
+  --nav-focus-ring-dark: #6ab0ff;
+}
+
+/* Light Mode */
+.light {
+  --nav-bg: var(--nav-bg-light);
+  --nav-border: var(--nav-border-light);
+  --nav-text: var(--nav-text-light);
+  --nav-hover-bg: var(--nav-hover-bg-light);
+  --nav-focus-ring: var(--nav-focus-ring-light);
+}
+
+/* Dark Mode */
+.dark {
+  --nav-bg: var(--nav-bg-dark);
+  --nav-border: var(--nav-border-dark);
+  --nav-text: var(--nav-text-dark);
+  --nav-hover-bg: var(--nav-hover-bg-dark);
+  --nav-focus-ring: var(--nav-focus-ring-dark);
+}
+
+/* System Preference Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --nav-bg: var(--nav-bg-dark);
+    --nav-border: var(--nav-border-dark);
+    --nav-text: var(--nav-text-dark);
+    --nav-hover-bg: var(--nav-hover-bg-dark);
+    --nav-focus-ring: var(--nav-focus-ring-dark);
+  }
+}
+
+/* Container */
+.glossy-nav-container {
+  position: relative;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+}
+
+/* Trigger Button */
+.glossy-nav-trigger {
+  background-color: var(--nav-bg);
+  border: 1px solid var(--nav-border);
+  color: var(--nav-text);
+  border-radius: 9999px;
+  padding: 10px 20px;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.glossy-nav-trigger:hover {
+  background-color: var(--nav-hover-bg);
+  transform: scale(1.02);
+}
+
+.glossy-nav-trigger:focus-visible {
+  outline: 2px solid var(--nav-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Menu Dropdown */
+.glossy-nav-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  border-radius: 20px;
+  background-color: var(--nav-bg);
+  border: 1px solid var(--nav-border);
+  padding: 24px;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: max-content;
+  max-width: 90vw;
+
+  /* Glassmorphism effect */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  /* Animation */
+  transform-origin: top right;
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.2s ease-out;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .glossy-nav-menu {
+    transition: opacity 0.2s ease-out;
+  }
+
+  .glossy-nav-menu.closed {
+    transform: none !important;
+  }
+
+  .glossy-nav-trigger:hover {
+    transform: none;
+  }
+}
+
+/* Closed state */
+.glossy-nav-menu.closed {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+  pointer-events: none;
+}
+
+/* Grid Layout */
+.nav-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.nav-grid.columns-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.nav-grid.columns-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.nav-grid.columns-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Responsive grid */
+@media (max-width: 640px) {
+  .nav-grid.columns-3,
+  .nav-grid.columns-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+/* Menu Items */
+.glossy-nav-item {
+  color: var(--nav-text);
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  transition:
+    background-color 0.15s ease-in-out,
+    color 0.15s ease-in-out;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.glossy-nav-item:hover,
+.glossy-nav-item:focus-visible {
+  background-color: var(--nav-hover-bg);
+}
+
+.glossy-nav-item:focus-visible {
+  outline: 2px solid var(--nav-focus-ring);
+  outline-offset: 2px;
+}
+
+.glossy-nav-item:active {
+  transform: scale(0.98);
+}
+
+/* Separator */
+.glossy-nav-separator {
+  border: 0;
+  border-bottom: 1px solid var(--nav-border);
+  margin: 16px 0;
+}
+
+/* Auth Group */
+.glossy-nav-auth-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Visually Hidden (for screen readers) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: more) {
+  .glossy-nav-menu,
+  .glossy-nav-trigger {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+  }
+
+  .glossy-nav-item {
+    color: CanvasText;
+  }
+
+  .glossy-nav-item:hover,
+  .glossy-nav-item:focus-visible {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+
+  .glossy-nav-separator {
+    border-color: CanvasText;
+  }
+}
+
+/* Print styles */
+@media print {
+  .glossy-nav-container {
+    display: none;
+  }
+}

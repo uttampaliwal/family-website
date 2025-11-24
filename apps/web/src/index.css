@@ -2,6 +2,7 @@
 @import "./styles/themes.css";
 @import "./styles/theme-system.css";
 @import "./styles/family-tree.css";
+@import "./styles/glossy-nav.css";
 
 /* 🎨 Clean Base Styles */
 *,
