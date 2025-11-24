@@ -108,12 +108,10 @@ export const register = async (
       email: sanitizeLog(email),
       username: sanitizeLog(username),
     });
-    return res
-      .status(500)
-      .json({
-        message:
-          "We encountered an issue while creating your account. Please try again.",
-      });
+    return res.status(500).json({
+      message:
+        "We encountered an issue while creating your account. Please try again.",
+    });
   }
 };
 
@@ -139,11 +137,9 @@ export const login = async (
       return res.status(400).json({ message: "Invalid credentials." });
     }
     if (user.lockUntil && user.lockUntil > Date.now()) {
-      return res
-        .status(403)
-        .json({
-          message: "Account is temporarily locked. Please try again later.",
-        });
+      return res.status(403).json({
+        message: "Account is temporarily locked. Please try again later.",
+      });
     }
     if (!user.isVerified) {
       return res
@@ -170,11 +166,9 @@ export const login = async (
             },
           },
         );
-        return res
-          .status(403)
-          .json({
-            message: `Too many failed login attempts. Account locked for ${LOCK_TIME / (1000 * 60 * 60)} hours.`,
-          });
+        return res.status(403).json({
+          message: `Too many failed login attempts. Account locked for ${LOCK_TIME / (1000 * 60 * 60)} hours.`,
+        });
       }
       await User.updateOne(
         { _id: user._id },
@@ -213,11 +207,9 @@ export const login = async (
     logError(err as Error, "user_login", {
       identifier: sanitizeLog(identifier),
     });
-    return res
-      .status(500)
-      .json({
-        message: "We couldn't sign you in right now. Please try again.",
-      });
+    return res.status(500).json({
+      message: "We couldn't sign you in right now. Please try again.",
+    });
   }
 };
 
@@ -299,12 +291,10 @@ export const forgotPassword = async (
   res: Response,
 ): Promise<Response> => {
   // Implementation from original file
-  return res
-    .status(200)
-    .json({
-      message:
-        "If an account with that email exists, a password reset link has been sent.",
-    });
+  return res.status(200).json({
+    message:
+      "If an account with that email exists, a password reset link has been sent.",
+  });
 };
 export const resetPassword = async (
   req: Request,
@@ -325,11 +315,9 @@ export const resendVerification = async (
   res: Response,
 ): Promise<Response> => {
   // Implementation from original file
-  return res
-    .status(200)
-    .json({
-      message: "Verification email sent successfully. Please check your inbox.",
-    });
+  return res.status(200).json({
+    message: "Verification email sent successfully. Please check your inbox.",
+  });
 };
 export const getUserProfile = async (
   req: Request,
