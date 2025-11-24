@@ -58,7 +58,7 @@ const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`${isLoggedIn ? "min-h-screen" : ""} bg-background`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -84,7 +84,7 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* Stock Market Ticker - Above welcome message */}
-          <div className="relative z-20 pt-4">
+          <div className="relative z-20 pt-1">
             <StockMarketTicker />
           </div>
 
