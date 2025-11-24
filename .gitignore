@@ -1,77 +1,159 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Dependencies
 /node_modules
+node_modules/
+**/node_modules/
+apps/*/node_modules/
+packages/*/node_modules/
 /.pnp
 .pnp.js
+.pnp.*
+package-lock.json.backup
 
-# testing
+# Testing
 /coverage
 **/coverage/
 coverage/
 apps/*/coverage/
+packages/*/coverage/
 *.lcov
 lcov.info
 coverage-final.json
 coverage-summary.json
-
-# Jest and Vitest coverage artifacts  
 .nyc_output
 junit.xml
 test-results.xml
-
-# Coverage report files that change frequently
 **/coverage/**/*.html
 **/coverage/**/*.js
 **/coverage/**/*.css
 **/coverage/lcov-report/**
 **/coverage/tmp/**
 
-# production
+# Production builds
 /build
 /dist
+**/dist/
+**/build/
+apps/*/dist/
+apps/*/build/
+packages/*/dist/
+packages/*/build/
 
-# misc
-.DS_Store
+# Cache and temporary files
+.cache/
+.temp/
+.tmp/
+*.tmp
+*~
+.turbo/
+.next/
+.nuxt/
+.vite/
+.vitest/
+**/node_modules/.cache/
+**/node_modules/.vite/
+
+# Environment variables
+.env
 .env.local
 .env*.local
+.env.development
+.env.production
+.env.test
 apps/web/.env
 /apps/*/.env
-.nvmrc
+apps/api/.env
+
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.idea
-.vscode
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+*.log.*
+logs.txt
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Backup files
 *.bak
 *.old
 *.orig
+*.backup
+*~
 
-# Custom additions
-docs
-packages/tests/
-test/
-*.log
-.turbo/
+# AI Assistant directories (keep documentation but ignore sessions)
 .zencoder/
 .amazonq/
-.gemini
-.grok
-.env
-.env.example
-.env.production
-docker-compose.prod.yml
+.gemini/sessions/
+.gemini/*.json
+.grok/
+
+# Keep .agent documentation but ignore temporary files
+# .agent/ folder is allowed for documentation
+
+# Deployment and CI/CD
+.vercel/
+.netlify/
+.firebase/
+.github/workflows/*.log
+
+# Build and bundler artifacts
+*.tsbuildinfo
+.rollup.cache/
+.parcel-cache/
+.webpack/
+
+# Package manager files
+.pnpm-store/
+.yarn/cache/
+.yarn/install-state.gz
+.npm/
+
+# Custom project files (temporary)
 commit_message.txt
 example.txt
 cookies.txt
-logs.txt
 acli.exe
-deployment_guide.md
-PROJECT_STATUS.md
 
-.vercel
+# Documentation to ignore (if auto-generated)
+docs/api/
+docs/coverage/
+
+# Docker
+.dockerignore.backup
+docker-compose.override.yml
+
+# Misc
+*.cert
+*.key
+*.pem
+.husky/_/
