@@ -31,7 +31,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     <div className="relative inline-block text-left">
       <button
         onClick={onToggle}
-        className={`inline-flex items-center justify-center w-16 p-2 rounded-lg transition-all duration-200 focus:outline-none ${
+        className={`inline-flex items-center justify-center min-w-16 p-2 rounded-lg transition-all duration-200 focus:outline-none ${
           isOpen
             ? "text-primary bg-primary/10"
             : "text-text-muted hover:text-primary hover:bg-primary/5"
@@ -57,7 +57,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         leaveFrom="transform opacity-100 scale-100 translate-y-0"
         leaveTo="transform opacity-0 scale-95 -translate-y-2"
       >
-        <div className="absolute right-0 mt-2 w-40 origin-top-right bg-surface/98 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden z-[100] focus:outline-none">
+        <div className="absolute right-0 mt-2 w-40 origin-top-right bg-surface/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden z-50 focus:outline-none">
           <div className="p-1">
             {languages.map((language) => (
               <button

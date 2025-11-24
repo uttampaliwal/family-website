@@ -105,7 +105,7 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
       <div className="auth-card w-full max-w-md">
         <div className="auth-header"></div>
         <div className="auth-form">
-          <h2 className="headline text-on-surface mb-4">Share Document</h2>
+          <h2 className="headline text-text-base mb-4">Share Document</h2>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-6">

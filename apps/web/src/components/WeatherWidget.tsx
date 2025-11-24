@@ -126,7 +126,14 @@ const WeatherWidget: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="h-full card animate-pulse">
+      <div
+        className="h-full card animate-pulse"
+        role="status"
+        aria-label="Loading weather information"
+      >
+        <span className="sr-only">
+          Loading weather data for your location...
+        </span>
         <div className="h-8 bg-surface rounded w-1/2 mb-4"></div>
         <div className="h-16 bg-surface rounded mb-4"></div>
         <div className="space-y-2">
@@ -155,7 +162,7 @@ const WeatherWidget: React.FC = () => {
     >
       {/* Current Weather */}
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-base mb-2">
+        <h3 className="text-xl font-semibold text-text-base mb-2">
           Current Weather
         </h3>
         <p className="text-sm text-text-muted mb-4">{weather.location}</p>

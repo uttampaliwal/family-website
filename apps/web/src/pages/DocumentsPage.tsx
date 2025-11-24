@@ -119,7 +119,7 @@ const DocumentsPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="headline text-on-surface">My Documents</h1>
+        <h1 className="headline text-text-base">My Documents</h1>
         <button
           onClick={handleNewDocument}
           className="btn btn-primary flex items-center"

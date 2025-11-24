@@ -115,7 +115,7 @@ const UserProfilePage: React.FC = () => {
   return (
     <div className="container mx-auto p-8">
       <div className="card">
-        <h1 className="headline mb-6 text-on-surface text-center">
+        <h1 className="headline mb-6 text-text-base text-center">
           @{state.userProfile.username}
         </h1>
 

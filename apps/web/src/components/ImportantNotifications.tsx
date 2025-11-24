@@ -187,7 +187,7 @@ const ImportantNotifications: React.FC = () => {
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="subheadline text-on-surface">
+                <h3 className="subheadline text-text-base">
                   {notification.title}
                 </h3>
                 <p className="mt-1 text-readable-muted">

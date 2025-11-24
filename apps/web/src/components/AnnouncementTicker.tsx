@@ -180,7 +180,7 @@ const AnnouncementTicker: React.FC = () => {
 
             {/* Message */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm md:text-base font-medium text-on-surface leading-relaxed">
+              <p className="text-sm md:text-base font-medium text-text-base leading-relaxed">
                 {currentAnnouncement.message}
               </p>
               <p className="text-xs text-muted mt-1">

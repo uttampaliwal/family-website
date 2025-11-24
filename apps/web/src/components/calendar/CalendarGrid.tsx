@@ -19,7 +19,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
           {weekdayLabels.map((day) => (
             <th
               key={day}
-              className="p-2 text-center text-sm font-semibold text-on-surface bg-surface/80 border-b border-border"
+              className="p-2 text-center text-sm font-semibold text-text-base bg-surface/80 border-b border-border"
             >
               {day}
             </th>

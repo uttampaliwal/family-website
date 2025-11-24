@@ -32,7 +32,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   return (
     <div className="flex justify-between items-center mb-6">
       <div className="flex items-center space-x-4">
-        <h3 className="text-xl font-semibold text-on-surface">
+        <h3 className="text-xl font-semibold text-text-base">
           {selectedDate.toLocaleString("default", {
             month: "long",
             year: "numeric",
@@ -63,7 +63,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             className={`px-3 py-1 rounded-lg ${
               view === viewType
                 ? "bg-primary text-on-primary"
-                : "hover:bg-surface text-on-surface"
+                : "hover:bg-surface text-text-base"
             }`}
           >
             {t(`calendar.${viewType}`)}

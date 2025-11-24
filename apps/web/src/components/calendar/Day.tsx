@@ -15,7 +15,7 @@ const Day: React.FC<DayProps> = ({ day, events }) => {
   }`;
 
   const dateClasses = `text-sm font-medium ${
-    isCurrentMonth ? "text-on-surface" : "text-muted"
+    isCurrentMonth ? "text-text-base" : "text-muted"
   }`;
 
   return (

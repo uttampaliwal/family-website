@@ -96,7 +96,7 @@ const DashboardHomePage: React.FC = () => {
 
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-6 border border-primary/20">
-        <h1 className="text-3xl font-bold text-on-surface mb-2">
+        <h1 className="text-3xl font-bold text-text-base mb-2">
           Welcome back, Admin!
         </h1>
         <p className="text-muted">
@@ -134,7 +134,7 @@ const DashboardHomePage: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="bg-surface rounded-xl p-6 border border-border">
-        <h2 className="text-xl font-semibold mb-4 text-on-surface">
+        <h2 className="text-xl font-semibold mb-4 text-text-base">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -155,7 +155,7 @@ const DashboardHomePage: React.FC = () => {
 
       {/* Analytics Chart */}
       <div className="bg-surface rounded-xl p-6 border border-border">
-        <h2 className="text-xl font-semibold mb-4 text-on-surface">
+        <h2 className="text-xl font-semibold mb-4 text-text-base">
           Platform Overview
         </h2>
         <div className="text-center py-8">
@@ -171,7 +171,7 @@ const DashboardHomePage: React.FC = () => {
         <div className="space-y-6">
           {/* System Status */}
           <div className="bg-surface rounded-xl p-6 border border-border">
-            <h3 className="text-lg font-semibold mb-4 text-on-surface">
+            <h3 className="text-lg font-semibold mb-4 text-text-base">
               System Status
             </h3>
             <div className="space-y-3">
@@ -198,7 +198,7 @@ const DashboardHomePage: React.FC = () => {
 
           {/* Recent Activity Summary */}
           <div className="bg-surface rounded-xl p-6 border border-border">
-            <h3 className="text-lg font-semibold mb-4 text-on-surface">
+            <h3 className="text-lg font-semibold mb-4 text-text-base">
               Recent Activity
             </h3>
             <div className="text-sm text-muted">

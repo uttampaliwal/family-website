@@ -22,7 +22,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => {
               {item.label}
             </Link>
           ) : (
-            <span className="text-on-surface font-medium">{item.label}</span>
+            <span className="text-text-base font-medium">{item.label}</span>
           )}
         </React.Fragment>
       ))}

@@ -16,7 +16,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ doc, onDelete }) => {
     <div className="card overflow-hidden">
       <div className="p-6">
         <div className="flex items-center mb-2">
-          <h2 className="subheadline text-on-surface truncate">{doc.title}</h2>
+          <h2 className="subheadline text-text-base truncate">{doc.title}</h2>
           {doc.fileUrl && <span className="ml-2 badge badge-info">File</span>}
         </div>
         <p className="text-readable-muted text-sm mb-2">

@@ -189,7 +189,7 @@ const HomePage: React.FC = () => {
         {isLoggedIn && (
           <section className="mb-12">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="headline text-on-surface">
+              <h2 className="headline text-text-base">
                 {t("home:recentActivity")}
               </h2>
               <button className="btn btn-ghost font-medium">
@@ -212,7 +212,7 @@ const HomePage: React.FC = () => {
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-on-surface">
+                    <p className="font-medium text-text-base">
                       {activity.title}
                     </p>
                     <p className="text-sm text-muted">{activity.time}</p>
@@ -227,7 +227,7 @@ const HomePage: React.FC = () => {
         {isLoggedIn && (
           <section className="mb-12">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="headline text-on-surface">
+              <h2 className="headline text-text-base">
                 {t("home:familyTools")}
               </h2>
               <button className="btn btn-secondary">
@@ -244,7 +244,7 @@ const HomePage: React.FC = () => {
         {isLoggedIn && (
           <section className="mb-12">
             <div className="card">
-              <h2 className="headline mb-6 text-on-surface">
+              <h2 className="headline mb-6 text-text-base">
                 {t("home:importantUpdates")}
               </h2>
               <Suspense fallback={<ComponentSkeleton rows={3} height="h-24" />}>
@@ -257,7 +257,7 @@ const HomePage: React.FC = () => {
         {/* Family Calendar */}
         {isLoggedIn && (
           <section className="mb-12">
-            <h2 className="headline mb-6 text-on-surface">
+            <h2 className="headline mb-6 text-text-base">
               {t("home:familyCalendar")}
             </h2>
             <div className="card">
