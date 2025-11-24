@@ -1,12 +1,15 @@
 import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDocuments, deleteDocument } from "../services/documents";
 import type { Document } from "../services/documents";
 import { useToast } from "../hooks/useToast";
 import { getApiErrorMessage } from "../utils/errorHandler";
+import LoadingState from "../components/LoadingState";
+import EmptyState from "../components/EmptyState";
 import DocumentCard from "../components/DocumentCard";
-import DocumentCardSkeleton from "../components/DocumentCardSkeleton";
+import { staggerContainer, staggerItem } from "../utils/animations";
 
 // Utility function to format date
 const formatDate = (dateString: string) => {
@@ -65,54 +68,50 @@ const DocumentsPage: React.FC = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <DocumentCardSkeleton key={index} />
-          ))}
-        </div>
+        <LoadingState type="cards" count={6} message="Loading documents..." />
       );
     }
 
     if (isError) {
       return (
-        <div className="card text-center">
-          <h2 className="text-xl font-semibold text-error mb-2">
-            Error Fetching Documents
-          </h2>
-          <p className="text-readable-muted mb-4">
-            {getApiErrorMessage(error)}
-          </p>
-          <button
-            onClick={() =>
-              queryClient.invalidateQueries({ queryKey: ["documents"] })
-            }
-            className="btn btn-primary"
-          >
-            Try Again
-          </button>
-        </div>
+        <EmptyState
+          icon="⚠️"
+          title="Error Fetching Documents"
+          message={getApiErrorMessage(error)}
+          actionLabel="Try Again"
+          onAction={() =>
+            queryClient.invalidateQueries({ queryKey: ["documents"] })
+          }
+          secondaryAction
+        />
       );
     }
 
     if (documents.length === 0) {
       return (
-        <div className="card text-center">
-          <p className="text-readable-muted mb-4">
-            You don't have any documents yet.
-          </p>
-          <button onClick={handleNewDocument} className="btn btn-primary">
-            Create Your First Document
-          </button>
-        </div>
+        <EmptyState
+          icon="📄"
+          title="No Documents Yet"
+          message="You don't have any documents yet. Create your first one to get started!"
+          actionLabel="Create Your First Document"
+          onAction={handleNewDocument}
+        />
       );
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
         {documentsWithFormattedDates.map((doc) => (
-          <DocumentCard key={doc._id} doc={doc} onDelete={handleDelete} />
+          <motion.div key={doc._id} variants={staggerItem}>
+            <DocumentCard doc={doc} onDelete={handleDelete} />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     );
   };
 

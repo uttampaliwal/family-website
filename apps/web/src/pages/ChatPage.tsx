@@ -2,6 +2,16 @@ import React, { useState, useEffect } from "react";
 import { ChatBubbleLeftRightIcon, UserIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../hooks/useAuth";
 import api from "../services/axios";
+import LoadingState from "../components/LoadingState";
+import {
+  fadeInUp,
+  staggerContainer,
+  staggerItem,
+  cardHover,
+} from "../utils/animations";
+import { motion } from "framer-motion";
+
+// ... inside component
 
 interface Friend {
   _id: string;
@@ -94,8 +104,7 @@ const ChatPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-text-base mb-4">
             Family Chat
           </h1>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-text-muted">Loading chats...</p>
+          <LoadingState type="page" message="Loading chats..." />
         </div>
       </div>
     );
@@ -126,7 +135,12 @@ const ChatPage: React.FC = () => {
             <div className="overflow-y-auto h-full">
               {/* Existing Chats */}
               {chats.length > 0 && (
-                <div className="p-4">
+                <motion.div
+                  className="p-4"
+                  variants={staggerContainer}
+                  initial="initial"
+                  animate="animate"
+                >
                   <h3 className="text-sm font-medium text-text-muted mb-3 uppercase tracking-wide">
                     Recent Conversations
                   </h3>
@@ -136,8 +150,10 @@ const ChatPage: React.FC = () => {
                     );
 
                     return (
-                      <button
+                      <motion.button
                         key={chat._id}
+                        variants={staggerItem}
+                        {...cardHover}
                         onClick={() => selectExistingChat(chat)}
                         className={`w-full text-left p-3 rounded-lg mb-2 transition-colors ${
                           selectedChatId === chat._id
@@ -160,21 +176,28 @@ const ChatPage: React.FC = () => {
                             )}
                           </div>
                         </div>
-                      </button>
+                      </motion.button>
                     );
                   })}
-                </div>
+                </motion.div>
               )}
 
               {/* Friends List */}
-              <div className="p-4">
+              <motion.div
+                className="p-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
                 <h3 className="text-sm font-medium text-text-muted mb-3 uppercase tracking-wide">
                   Family Members
                 </h3>
                 {friends.length > 0 ? (
                   friends.map((friend) => (
-                    <button
+                    <motion.button
                       key={friend._id}
+                      variants={staggerItem}
+                      {...cardHover}
                       onClick={() => startChat(friend._id, friend.username)}
                       className="w-full text-left p-3 rounded-lg mb-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
@@ -192,14 +215,17 @@ const ChatPage: React.FC = () => {
                         </div>
                         <ChatBubbleLeftRightIcon className="w-4 h-4 text-text-muted" />
                       </div>
-                    </button>
+                    </motion.button>
                   ))
                 ) : (
-                  <p className="text-sm text-text-muted italic">
+                  <motion.p
+                    variants={fadeInUp}
+                    className="text-sm text-text-muted italic"
+                  >
                     No family members connected yet
-                  </p>
+                  </motion.p>
                 )}
-              </div>
+              </motion.div>
             </div>
           </div>
 

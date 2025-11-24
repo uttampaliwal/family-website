@@ -3,6 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 import api from "../services/axios";
+import LoadingState from "../components/LoadingState";
+import {
+  staggerContainer,
+  staggerItem,
+  scaleIn,
+  cardHover,
+} from "../utils/animations";
+
+// ... inside component
 
 interface FamilyMember {
   id: string;
@@ -101,9 +110,10 @@ const FamilyTreePage: React.FC = () => {
             <motion.div
               key={member.id}
               className={`family-member-card ${selectedMember?.id === member.id ? "selected" : ""}`}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.05, y: -5 }}
+              variants={scaleIn}
+              initial="initial"
+              animate="animate"
+              {...cardHover}
               onClick={() => setSelectedMember(member)}
             >
               <div className="member-avatar">
@@ -132,13 +142,17 @@ const FamilyTreePage: React.FC = () => {
     if (!familyData) return null;
 
     return (
-      <div className="space-y-4">
+      <motion.div
+        className="space-y-4"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
         {familyData.members.map((member) => (
           <motion.div
             key={member.id}
             className={`family-member-list-item ${selectedMember?.id === member.id ? "selected" : ""}`}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            variants={staggerItem}
             whileHover={{ x: 5 }}
             onClick={() => setSelectedMember(member)}
           >
@@ -164,7 +178,7 @@ const FamilyTreePage: React.FC = () => {
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     );
   };
 
@@ -172,14 +186,18 @@ const FamilyTreePage: React.FC = () => {
     if (!familyData) return null;
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
         {familyData.members.map((member) => (
           <motion.div
             key={member.id}
             className={`family-member-grid-card ${selectedMember?.id === member.id ? "selected" : ""}`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.05, y: -5 }}
+            variants={scaleIn}
+            {...cardHover}
             onClick={() => setSelectedMember(member)}
           >
             <div className="member-avatar-grid">
@@ -197,7 +215,7 @@ const FamilyTreePage: React.FC = () => {
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     );
   };
 
@@ -228,8 +246,7 @@ const FamilyTreePage: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4 gradient-text">Family Tree</h1>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted">Loading family tree...</p>
+          <LoadingState type="page" message="Loading family tree..." />
         </div>
       </div>
     );
