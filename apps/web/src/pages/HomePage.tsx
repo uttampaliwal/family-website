@@ -7,6 +7,7 @@ import ComponentSkeleton from "../components/ComponentSkeleton";
 import AnnouncementTicker from "../components/AnnouncementTicker";
 import WelcomeMessage from "../components/WelcomeMessage";
 import StockMarketTicker from "../components/StockMarketTicker";
+import { staggerContainer, staggerItem, cardHover } from "../utils/animations";
 
 // Lazy loaded components for better performance
 const Calendar = lazy(() =>
@@ -117,7 +118,12 @@ const HomePage: React.FC = () => {
               <p className="text-text-muted">{t("home:tagline")}</p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
               {[
                 {
                   icon: "🌳",
@@ -155,14 +161,11 @@ const HomePage: React.FC = () => {
                   border: "border-emerald-300/30",
                   text: "text-emerald-700 dark:text-emerald-300",
                 },
-              ].map((action, index) => (
+              ].map((action) => (
                 <motion.div
                   key={action.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -8 }}
-                  whileTap={{ scale: 0.95 }}
+                  variants={staggerItem}
+                  {...cardHover}
                   className={`relative bg-gradient-to-br ${action.color} backdrop-blur-sm rounded-2xl border ${action.border} p-6 cursor-pointer group transition-all duration-300 hover:shadow-xl`}
                 >
                   <Link to={action.to} className="block text-center">
@@ -181,7 +184,7 @@ const HomePage: React.FC = () => {
                   <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </section>
         )}
 
