@@ -58,5 +58,22 @@ export type {
   UpdateRelationshipsInput,
 } from "./schemas/members.js";
 
+export {
+  createPhotoRequestSchema,
+  MAX_PHOTO_SIZE,
+  photoListResponseSchema,
+  photoMimeTypeSchema,
+  photoMimeTypes,
+  photoSchema,
+  uploadUrlRequestSchema,
+} from "./schemas/photos.js";
+
+export type {
+  CreatePhotoInput,
+  Photo,
+  PhotoListResponse,
+  UploadUrlRequest,
+} from "./schemas/photos.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";
