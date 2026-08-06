@@ -34,18 +34,22 @@ eventsRoutes.get("/", async (c) => {
   }
 
   const [events, total] = await Promise.all([
-    Event.find(filter).sort({ startsAt: 1 }).limit(500).lean(),
+    Event.find(filter)
+      .sort({ startsAt: 1 })
+      .limit(500)
+      .populate("createdBy", "name username")
+      .lean(),
     Event.countDocuments(filter),
   ]);
 
-  const items = await Promise.all(
-    events.map((event) => toEventPayload(event._id.toString())),
-  );
-  return c.json({ items, total });
+  return c.json({
+    items: (events as unknown as PopulatedEvent[]).map(toEventPayload),
+    total,
+  });
 });
 
 eventsRoutes.get("/:id", async (c) => {
-  return c.json({ event: await toEventPayload(c.req.param("id")) });
+  return c.json({ event: toEventPayload(await findPopulatedEvent(c.req.param("id"))) });
 });
 
 eventsRoutes.post("/", validateBody(createEventRequestSchema), async (c) => {
@@ -71,7 +75,7 @@ eventsRoutes.post("/", validateBody(createEventRequestSchema), async (c) => {
     link: "/events",
   });
 
-  return c.json({ event: await toEventPayload(event._id.toString()) });
+  return c.json({ event: toEventPayload(await findPopulatedEvent(event._id.toString())) });
 });
 
 eventsRoutes.patch("/:id", validateBody(updateEventRequestSchema), async (c) => {
@@ -91,7 +95,7 @@ eventsRoutes.patch("/:id", validateBody(updateEventRequestSchema), async (c) => 
   if (input.recurrence !== undefined) event.recurrence = input.recurrence;
 
   await event.save();
-  return c.json({ event: await toEventPayload(event._id.toString()) });
+  return c.json({ event: toEventPayload(await findPopulatedEvent(event._id.toString())) });
 });
 
 eventsRoutes.delete("/:id", async (c) => {
@@ -129,13 +133,7 @@ interface PopulatedEvent {
   createdAt: Date;
 }
 
-async function toEventPayload(eventId: string): Promise<EventPayload> {
-  const event = (await Event.findById(eventId)
-    .populate("createdBy", "name username")
-    .lean()) as unknown as PopulatedEvent | null;
-
-  if (!event) throw new AppError(404, "NOT_FOUND", "Event not found");
-
+function toEventPayload(event: PopulatedEvent): EventPayload {
   return {
     id: event._id.toString(),
     title: event.title,
@@ -151,4 +149,13 @@ async function toEventPayload(eventId: string): Promise<EventPayload> {
     },
     createdAt: event.createdAt,
   };
+}
+
+async function findPopulatedEvent(eventId: string): Promise<PopulatedEvent> {
+  const event = (await Event.findById(eventId)
+    .populate("createdBy", "name username")
+    .lean()) as unknown as PopulatedEvent | null;
+
+  if (!event) throw new AppError(404, "NOT_FOUND", "Event not found");
+  return event;
 }
