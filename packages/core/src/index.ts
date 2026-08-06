@@ -167,5 +167,20 @@ export type {
   SendMessageInput,
 } from "./schemas/chat.js";
 
+export {
+  notificationActorSchema,
+  notificationListResponseSchema,
+  notificationSchema,
+  notificationTypeSchema,
+  notificationTypes,
+  unreadCountResponseSchema,
+} from "./schemas/notifications.js";
+
+export type {
+  Notification,
+  NotificationListResponse,
+  UnreadCountResponse,
+} from "./schemas/notifications.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";

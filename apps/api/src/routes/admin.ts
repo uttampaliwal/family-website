@@ -7,6 +7,7 @@ import { originCheck, requireAdmin } from "../middleware/security.js";
 import { toAdminMember } from "../lib/payloads.js";
 import { assertValidParents } from "../lib/tree.js";
 import { validateBody } from "../lib/validation.js";
+import { createNotification } from "../lib/notifications.js";
 import { User } from "../models/user.js";
 
 export const adminRoutes = new Hono();
@@ -71,7 +72,17 @@ adminRoutes.patch(
     }
 
     user.adminApprovalStatus = status;
-    if (status === "approved") user.approvedAt = new Date();
+    if (status === "approved") {
+      user.approvedAt = new Date();
+      const reviewer = await User.findById(c.get("userId"), "name");
+      await createNotification({
+        recipientId: user._id.toString(),
+        type: "approval",
+        actorId: c.get("userId"),
+        actorName: reviewer?.name ?? "",
+        link: "/",
+      });
+    }
     if (role !== undefined) user.role = role;
     await user.save();
 

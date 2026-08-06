@@ -56,6 +56,7 @@ git tag v0.3.1 && git push origin v0.3.1
 | `v0.3.7` | M10 — real-time chat |
 | `v0.3.8` | M11 — i18n (EN/HI), SEO, code-split routes |
 | `v0.3.9` | M12 — UX hardening (dashboard, error boundary, form UX, legal pages) |
+| `v0.3.10` | M13 — in-app notifications (bell, unread badges, live via SSE) |
 
 ## Rules of thumb
 

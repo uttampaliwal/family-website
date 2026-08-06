@@ -9,6 +9,7 @@ import {
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireAuth } from "../middleware/security.js";
 import { validateBody } from "../lib/validation.js";
+import { createNotification } from "../lib/notifications.js";
 import { Post } from "../models/post.js";
 import { User } from "../models/user.js";
 
@@ -83,6 +84,18 @@ postsRoutes.post("/:id/like", async (c) => {
   }
 
   await post.save();
+
+  if (liked && post.createdBy.toString() !== userId) {
+    const liker = await User.findById(userId, "name");
+    await createNotification({
+      recipientId: post.createdBy.toString(),
+      type: "moment_like",
+      actorId: userId,
+      actorName: liker?.name ?? "",
+      link: "/moments",
+    });
+  }
+
   return c.json({ liked, likeCount: post.likedBy.length });
 });
 
@@ -98,6 +111,18 @@ postsRoutes.post("/:id/comments", validateBody(createCommentRequestSchema), asyn
     createdBy: new mongoose.Types.ObjectId(userId),
   } as never);
   await post.save();
+
+  if (post.createdBy.toString() !== userId) {
+    const commenter = await User.findById(userId, "name");
+    await createNotification({
+      recipientId: post.createdBy.toString(),
+      type: "moment_comment",
+      actorId: userId,
+      actorName: commenter?.name ?? "",
+      body,
+      link: "/moments",
+    });
+  }
 
   return c.json({ ok: true });
 });

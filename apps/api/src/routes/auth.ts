@@ -30,6 +30,7 @@ import { buildEmailLink, sendMail } from "../lib/email.js";
 import { hashPassword, verifyPassword } from "../lib/passwords.js";
 import { toUserPayload } from "../lib/payloads.js";
 import { validateBody } from "../lib/validation.js";
+import { notifyAdmins } from "../lib/notifications.js";
 import { User as UserModel, type UserDocument } from "../models/user.js";
 
 const AUTH_RATE = {
@@ -102,6 +103,14 @@ authRoutes.post(
       subject: "Verify your email — Kulaya",
       text: `Welcome to Kulaya! Verify your email: ${buildEmailLink("/verify-email", { token: verificationToken })}`,
       html: `<p>Welcome to <strong>Kulaya</strong>!</p><p><a href="${buildEmailLink("/verify-email", { token: verificationToken })}">Verify your email</a></p>`,
+    });
+
+    void notifyAdmins({
+      type: "member_joined",
+      actorId: user._id.toString(),
+      actorName: user.name,
+      body: input.username,
+      link: "/admin/approvals",
     });
 
     return c.json(

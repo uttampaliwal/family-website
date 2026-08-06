@@ -17,6 +17,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { api } from "../../lib/api-client.js";
 import { useI18n } from "../../i18n/index.js";
+import { NotificationBell } from "./notification-bell.js";
 import { ThemeSwitcher } from "./theme-switcher.js";
 
 const navItems = [
@@ -228,6 +229,7 @@ export function Header() {
             {t("lang.label")}
           </Button>
           <ThemeSwitcher />
+          {status === "authenticated" && user && <NotificationBell />}
         </nav>
       </div>
     </header>
