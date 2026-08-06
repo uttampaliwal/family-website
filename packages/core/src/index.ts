@@ -33,5 +33,24 @@ export type {
   User,
 } from "./schemas/auth.js";
 
+export {
+  adminDecisionSchema,
+  adminMemberListSchema,
+  adminMemberSchema,
+  memberListResponseSchema,
+  memberListSchema,
+  memberPublicSchema,
+  updateProfileSchema,
+} from "./schemas/members.js";
+
+export type {
+  AdminDecisionInput,
+  AdminMember,
+  AdminMemberListInput,
+  MemberListInput,
+  MemberPublic,
+  UpdateProfileInput,
+} from "./schemas/members.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";

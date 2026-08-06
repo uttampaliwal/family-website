@@ -13,8 +13,8 @@ declare module "hono" {
   }
 }
 
-/** Requires a valid bearer access token. */
-export async function requireAuth(c: Context, next: Next) {
+/** Verifies the bearer token and returns the authenticated user's id. */
+async function authenticate(c: Context): Promise<string> {
   const header = c.req.header("authorization");
   const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
   if (!token) throw new AppError(401, "UNAUTHORIZED", "Sign in to continue");
@@ -22,24 +22,25 @@ export async function requireAuth(c: Context, next: Next) {
   const payload = await verifyAccessToken(token);
   if (!payload) throw new AppError(401, "UNAUTHORIZED", "Session expired");
 
-  c.set("userId", payload.sub);
+  return payload.sub;
+}
+
+/** Requires a valid bearer access token. */
+export async function requireAuth(c: Context, next: Next) {
+  c.set("userId", await authenticate(c));
   await next();
 }
 
 /** Requires the authenticated user to be an admin. */
 export async function requireAdmin(c: Context, next: Next) {
-  await requireAuth(c, next);
-  const role = await getUserRole(c.get("userId"));
-  if (role !== "admin") {
-    throw new AppError(403, "FORBIDDEN", "Admin access required");
-  }
-  await next();
-}
-
-async function getUserRole(userId: string): Promise<string> {
+  const userId = await authenticate(c);
   const { User } = await import("../models/user.js");
   const user = await User.findById(userId, { role: 1 }).lean();
-  return user?.role ?? "user";
+  if (!user || user.role !== "admin") {
+    throw new AppError(403, "FORBIDDEN", "Admin access required");
+  }
+  c.set("userId", userId);
+  await next();
 }
 
 // ─── CSRF & origin checks ───────────────────────────────────────────
