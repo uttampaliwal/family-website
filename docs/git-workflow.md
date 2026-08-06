@@ -29,16 +29,17 @@ git branch -d feat/m4-family-tree
 SemVer: `MAJOR.MINOR.PATCH` — breaking change bumps MAJOR, new feature bumps
 MINOR, bug fix bumps PATCH.
 
-- The greenfield rewrite continues the legacy `v0.2.x` line as **v0.3.0**;
+- The greenfield rewrite continues the legacy `v0.2.x` line as **v0.3.x**;
   packages are already versioned 0.3.0.
 - Tag releases on `main` with `vX.Y.Z` (lightweight tag is fine for solo work):
 
 ```bash
-git tag v0.3.0 && git push origin v0.3.0
+git tag v0.3.1 && git push origin v0.3.1
 ```
 
-- Milestone cadence: each completed milestone (M4, M5, …) that ships user
-  value bumps MINOR; hotfixes bump PATCH.
+- Milestone cadence: **each shipped milestone gets a PATCH tag** — `v0.3.1`,
+  `v0.3.2`, `v0.3.3`, … (`0.2.x` = legacy, `0.3.x` = new). No MINOR bumps
+  until 1.0.
 - Existing `legacy/*` tags stay as permanent backups — never delete them.
 
 ## Rules of thumb
