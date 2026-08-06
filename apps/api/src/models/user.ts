@@ -16,6 +16,8 @@ export interface UserDocument extends Document {
   verificationTokenHash?: string;
   verificationTokenExpires?: Date;
 
+  parentIds: mongoose.Types.ObjectId[];
+
   resetPasswordTokenHash?: string;
   resetPasswordExpires?: Date;
 
@@ -66,6 +68,8 @@ const userSchema = new mongoose.Schema<UserDocument>(
     resetPasswordExpires: { type: Date, default: undefined },
 
     refreshTokenHashes: { type: [String], default: [] },
+
+    parentIds: { type: [mongoose.Schema.Types.ObjectId], default: [] },
 
     role: { type: String, enum: ["user", "admin"], default: "user" },
     adminApprovalStatus: {

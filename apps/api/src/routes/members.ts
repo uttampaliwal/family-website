@@ -4,6 +4,7 @@ import { memberListSchema, updateProfileSchema } from "@family/core";
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireAuth } from "../middleware/security.js";
 import { toPublicMember } from "../lib/payloads.js";
+import { buildTree } from "../lib/tree.js";
 import { validateBody } from "../lib/validation.js";
 import { User } from "../models/user.js";
 
@@ -54,6 +55,10 @@ membersRoutes.patch("/me", validateBody(updateProfileSchema), async (c) => {
 
   await user.save();
   return c.json({ member: toPublicMember(user) });
+});
+
+membersRoutes.get("/tree", async (c) => {
+  return c.json(await buildTree());
 });
 
 membersRoutes.get("/:id", async (c) => {
