@@ -12,7 +12,7 @@ export interface PhotoDocument extends Document {
 
 const photoSchema = new mongoose.Schema<PhotoDocument>(
   {
-    key: { type: String, required: true, unique: true },
+    key: { type: String, required: true },
     mimeType: { type: String, required: true },
     size: { type: Number, required: true },
     caption: { type: String, maxlength: 200, default: undefined },
@@ -25,6 +25,7 @@ const photoSchema = new mongoose.Schema<PhotoDocument>(
   { timestamps: true },
 );
 
+photoSchema.index({ key: 1 }, { unique: true });
 photoSchema.index({ uploadedBy: 1 });
 photoSchema.index({ createdAt: -1 });
 

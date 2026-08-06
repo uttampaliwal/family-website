@@ -15,7 +15,7 @@ export interface DocumentDocument extends Document {
 
 const documentSchema = new mongoose.Schema<DocumentDocument>(
   {
-    key: { type: String, required: true, unique: true },
+    key: { type: String, required: true },
     name: { type: String, required: true, trim: true, maxlength: 120 },
     mimeType: { type: String, required: true },
     size: {
@@ -26,7 +26,7 @@ const documentSchema = new mongoose.Schema<DocumentDocument>(
     },
     description: { type: String, default: undefined, maxlength: 500 },
     // Single revocable public share link per document.
-    shareToken: { type: String, default: undefined, unique: true, sparse: true },
+    shareToken: { type: String, default: undefined },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -36,6 +36,7 @@ const documentSchema = new mongoose.Schema<DocumentDocument>(
   { timestamps: true },
 );
 
+documentSchema.index({ key: 1 }, { unique: true });
 documentSchema.index({ createdAt: -1 });
 documentSchema.index({ uploadedBy: 1 });
 documentSchema.index({ shareToken: 1 }, { unique: true, sparse: true });
