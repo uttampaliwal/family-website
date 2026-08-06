@@ -3,7 +3,7 @@ import { Button, useToast } from "@family/ui";
 import { ApiError } from "../../lib/api-client.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { AuthCard } from "../../components/auth/auth-card.js";
-import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
+import { Field, FieldInput, FieldPassword, issueMap } from "../../components/auth/field.js";
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "../../i18n/index.js";
@@ -93,10 +93,9 @@ export function LoginPage() {
           />
         </Field>
         <Field label={t("login.password")} htmlFor="password" error={errors.password}>
-          <FieldInput
+          <FieldPassword
             id="password"
             name="password"
-            type="password"
             autoComplete="current-password"
             placeholder="••••••••"
             value={password}

@@ -7,6 +7,7 @@ import {
   registerSchema,
   resendVerificationSchema,
   resetPasswordSchema,
+  username,
   verifyEmailSchema,
 } from "@family/core";
 import { env } from "../config/env.js";
@@ -48,6 +49,21 @@ authRoutes.use("*", AUTH_RATE.general);
 authRoutes.get("/csrf-token", (c) => {
   setCsrfCookie(c, generateRandomToken());
   return c.json({ ok: true });
+});
+
+// Username availability — live check for the register form.
+authRoutes.get("/check-username", async (c) => {
+  const raw = c.req.query("username") ?? "";
+  const parsed = username.safeParse(raw);
+  if (!parsed.success) {
+    return c.json({
+      valid: false,
+      available: false,
+      issues: parsed.error.issues.map((i) => i.message),
+    });
+  }
+  const exists = await UserModel.exists({ username: parsed.data });
+  return c.json({ valid: true, available: !exists });
 });
 
 // ─── Register ───────────────────────────────────────────────────────

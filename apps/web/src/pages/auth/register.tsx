@@ -3,7 +3,8 @@ import { Button } from "@family/ui";
 import { ApiError } from "../../lib/api-client.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { AuthCard } from "../../components/auth/auth-card.js";
-import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
+import { Field, FieldInput, FieldPassword, issueMap } from "../../components/auth/field.js";
+import { UsernameAvailability } from "../../components/auth/username-availability.js";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../../i18n/index.js";
@@ -31,6 +32,8 @@ export function RegisterPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const [usernameUnavailable, setUsernameUnavailable] = useState(false);
 
   function set<K extends keyof typeof values>(key: K, value: string) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -157,13 +160,19 @@ export function RegisterPage() {
               onChange={(e) => set("username", e.target.value)}
               required
             />
+            <UsernameAvailability
+              username={values.username}
+              onResult={(r) => {
+                setUsernameChecking(r.checking);
+                setUsernameUnavailable(!r.available);
+              }}
+            />
           </Field>
         </div>
         <Field label={t("register.password")} htmlFor="password" error={errors.password}>
-          <FieldInput
+          <FieldPassword
             id="password"
             name="password"
-            type="password"
             autoComplete="new-password"
             placeholder="••••••••"
             value={values.password}
@@ -238,7 +247,12 @@ export function RegisterPage() {
           </p>
         )}
 
-        <Button type="submit" className="w-full" size="lg" disabled={submitting}>
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          disabled={submitting || usernameChecking || usernameUnavailable}
+        >
           {t("register.submit")}
         </Button>
 

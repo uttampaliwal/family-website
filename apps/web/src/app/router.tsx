@@ -64,6 +64,15 @@ const AdminApprovalsPage = lazy(() =>
 const NotFoundPage = lazy(() =>
   import("../pages/not-found.js").then((m) => ({ default: m.NotFoundPage })),
 );
+const PrivacyPolicyPage = lazy(() =>
+  import("../pages/legal/privacy-policy.js").then((m) => ({ default: m.PrivacyPolicyPage })),
+);
+const TermsPage = lazy(() =>
+  import("../pages/legal/terms.js").then((m) => ({ default: m.TermsPage })),
+);
+const ContactPage = lazy(() =>
+  import("../pages/legal/contact.js").then((m) => ({ default: m.ContactPage })),
+);
 
 function PageFallback() {
   return (
@@ -91,6 +100,30 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageFallback />}>
             <HealthPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/privacy-policy",
+        element: (
+          <Suspense fallback={<PageFallback />}>
+            <PrivacyPolicyPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/terms",
+        element: (
+          <Suspense fallback={<PageFallback />}>
+            <TermsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/contact",
+        element: (
+          <Suspense fallback={<PageFallback />}>
+            <ContactPage />
           </Suspense>
         ),
       },

@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { RouteFocusManager } from "../app/route-focus.js";
 import { Footer } from "./footer.js";
 import { Header } from "./header.js";
 
@@ -11,8 +12,9 @@ export function AppShell() {
       >
         Skip to main content
       </a>
+      <RouteFocusManager />
       <Header />
-      <main id="main-content" className="flex-1">
+      <main id="main-content" className="flex-1 focus:outline-none">
         <Outlet />
       </main>
       <Footer />

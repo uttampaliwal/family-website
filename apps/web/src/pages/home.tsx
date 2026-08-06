@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { MemberDashboard } from "../components/home/member-dashboard.js";
 import { useI18n } from "../i18n/index.js";
 import { useSeo } from "../lib/seo.js";
 import { useAuthStore } from "../stores/auth-store.js";
@@ -45,6 +46,10 @@ export function HomePage() {
 
   useSeo("seo.home.title", "seo.home.desc");
 
+  if (status === "authenticated" && user) {
+    return <MemberDashboard />;
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       {/* Hero */}
@@ -62,20 +67,11 @@ export function HomePage() {
           {t("home.hero")}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          {status === "authenticated" && user ? (
-            <Button asChild size="lg">
-              <Link to="/family">
-                {t("auth.cta.welcome", { name: user.name.split(" ")[0] ?? "" })}{" "}
-                <ArrowRight />
-              </Link>
-            </Button>
-          ) : (
-            <Button asChild size="lg">
-              <Link to="/login">
-                {t("auth.cta.join")} <ArrowRight />
-              </Link>
-            </Button>
-          )}
+          <Button asChild size="lg">
+            <Link to="/login">
+              {t("auth.cta.join")} <ArrowRight />
+            </Link>
+          </Button>
           <Button variant="outline" size="lg" onClick={toggleMode}>
             {t("auth.tryMode", { mode: mode === "light" ? "dark" : "light" })}
           </Button>
