@@ -10,13 +10,18 @@ import {
   DropdownMenuTrigger,
   useToast,
 } from "@family/ui";
-import { HeartHandshake, LogIn, LogOut } from "lucide-react";
+import { HeartHandshake, LogIn, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuthStore } from "../../stores/auth-store.js";
+import { api } from "../../lib/api-client.js";
 import { ThemeSwitcher } from "./theme-switcher.js";
 
-const navItems = [{ to: "/", label: "Home" }];
+const navItems = [
+  { to: "/", label: "Home" },
+  { to: "/members", label: "Members" },
+];
 
 function initials(name: string): string {
   return name
@@ -25,6 +30,35 @@ function initials(name: string): string {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+}
+
+function PendingApprovalsLink() {
+  const { data } = useQuery({
+    queryKey: ["admin-pending-count"],
+    queryFn: () => api.get<{ count: number }>("/admin/members/pending-count"),
+    refetchInterval: 60_000,
+  });
+
+  return (
+    <NavLink
+      to="/admin/approvals"
+      className={({ isActive }) =>
+        cn(
+          "flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+          isActive
+            ? "bg-surface-2 text-foreground"
+            : "text-muted hover:bg-surface-2/70 hover:text-foreground",
+        )
+      }
+    >
+      Approvals
+      {data && data.count > 0 && (
+        <span className="grid min-w-5 place-items-center rounded-full bg-error px-1.5 text-xs font-semibold text-white">
+          {data.count > 99 ? "99+" : data.count}
+        </span>
+      )}
+    </NavLink>
+  );
 }
 
 export function Header() {
@@ -66,22 +100,27 @@ export function Header() {
 
         <nav className="flex items-center gap-1" aria-label="Main navigation">
           <div className="hidden items-center gap-1 sm:flex">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  cn(
-                    "rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-surface-2 text-foreground"
-                      : "text-muted hover:bg-surface-2/70 hover:text-foreground",
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            {navItems.map((item) =>
+              item.to === "/members" && status !== "authenticated" ? null : (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      "rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-surface-2 text-foreground"
+                        : "text-muted hover:bg-surface-2/70 hover:text-foreground",
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ),
+            )}
+            {status === "authenticated" && user?.role === "admin" && (
+              <PendingApprovalsLink />
+            )}
           </div>
           {status === "authenticated" && user ? (
             <DropdownMenu>
@@ -106,6 +145,23 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link to="/family">Family hub</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/members">Members</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/me">
+                    <UserRound />
+                    My profile
+                  </Link>
+                </DropdownMenuItem>
+                {user.role === "admin" && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/approvals">
+                      <ShieldCheck />
+                      Approval queue
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={onLogout}>
                   <LogOut className="text-error" />
