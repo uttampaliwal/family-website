@@ -9,10 +9,7 @@ const envSchema = z.object({
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),
 
-  DATABASE_URL: z
-    .string()
-    .min(1)
-    .default("mongodb://localhost:27017/family-portal"),
+  DATABASE_URL: z.string().min(1).optional(),
 
   WEB_ORIGIN: z.string().min(1).default("http://localhost:5173"),
 
@@ -43,10 +40,11 @@ const envSchema = z.object({
 });
 
 export type Env = z.infer<typeof envSchema>;
+export type ResolvedEnv = Env & { DATABASE_URL: string };
 
 export function loadEnv(
   source: Record<string, string | undefined> = process.env,
-): Env {
+): ResolvedEnv {
   const parsed = envSchema.safeParse(source);
   if (!parsed.success) {
     const details = parsed.error.errors
@@ -55,14 +53,29 @@ export function loadEnv(
     throw new Error(`Environment validation failed:\n${details}`);
   }
 
-  const env = parsed.data;
-  env.WEB_ORIGIN = env.WEB_ORIGIN.split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean)
-    .join(",");
+  const raw = parsed.data;
+
+  let databaseUrl = raw.DATABASE_URL;
+  if (databaseUrl === undefined) {
+    if (raw.NODE_ENV === "production") {
+      throw new Error(
+        "Environment validation failed:\nDATABASE_URL: required in production",
+      );
+    }
+    databaseUrl = "mongodb://localhost:27017/family-portal";
+  }
+
+  const env = {
+    ...raw,
+    DATABASE_URL: databaseUrl,
+    WEB_ORIGIN: raw.WEB_ORIGIN.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+      .join(","),
+  };
 
   return env;
 }
 
 /** Validated environment singleton — fails fast at startup. */
-export const env = loadEnv();
+export const env: ResolvedEnv = loadEnv();
