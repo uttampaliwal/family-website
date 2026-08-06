@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { SignJWT, jwtVerify } from "jose";
 import type { Context } from "hono";
 import { env } from "../config/env.js";
@@ -22,6 +22,39 @@ export function sha256(value: string): string {
 
 export function generateRandomToken(): string {
   return randomBytes(32).toString("hex");
+}
+
+// ─── Signed double-submit CSRF tokens ─────────────────────────────
+//
+// OWASP's recommended double-submit variant: the cookie holds a random
+// nonce plus an HMAC signature keyed by the access-token secret (same
+// key Rails uses for its signed CSRF tokens). The browser echoes the
+// cookie value in `X-CSRF-Token`; the server checks the signature — so an
+// attacker who can *write* the cookie (cookie fixation, subdomain) still
+// can't mint a valid pair — and then the header/cookie equality, which a
+// cross-site reader cannot observe.
+
+const csrfKey = new TextEncoder().encode(env.AUTH_ACCESS_TOKEN_SECRET);
+
+export function createCsrfToken(): string {
+  const nonce = randomBytes(24).toString("base64url");
+  return `${nonce}.${signCsrf(nonce)}`;
+}
+
+/** True only for tokens this server signed and that haven't been tampered with. */
+export function verifyCsrfToken(token: string): boolean {
+  const dot = token.lastIndexOf(".");
+  if (dot === -1) return false;
+  const nonce = token.slice(0, dot);
+  const signature = token.slice(dot + 1);
+  if (!nonce || !signature) return false;
+  const expected = Buffer.from(signCsrf(nonce));
+  const actual = Buffer.from(signature);
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
+
+function signCsrf(nonce: string): string {
+  return createHmac("sha256", csrfKey).update(nonce).digest("base64url");
 }
 
 export async function signAccessToken(userId: string): Promise<string> {

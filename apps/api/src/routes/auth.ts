@@ -15,6 +15,7 @@ import { AppError } from "../middleware/error.js";
 import { csrfProtection, originCheck, rateLimit } from "../middleware/security.js";
 import {
   clearAuthCookies,
+  createCsrfToken,
   generateRandomToken,
   readCookie,
   REFRESH_COOKIE,
@@ -48,7 +49,7 @@ authRoutes.use("*", AUTH_RATE.general);
 
 // CSRF token endpoint — primes the double-submit cookie for the login page
 authRoutes.get("/csrf-token", (c) => {
-  setCsrfCookie(c, generateRandomToken());
+  setCsrfCookie(c, createCsrfToken());
   return c.json({ ok: true });
 });
 
@@ -159,7 +160,7 @@ authRoutes.post(
 
     const { accessToken, refreshToken } = await issueSession(user);
     setRefreshCookie(c, refreshToken);
-    setCsrfCookie(c, generateRandomToken());
+    setCsrfCookie(c, createCsrfToken());
 
     return c.json({ user: toUserPayload(user), accessToken });
   },
@@ -217,7 +218,7 @@ authRoutes.post(
 
     const { accessToken, refreshToken } = await issueSession(user);
     setRefreshCookie(c, refreshToken);
-    setCsrfCookie(c, generateRandomToken());
+    setCsrfCookie(c, createCsrfToken());
 
     return c.json({ user: toUserPayload(user), accessToken });
   },

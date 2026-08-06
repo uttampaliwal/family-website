@@ -53,8 +53,11 @@ between local development and production.
   SSE streams (`Authorization: Bearer`).
 - **Refresh**: rotating refresh token, `JTI` stored server-side; logging in on
   a new device can rotate idle sessions elsewhere (`AUTH_MAX_ACTIVE_SESSIONS`).
-- **CSRF**: double-submit `kulaya_csrf` cookie; state-changing requests must
-  echo the token in `X-CSRF-Token`. GET/HEAD are exempt.
+- **CSRF**: signed double-submit `kulaya_csrf` token — the cookie holds a
+  random nonce plus an HMAC keyed by `AUTH_ACCESS_TOKEN_SECRET`; state-changing
+  requests must echo it in `X-CSRF-Token` (constant-time compared). The
+  signature defeats cookie fixation; `SameSite=Lax` and the origin check add
+  layers. GET/HEAD are exempt.
 - **Approval gate**: accounts start `pending`; `requireApprovedMember` re-checks
   the live status on every request (not just login), so revoking access is
   immediate.

@@ -53,7 +53,12 @@ export function createApp() {
       },
       credentials: true,
       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
+      allowHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Request-ID",
+        "X-CSRF-Token",
+      ],
       maxAge: 86400,
     }),
   );

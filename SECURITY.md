@@ -10,8 +10,10 @@ Full details in [docs/architecture.md](docs/architecture.md).
 
 - **Authentication**: JWT access token in an HttpOnly cookie; rotating
   refresh token with server-side `JTI` tracking; optional multi-device cap.
-- **CSRF**: double-submit `kulaya_csrf` cookie on every state-changing
-  request; same-origin deployment means `SameSite=Lax` is a second layer.
+- **CSRF**: signed double-submit `kulaya_csrf` cookie (random nonce + HMAC
+  over the access-token secret) echoed in the `X-CSRF-Token` header;
+  signature check defeats cookie fixation, constant-time equality check
+  defeats cross-site forgery. `SameSite=Lax` is a second layer.
 - **Authorization**: role checks (`user` / `admin`) and a live
   `adminApprovalStatus` gate re-checked on every protected request — pending
   or rejected accounts are blocked immediately, even with a valid token.

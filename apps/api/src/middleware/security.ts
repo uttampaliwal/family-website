@@ -1,7 +1,14 @@
 import type { Context, MiddlewareHandler, Next } from "hono";
+import { timingSafeEqual } from "node:crypto";
 import { env } from "../config/env.js";
 import { AppError } from "./error.js";
-import { CSRF_COOKIE, readCookie, verifyAccessToken } from "../lib/auth.js";
+import {
+  CSRF_COOKIE,
+  readCookie,
+  sha256,
+  verifyAccessToken,
+  verifyCsrfToken,
+} from "../lib/auth.js";
 
 const allowedOrigins = env.WEB_ORIGIN.split(",");
 
@@ -64,10 +71,13 @@ export function originCheck(c: Context, next: Next) {
 }
 
 /**
- * Double-submit cookie CSRF: the client must echo the `kulaya_csrf` cookie
- * value in the `X-CSRF-Token` header. The cookie is SameSite=Lax and
- * JS-readable; an attacker's site cannot read it, so it cannot be echoed.
- * Login/register (no cookie yet) are protected by originCheck alone.
+ * Signed double-submit cookie CSRF. The client must echo the signed
+ * `kulaya_csrf` cookie value in the `X-CSRF-Token` header. The server
+ * verifies the cookie was signed by us (defeats cookie fixation) and that
+ * header and cookie match (defeats cross-site forgery — an attacker's site
+ * cannot read the cookie to echo it). The cookie is SameSite=Lax and
+ * JS-readable by design. Login/register (no cookie yet) are protected by
+ * originCheck alone.
  */
 export function csrfProtection(c: Context, next: Next) {
   const method = c.req.method;
@@ -76,10 +86,22 @@ export function csrfProtection(c: Context, next: Next) {
   const cookieValue = readCookie(c, CSRF_COOKIE);
   const headerValue = c.req.header("x-csrf-token");
 
-  if (!cookieValue || !headerValue || cookieValue !== headerValue) {
+  if (
+    !cookieValue ||
+    !headerValue ||
+    !verifyCsrfToken(cookieValue) ||
+    !constantTimeEquals(headerValue, cookieValue)
+  ) {
     throw new AppError(403, "CSRF_TOKEN_MISMATCH", "Invalid security token");
   }
   return next();
+}
+
+/** Constant-time string comparison via SHA-256 digests. */
+function constantTimeEquals(a: string, b: string): boolean {
+  const da = Buffer.from(sha256(a), "hex");
+  const db = Buffer.from(sha256(b), "hex");
+  return timingSafeEqual(da, db);
 }
 
 // ─── Rate limiting (in-memory; swap for Upstash on serverless) ──────
