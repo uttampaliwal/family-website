@@ -42,6 +42,15 @@ git tag v0.3.1 && git push origin v0.3.1
   until 1.0.
 - Existing `legacy/*` tags stay as permanent backups — never delete them.
 
+### Milestones shipped
+
+| Tag | Milestone |
+| --- | --- |
+| `v0.3.0` | Greenfield rewrite baseline (M1–M3 rebased) |
+| `v0.3.1` | M4 — family tree (generation view + relationship editor) |
+| `v0.3.2` | M5 — family photo gallery (direct-to-R2 uploads) |
+| `v0.3.3` | M6 — events & calendar (in progress on `feat/m6-events`) |
+
 ## Rules of thumb
 
 - Never force-push `main` (it is protected on GitHub).
