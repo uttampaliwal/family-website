@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { email, name, password, phoneNumber, username } from "./common.js";
+import {
+  dateOfBirth,
+  email,
+  name,
+  password,
+  phoneNumber,
+  username,
+} from "./common.js";
 
 export const genderSchema = z.enum(["male", "female", "prefer_not"]);
 export const relationshipSchema = z.enum([

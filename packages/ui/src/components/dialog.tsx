@@ -1,6 +1,10 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from "react";
+import {
+  forwardRef,
+  type ComponentPropsWithoutRef,
+  type ElementRef,
+} from "react";
 import { cn } from "../lib/cn.js";
 
 export const Dialog = DialogPrimitive.Root;
@@ -31,8 +35,16 @@ export const DialogContent = forwardRef<
 ));
 DialogContent.displayName = "DialogContent";
 
-export function DialogHeader({ className, ...props }: ComponentPropsWithoutRef<"div">) {
-  return <div className={cn("flex flex-col gap-1.5 text-left", className)} {...props} />;
+export function DialogHeader({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"div">) {
+  return (
+    <div
+      className={cn("flex flex-col gap-1.5 text-left", className)}
+      {...props}
+    />
+  );
 }
 
 export function DialogTitle({
@@ -51,11 +63,25 @@ export function DialogDescription({
   className,
   ...props
 }: ComponentPropsWithoutRef<typeof DialogPrimitive.Description>) {
-  return <DialogPrimitive.Description className={cn("text-sm text-muted", className)} {...props} />;
+  return (
+    <DialogPrimitive.Description
+      className={cn("text-sm text-muted", className)}
+      {...props}
+    />
+  );
 }
 
-export function DialogFooter({ className, ...props }: ComponentPropsWithoutRef<"div">) {
+export function DialogFooter({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"div">) {
   return (
-    <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} {...props} />
+    <div
+      className={cn(
+        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        className,
+      )}
+      {...props}
+    />
   );
 }
