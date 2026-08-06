@@ -1,35 +1,67 @@
-# Family Website
+# Kulaya — The Family Nest
 
-This project is a personal/family website built to learn and demonstrate full-stack web development using modern technologies. It features user authentication, personalized profiles, and a clean, responsive design.
+> कुल + आलय — "the family's nest."
 
-## Features
+A private, modern hub for our family — built on a best-in-class stack, deployed on a fully free tier.
 
-- **User Authentication:** Secure user registration, login, and session management.
-- **Email Verification:** New users must verify their email address.
-- **Password Reset:** Users can securely reset their password.
-- **User Profiles:** Users can view and edit their profiles.
-- **Responsive Design:** The application is designed to work on all devices.
-- **Light/Dark Mode:** The application supports both light and dark themes.
+## Workspace
 
-## Project Structure
+```
+apps/
+  web/    React 19 + Vite 7 + Tailwind v4 + react-router v7 (PWA)
+  api/    Hono API (serverless-ready) + MongoDB via Mongoose
+packages/
+  core/   Shared Zod schemas & types (single source of truth)
+  ui/     Design system: 3 themes × light/dark, Radix primitives
+```
 
-This project is a monorepo managed by Turborepo. It consists of two main packages:
+## Stack highlights
 
-- `apps/api`: A Node.js and Express.js backend that provides a RESTful API.
-- `apps/web`: A React and Vite frontend that consumes the API.
+- **Monorepo**: pnpm + Turborepo
+- **Theming**: Warm Elegant / Minimal / Playful × light/dark, persisted, FOUC-free
+- **Auth (next milestone)**: JWT in HttpOnly cookies, CSRF-safe, rate-limited
+- **Storage (next milestone)**: Cloudflare R2 presigned uploads (10 GB free)
+- **Deploy target**: Vercel (web + API functions) + MongoDB Atlas M0 + R2 + Resend — all free tiers
 
-## Getting Started
+## Getting started
 
-This project uses Docker Compose for easy setup and local development.
+```bash
+pnpm install
 
-1.  **Ensure Docker is Running:** Make sure Docker Desktop (or your Docker environment) is running.
-2.  **Start the Application:** From the project root, run `docker-compose up -d --build`. This will build the images, create the containers, and start the services in the background.
-3.  **Access the Application:**
-    - **Frontend:** Open your browser and navigate to `http://localhost:80/`.
-    - **Backend API:** The API is accessible at `http://localhost:3000/api/`.
+# Terminal 1 — API (needs MongoDB running locally, or set DATABASE_URL)
+pnpm --filter @family/api dev
 
-For more detailed instructions, including environment variable setup and troubleshooting, please see the [Project Documentation](./PROJECT_DOCS.md).
+# Terminal 2 — Web
+pnpm --filter @family/web dev
+```
 
-## Contributing
+Open http://localhost:5173.
 
-Contributions are welcome! Please feel free to open an issue or submit a pull request.
+## Quality gates
+
+```bash
+pnpm lint        # ESLint (flat config, shared)
+pnpm typecheck   # strict TS across all packages
+pnpm test        # Vitest (API + web)
+pnpm build       # Turbo pipeline
+```
+
+CI runs all four on every push/PR via GitHub Actions.
+
+## Roadmap
+
+1. Foundation & theming (this milestone)
+2. Auth & security (HttpOnly JWT, CSRF, admin approval)
+3. Profiles + family tree
+4. Announcements & notifications
+5. Events & RSVP calendar
+6. Documents (R2 uploads, share links)
+7. Photo albums
+8. Real-time chat (SSE)
+9. Family feed — “Moments” (posts, likes, comments)
+10. i18n (EN/HI), SEO, a11y & perf pass
+
+## Environment
+
+Copy `apps/api/.env.example` → `apps/api/.env.local` and fill in values.
+Never commit real secrets — everything is gitignored.
