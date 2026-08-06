@@ -2,10 +2,8 @@ packages:
   - apps/*
   - packages/*
 
-allowBuilds:
-  esbuild: set this to true or false
-  mongodb-memory-server: set this to true or false
+minimumReleaseAge: 0
 
-onlyBuiltDependencies:
-  - esbuild
-  - mongodb-memory-server
+allowBuilds:
+  esbuild: true
+  mongodb-memory-server: true
