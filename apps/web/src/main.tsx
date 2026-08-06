@@ -1,30 +1,29 @@
+import { ThemeProvider, ToastProvider } from "@family/ui";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./app/router.js";
 import "./index.css";
-import "./styles/themes.css";
-import App from "./App.tsx";
-import { AuthProvider } from "./context/AuthContext";
-import { queryClient } from "./lib/queryClient";
+import { queryClient } from "./lib/query-client.js";
+import { useAuthStore } from "./stores/auth-store.js";
 
-const rootElement = document.getElementById("root");
-if (!rootElement) {
-  throw new Error(
-    'Root element not found. Make sure there is a div with id="root" in your HTML.',
-  );
+const root = document.getElementById("root");
+if (!root) {
+  throw new Error('Root element "#root" not found');
 }
 
-createRoot(rootElement).render(
+// Prime the CSRF cookie and restore the session from the refresh cookie.
+void useAuthStore.getState().init();
+
+createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-      {/* Show React Query DevTools in development */}
-      {process.env.NODE_ENV === "development" && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
+      <ThemeProvider>
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

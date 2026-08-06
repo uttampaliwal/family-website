@@ -1,57 +1,23 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Dependencies
+node_modules/
+.pnpm-store/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Builds
+dist/
+*.tsbuildinfo
 
-# testing
-/coverage
-
-# production
-/build
-/dist
-
-# misc
-.DS_Store
+# Environment
+.env
+.env.*
+!.env.example
 .env.local
-.env*.local
-apps/web/.env
-/apps/*/.env
-.nvmrc
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-*.bak
-*.old
-*.orig
 
-# Custom additions
-docs
-packages/tests/
+# Testing
+coverage/
+.tmp/
+
+# Misc
+.DS_Store
 *.log
 .turbo/
-.zencoder/
-.amazonq/
-.gemini
-.grok
-.env
-.env.example
-docker-compose.prod.yml
-commit_message.txt
-example.txt
-cookies.txt
-acli.exe
-GEMINI_PROJECT_SUMMARY.md
-PRIVACY_POLICY_IMPLEMENTATION.md
-frontend_styling_log.md
-styling_fixes_summary.md
-register_page_theme_fixes.md
-TOAST_SYSTEM_README.md
+.vite/

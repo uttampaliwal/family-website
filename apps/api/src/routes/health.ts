@@ -1,23 +1,19 @@
-import { Router } from "express";
-import mongoose from "mongoose";
+import { Hono } from "hono";
+import { getDbStatus, isDbHealthy } from "../lib/db.js";
 
-const router = Router();
+export const healthRoutes = new Hono();
 
-router.get("/health", (_req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1 ? "UP" : "DOWN";
-  const overallStatus = dbStatus === "UP" ? "UP" : "DOWN";
+// Liveness — always 200 while the process is up
+healthRoutes.get("/health-check", async (c) => {
+  const db = getDbStatus();
+  const dbHealthy = await isDbHealthy();
 
-  res.status(overallStatus === "UP" ? 200 : 503).json({
-    status: overallStatus,
-    services: {
-      database: dbStatus,
-    },
+  return c.json({
+    status: "ok",
+    service: "family-portal-api",
+    version: "1.0.0",
+    uptimeSeconds: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
+    db: { connected: db.connected, ping: dbHealthy },
   });
 });
-
-router.get("/health-check", (_req, res) => {
-  res.status(200).json({ status: "UP", timestamp: new Date().toISOString() });
-});
-
-export default router;
