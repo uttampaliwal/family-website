@@ -1,0 +1,19 @@
+# Configuration
+eslint.config.mjs
+eslint.config.js
+jest.config.js
+
+# Build output
+**/dist
+**/.next
+
+# Coverage
+**/coverage
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node
+**/node_modules
