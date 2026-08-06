@@ -44,19 +44,19 @@ git tag v0.3.1 && git push origin v0.3.1
 
 ### Milestones shipped
 
-| Tag | Milestone |
-| --- | --- |
-| `v0.3.0` | Greenfield rewrite baseline (M1–M3 rebased) |
-| `v0.3.1` | M4 — family tree (generation view + relationship editor) |
-| `v0.3.2` | M5 — family photo gallery (direct-to-R2 uploads) |
-| `v0.3.3` | M6 — events & calendar (month grid, yearly recurrence) |
-| `v0.3.4` | M7 — announcements & notifications (admin feed, email on publish) |
-| `v0.3.5` | M8 — documents & share links (R2 archive, revocable public links) |
-| `v0.3.6` | M9 — Moments family feed (posts, likes, comments) |
-| `v0.3.7` | M10 — real-time chat |
-| `v0.3.8` | M11 — i18n (EN/HI), SEO, code-split routes |
-| `v0.3.9` | M12 — UX hardening (dashboard, error boundary, form UX, legal pages) |
-| `v0.3.10` | M13 — in-app notifications (bell, unread badges, live via SSE) |
+| Tag       | Milestone                                                            |
+| --------- | -------------------------------------------------------------------- |
+| `v0.3.0`  | Greenfield rewrite baseline (M1–M3 rebased)                          |
+| `v0.3.1`  | M4 — family tree (generation view + relationship editor)             |
+| `v0.3.2`  | M5 — family photo gallery (direct-to-R2 uploads)                     |
+| `v0.3.3`  | M6 — events & calendar (month grid, yearly recurrence)               |
+| `v0.3.4`  | M7 — announcements & notifications (admin feed, email on publish)    |
+| `v0.3.5`  | M8 — documents & share links (R2 archive, revocable public links)    |
+| `v0.3.6`  | M9 — Moments family feed (posts, likes, comments)                    |
+| `v0.3.7`  | M10 — real-time chat                                                 |
+| `v0.3.8`  | M11 — i18n (EN/HI), SEO, code-split routes                           |
+| `v0.3.9`  | M12 — UX hardening (dashboard, error boundary, form UX, legal pages) |
+| `v0.3.10` | M13 — in-app notifications (bell, unread badges, live via SSE)       |
 
 ## Rules of thumb
 
