@@ -25,6 +25,19 @@ export const translations = {
     "account.approvals": "Approval queue",
     "account.signOut": "Sign out",
 
+    // Notifications
+    "notify.open": "Open notifications",
+    "notify.title": "Notifications",
+    "notify.empty": "Nothing yet — we'll let you know when something happens.",
+    "notify.markAllRead": "Mark all read",
+    "notify.unread": "{count} unread",
+    "notify.type.announcement": "New announcement",
+    "notify.type.event": "New event",
+    "notify.type.moment_like": "{name} liked your moment",
+    "notify.type.moment_comment": "{name} commented on your moment",
+    "notify.type.member_joined": "{name} requested to join",
+    "notify.type.approval": "Your account is approved — welcome to the family",
+
     // Language switcher
     "lang.switchTo": "Switch language",
     "lang.label": "भाषा: हिन्दी",
@@ -198,6 +211,19 @@ export const translations = {
     "account.profile": "मेरी प्रोफ़ाइल",
     "account.approvals": "अनुमोदन सूची",
     "account.signOut": "साइन आउट",
+
+    // Notifications
+    "notify.open": "सूचनाएँ खोलें",
+    "notify.title": "सूचनाएँ",
+    "notify.empty": "अभी कुछ नहीं — जब कुछ होगा तो हम बताएँगे।",
+    "notify.markAllRead": "सभी पढ़ी गईं मार्क करें",
+    "notify.unread": "{count} अपठित",
+    "notify.type.announcement": "नई घोषणा",
+    "notify.type.event": "नया इवेंट",
+    "notify.type.moment_like": "{name} ने आपके पल को पसंद किया",
+    "notify.type.moment_comment": "{name} ने आपके पल पर टिप्पणी की",
+    "notify.type.member_joined": "{name} ने जुड़ने का अनुरोध किया",
+    "notify.type.approval": "आपका अकाउंट स्वीकृत है — परिवार में स्वागत है",
 
     // Language switcher
     "lang.switchTo": "भाषा बदलें",

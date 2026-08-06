@@ -37,3 +37,39 @@ export function publishChatEvent(event: unknown): void {
 export function subscriberCount(): number {
   return subscribers.size;
 }
+
+// ─── Per-recipient notifications ────────────────────────────────────
+// Each subscriber belongs to one user's stream, so a published event only
+// reaches that user's open connections.
+
+const notificationSubscribers = new Map<string, Set<Subscriber>>();
+
+export function subscribeNotifications(
+  userId: string,
+  subscriber: Subscriber,
+): () => void {
+  let set = notificationSubscribers.get(userId);
+  if (!set) {
+    set = new Set();
+    notificationSubscribers.set(userId, set);
+  }
+  set.add(subscriber);
+  return () => {
+    set.delete(subscriber);
+    if (set.size === 0) notificationSubscribers.delete(userId);
+  };
+}
+
+export function publishNotificationEvent(userId: string, event: unknown): void {
+  const set = notificationSubscribers.get(userId);
+  if (!set) return;
+  const payload = JSON.stringify(event);
+  for (const subscriber of set) {
+    try {
+      subscriber(payload);
+    } catch (err) {
+      logger.warn({ err }, "Dropping a notification SSE subscriber");
+      set.delete(subscriber);
+    }
+  }
+}

@@ -11,6 +11,7 @@ import { validateBody } from "../lib/validation.js";
 import { Announcement } from "../models/announcement.js";
 import { User } from "../models/user.js";
 import { buildEmailLink, sendMail } from "../lib/email.js";
+import { createNotification } from "../lib/notifications.js";
 import { logger } from "../lib/logger.js";
 
 export const announcementsRoutes = new Hono();
@@ -56,7 +57,8 @@ announcementsRoutes.post(
       createdBy: userId,
     });
 
-    void notifyMembers(userId, title);
+    const author = await User.findById(userId, "name");
+    void notifyMembers(userId, author?.name ?? "", title);
 
     return c.json({ announcement: await toAnnouncementPayload(announcement._id.toString()) });
   },
@@ -89,15 +91,19 @@ announcementsRoutes.delete("/:id", requireAdmin, async (c) => {
 });
 
 /**
- * Email every approved member (except the author) about a new
- * announcement. Fire-and-forget: `sendMail` swallows errors, and without a
- * Resend key it only logs in development.
+ * Email + in-app notification for every approved member (except the author)
+ * about a new announcement. Fire-and-forget: `sendMail` swallows errors, and
+ * without a Resend key it only logs in development.
  */
-async function notifyMembers(authorId: string, title: string): Promise<void> {
+async function notifyMembers(
+  authorId: string,
+  authorName: string,
+  title: string,
+): Promise<void> {
   try {
     const recipients = await User.find(
       { adminApprovalStatus: "approved", _id: { $ne: authorId } },
-      { email: 1, name: 1 },
+      { email: 1, name: 1, _id: 1 },
     ).lean();
 
     const url = buildEmailLink("/announcements", {});
@@ -107,6 +113,14 @@ async function notifyMembers(authorId: string, title: string): Promise<void> {
         subject: `New announcement: ${title}`,
         text: `Kulaya — ${title}\n\n${url}`,
         html: `<p>Kulaya — a new family announcement:</p><p><strong>${title}</strong></p><p><a href="${url}">Read it here</a></p>`,
+      });
+      await createNotification({
+        recipientId: member._id.toString(),
+        type: "announcement",
+        actorId: authorId,
+        actorName: authorName,
+        body: title,
+        link: "/announcements",
       });
     }
   } catch (err) {

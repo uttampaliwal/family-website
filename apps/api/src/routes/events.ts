@@ -5,6 +5,7 @@ import { createEventRequestSchema, eventListSchema, updateEventRequestSchema } f
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireAuth } from "../middleware/security.js";
 import { validateBody } from "../lib/validation.js";
+import { broadcastToApprovedMembers } from "../lib/notifications.js";
 import { Event } from "../models/event.js";
 import { User } from "../models/user.js";
 
@@ -59,6 +60,15 @@ eventsRoutes.post("/", validateBody(createEventRequestSchema), async (c) => {
     description: description ?? undefined,
     recurrence,
     createdBy: userId,
+  });
+
+  const author = await User.findById(userId, "name");
+  void broadcastToApprovedMembers(userId, {
+    type: "event",
+    actorId: userId,
+    actorName: author?.name ?? "",
+    body: title,
+    link: "/events",
   });
 
   return c.json({ event: await toEventPayload(event._id.toString()) });
