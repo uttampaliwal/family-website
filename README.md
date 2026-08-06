@@ -78,6 +78,7 @@ Open <http://localhost:5173>. First run:
 | [docs/environment-variables.md](docs/environment-variables.md) | Every env var, where it's used, prod values        |
 | [docs/testing.md](docs/testing.md)                             | Test commands, conventions, how to add tests       |
 | [docs/roadmap.md](docs/roadmap.md)                             | Shipped milestones and planned work                |
+| [docs/threat-model.md](docs/threat-model.md)                   | Attacker types, assets, trust boundaries, abuse    |
 | [docs/git-workflow.md](docs/git-workflow.md)                   | Branching, milestones, versioning & tags           |
 | [CONTRIBUTING.md](CONTRIBUTING.md)                             | Setup, conventions, PR checklist                   |
 | [SECURITY.md](SECURITY.md)                                     | Security model and reporting                       |
