@@ -6,11 +6,15 @@ import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
+import { useI18n } from "../../i18n/index.js";
+import { useSeo } from "../../lib/seo.js";
 
 const RELATIONSHIPS = relationshipSchema.options;
 const GENDERS = genderSchema.options;
 
 export function RegisterPage() {
+  const { t } = useI18n();
+  useSeo("register.title", "seo.home.desc");
   const register = useAuthStore((s) => s.register);
 
   const [values, setValues] = useState({
@@ -114,25 +118,22 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthCard
-      title="Join the family"
-      description="Create your account — a family member needs to approve it before you're in."
-    >
+    <AuthCard title={t("register.title")} description={t("register.description")}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Field label="Full name" htmlFor="name" error={errors.name}>
-          <FieldInput
-            id="name"
-            name="name"
-            autoComplete="name"
-            placeholder="Aarav Sharma"
-            value={values.name}
+        <Field label={t("register.name")} htmlFor="name" error={errors.name}>
+            <FieldInput
+              id="name"
+              name="name"
+              autoComplete="name"
+              placeholder={t("register.namePlaceholder")}
+              value={values.name}
             error={errors.name}
             onChange={(e) => set("name", e.target.value)}
             required
           />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Email" htmlFor="email" error={errors.email}>
+          <Field label={t("register.email")} htmlFor="email" error={errors.email}>
             <FieldInput
               id="email"
               name="email"
@@ -145,7 +146,7 @@ export function RegisterPage() {
               required
             />
           </Field>
-          <Field label="Username" htmlFor="username" error={errors.username} hint="3–30 characters, letters, numbers, underscores">
+          <Field label={t("register.username")} htmlFor="username" error={errors.username} hint={t("register.usernameHint")}>
             <FieldInput
               id="username"
               name="username"
@@ -158,7 +159,7 @@ export function RegisterPage() {
             />
           </Field>
         </div>
-        <Field label="Password" htmlFor="password" error={errors.password} hint="At least 8 characters">
+        <Field label={t("register.password")} htmlFor="password" error={errors.password}>
           <FieldInput
             id="password"
             name="password"
@@ -238,13 +239,13 @@ export function RegisterPage() {
         )}
 
         <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-          {submitting ? "Creating account…" : "Create account"}
+          {t("register.submit")}
         </Button>
 
         <p className="text-center text-sm text-muted">
-          Already a member?{" "}
+          {t("register.already")}{" "}
           <Link to="/login" className="font-medium text-primary hover:underline">
-            Sign in
+            {t("register.signIn")}
           </Link>
         </p>
       </form>

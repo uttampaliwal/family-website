@@ -6,6 +6,8 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
+import { useI18n } from "../i18n/index.js";
+import { useSeo } from "../lib/seo.js";
 
 interface PhotoListResponse {
   items: Photo[];
@@ -16,6 +18,8 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/g
 const MAX_SIZE = 20 * 1024 * 1024;
 
 export function PhotosPage() {
+  const { t } = useI18n();
+  useSeo("photos.heading");
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const toast = useToast().toast;
@@ -86,7 +90,7 @@ export function PhotosPage() {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Family photos</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t("photos.heading")}</h1>
           <p className="mt-1 text-sm text-muted">
             {data ? `${data.total} photo${data.total === 1 ? "" : "s"} in the album` : "Moments of our nest"}
           </p>
@@ -124,7 +128,7 @@ export function PhotosPage() {
           <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
             <Images className="size-7" />
           </span>
-          <p className="text-muted">No photos yet — add the first one!</p>
+          <p className="text-muted">{t("photos.empty")}</p>
         </div>
       )}
       {data && data.items.length > 0 && (

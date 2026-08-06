@@ -10,24 +10,25 @@ import {
   DropdownMenuTrigger,
   useToast,
 } from "@family/ui";
-import { FolderOpen, HeartHandshake, LogIn, LogOut, Megaphone, MessageCircle, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { FolderOpen, HeartHandshake, Languages, LogIn, LogOut, Megaphone, MessageCircle, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { api } from "../../lib/api-client.js";
+import { useI18n } from "../../i18n/index.js";
 import { ThemeSwitcher } from "./theme-switcher.js";
 
 const navItems = [
-  { to: "/", label: "Home" },
-  { to: "/members", label: "Members" },
-  { to: "/photos", label: "Photos" },
-  { to: "/events", label: "Events" },
-  { to: "/announcements", label: "Announcements" },
-  { to: "/documents", label: "Documents" },
-  { to: "/moments", label: "Moments" },
-  { to: "/chat", label: "Chat" },
-];
+  { to: "/", labelKey: "nav.home" },
+  { to: "/members", labelKey: "nav.members" },
+  { to: "/photos", labelKey: "nav.photos" },
+  { to: "/events", labelKey: "nav.events" },
+  { to: "/announcements", labelKey: "nav.announcements" },
+  { to: "/documents", labelKey: "nav.documents" },
+  { to: "/moments", labelKey: "nav.moments" },
+  { to: "/chat", labelKey: "nav.chat" },
+] as const;
 
 function initials(name: string): string {
   return name
@@ -39,6 +40,7 @@ function initials(name: string): string {
 }
 
 function PendingApprovalsLink() {
+  const { t } = useI18n();
   const { data } = useQuery({
     queryKey: ["admin-pending-count"],
     queryFn: () => api.get<{ count: number }>("/admin/members/pending-count"),
@@ -57,7 +59,7 @@ function PendingApprovalsLink() {
         )
       }
     >
-      Approvals
+      {t("account.approvals")}
       {data && data.count > 0 && (
         <span className="grid min-w-5 place-items-center rounded-full bg-error px-1.5 text-xs font-semibold text-white">
           {data.count > 99 ? "99+" : data.count}
@@ -71,6 +73,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { user, status, logout } = useAuthStore();
   const toast = useToast().toast;
+  const { t, lang, setLang } = useI18n();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -104,7 +107,7 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1" aria-label="Main navigation">
+        <nav className="flex items-center gap-1" aria-label={t("nav.mainAria")}>
           <div className="hidden items-center gap-1 sm:flex">
             {navItems.map((item) =>
               item.to !== "/" && status !== "authenticated" ? null : (
@@ -120,7 +123,7 @@ export function Header() {
                     )
                   }
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </NavLink>
               ),
             )}
@@ -131,7 +134,7 @@ export function Header() {
           {status === "authenticated" && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger
-                aria-label="Account menu"
+                aria-label={t("account.openMenu")}
                 className="rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 <Avatar src={user.avatarUrl} alt={user.name}>
@@ -149,59 +152,59 @@ export function Header() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/family">Family hub</Link>
+                  <Link to="/family">{t("account.family")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/photos">Photos</Link>
+                  <Link to="/photos">{t("nav.photos")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/events">Events</Link>
+                  <Link to="/events">{t("nav.events")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/announcements">
                     <Megaphone />
-                    Announcements
+                    {t("nav.announcements")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/documents">
                     <FolderOpen />
-                    Documents
+                    {t("nav.documents")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/moments">
                     <Sparkles />
-                    Moments
+                    {t("nav.moments")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/chat">
                     <MessageCircle />
-                    Chat
+                    {t("nav.chat")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/members">Members</Link>
+                  <Link to="/members">{t("nav.members")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/me">
                     <UserRound />
-                    My profile
+                    {t("account.profile")}
                   </Link>
                 </DropdownMenuItem>
                 {user.role === "admin" && (
                   <DropdownMenuItem asChild>
                     <Link to="/admin/approvals">
                       <ShieldCheck />
-                      Approval queue
+                      {t("account.approvals")}
                     </Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={onLogout}>
                   <LogOut className="text-error" />
-                  Sign out
+                  {t("account.signOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -209,10 +212,21 @@ export function Header() {
             <Button asChild variant="outline" size="sm">
               <Link to="/login">
                 <LogIn />
-                Sign in
+                {t("login.submit")}
               </Link>
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLang(lang === "en" ? "hi" : "en")}
+            aria-label={t("lang.switchTo")}
+            title={t("lang.switchTo")}
+            className="hidden items-center gap-1.5 sm:inline-flex"
+          >
+            <Languages className="size-4" />
+            {t("lang.label")}
+          </Button>
           <ThemeSwitcher />
         </nav>
       </div>

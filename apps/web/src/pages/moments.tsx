@@ -6,6 +6,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
+import { useI18n } from "../i18n/index.js";
+import { useSeo } from "../lib/seo.js";
 
 interface PostListResponse {
   items: Post[];
@@ -13,6 +15,8 @@ interface PostListResponse {
 }
 
 export function MomentsPage() {
+  const { t } = useI18n();
+  useSeo("moments.heading");
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const toast = useToast().toast;
@@ -91,7 +95,7 @@ export function MomentsPage() {
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Moments</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t("moments.heading")}</h1>
           <p className="mt-1 text-sm text-muted">
             {data ? `${data.total} moment${data.total === 1 ? "" : "s"} shared with the family` : "The little things, together"}
           </p>
@@ -133,7 +137,7 @@ export function MomentsPage() {
           <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
             <Sparkles className="size-7" />
           </span>
-          <p className="text-muted">No moments yet — share the first one above!</p>
+          <p className="text-muted">{t("moments.empty")}</p>
         </div>
       )}
 

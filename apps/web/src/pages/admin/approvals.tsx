@@ -4,6 +4,7 @@ import { Avatar, Badge, Button, Card, CardContent, Skeleton, useToast } from "@f
 import { Check, ShieldCheck, X } from "lucide-react";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { api } from "../../lib/api-client.js";
+import { useSeo } from "../../lib/seo.js";
 
 interface AdminMemberListResponse {
   items: AdminMember[];
@@ -11,6 +12,7 @@ interface AdminMemberListResponse {
 }
 
 export function AdminApprovalsPage() {
+  useSeo("account.approvals");
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const toast = useToast().toast;

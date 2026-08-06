@@ -4,10 +4,12 @@ import { ApiError, api } from "../../lib/api-client.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
 import { useState, type FormEvent } from "react";
+import { useSeo } from "../../lib/seo.js";
 
 const RELATIONSHIPS = relationshipSchema.options;
 
 export function MyProfilePage() {
+  useSeo("account.profile");
   const user = useAuthStore((s) => s.user);
   const toast = useToast().toast;
   const [name, setName] = useState(user?.name ?? "");

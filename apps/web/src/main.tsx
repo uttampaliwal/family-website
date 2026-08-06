@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./app/router.js";
 import "./index.css";
+import { I18nProvider } from "./i18n/index.js";
 import { queryClient } from "./lib/query-client.js";
 import { useAuthStore } from "./stores/auth-store.js";
 
@@ -21,7 +22,9 @@ createRoot(root).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <ToastProvider>
-          <RouterProvider router={router} />
+          <I18nProvider>
+            <RouterProvider router={router} />
+          </I18nProvider>
         </ToastProvider>
       </ThemeProvider>
     </QueryClientProvider>

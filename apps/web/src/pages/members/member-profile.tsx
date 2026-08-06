@@ -4,8 +4,10 @@ import { Avatar, Badge, Button, Card, CardContent, Skeleton } from "@family/ui";
 import { CalendarDays, UserRound } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../lib/api-client.js";
+import { useSeo } from "../../lib/seo.js";
 
 export function MemberProfilePage() {
+  useSeo("nav.members");
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError } = useQuery({
     queryKey: ["member", id],
