@@ -1,6 +1,0 @@
-.env
-dist
-node_modules
-tsconfig.tsbuildinfo
-DATABASE_GUIDE.md
-development.md

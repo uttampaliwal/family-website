@@ -1,0 +1,198 @@
+/* ─────────────────────────────────────────────────────────────────
+   Design tokens — three themes (warm / minimal / playful) × light/dark.
+   Switched at runtime via `data-theme` + `data-mode` attributes.
+   Tailwind v4 resolves utilities through @theme inline.
+   ───────────────────────────────────────────────────────────────── */
+
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-name, "Playfair Display"), serif;
+
+  --color-background: var(--tw-bg);
+  --color-surface: var(--tw-surface);
+  --color-surface-2: var(--tw-surface-2);
+  --color-border: var(--tw-border);
+  --color-foreground: var(--tw-fg);
+  --color-muted: var(--tw-muted);
+  --color-primary: var(--tw-primary);
+  --color-primary-fg: var(--tw-primary-fg);
+  --color-secondary: var(--tw-secondary);
+  --color-accent: var(--tw-accent);
+  --color-success: var(--tw-success);
+  --color-warning: var(--tw-warning);
+  --color-error: var(--tw-error);
+  --color-info: var(--tw-info);
+
+  --radius-lg: var(--tw-radius-lg);
+  --radius-xl: var(--tw-radius-xl);
+  --radius-2xl: var(--tw-radius-2xl);
+  --radius-3xl: var(--tw-radius-3xl);
+
+  --shadow-card: var(--tw-shadow-card);
+}
+
+/* ── Warm · Elegant ─────────────────────────────────────────────── */
+[data-theme="warm"][data-mode="light"] {
+  --font-display-name: "Playfair Display";
+  --tw-bg: #faf7f2;
+  --tw-surface: #ffffff;
+  --tw-surface-2: #f4ede3;
+  --tw-border: #e8dcc9;
+  --tw-fg: #3c3226;
+  --tw-muted: #83745f;
+  --tw-primary: #b4532a;
+  --tw-primary-fg: #fdf6ee;
+  --tw-secondary: #6e5d3f;
+  --tw-accent: #5d7d5a;
+  --tw-success: #4f7a4c;
+  --tw-warning: #b7791f;
+  --tw-error: #b23a2e;
+  --tw-info: #2e6e8e;
+  --tw-radius-lg: 0.75rem;
+  --tw-radius-xl: 1rem;
+  --tw-radius-2xl: 1.5rem;
+  --tw-radius-3xl: 2rem;
+  --tw-shadow-card: 0 1px 2px rgba(92, 70, 40, 0.06),
+    0 8px 24px -12px rgba(92, 70, 40, 0.18);
+}
+
+[data-theme="warm"][data-mode="dark"] {
+  --font-display-name: "Playfair Display";
+  --tw-bg: #16120d;
+  --tw-surface: #201a13;
+  --tw-surface-2: #2a2219;
+  --tw-border: #3a3024;
+  --tw-fg: #efe6d7;
+  --tw-muted: #ab9c85;
+  --tw-primary: #e08a5f;
+  --tw-primary-fg: #241209;
+  --tw-secondary: #c8b795;
+  --tw-accent: #8fae8b;
+  --tw-success: #7fb37b;
+  --tw-warning: #d9a14a;
+  --tw-error: #e07a6f;
+  --tw-info: #6fb3d4;
+  --tw-radius-lg: 0.75rem;
+  --tw-radius-xl: 1rem;
+  --tw-radius-2xl: 1.5rem;
+  --tw-radius-3xl: 2rem;
+  --tw-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3),
+    0 8px 24px -12px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Minimal · Modern ───────────────────────────────────────────── */
+[data-theme="minimal"][data-mode="light"] {
+  --font-display-name: "Inter";
+  --tw-bg: #fafafa;
+  --tw-surface: #ffffff;
+  --tw-surface-2: #f4f4f5;
+  --tw-border: #e4e4e7;
+  --tw-fg: #18181b;
+  --tw-muted: #52525b;
+  --tw-primary: #18181b;
+  --tw-primary-fg: #fafafa;
+  --tw-secondary: #52525b;
+  --tw-accent: #6366f1;
+  --tw-success: #16a34a;
+  --tw-warning: #d97706;
+  --tw-error: #dc2626;
+  --tw-info: #0891b2;
+  --tw-radius-lg: 0.375rem;
+  --tw-radius-xl: 0.5rem;
+  --tw-radius-2xl: 0.75rem;
+  --tw-radius-3xl: 1rem;
+  --tw-shadow-card: 0 1px 2px rgba(24, 24, 27, 0.05),
+    0 4px 12px -4px rgba(24, 24, 27, 0.08);
+}
+
+[data-theme="minimal"][data-mode="dark"] {
+  --font-display-name: "Inter";
+  --tw-bg: #09090b;
+  --tw-surface: #18181b;
+  --tw-surface-2: #27272a;
+  --tw-border: #27272a;
+  --tw-fg: #fafafa;
+  --tw-muted: #a1a1aa;
+  --tw-primary: #fafafa;
+  --tw-primary-fg: #09090b;
+  --tw-secondary: #a1a1aa;
+  --tw-accent: #818cf8;
+  --tw-success: #4ade80;
+  --tw-warning: #fbbf24;
+  --tw-error: #f87171;
+  --tw-info: #22d3ee;
+  --tw-radius-lg: 0.375rem;
+  --tw-radius-xl: 0.5rem;
+  --tw-radius-2xl: 0.75rem;
+  --tw-radius-3xl: 1rem;
+  --tw-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 4px 12px -4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Playful · Vibrant ──────────────────────────────────────────── */
+[data-theme="playful"][data-mode="light"] {
+  --font-display-name: "Baloo 2";
+  --tw-bg: #f6f3ff;
+  --tw-surface: #ffffff;
+  --tw-surface-2: #efe9fd;
+  --tw-border: #ded3f5;
+  --tw-fg: #37295e;
+  --tw-muted: #716791;
+  --tw-primary: #7c3aed;
+  --tw-primary-fg: #fbf7ff;
+  --tw-secondary: #ec4899;
+  --tw-accent: #0ea5e9;
+  --tw-success: #059669;
+  --tw-warning: #d97706;
+  --tw-error: #e11d48;
+  --tw-info: #0284c7;
+  --tw-radius-lg: 1rem;
+  --tw-radius-xl: 1.5rem;
+  --tw-radius-2xl: 1.75rem;
+  --tw-radius-3xl: 2.25rem;
+  --tw-shadow-card: 0 2px 4px rgba(124, 58, 237, 0.08),
+    0 12px 28px -12px rgba(124, 58, 237, 0.2);
+}
+
+[data-theme="playful"][data-mode="dark"] {
+  --font-display-name: "Baloo 2";
+  --tw-bg: #120d24;
+  --tw-surface: #1c1631;
+  --tw-surface-2: #271e42;
+  --tw-border: #352a57;
+  --tw-fg: #f3effd;
+  --tw-muted: #a99cc9;
+  --tw-primary: #a78bfa;
+  --tw-primary-fg: #1a1035;
+  --tw-secondary: #f472b6;
+  --tw-accent: #38bdf8;
+  --tw-success: #34d399;
+  --tw-warning: #fbbf24;
+  --tw-error: #fb7185;
+  --tw-info: #22d3ee;
+  --tw-radius-lg: 1rem;
+  --tw-radius-xl: 1.5rem;
+  --tw-radius-2xl: 1.75rem;
+  --tw-radius-3xl: 2.25rem;
+  --tw-shadow-card: 0 2px 4px rgba(0, 0, 0, 0.35),
+    0 12px 28px -12px rgba(167, 139, 250, 0.25);
+}
+
+/* Defaults before JS loads */
+:root {
+  color-scheme: light;
+}
+:root[data-mode="dark"] {
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
