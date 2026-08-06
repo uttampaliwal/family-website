@@ -110,5 +110,23 @@ export type {
   UpdateAnnouncementInput,
 } from "./schemas/announcements.js";
 
+export {
+  createDocumentRequestSchema,
+  documentKeySchema,
+  documentListResponseSchema,
+  documentMimeTypeSchema,
+  documentMimeTypes,
+  documentSchema,
+  MAX_DOCUMENT_SIZE,
+  uploadDocumentUrlRequestSchema,
+} from "./schemas/documents.js";
+
+export type {
+  CreateDocumentInput,
+  Document,
+  DocumentListResponse,
+  UploadDocumentUrlRequest,
+} from "./schemas/documents.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";

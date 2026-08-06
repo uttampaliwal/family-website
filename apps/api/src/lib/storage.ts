@@ -13,12 +13,15 @@ import { env } from "../config/env.js";
 import { AppError } from "../middleware/error.js";
 
 export const UPLOADS_DIR = join(import.meta.dirname, "..", "..", "uploads");
-const LOCAL_UPLOAD_LIMIT = 20 * 1024 * 1024;
+const LOCAL_UPLOAD_LIMIT = 25 * 1024 * 1024;
 
 /** Resolve an upload key to a path, rejecting anything outside the tree. */
 export function uploadPathFor(key: string): string {
-  if (!key.startsWith("photos/") || /\.\.[/\\]/.test(key)) {
-    throw new AppError(400, "INVALID_PHOTO_KEY", "Invalid key");
+  if (
+    !(key.startsWith("photos/") || key.startsWith("documents/")) ||
+    /\.\.[/\\]/.test(key)
+  ) {
+    throw new AppError(400, "INVALID_KEY", "Invalid key");
   }
   return join(UPLOADS_DIR, key);
 }
@@ -36,8 +39,20 @@ export interface StorageBackend {
   /** Verify the object exists with the expected size/type (returns what's stored). */
   confirmUpload(key: string, expected: Pick<UploadMetadata, "mimeType" | "size">): Promise<void>;
   /** URL the browser GETs the object from. */
-  getObjectUrl(key: string): Promise<string>;
+  getObjectUrl(key: string, opts?: DownloadOptions): Promise<string>;
   deleteObject(key: string): Promise<void>;
+}
+
+export interface DownloadOptions {
+  /** Attachment filename; implies `Content-Disposition: attachment`. */
+  filename?: string;
+  contentType?: string;
+}
+
+/** `Content-Disposition: attachment` with RFC 5987 encoding for non-ASCII. */
+export function contentDisposition(filename: string): string {
+  const safe = filename.replace(/[^\x20-\x7e]/g, "_").replace(/["\\]/g, "_");
+  return `attachment; filename="${safe}"; filename*=UTF-8''${encodeURIComponent(filename)}`;
 }
 
 // ─── Cloudflare R2 (S3-compatible) ─────────────────────────────────────
@@ -80,12 +95,14 @@ class R2Storage implements StorageBackend {
     }
   }
 
-  async getObjectUrl(key: string): Promise<string> {
-    return getSignedUrl(
-      this.client,
-      new GetObjectCommand({ Bucket: this.bucket, Key: key }),
-      { expiresIn: 60 * 60 },
-    );
+  async getObjectUrl(key: string, opts: DownloadOptions = {}): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      ...(opts.filename ? { ResponseContentDisposition: contentDisposition(opts.filename) } : {}),
+      ...(opts.contentType ? { ResponseContentType: opts.contentType } : {}),
+    });
+    return getSignedUrl(this.client, command, { expiresIn: 60 * 60 });
   }
 
   async deleteObject(key: string): Promise<void> {
@@ -156,10 +173,33 @@ export function newPhotoKey(mimeType: string): string {
   return `photos/${randomUUID()}.${ext[mimeType] ?? "bin"}`;
 }
 
+export function newDocumentKey(mimeType: string): string {
+  const ext: Record<string, string> = {
+    "application/pdf": "pdf",
+    "text/plain": "txt",
+    "application/msword": "doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/vnd.ms-excel": "xls",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+    "application/vnd.ms-powerpoint": "ppt",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+    "application/zip": "zip",
+  };
+  return `documents/${randomUUID()}.${ext[mimeType] ?? "bin"}`;
+}
+
 /** Development-only: persist a browser upload to local disk. */
-export async function saveLocalUpload(key: string, body: ArrayBuffer): Promise<void> {
-  if (body.byteLength === 0 || body.byteLength > LOCAL_UPLOAD_LIMIT) {
-    throw new AppError(400, "UPLOAD_TOO_LARGE", "Upload must be between 1 byte and 20 MB");
+export async function saveLocalUpload(
+  key: string,
+  body: ArrayBuffer,
+  maxBytes = LOCAL_UPLOAD_LIMIT,
+): Promise<void> {
+  if (body.byteLength === 0 || body.byteLength > maxBytes) {
+    throw new AppError(
+      400,
+      "UPLOAD_TOO_LARGE",
+      `Upload must be between 1 byte and ${Math.floor(maxBytes / (1024 * 1024))} MB`,
+    );
   }
   const filePath = uploadPathFor(key);
   await mkdir(dirname(filePath), { recursive: true });

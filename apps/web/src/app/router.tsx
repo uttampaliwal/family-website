@@ -13,6 +13,7 @@ import { HomePage } from "../pages/home.js";
 import { PhotosPage } from "../pages/photos.js";
 import { EventsPage } from "../pages/events.js";
 import { AnnouncementsPage } from "../pages/announcements.js";
+import { DocumentsPage } from "../pages/documents.js";
 import { MemberProfilePage } from "../pages/members/member-profile.js";
 import { MembersPage } from "../pages/members/members.js";
 import { MyProfilePage } from "../pages/members/my-profile.js";
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
       { path: "/photos", element: <ProtectedRoute><PhotosPage /></ProtectedRoute> },
       { path: "/events", element: <ProtectedRoute><EventsPage /></ProtectedRoute> },
       { path: "/announcements", element: <ProtectedRoute><AnnouncementsPage /></ProtectedRoute> },
+      { path: "/documents", element: <ProtectedRoute><DocumentsPage /></ProtectedRoute> },
       { path: "/members", element: <ProtectedRoute><MembersPage /></ProtectedRoute> },
       { path: "/members/:id", element: <ProtectedRoute><MemberProfilePage /></ProtectedRoute> },
       { path: "/me", element: <ProtectedRoute><MyProfilePage /></ProtectedRoute> },
