@@ -3,6 +3,7 @@
  * fresh admin from CLI arguments: pnpm --filter @family/api seed-admin
  * -- email password
  */
+import "../lib/load-env.js";
 import { connectDb, disconnectDb } from "../lib/db.js";
 import { hashPassword } from "../lib/passwords.js";
 import { User } from "../models/user.js";

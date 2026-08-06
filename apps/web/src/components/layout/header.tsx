@@ -1,13 +1,36 @@
-import { cn } from "@family/ui";
-import { HeartHandshake } from "lucide-react";
+import {
+  Avatar,
+  Button,
+  cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  useToast,
+} from "@family/ui";
+import { HeartHandshake, LogIn, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useAuthStore } from "../../stores/auth-store.js";
 import { ThemeSwitcher } from "./theme-switcher.js";
 
 const navItems = [{ to: "/", label: "Home" }];
 
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const { user, status, logout } = useAuthStore();
+  const toast = useToast().toast;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -15,6 +38,11 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  async function onLogout() {
+    await logout();
+    toast("Signed out", { description: "See you soon." });
+  }
 
   return (
     <header
@@ -55,6 +83,44 @@ export function Header() {
               </NavLink>
             ))}
           </div>
+          {status === "authenticated" && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label="Account menu"
+                className="rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <Avatar src={user.avatarUrl} alt={user.name}>
+                  {initials(user.name)}
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="truncate font-semibold">{user.name}</span>
+                    <span className="truncate text-xs font-normal text-muted">
+                      @{user.username}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/family">Family hub</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={onLogout}>
+                  <LogOut className="text-error" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild variant="outline" size="sm">
+              <Link to="/login">
+                <LogIn />
+                Sign in
+              </Link>
+            </Button>
+          )}
           <ThemeSwitcher />
         </nav>
       </div>
