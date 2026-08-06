@@ -5,6 +5,7 @@ import { secureHeaders } from "hono/secure-headers";
 import { env } from "./config/env.js";
 import { errorHandler, notFound, requestLogger } from "./middleware/error.js";
 import { healthRoutes } from "./routes/health.js";
+import { authRoutes } from "./routes/auth.js";
 
 export function createApp() {
   const app = new Hono();
@@ -47,6 +48,7 @@ export function createApp() {
 
   // Routes
   app.route("/api", healthRoutes);
+  app.route("/api/auth", authRoutes);
 
   // 404 + error handling
   app.notFound(notFound);

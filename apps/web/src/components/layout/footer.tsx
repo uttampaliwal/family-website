@@ -9,7 +9,7 @@ export function Footer() {
           <HeartHandshake className="size-4 text-primary" />
           <span>
             Built with care for our family ·{" "}
-            <span className="text-foreground">Family Portal</span>
+            <span className="text-foreground">Kulaya</span>
           </span>
         </div>
         <nav

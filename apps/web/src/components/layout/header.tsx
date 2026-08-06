@@ -32,7 +32,7 @@ export function Header() {
             <HeartHandshake className="size-5" />
           </span>
           <span className="font-display text-lg font-semibold tracking-tight">
-            Family Portal
+            Kulaya
           </span>
         </Link>
 

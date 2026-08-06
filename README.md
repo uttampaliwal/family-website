@@ -1,4 +1,6 @@
-# Family Portal
+# Kulaya — The Family Nest
+
+> कुल + आलय — "the family's nest."
 
 A private, modern hub for our family — built on a best-in-class stack, deployed on a fully free tier.
 
