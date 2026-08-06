@@ -1,6 +1,6 @@
 import type { LoginInput, RegisterInput, SafeUser } from "@family/core";
 import { create } from "zustand";
-import { api } from "../lib/api-client.js";
+import { api, setAuthToken } from "../lib/api-client.js";
 
 export type AuthStatus = "loading" | "anonymous" | "authenticated";
 
@@ -32,14 +32,17 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await api.get("/auth/csrf-token");
       const res = await api.post<AuthResponse>("/auth/refresh", {});
+      setAuthToken(res.accessToken);
       set({ user: res.user, accessToken: res.accessToken, status: "authenticated" });
     } catch {
+      setAuthToken(null);
       set({ user: null, accessToken: null, status: "anonymous" });
     }
   },
 
   login: async (input) => {
     const res = await api.post<AuthResponse>("/auth/login", input);
+    setAuthToken(res.accessToken);
     set({ user: res.user, accessToken: res.accessToken, status: "authenticated" });
   },
 
@@ -51,6 +54,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await api.post("/auth/logout", {});
     } finally {
+      setAuthToken(null);
       set({ user: null, accessToken: null, status: "anonymous" });
     }
   },

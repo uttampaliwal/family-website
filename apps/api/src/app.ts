@@ -15,6 +15,7 @@ import { announcementsRoutes } from "./routes/announcements.js";
 import { documentsRoutes } from "./routes/documents.js";
 import { sharedRoutes } from "./routes/shared.js";
 import { postsRoutes } from "./routes/posts.js";
+import { chatRoutes } from "./routes/chat.js";
 import { saveLocalUpload, storage, uploadPathFor } from "./lib/storage.js";
 
 export function createApp() {
@@ -67,6 +68,7 @@ export function createApp() {
   app.route("/api/documents", documentsRoutes);
   app.route("/api/shared", sharedRoutes);
   app.route("/api/posts", postsRoutes);
+  app.route("/api/chat", chatRoutes);
 
   // Dev-only: local disk storage (when R2 is not configured) serves the
   // actual file bytes — mirroring the production direct-to-R2 upload, where

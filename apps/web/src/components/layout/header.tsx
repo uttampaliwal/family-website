@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
   useToast,
 } from "@family/ui";
-import { FolderOpen, HeartHandshake, LogIn, LogOut, Megaphone, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { FolderOpen, HeartHandshake, LogIn, LogOut, Megaphone, MessageCircle, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
@@ -26,6 +26,7 @@ const navItems = [
   { to: "/announcements", label: "Announcements" },
   { to: "/documents", label: "Documents" },
   { to: "/moments", label: "Moments" },
+  { to: "/chat", label: "Chat" },
 ];
 
 function initials(name: string): string {
@@ -172,6 +173,12 @@ export function Header() {
                   <Link to="/moments">
                     <Sparkles />
                     Moments
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/chat">
+                    <MessageCircle />
+                    Chat
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
