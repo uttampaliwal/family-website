@@ -272,8 +272,8 @@ function TreeSkeleton() {
 
 function generationLabel(generation: number): string {
   if (generation === 0) return "Elders";
-  if (generation === 1) return "Generation 2";
-  const ordinal = generation === 2 ? "3rd" : generation === 3 ? "4th" : `${generation + 1}th`;
+  const ordinal =
+    generation === 1 ? "2nd" : generation === 2 ? "3rd" : generation === 3 ? "4th" : `${generation + 1}th`;
   return `${ordinal} generation`;
 }
 
