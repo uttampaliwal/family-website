@@ -1,0 +1,5 @@
+{
+  "framework": "vite",
+  "buildCommand": "pnpm --filter @family/web build",
+  "outputDirectory": "dist"
+}
