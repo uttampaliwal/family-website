@@ -38,14 +38,7 @@ export const name = z
   .min(1, "Name is required")
   .max(100, "Name must be at most 100 characters");
 
-export const dateOfBirth = z.coerce.date({
-  error: "Enter a valid date of birth",
-});
+export const dateOfBirth = z.coerce.date();
 
-export const pageSize = z.coerce
-  .number()
-  .int()
-  .min(1)
-  .max(100)
-  .default(20);
+export const pageSize = z.coerce.number().int().min(1).max(100).default(20);
 export const pageIndex = z.coerce.number().int().min(0).default(0);

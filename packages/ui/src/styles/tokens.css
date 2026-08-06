@@ -2,9 +2,8 @@
    Design tokens — three themes (warm / minimal / playful) × light/dark.
    Switched at runtime via `data-theme` + `data-mode` attributes.
    Tailwind v4 resolves utilities through @theme inline.
+   Note: the consuming app imports `tailwindcss` before this file.
    ───────────────────────────────────────────────────────────────── */
-
-@import "tailwindcss";
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -54,8 +53,8 @@
   --tw-radius-xl: 1rem;
   --tw-radius-2xl: 1.5rem;
   --tw-radius-3xl: 2rem;
-  --tw-shadow-card: 0 1px 2px rgba(92, 70, 40, 0.06),
-    0 8px 24px -12px rgba(92, 70, 40, 0.18);
+  --tw-shadow-card:
+    0 1px 2px rgba(92, 70, 40, 0.06), 0 8px 24px -12px rgba(92, 70, 40, 0.18);
 }
 
 [data-theme="warm"][data-mode="dark"] {
@@ -78,8 +77,8 @@
   --tw-radius-xl: 1rem;
   --tw-radius-2xl: 1.5rem;
   --tw-radius-3xl: 2rem;
-  --tw-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3),
-    0 8px 24px -12px rgba(0, 0, 0, 0.45);
+  --tw-shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.45);
 }
 
 /* ── Minimal · Modern ───────────────────────────────────────────── */
@@ -103,8 +102,8 @@
   --tw-radius-xl: 0.5rem;
   --tw-radius-2xl: 0.75rem;
   --tw-radius-3xl: 1rem;
-  --tw-shadow-card: 0 1px 2px rgba(24, 24, 27, 0.05),
-    0 4px 12px -4px rgba(24, 24, 27, 0.08);
+  --tw-shadow-card:
+    0 1px 2px rgba(24, 24, 27, 0.05), 0 4px 12px -4px rgba(24, 24, 27, 0.08);
 }
 
 [data-theme="minimal"][data-mode="dark"] {
@@ -127,8 +126,8 @@
   --tw-radius-xl: 0.5rem;
   --tw-radius-2xl: 0.75rem;
   --tw-radius-3xl: 1rem;
-  --tw-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4),
-    0 4px 12px -4px rgba(0, 0, 0, 0.5);
+  --tw-shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px -4px rgba(0, 0, 0, 0.5);
 }
 
 /* ── Playful · Vibrant ──────────────────────────────────────────── */
@@ -152,7 +151,8 @@
   --tw-radius-xl: 1.5rem;
   --tw-radius-2xl: 1.75rem;
   --tw-radius-3xl: 2.25rem;
-  --tw-shadow-card: 0 2px 4px rgba(124, 58, 237, 0.08),
+  --tw-shadow-card:
+    0 2px 4px rgba(124, 58, 237, 0.08),
     0 12px 28px -12px rgba(124, 58, 237, 0.2);
 }
 
@@ -176,8 +176,8 @@
   --tw-radius-xl: 1.5rem;
   --tw-radius-2xl: 1.75rem;
   --tw-radius-3xl: 2.25rem;
-  --tw-shadow-card: 0 2px 4px rgba(0, 0, 0, 0.35),
-    0 12px 28px -12px rgba(167, 139, 250, 0.25);
+  --tw-shadow-card:
+    0 2px 4px rgba(0, 0, 0, 0.35), 0 12px 28px -12px rgba(167, 139, 250, 0.25);
 }
 
 /* Defaults before JS loads */

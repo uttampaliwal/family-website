@@ -1,5 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { ColorMode, ThemeId } from "@family/core";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 const STORAGE_KEY = "family-portal.theme";
 const THEMES: ThemeId[] = ["warm", "minimal", "playful"];
@@ -40,10 +48,17 @@ function readInitial(): { theme: ThemeId; mode: ColorMode } {
   const stored = readStoredValue(STORAGE_KEY);
   if (stored) {
     try {
-      const parsed = JSON.parse(stored) as Partial<{ theme: ThemeId; mode: ColorMode }>;
+      const parsed = JSON.parse(stored) as Partial<{
+        theme: ThemeId;
+        mode: ColorMode;
+      }>;
       return {
-        theme: THEMES.includes(parsed.theme as ThemeId) ? (parsed.theme as ThemeId) : "warm",
-        mode: MODES.includes(parsed.mode as ColorMode) ? (parsed.mode as ColorMode) : "light",
+        theme: THEMES.includes(parsed.theme as ThemeId)
+          ? (parsed.theme as ThemeId)
+          : "warm",
+        mode: MODES.includes(parsed.mode as ColorMode)
+          ? (parsed.mode as ColorMode)
+          : "light",
       };
     } catch {
       // ignore corrupt storage
@@ -80,7 +95,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     [theme, mode, setTheme, setMode, toggleMode],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme(): ThemeContextValue {
