@@ -55,7 +55,7 @@ git tag v0.3.1 && git push origin v0.3.1
 | `v0.3.6` | M9 — Moments family feed (posts, likes, comments) |
 | `v0.3.7` | M10 — real-time chat |
 | `v0.3.8` | M11 — i18n (EN/HI), SEO, code-split routes |
-| `v0.3.9` | M12 — UX hardening (in progress on `feat/m12-ui-harden`) |
+| `v0.3.9` | M12 — UX hardening (dashboard, error boundary, form UX, legal pages) |
 
 ## Rules of thumb
 
