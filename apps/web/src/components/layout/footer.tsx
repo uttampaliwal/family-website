@@ -25,12 +25,24 @@ export function Footer() {
           >
             {t("footer.health")}
           </Link>
-          <a href="#" className="transition-colors hover:text-foreground">
+          <Link
+            to="/privacy-policy"
+            className="transition-colors hover:text-foreground"
+          >
             {t("footer.privacy")}
-          </a>
-          <a href="#" className="transition-colors hover:text-foreground">
+          </Link>
+          <Link
+            to="/terms"
+            className="transition-colors hover:text-foreground"
+          >
+            {t("footer.terms")}
+          </Link>
+          <Link
+            to="/contact"
+            className="transition-colors hover:text-foreground"
+          >
             {t("footer.contact")}
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>

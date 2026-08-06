@@ -226,3 +226,36 @@ describe("auth flow", () => {
     expect(refreshRes.status).toBe(401);
   });
 });
+
+describe("username availability", () => {
+  it("rejects invalid usernames", async () => {
+    const res = await app.request(
+      "/api/auth/check-username?username=ab",
+    );
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body).toMatchObject({ valid: false, available: false });
+  });
+
+  it("reports a fresh username as available", async () => {
+    const res = await app.request(
+      "/api/auth/check-username?username=shanti_k",
+    );
+    expect(res.status).toBe(200);
+    expect(await json(res)).toMatchObject({
+      valid: true,
+      available: true,
+    });
+  });
+
+  it("reports a taken username as unavailable", async () => {
+    const res = await app.request(
+      "/api/auth/check-username?username=aarav_s",
+    );
+    expect(res.status).toBe(200);
+    expect(await json(res)).toMatchObject({
+      valid: true,
+      available: false,
+    });
+  });
+});

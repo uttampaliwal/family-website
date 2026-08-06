@@ -4,6 +4,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./app/router.js";
+import { ErrorBoundary } from "./components/app/error-boundary.js";
 import "./index.css";
 import { I18nProvider } from "./i18n/index.js";
 import { queryClient } from "./lib/query-client.js";
@@ -23,7 +24,9 @@ createRoot(root).render(
       <ThemeProvider>
         <ToastProvider>
           <I18nProvider>
-            <RouterProvider router={router} />
+            <ErrorBoundary>
+              <RouterProvider router={router} />
+            </ErrorBoundary>
           </I18nProvider>
         </ToastProvider>
       </ThemeProvider>

@@ -2,7 +2,7 @@ import { Button, useToast } from "@family/ui";
 import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AuthCard } from "../../components/auth/auth-card.js";
-import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
+import { Field, FieldPassword, issueMap } from "../../components/auth/field.js";
 import { api } from "../../lib/api-client.js";
 import { useSeo } from "../../lib/seo.js";
 
@@ -74,10 +74,9 @@ export function ResetPasswordPage() {
     <AuthCard title="Set a new password" description="Choose a strong password for your account.">
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Field label="New password" htmlFor="password" error={errors.password} hint="At least 8 characters">
-          <FieldInput
+          <FieldPassword
             id="password"
             name="password"
-            type="password"
             autoComplete="new-password"
             placeholder="••••••••"
             value={password}
@@ -87,10 +86,9 @@ export function ResetPasswordPage() {
           />
         </Field>
         <Field label="Confirm password" htmlFor="confirm" error={errors.confirm}>
-          <FieldInput
+          <FieldPassword
             id="confirm"
             name="confirm"
-            type="password"
             autoComplete="new-password"
             placeholder="••••••••"
             value={confirm}

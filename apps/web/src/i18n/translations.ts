@@ -38,8 +38,25 @@ export const translations = {
     "footer.builtWith": "Built with care for our family",
     "footer.health": "Health",
     "footer.privacy": "Privacy",
+    "footer.terms": "Terms",
     "footer.contact": "Contact",
     "footer.navAria": "Footer",
+
+    // Legal
+    "legal.backToHome": "Back to home",
+    "legal.privacy.title": "Privacy Policy",
+    "legal.privacy.subtitle": "How we protect and handle family information.",
+    "legal.terms.title": "Terms of Use",
+    "legal.terms.subtitle": "The simple rules that keep our family space healthy.",
+    "legal.contact.title": "Contact Us",
+    "legal.contact.subtitle": "Family first — reach out any time.",
+    "legal.contact.response": "We aim to respond within 48 hours.",
+    "legal.contact.name": "Your name",
+    "legal.contact.email": "Your email",
+    "legal.contact.subject": "Subject",
+    "legal.contact.message": "Message",
+    "legal.contact.send": "Send via email",
+    "legal.contact.mailtoNote": "This opens your email app with the message pre-filled — nothing is stored or sent on our servers.",
 
     // Home
     "home.badge": "Kulaya — our family nest is coming home",
@@ -78,6 +95,19 @@ export const translations = {
     // Login
     "login.title": "Welcome back",
     "login.description": "Sign in to step into the family nest.",
+
+    // Dashboard (members)
+    "dash.goodMorning": "Good morning",
+    "dash.goodAfternoon": "Good afternoon",
+    "dash.goodEvening": "Good evening",
+    "dash.welcomeName": ", {name}",
+    "dash.quickActions": "Quick actions",
+    "dash.updates": "Around the nest",
+    "dash.latestAnnouncement": "Latest announcement",
+    "dash.nextEvent": "Next event",
+    "dash.noEvents": "Nothing scheduled — enjoy the open day.",
+    "dash.noAnnouncements": "No announcements yet.",
+    "dash.viewAll": "View all",
     "login.email": "Email or username",
     "login.password": "Password",
     "login.emailPlaceholder": "you@example.com",
@@ -109,6 +139,11 @@ export const translations = {
     "register.submit": "Create account",
     "register.already": "Already family?",
     "register.signIn": "Sign in",
+    "register.availability.checking": "Checking availability…",
+    "register.availability.available": "Username is available",
+    "register.availability.taken": "This username is already taken",
+    "password.show": "Show password",
+    "password.hide": "Hide password",
 
     // Page headings (feature pages)
     "photos.heading": "Family photos",
@@ -177,8 +212,25 @@ export const translations = {
     "footer.builtWith": "हमारे परिवार के लिए प्यार से बनाया गया",
     "footer.health": "स्वास्थ्य",
     "footer.privacy": "गोपनीयता",
+    "footer.terms": "शर्तें",
     "footer.contact": "संपर्क",
     "footer.navAria": "फ़ुटर",
+
+    // Legal
+    "legal.backToHome": "होम पर वापस",
+    "legal.privacy.title": "गोपनीयता नीति",
+    "legal.privacy.subtitle": "हम पारिवारिक जानकारी की सुरक्षा कैसे करते हैं।",
+    "legal.terms.title": "उपयोग की शर्तें",
+    "legal.terms.subtitle": "हमारे परिवार के स्थान को स्वस्थ रखने के सरल नियम।",
+    "legal.contact.title": "संपर्क करें",
+    "legal.contact.subtitle": "परिवार पहले — कभी भी संपर्क करें।",
+    "legal.contact.response": "हम 48 घंटों के भीतर जवाब देने का प्रयास करते हैं।",
+    "legal.contact.name": "आपका नाम",
+    "legal.contact.email": "आपका ईमेल",
+    "legal.contact.subject": "विषय",
+    "legal.contact.message": "संदेश",
+    "legal.contact.send": "ईमेल से भेजें",
+    "legal.contact.mailtoNote": "यह संदेश पहले से भरकर आपका ईमेल ऐप खोलता है — कुछ भी हमारे सर्वर पर संग्रहीत या भेजा नहीं जाता।",
 
     // Home
     "home.badge": "कुलाय — हमारे परिवार का घोंसला घर आ रहा है",
@@ -217,6 +269,19 @@ export const translations = {
     // Login
     "login.title": "वापसी पर स्वागत है",
     "login.description": "परिवार के घोंसले में आने के लिए साइन इन करें।",
+
+    // Dashboard (members)
+    "dash.goodMorning": "सुप्रभात",
+    "dash.goodAfternoon": "नमस्ते",
+    "dash.goodEvening": "शुभ संध्या",
+    "dash.welcomeName": ", {name}",
+    "dash.quickActions": "त्वरित कार्य",
+    "dash.updates": "घोंसले के आस-पास",
+    "dash.latestAnnouncement": "नवीनतम घोषणा",
+    "dash.nextEvent": "अगला इवेंट",
+    "dash.noEvents": "कुछ निर्धारित नहीं — खुले दिन का आनंद लें।",
+    "dash.noAnnouncements": "अभी कोई घोषणा नहीं।",
+    "dash.viewAll": "सभी देखें",
     "login.email": "ईमेल या यूज़रनेम",
     "login.password": "पासवर्ड",
     "login.emailPlaceholder": "you@example.com",
@@ -248,6 +313,11 @@ export const translations = {
     "register.submit": "अकाउंट बनाएँ",
     "register.already": "पहले से परिवार के साथ हैं?",
     "register.signIn": "साइन इन",
+    "register.availability.checking": "जाँच हो रही है…",
+    "register.availability.available": "यूज़रनेम उपलब्ध है",
+    "register.availability.taken": "यह यूज़रनेम पहले से लिया हुआ है",
+    "password.show": "पासवर्ड दिखाएँ",
+    "password.hide": "पासवर्ड छिपाएँ",
 
     // Page headings (feature pages)
     "photos.heading": "परिवार की फ़ोटोज़",
