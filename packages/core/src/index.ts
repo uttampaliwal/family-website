@@ -75,5 +75,24 @@ export type {
   UploadUrlRequest,
 } from "./schemas/photos.js";
 
+export {
+  createEventRequestSchema,
+  eventListResponseSchema,
+  eventListSchema,
+  eventRecurrenceSchema,
+  eventRecurrences,
+  eventSchema,
+  eventTypeSchema,
+  eventTypes,
+  updateEventRequestSchema,
+} from "./schemas/events.js";
+
+export type {
+  CreateEventInput,
+  Event,
+  EventListResponse,
+  UpdateEventInput,
+} from "./schemas/events.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";

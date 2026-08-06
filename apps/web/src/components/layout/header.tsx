@@ -22,6 +22,7 @@ const navItems = [
   { to: "/", label: "Home" },
   { to: "/members", label: "Members" },
   { to: "/photos", label: "Photos" },
+  { to: "/events", label: "Events" },
 ];
 
 function initials(name: string): string {
@@ -148,6 +149,9 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/photos">Photos</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/events">Events</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/members">Members</Link>
