@@ -51,7 +51,8 @@ git tag v0.3.1 && git push origin v0.3.1
 | `v0.3.2` | M5 — family photo gallery (direct-to-R2 uploads) |
 | `v0.3.3` | M6 — events & calendar (month grid, yearly recurrence) |
 | `v0.3.4` | M7 — announcements & notifications (admin feed, email on publish) |
-| `v0.3.5` | M8 — documents & share links (in progress on `feat/m8-documents`) |
+| `v0.3.5` | M8 — documents & share links (R2 archive, revocable public links) |
+| `v0.3.6` | M9 — Moments family feed (in progress on `feat/m9-moments`) |
 
 ## Rules of thumb
 

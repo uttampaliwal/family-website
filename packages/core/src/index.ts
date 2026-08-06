@@ -128,5 +128,23 @@ export type {
   UploadDocumentUrlRequest,
 } from "./schemas/documents.js";
 
+export {
+  commentBodySchema,
+  createCommentRequestSchema,
+  createPostRequestSchema,
+  postAuthorSchema,
+  postBodyMaxLength,
+  postListResponseSchema,
+  postSchema,
+} from "./schemas/posts.js";
+
+export type {
+  Comment,
+  CreateCommentInput,
+  CreatePostInput,
+  Post,
+  PostListResponse,
+} from "./schemas/posts.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";
