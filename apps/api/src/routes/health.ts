@@ -11,7 +11,7 @@ healthRoutes.get("/health-check", async (c) => {
   return c.json({
     status: "ok",
     service: "family-portal-api",
-    version: "1.0.0",
+    version: "0.3.0",
     uptimeSeconds: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
     db: { connected: db.connected, ping: dbHealthy },
