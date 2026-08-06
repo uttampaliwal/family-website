@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../stores/auth-store.js";
 
 const features = [
   {
@@ -62,6 +63,7 @@ const features = [
 
 export function HomePage() {
   const { theme, mode, toggleMode } = useTheme();
+  const { user, status } = useAuthStore();
   const [preview, setPreview] = useState(false);
 
   return (
@@ -82,11 +84,19 @@ export function HomePage() {
           every mood.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <Button asChild size="lg">
-            <Link to="/health">
-              Explore the hub <ArrowRight />
-            </Link>
-          </Button>
+          {status === "authenticated" && user ? (
+            <Button asChild size="lg">
+              <Link to="/family">
+                Welcome back, {user.name.split(" ")[0]}! <ArrowRight />
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="lg">
+              <Link to="/login">
+                Join the family <ArrowRight />
+              </Link>
+            </Button>
+          )}
           <Button variant="outline" size="lg" onClick={toggleMode}>
             Try {mode === "light" ? "dark" : "light"} mode
           </Button>

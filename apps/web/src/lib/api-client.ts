@@ -1,5 +1,11 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
+/** Double-submit CSRF token, read from the JS-visible `kulaya_csrf` cookie. */
+export function csrfToken(): string {
+  const match = /(?:^|;\s*)kulaya_csrf=([^;]+)/.exec(document.cookie);
+  return match ? decodeURIComponent(match[1]!) : "";
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -23,13 +29,19 @@ async function request<T>(
   path: string,
   body?: unknown,
 ): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  if (method !== "GET") {
+    const token = csrfToken();
+    if (token) headers["X-CSRF-Token"] = token;
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
+    headers,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
