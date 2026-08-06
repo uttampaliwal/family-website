@@ -52,7 +52,8 @@ git tag v0.3.1 && git push origin v0.3.1
 | `v0.3.3` | M6 — events & calendar (month grid, yearly recurrence) |
 | `v0.3.4` | M7 — announcements & notifications (admin feed, email on publish) |
 | `v0.3.5` | M8 — documents & share links (R2 archive, revocable public links) |
-| `v0.3.6` | M9 — Moments family feed (in progress on `feat/m9-moments`) |
+| `v0.3.6` | M9 — Moments family feed (posts, likes, comments) |
+| `v0.3.7` | M10 — real-time chat (in progress on `feat/m10-chat`) |
 
 ## Rules of thumb
 

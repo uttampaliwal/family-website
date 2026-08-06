@@ -146,5 +146,26 @@ export type {
   PostListResponse,
 } from "./schemas/posts.js";
 
+export {
+  chatAuthorSchema,
+  chatMessageListResponseSchema,
+  chatMessageSchema,
+  chatRoomListResponseSchema,
+  chatRoomSchema,
+  createRoomRequestSchema,
+  messageBodySchema,
+  roomNameSchema,
+  sendMessageRequestSchema,
+} from "./schemas/chat.js";
+
+export type {
+  ChatMessage,
+  ChatMessageListResponse,
+  ChatRoom,
+  ChatRoomListResponse,
+  CreateRoomInput,
+  SendMessageInput,
+} from "./schemas/chat.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";

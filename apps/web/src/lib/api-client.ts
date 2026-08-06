@@ -24,6 +24,14 @@ interface ApiErrorBody {
   issues?: { path: string; message: string }[];
 }
 
+/** Bearer token kept in sync by the auth store (avoids an import cycle). */
+let accessToken: string | null = null;
+
+/** Set by the auth store whenever the session token changes. */
+export function setAuthToken(token: string | null): void {
+  accessToken = token;
+}
+
 async function request<T>(
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
   path: string,
@@ -33,6 +41,7 @@ async function request<T>(
     "Content-Type": "application/json",
     Accept: "application/json",
   };
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
   if (method !== "GET") {
     const token = csrfToken();
     if (token) headers["X-CSRF-Token"] = token;
