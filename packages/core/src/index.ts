@@ -40,7 +40,10 @@ export {
   memberListResponseSchema,
   memberListSchema,
   memberPublicSchema,
+  treeMemberSchema,
+  treeResponseSchema,
   updateProfileSchema,
+  updateRelationshipsSchema,
 } from "./schemas/members.js";
 
 export type {
@@ -49,7 +52,10 @@ export type {
   AdminMemberListInput,
   MemberListInput,
   MemberPublic,
+  TreeMember,
+  TreeResponse,
   UpdateProfileInput,
+  UpdateRelationshipsInput,
 } from "./schemas/members.js";
 
 export { apiEndpoints, themeIds } from "./constants.js";

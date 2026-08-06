@@ -26,6 +26,7 @@ export function toPublicMember(user: UserDocument): MemberPublic {
     relationship: user.relationship,
     role: user.role,
     avatarUrl: null,
+    parentIds: user.parentIds.map((id) => id.toString()),
     joinedAt: user.createdAt,
   };
 }
@@ -46,5 +47,6 @@ export function toAdminMember(user: UserDocument): AdminMember {
     approvedAt: user.approvedAt ?? null,
     createdAt: user.createdAt,
     dateOfBirth: user.dateOfBirth,
+    parentIds: user.parentIds.map((id) => id.toString()),
   };
 }
