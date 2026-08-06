@@ -49,7 +49,8 @@ git tag v0.3.1 && git push origin v0.3.1
 | `v0.3.0` | Greenfield rewrite baseline (M1–M3 rebased) |
 | `v0.3.1` | M4 — family tree (generation view + relationship editor) |
 | `v0.3.2` | M5 — family photo gallery (direct-to-R2 uploads) |
-| `v0.3.3` | M6 — events & calendar (in progress on `feat/m6-events`) |
+| `v0.3.3` | M6 — events & calendar (month grid, yearly recurrence) |
+| `v0.3.4` | M7 — announcements & notifications (in progress on `feat/m7-announcements`) |
 
 ## Rules of thumb
 

@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
   useToast,
 } from "@family/ui";
-import { HeartHandshake, LogIn, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { HeartHandshake, LogIn, LogOut, Megaphone, ShieldCheck, UserRound } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
@@ -23,6 +23,7 @@ const navItems = [
   { to: "/members", label: "Members" },
   { to: "/photos", label: "Photos" },
   { to: "/events", label: "Events" },
+  { to: "/announcements", label: "Announcements" },
 ];
 
 function initials(name: string): string {
@@ -152,6 +153,12 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/events">Events</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/announcements">
+                    <Megaphone />
+                    Announcements
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/members">Members</Link>

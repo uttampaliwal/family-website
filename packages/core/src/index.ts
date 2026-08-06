@@ -94,5 +94,21 @@ export type {
   UpdateEventInput,
 } from "./schemas/events.js";
 
+export {
+  announcementBodyMaxLength,
+  announcementAuthorSchema,
+  announcementListResponseSchema,
+  announcementSchema,
+  createAnnouncementRequestSchema,
+  updateAnnouncementRequestSchema,
+} from "./schemas/announcements.js";
+
+export type {
+  Announcement,
+  AnnouncementListResponse,
+  CreateAnnouncementInput,
+  UpdateAnnouncementInput,
+} from "./schemas/announcements.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";
