@@ -16,6 +16,9 @@ dist/
 coverage/
 .tmp/
 
+# Local photo storage (dev fallback when R2 is not configured)
+apps/api/uploads/
+
 # Misc
 .DS_Store
 *.log

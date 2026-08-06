@@ -2,12 +2,15 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
+import { readFile } from "node:fs/promises";
 import { env } from "./config/env.js";
 import { errorHandler, notFound, requestLogger } from "./middleware/error.js";
 import { healthRoutes } from "./routes/health.js";
 import { authRoutes } from "./routes/auth.js";
 import { membersRoutes } from "./routes/members.js";
 import { adminRoutes } from "./routes/admin.js";
+import { photosRoutes } from "./routes/photos.js";
+import { saveLocalUpload, storage, uploadPathFor } from "./lib/storage.js";
 
 export function createApp() {
   const app = new Hono();
@@ -53,6 +56,24 @@ export function createApp() {
   app.route("/api/auth", authRoutes);
   app.route("/api/members", membersRoutes);
   app.route("/api/admin", adminRoutes);
+  app.route("/api/photos", photosRoutes);
+
+  // Dev-only: local disk storage (when R2 is not configured) serves the
+  // actual file bytes — mirroring the production direct-to-R2 upload, where
+  // the presigned URLs themselves are the access control.
+  if (!storage.isRemote) {
+    app.put("/api/uploads/*", async (c) => {
+      const key = c.req.path.replace(/^\/api\/uploads\//, "");
+      const body = await c.req.arrayBuffer();
+      await saveLocalUpload(key, body);
+      return c.json({ ok: true });
+    });
+    app.get("/api/uploads/*", async (c) => {
+      const key = c.req.path.replace(/^\/api\/uploads\//, "");
+      const data = await readFile(uploadPathFor(key));
+      return c.body(data, 200, { "Content-Type": "application/octet-stream" });
+    });
+  }
 
   // 404 + error handling
   app.notFound(notFound);

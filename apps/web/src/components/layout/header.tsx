@@ -21,6 +21,7 @@ import { ThemeSwitcher } from "./theme-switcher.js";
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/members", label: "Members" },
+  { to: "/photos", label: "Photos" },
 ];
 
 function initials(name: string): string {
@@ -101,7 +102,7 @@ export function Header() {
         <nav className="flex items-center gap-1" aria-label="Main navigation">
           <div className="hidden items-center gap-1 sm:flex">
             {navItems.map((item) =>
-              item.to === "/members" && status !== "authenticated" ? null : (
+              item.to !== "/" && status !== "authenticated" ? null : (
                 <NavLink
                   key={item.to}
                   to={item.to}
@@ -144,6 +145,9 @@ export function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/family">Family hub</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/photos">Photos</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/members">Members</Link>

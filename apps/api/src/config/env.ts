@@ -31,6 +31,13 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Kulaya <noreply@kulaya.family>"),
 
+  // Photo storage (Cloudflare R2) — optional: when absent, the API falls
+  // back to local disk storage for development.
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().optional(),
+
   // Admin
   ADMIN_EMAIL: z.string().email().optional(),
 });

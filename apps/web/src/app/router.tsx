@@ -10,6 +10,7 @@ import { VerifyEmailPage } from "../pages/auth/verify-email.js";
 import { FamilyPage } from "../pages/family.js";
 import { HealthPage } from "../pages/health.js";
 import { HomePage } from "../pages/home.js";
+import { PhotosPage } from "../pages/photos.js";
 import { MemberProfilePage } from "../pages/members/member-profile.js";
 import { MembersPage } from "../pages/members/members.js";
 import { MyProfilePage } from "../pages/members/my-profile.js";
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
       { path: "/reset-password", element: <ResetPasswordPage /> },
       { path: "/resend-verification", element: <GuestOnlyRoute><ResendVerificationPage /></GuestOnlyRoute> },
       { path: "/family", element: <ProtectedRoute><FamilyPage /></ProtectedRoute> },
+      { path: "/photos", element: <ProtectedRoute><PhotosPage /></ProtectedRoute> },
       { path: "/members", element: <ProtectedRoute><MembersPage /></ProtectedRoute> },
       { path: "/members/:id", element: <ProtectedRoute><MemberProfilePage /></ProtectedRoute> },
       { path: "/me", element: <ProtectedRoute><MyProfilePage /></ProtectedRoute> },
