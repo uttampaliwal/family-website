@@ -2,14 +2,9 @@
   "name": "family-portal",
   "private": true,
   "version": "1.0.0",
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@11.20.0",
   "engines": {
     "node": ">=20"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   },
   "scripts": {
     "dev": "turbo dev",
