@@ -3,8 +3,8 @@
 > Private family hub — photos, events, documents, chat, announcements.
 
 This document complements [architecture.md](architecture.md) and
-[SECURITY.md](../SECURITY.md): while those describe *what is built*, this one
-describes *who could attack it, what they want, and how the system holds up*.
+[SECURITY.md](../SECURITY.md): while those describe _what is built_, this one
+describes _who could attack it, what they want, and how the system holds up_.
 Its scope is the deployed system (Vercel + Atlas + R2 + Resend); the models in
 `apps/api/src/models/*` and the guards in `apps/api/src/routes/*` are the
 concrete surface this analysis covers.
@@ -20,18 +20,18 @@ listed in [Accepted risks](#accepted-risks).
 
 ## Assets
 
-| Asset | Sensitivity | Where it lives |
-| ----- | ----------- | -------------- |
-| **Member PII** — name, email, phone, date of birth, gender, kinship, parent links | High | MongoDB (`User`) |
-| **Photos** (private by default) | High | R2 (`photos/*`) + `Photo` metadata |
-| **Documents** (family archive) | High | R2 (`documents/*`) + `Document` metadata |
-| **Moments posts, likes, comments** | Medium | `Post` |
-| **Chat messages** | Medium | `Message` / `Room` |
-| **Events/anniversaries** | Medium | `Event` |
-| **Announcements & notifications** | Low–Medium | `Announcement` / `Notification` |
-| **Credentials** — password hashes, refresh-token JTI hashes, pending password/email tokens | High | `User` + env secrets |
-| **Secrets** — `AUTH_*`, `RESEND_API_KEY`, R2 keys/token, `DATABASE_URL`, admin password | Critical | Env (Vercel / `.env*`); never in git |
-| **Brand/availability** — the family's one place | Low-Medium | Vercel, Atlas M0, R2, Resend free tiers |
+| Asset                                                                                      | Sensitivity | Where it lives                           |
+| ------------------------------------------------------------------------------------------ | ----------- | ---------------------------------------- |
+| **Member PII** — name, email, phone, date of birth, gender, kinship, parent links          | High        | MongoDB (`User`)                         |
+| **Photos** (private by default)                                                            | High        | R2 (`photos/*`) + `Photo` metadata       |
+| **Documents** (family archive)                                                             | High        | R2 (`documents/*`) + `Document` metadata |
+| **Moments posts, likes, comments**                                                         | Medium      | `Post`                                   |
+| **Chat messages**                                                                          | Medium      | `Message` / `Room`                       |
+| **Events/anniversaries**                                                                   | Medium      | `Event`                                  |
+| **Announcements & notifications**                                                          | Low–Medium  | `Announcement` / `Notification`          |
+| **Credentials** — password hashes, refresh-token JTI hashes, pending password/email tokens | High        | `User` + env secrets                     |
+| **Secrets** — `AUTH_*`, `RESEND_API_KEY`, R2 keys/token, `DATABASE_URL`, admin password    | Critical    | Env (Vercel / `.env*`); never in git     |
+| **Brand/availability** — the family's one place                                            | Low-Medium  | Vercel, Atlas M0, R2, Resend free tiers  |
 
 ## Attacker types
 
@@ -41,7 +41,7 @@ Ranked by likelihood for this system, not by capability.
    endpoints, exposed admin, dependency CVEs. No target knowledge.
 2. **Casual outsider with a valid share link** (document recipient) — maybe
    pokes at the link, tries to guess more, or forwards the document.
-3. **Curious / mischievous family member** — an *approved insider*. The real
+3. **Curious / mischievous family member** — an _approved insider_. The real
    threat on a family site: reads what they shouldn't, edits someone's post,
    deletes uploads, spams, or shares content externally.
 4. **Invited guest gone astray** — someone outside the family handed a link or
@@ -75,41 +75,41 @@ We treat 3–4 as the dominant risk drivers and size mitigations accordingly.
 
 Boundaries and their controls
 
-| Boundary | Trust decision | Enforced by |
-| --- | --- | --- |
-| Internet → app | Anyone may reach the login/register/share endpoints; nothing else | Route-level `requireAuth`/`requireAdmin`/`requireApprovedMember`, `originCheck` |
-| Web app → API | Same-origin; the app is trusted to forward nothing the API didn't a ul | JWT in HttpOnly/Bearer + double-submit CSRF + `SameSite=Lax` |
-| API → Mongo / R2 | Fully trusted; leak here = total compromise | Secrets in env only; least-privilege IAM keys; private bucket |
-| API → Resend | Trusted mailer | `RESEND_API_KEY` in env |
-| Public share link | Only a 24-byte token + no auth — the one designed public surface | High-entropy token, revocable, per-IP rate limit |
-| Admin functions | Admin account only | `requireAdmin`, live `adminApprovalStatus` re-check on approval |
+| Boundary          | Trust decision                                                                 | Enforced by                                                                     |
+| ----------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| Internet → app    | Anyone may reach the login/register/share endpoints; nothing else              | Route-level `requireAuth`/`requireAdmin`/`requireApprovedMember`, `originCheck` |
+| Web app → API     | Same-origin; the app only forwards what the API itself requested and validated | JWT in HttpOnly/Bearer + double-submit CSRF + `SameSite=Lax`                    |
+| API → Mongo / R2  | Fully trusted; leak here = total compromise                                    | Secrets in env only; least-privilege IAM keys; private bucket                   |
+| API → Resend      | Trusted mailer                                                                 | `RESEND_API_KEY` in env                                                         |
+| Public share link | Only a 24-byte token + no auth — the one designed public surface               | High-entropy token, revocable, per-IP rate limit                                |
+| Admin functions   | Admin account only                                                             | `requireAdmin`, live `adminApprovalStatus` re-check on approval                 |
 
 ## Threat & abuse cases
 
 Each row: the scenario, what it exploits, existing mitigation, and residual
 risk. Threat identifiers are stable for referencing in issues/tests.
 
-| ID | Scenario / abuse | Exploits | Mitigations in place | Residual risk |
-| --- | --- | --- | --- | --- |
-| T-1 | **Account takeover via credential stuffing** | Login + `/forgot-password` + `/reset-password` | Rate limits (login 8/60s, forgot 5/15m), bcrypt hashing at cost 12 (`lib/passwords.ts`), no account-existence leak on forgot flows | Some (password reuse at family scale); accept |
-| T-2 | **Account enumeration** | `/check-username` reveals availability by design; login/register disclose registered email | Deliberate: register+forgot are non-revealing; `/check-username` leaks **username** only, a self-chosen nickname | Low |
-| T-3 | **Registration abuse / spam-joins** | Open `/register` + auto-email | Email verification, admin-review gate (approval) before any data access, register rate limit 6/15m, `member_joined` admin notification | Low |
-| T-4 | **Forge account to access data** — register, verify a throwaway email, wait for approval | Family trust gate | Admin manually approves each member; `requireApprovedMember` re-checks live status on every protected request | Low |
-| T-5 | **Cross-site request forgery** | State-changing API calls from another origin | HMAC-signed double-submit `kulaya_csrf` (signature defeats cookie fixation, constant-time echo check); `SameSite=Lax` refresh cookie, `originCheck` for mutating methods, same-origin deployment; `X-CSRF-Token` in the CORS allowlist | Very low |
-| T-6 | **Session/refresh token theft & reuse** | Stolen cookie/token used to mint sessions | HttpOnly cookie, access TTL 15m, rotating refresh with server-side `JTI` hash, reuse → revoke **all** sessions, `AUTH_MAX_ACTIVE_SESSIONS` cap | Low (JWT in client memory for SSE; see Accepted) |
-| T-7 | **Privilege escalation to admin** | Admin-only actions | `requireAdmin` re-queries role server-side; `adminDecisionSchema` gates role change to `requireAdmin`; self-review blocked | Low |
-| T-8 | **Broken access control — other people's documents/photos** | Direct object ids, `/download`, `DELETE` | Read view authorized for all approved members by design; **mutations** gated to owner-or-admin | Low |
-| T-9 | **Public share-link guessing / brute force** | Unauthorized reads of shared documents | `randomBytes(24)` (192-bit) token, not sequential IDs; IP rate limit on the public route | Negligible |
-| T-10 | **Stored XSS via user content** | Posts, comments, captions | React validates-escaped output; Zod input contracts; CSP (`script-src 'self'`) | Low |
-| T-11 | **Stored XSS via uploaded files** | Serving attacker-controlled HTML as a file/photo | Upload gated to allowlist mime types (new keys), server `confirmUpload` rechecks Content-Type + size; downloads forced as `attachment` (`Content-Disposition`); private-by-default gallery | Low |
-| T-12 | **Path traversal / arbitrary key in storage** | Overwrite/read arbitrary R2/local objects | `uploadPathFor()` rejects any key not `photos/` or `documents/` and any `..`; upload URL generated server-side (random UUID key) | Low |
-| T-13 | **Content moderation abuse (family member)** | Delete others' posts/photos/documents, spam rooms, fake announcements | Owner-or-admin delete rule; admin can revoke members/deactivate; roles server-side | Medium (insider acting nastily — needs admin intervention; no per-object ACLs) |
-| T-14 | **Data exfiltration via API mass-read** | Pull all members' PII, all documents at once | Member reads return only public profile fields (`toMemberPayload`); documents/photos lists capped at 100; general auth rate limit | Low |
-| T-15 | **Email flood / share-spam** | Forgot-password/resend abuse | Rate limits, single token per flow, short expiry (24h verify, 1h reset), non-revealing responses | Low |
-| T-16 | **Mongo/R2/Resend key leak** | Environment keys, `.env.local` / CI | `.env*` gitignored, secrets never in source; `env.ts` fails fast if `AUTH_*` < 32 chars; rotation doc in SECURITY | Low |
-| T-17 | **Supply-chain (npm)** | Malicious untrusted dependency | pnpm-lock committed, PR review checklist (CONTRIBUTING), CI runs tests | Medium |
-| T-18 | **DoS of free-tier / rate-limit bypass** | Hammer `/login`, SSE keepalive, unauthenticated shared links | In-memory rate limits (per-serverless-instance), request logger; no authed unbounded endpoints | Medium on Atlas/Resend free quotas; revisit if the family grows |
-| T-19 | **Man-in-the-middle** | Read/change traffic | TLS + HSTS on Vercel | Negligible |
+| ID   | Scenario / abuse                                                                         | Exploits                                                                                   | Mitigations in place                                                                                                                                                                                                                   | Residual risk                                                                  |
+| ---- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| T-1  | **Account takeover via credential stuffing**                                             | Login + `/forgot-password` + `/reset-password`                                             | Rate limits (login 8/60s, forgot 5/15m), bcrypt hashing at cost 12 (`lib/passwords.ts`), no account-existence leak on forgot flows                                                                                                     | Some (password reuse at family scale); accept                                  |
+| T-2  | **Account enumeration**                                                                  | `/check-username` reveals availability by design; login/register disclose registered email | Deliberate: register+forgot are non-revealing; `/check-username` leaks **username** only, a self-chosen nickname                                                                                                                       | Low                                                                            |
+| T-3  | **Registration abuse / spam-joins**                                                      | Open `/register` + auto-email                                                              | Email verification, admin-review gate (approval) before any data access, register rate limit 6/15m, `member_joined` admin notification                                                                                                 | Low                                                                            |
+| T-4  | **Forge account to access data** — register, verify a throwaway email, wait for approval | Family trust gate                                                                          | Admin manually approves each member; `requireApprovedMember` re-checks live status on every protected request                                                                                                                          | Low                                                                            |
+| T-5  | **Cross-site request forgery**                                                           | State-changing API calls from another origin                                               | HMAC-signed double-submit `kulaya_csrf` (signature defeats cookie fixation, constant-time echo check); `SameSite=Lax` refresh cookie, `originCheck` for mutating methods, same-origin deployment; `X-CSRF-Token` in the CORS allowlist | Very low                                                                       |
+| T-6  | **Session/refresh token theft & reuse**                                                  | Stolen cookie/token used to mint sessions                                                  | HttpOnly cookie, access TTL 15m, rotating refresh with server-side `JTI` hash, reuse → revoke **all** sessions, `AUTH_MAX_ACTIVE_SESSIONS` cap                                                                                         | Low (JWT in client memory for SSE; see Accepted)                               |
+| T-7  | **Privilege escalation to admin**                                                        | Admin-only actions                                                                         | `requireAdmin` re-queries role server-side; `adminDecisionSchema` gates role change to `requireAdmin`; self-review blocked                                                                                                             | Low                                                                            |
+| T-8  | **Broken access control — other people's documents/photos**                              | Direct object ids, `/download`, `DELETE`                                                   | Read view authorized for all approved members by design; **mutations** gated to owner-or-admin                                                                                                                                         | Low                                                                            |
+| T-9  | **Public share-link guessing / brute force**                                             | Unauthorized reads of shared documents                                                     | `randomBytes(24)` (192-bit) token, not sequential IDs; IP rate limit on the public route                                                                                                                                               | Negligible                                                                     |
+| T-10 | **Stored XSS via user content**                                                          | Posts, comments, captions                                                                  | React validates-escaped output; Zod input contracts; CSP (`script-src 'self'`)                                                                                                                                                         | Low                                                                            |
+| T-11 | **Stored XSS via uploaded files**                                                        | Serving attacker-controlled HTML as a file/photo                                           | Upload gated to allowlist mime types (new keys), server `confirmUpload` rechecks Content-Type + size; downloads forced as `attachment` (`Content-Disposition`); private-by-default gallery                                             | Low                                                                            |
+| T-12 | **Path traversal / arbitrary key in storage**                                            | Overwrite/read arbitrary R2/local objects                                                  | `uploadPathFor()` rejects any key not `photos/` or `documents/` and any `..`; upload URL generated server-side (random UUID key)                                                                                                       | Low                                                                            |
+| T-13 | **Content moderation abuse (family member)**                                             | Delete others' posts/photos/documents, spam rooms, fake announcements                      | Owner-or-admin delete rule; admin can revoke members/deactivate; roles server-side                                                                                                                                                     | Medium (insider acting nastily — needs admin intervention; no per-object ACLs) |
+| T-14 | **Data exfiltration via API mass-read**                                                  | Pull all members' PII, all documents at once                                               | Member reads return only public profile fields (`toMemberPayload`); documents/photos lists capped at 100; general auth rate limit                                                                                                      | Low                                                                            |
+| T-15 | **Email flood / share-spam**                                                             | Forgot-password/resend abuse                                                               | Rate limits, single token per flow, short expiry (24h verify, 1h reset), non-revealing responses                                                                                                                                       | Low                                                                            |
+| T-16 | **Mongo/R2/Resend key leak**                                                             | Environment keys, `.env.local` / CI                                                        | `.env*` gitignored, secrets never in source; `env.ts` fails fast if `AUTH_*` < 32 chars; rotation doc in SECURITY                                                                                                                      | Low                                                                            |
+| T-17 | **Supply-chain (npm)**                                                                   | Malicious untrusted dependency                                                             | pnpm-lock committed, PR review checklist (CONTRIBUTING), CI runs tests                                                                                                                                                                 | Medium                                                                         |
+| T-18 | **DoS of free-tier / rate-limit bypass**                                                 | Hammer `/login`, SSE keepalive, unauthenticated shared links                               | In-memory rate limits (per-serverless-instance), request logger; no authed unbounded endpoints                                                                                                                                         | Medium on Atlas/Resend free quotas; revisit if the family grows                |
+| T-19 | **Man-in-the-middle**                                                                    | Read/change traffic                                                                        | TLS + HSTS on Vercel                                                                                                                                                                                                                   | Negligible                                                                     |
 
 ## Attack trees (top 3)
 
@@ -117,6 +117,7 @@ For the highest-likelihood attacks, the path an attacker walks vs. the doors
 we lock.
 
 ### A) "I want everyone's photos"
+
 ```
  register → email verify (throwaway) → wait for admin approval
    ↑                                   │
@@ -127,6 +128,7 @@ we lock.
 ```
 
 ### B) "I found a share link in email"
+
 ```
  link → token (192-bit, random) → brute force → ✗
    │                                └ rate limited + entropy space
@@ -135,6 +137,7 @@ we lock.
 ```
 
 ### C) "Steal an admin's session"
+
 ```
  phishing → admin types password on a fake origin → ✗ (no token, 403)
  XSS on the real site        → ✗ (React escapes, CSP script-src 'self')

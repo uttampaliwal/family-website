@@ -143,7 +143,9 @@ curl -s ${WEB_ORIGIN}/api/health-check
 
 ### Backups (do this early)
 
-Neither the free Atlas tier nor R2 backs itself up automatically.
+Neither the free Atlas tier nor R2 backs itself up automatically. The full
+retention, deletion, export and recovery policy lives in
+[docs/data-lifecycle.md](data-lifecycle.md) — here's the short version:
 
 - **MongoDB**: run `mongodump` on a schedule (hourly/weekly):
   ```bash

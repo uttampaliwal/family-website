@@ -25,7 +25,8 @@ Order is a suggestion, not a promise — pick what the family needs most:
 
 - **M14 — deployment day** — apply [deployment.md](deployment.md) to a live
   domain; resolve the SSE-on-serverless question (persistent host or
-  reconnect-tolerant streaming); set up backups + uptime checks.
+  reconnect-tolerant streaming); set up backups + uptime checks (policy in
+  [data-lifecycle.md](data-lifecycle.md)).
 - **Email digests** — a weekly "what happened in the nest" email; needs a
   cron source (Vercel cron on Hobby is limited — a GitHub Actions scheduled
   run or a persistent host works).
