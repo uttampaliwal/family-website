@@ -1,7 +1,5 @@
 import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
-import type { ZodType } from "zod";
 import {
   changePasswordSchema,
   forgotPasswordSchema,
@@ -10,7 +8,6 @@ import {
   resendVerificationSchema,
   resetPasswordSchema,
   verifyEmailSchema,
-  type User,
 } from "@family/core";
 import { env } from "../config/env.js";
 import { AppError } from "../middleware/error.js";
@@ -30,22 +27,9 @@ import {
 } from "../lib/auth.js";
 import { buildEmailLink, sendMail } from "../lib/email.js";
 import { hashPassword, verifyPassword } from "../lib/passwords.js";
+import { toUserPayload } from "../lib/payloads.js";
+import { validateBody } from "../lib/validation.js";
 import { User as UserModel, type UserDocument } from "../models/user.js";
-
-function toUserPayload(user: UserDocument): User {
-  return {
-    id: user._id.toString(),
-    name: user.name,
-    email: user.email,
-    username: user.username,
-    gender: user.gender,
-    relationship: user.relationship,
-    role: user.role,
-    isVerified: user.isVerified,
-    avatarUrl: null,
-    createdAt: user.createdAt,
-  };
-}
 
 const AUTH_RATE = {
   login: rateLimit({ windowMs: 60_000, max: 8, name: "login" }),
@@ -54,20 +38,6 @@ const AUTH_RATE = {
   forgot: rateLimit({ windowMs: 15 * 60_000, max: 5, name: "forgot" }),
   general: rateLimit({ windowMs: 60_000, max: 60, name: "auth-general" }),
 };
-
-/** zod-validator wrapper producing the standard 422 error shape. */
-function validateBody<T extends ZodType>(schema: T) {
-  return zValidator("json", schema, (result, _c) => {
-    if (!result.success) {
-      throw new AppError(
-        422,
-        "VALIDATION_ERROR",
-        "Invalid request data",
-        result.error.issues.map((e) => ({ path: e.path.join("."), message: e.message })),
-      );
-    }
-  });
-}
 
 export const authRoutes = new Hono();
 
