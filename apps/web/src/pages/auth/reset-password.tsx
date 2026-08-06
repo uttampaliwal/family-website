@@ -4,8 +4,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
 import { api } from "../../lib/api-client.js";
+import { useSeo } from "../../lib/seo.js";
 
 export function ResetPasswordPage() {
+  useSeo("auth.reset.title");
   const toast = useToast().toast;
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";

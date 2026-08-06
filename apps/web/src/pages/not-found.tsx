@@ -1,8 +1,10 @@
 import { Button } from "@family/ui";
 import { Home } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSeo } from "../lib/seo.js";
 
 export function NotFoundPage() {
+  useSeo("page.notFound");
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4 py-24 text-center">
       <p className="font-display text-7xl font-bold text-primary">404</p>

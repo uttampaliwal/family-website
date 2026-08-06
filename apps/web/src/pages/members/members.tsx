@@ -5,6 +5,7 @@ import { Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../lib/api-client.js";
+import { useSeo } from "../../lib/seo.js";
 
 interface MemberListResponse {
   items: MemberPublic[];
@@ -12,6 +13,7 @@ interface MemberListResponse {
 }
 
 export function MembersPage() {
+  useSeo("nav.members");
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
 

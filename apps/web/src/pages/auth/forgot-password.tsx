@@ -5,8 +5,10 @@ import { Link } from "react-router-dom";
 import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldInput } from "../../components/auth/field.js";
 import { api } from "../../lib/api-client.js";
+import { useSeo } from "../../lib/seo.js";
 
 export function ForgotPasswordPage() {
+  useSeo("auth.forgot.title");
   const toast = useToast().toast;
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);

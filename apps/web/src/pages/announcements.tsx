@@ -6,6 +6,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
+import { useI18n } from "../i18n/index.js";
+import { useSeo } from "../lib/seo.js";
 
 interface AnnouncementListResponse {
   items: Announcement[];
@@ -13,6 +15,8 @@ interface AnnouncementListResponse {
 }
 
 export function AnnouncementsPage() {
+  const { t } = useI18n();
+  useSeo("announcements.heading");
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const toast = useToast().toast;
@@ -76,7 +80,7 @@ export function AnnouncementsPage() {
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Announcements</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t("announcements.heading")}</h1>
           <p className="mt-1 text-sm text-muted">
             {data ? `${data.total} announcement${data.total === 1 ? "" : "s"} from the family` : "Family news, notices and wishes"}
           </p>
@@ -216,7 +220,7 @@ export function AnnouncementsPage() {
             <Megaphone className="size-7" />
           </span>
           <p className="text-muted">
-            No announcements yet — {isAdmin ? "publish the first one above!" : "check back soon."}
+            {t("announcements.empty", { action: t(isAdmin ? "announcements.empty.admin" : "announcements.empty.soon") })}
           </p>
         </div>
       )}

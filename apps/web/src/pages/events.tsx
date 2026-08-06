@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
+import { useI18n } from "../i18n/index.js";
+import { useSeo } from "../lib/seo.js";
 
 interface EventListResponse {
   items: Event[];
@@ -22,6 +24,8 @@ const TYPE_LABELS: Record<Event["type"], string> = {
 };
 
 export function EventsPage() {
+  const { t } = useI18n();
+  useSeo("events.heading");
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const toast = useToast().toast;
@@ -119,7 +123,7 @@ export function EventsPage() {
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Family calendar</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t("events.heading")}</h1>
           <p className="mt-1 text-sm text-muted">
             {data ? `${data.total} event${data.total === 1 ? "" : "s"} this month` : "Birthdays, anniversaries and gatherings"}
           </p>
@@ -258,7 +262,7 @@ export function EventsPage() {
             })}
           </h2>
           {dayEvents.length === 0 && (
-            <p className="mt-2 text-sm text-muted">Nothing scheduled — it's an open day.</p>
+            <p className="mt-2 text-sm text-muted">{t("events.openDay")}</p>
           )}
           <ul className="mt-3 space-y-3">
             {dayEvents.map(({ event }) => {
@@ -322,7 +326,7 @@ export function EventsPage() {
           <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
             <CalendarDays className="size-7" />
           </span>
-          <p className="text-muted">No events this month — add the first one above!</p>
+          <p className="text-muted">{t("events.emptyMonth")}</p>
         </div>
       )}
     </div>

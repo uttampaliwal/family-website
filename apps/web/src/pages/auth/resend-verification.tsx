@@ -4,8 +4,10 @@ import { Link } from "react-router-dom";
 import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldInput } from "../../components/auth/field.js";
 import { api } from "../../lib/api-client.js";
+import { useSeo } from "../../lib/seo.js";
 
 export function ResendVerificationPage() {
+  useSeo("auth.resend.title");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);

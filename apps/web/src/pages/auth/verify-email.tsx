@@ -4,10 +4,12 @@ import { api } from "../../lib/api-client.js";
 import { AuthCard } from "../../components/auth/auth-card.js";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useSeo } from "../../lib/seo.js";
 
 type State = "verifying" | "error" | "success";
 
 export function VerifyEmailPage() {
+  useSeo("auth.verify.title");
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [state, setState] = useState<State>("verifying");

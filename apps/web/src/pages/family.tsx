@@ -6,10 +6,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
+import { useSeo } from "../lib/seo.js";
 
 export function FamilyPage() {
   const user = useAuthStore((s) => s.user);
 
+  useSeo("account.family");
   const { data, isLoading, isError } = useQuery({
     queryKey: ["family-tree"],
     queryFn: () => api.get<TreeResponse>("/members/tree"),

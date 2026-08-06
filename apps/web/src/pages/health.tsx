@@ -2,6 +2,7 @@ import { Badge, Button, Card, CardContent, Skeleton } from "@family/ui";
 import { useQuery } from "@tanstack/react-query";
 import { Activity, Database, RefreshCw } from "lucide-react";
 import { api } from "../lib/api-client.js";
+import { useSeo } from "../lib/seo.js";
 
 interface HealthResponse {
   status: "ok" | "degraded";
@@ -13,6 +14,7 @@ interface HealthResponse {
 }
 
 export function HealthPage() {
+  useSeo("footer.health");
   const { data, isPending, isError, refetch, isFetching } = useQuery({
     queryKey: ["health"],
     queryFn: () => api.get<HealthResponse>("/health-check"),

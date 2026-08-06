@@ -6,8 +6,12 @@ import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useI18n } from "../../i18n/index.js";
+import { useSeo } from "../../lib/seo.js";
 
 export function LoginPage() {
+  const { t } = useI18n();
+  useSeo("login.title", "seo.home.desc");
   const login = useAuthStore((s) => s.login);
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,35 +46,31 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await login(parsed.data);
-      toast("Welcome back", { variant: "success" });
+      toast(t("login.success"), { variant: "success" });
       navigate(from, { replace: true });
     } catch (err) {
       if (err instanceof ApiError) {
         switch (err.code) {
           case "INVALID_CREDENTIALS":
-            setFormError("That email or password didn't match. Please try again.");
+            setFormError(t("login.error.invalid"));
             break;
           case "EMAIL_NOT_VERIFIED":
-            setFormError(
-              "Your email isn't verified yet — check your inbox for the verification link.",
-            );
+            setFormError(t("login.error.notVerified"));
             break;
           case "PENDING_APPROVAL":
-            setFormError(
-              "Your account is awaiting approval by an administrator. Please check back soon.",
-            );
+            setFormError(t("login.error.pending"));
             break;
           case "ACCESS_REJECTED":
-            setFormError("Access was not granted to this account.");
+            setFormError(t("login.error.rejected"));
             break;
           case "RATE_LIMITED":
-            setFormError("Too many attempts — please wait a minute and try again.");
+            setFormError(t("login.error.rateLimited"));
             break;
           default:
             setFormError(err.message);
         }
       } else {
-        setFormError("Something went wrong. Please try again.");
+        setFormError(t("login.error.generic"));
       }
     } finally {
       setSubmitting(false);
@@ -78,24 +78,21 @@ export function LoginPage() {
   }
 
   return (
-    <AuthCard
-      title="Welcome back"
-      description="Sign in to step into the family nest."
-    >
+    <AuthCard title={t("login.title")} description={t("login.description")}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Field label="Email or username" htmlFor="email" error={errors.email}>
+        <Field label={t("login.email")} htmlFor="email" error={errors.email}>
           <FieldInput
             id="email"
             name="email"
             autoComplete="username"
-            placeholder="you@example.com"
+            placeholder={t("login.emailPlaceholder")}
             value={email}
             error={errors.email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </Field>
-        <Field label="Password" htmlFor="password" error={errors.password}>
+        <Field label={t("login.password")} htmlFor="password" error={errors.password}>
           <FieldInput
             id="password"
             name="password"
@@ -119,7 +116,7 @@ export function LoginPage() {
         )}
 
         <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-          {submitting ? "Signing in…" : "Sign in"}
+          {t("login.submit")}
         </Button>
 
         <div className="flex items-center justify-between text-sm">
@@ -127,12 +124,12 @@ export function LoginPage() {
             to="/forgot-password"
             className="font-medium text-primary hover:underline"
           >
-            Forgot password?
+            {t("login.forgot")}
           </Link>
           <span className="text-muted">
-            New here?{" "}
+            {t("login.noAccount")}{" "}
             <Link to="/register" className="font-medium text-primary hover:underline">
-              Create an account
+              {t("login.createAccount")}
             </Link>
           </span>
         </div>

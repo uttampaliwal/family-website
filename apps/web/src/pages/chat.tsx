@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
 import { connectSse } from "../lib/sse.js";
+import { useI18n } from "../i18n/index.js";
+import { useSeo } from "../lib/seo.js";
 
 interface RoomListResponse {
   items: ChatRoom[];
@@ -19,6 +21,8 @@ interface MessageListResponse {
 }
 
 export function ChatPage() {
+  const { t } = useI18n();
+  useSeo("chat.heading");
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const toast = useToast().toast;
@@ -131,7 +135,7 @@ export function ChatPage() {
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Family chat</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t("chat.heading")}</h1>
           <p className="mt-1 text-sm text-muted">Conversations with the whole nest</p>
         </div>
       </div>
@@ -190,7 +194,7 @@ export function ChatPage() {
               </li>
             ))}
             {roomsData?.items.length === 0 && (
-              <p className="px-3 py-4 text-center text-sm text-muted">No rooms yet — create one above.</p>
+              <p className="px-3 py-4 text-center text-sm text-muted">{t("chat.empty")}</p>
             )}
           </ul>
         </aside>
@@ -217,7 +221,7 @@ export function ChatPage() {
                 )}
                 {displayMessages.length === 0 && !messagesLoading && (
                   <p className="pt-8 text-center text-sm text-muted">
-                    Nothing yet — say hello!
+                    {t("chat.roomEmpty")}
                   </p>
                 )}
                 {displayMessages.map((message) => {

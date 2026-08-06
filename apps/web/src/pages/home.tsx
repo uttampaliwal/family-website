@@ -24,47 +24,26 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useI18n } from "../i18n/index.js";
+import { useSeo } from "../lib/seo.js";
 import { useAuthStore } from "../stores/auth-store.js";
 
-const features = [
-  {
-    icon: Image,
-    title: "Photo Albums",
-    description:
-      "Preserve every celebration — share albums with the whole family.",
-  },
-  {
-    icon: PartyPopper,
-    title: "Events & RSVP",
-    description: "Birthdays, weddings, and get-togethers, all in one calendar.",
-  },
-  {
-    icon: FolderLock,
-    title: "Documents",
-    description:
-      "Important papers kept safe, privately, and always within reach.",
-  },
-  {
-    icon: Sprout,
-    title: "Family Tree",
-    description: "Watch the branches of our family grow through generations.",
-  },
-  {
-    icon: MessageCircleHeart,
-    title: "Moments",
-    description: "A private feed where every day can be shared with everyone.",
-  },
-  {
-    icon: Users,
-    title: "Announcements",
-    description: "One trusted place for news that matters to the whole family.",
-  },
-];
+const featureKeys = [
+  { icon: Image, titleKey: "home.feature.photos", descKey: "home.feature.photos.desc" },
+  { icon: PartyPopper, titleKey: "home.feature.events", descKey: "home.feature.events.desc" },
+  { icon: FolderLock, titleKey: "home.feature.documents", descKey: "home.feature.documents.desc" },
+  { icon: Sprout, titleKey: "home.feature.tree", descKey: "home.feature.tree.desc" },
+  { icon: MessageCircleHeart, titleKey: "home.feature.moments", descKey: "home.feature.moments.desc" },
+  { icon: Users, titleKey: "home.feature.announcements", descKey: "home.feature.announcements.desc" },
+] as const;
 
 export function HomePage() {
   const { theme, mode, toggleMode } = useTheme();
   const { user, status } = useAuthStore();
+  const { t } = useI18n();
   const [preview, setPreview] = useState(false);
+
+  useSeo("seo.home.title", "seo.home.desc");
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -72,37 +51,37 @@ export function HomePage() {
       <section className="flex flex-col items-center gap-6 py-16 text-center sm:py-24">
         <Badge variant="secondary" className="gap-2">
           <CalendarDays className="size-3.5" />
-          Kulaya — our family nest is coming home
+          {t("home.badge")}
         </Badge>
         <h1 className="font-display max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-6xl">
-          Where our family stays
-          <span className="text-primary"> close</span>, no matter the miles
+          {t("home.h1")}
+          <span className="text-primary">{t("home.h1.accent")}</span>
+          {t("home.h1.suffix")}
         </h1>
         <p className="max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-          Kulaya — कुल + आलय, the family nest. A private home for photos, events,
-          documents, and the moments in between — built for every generation, in
-          every mood.
+          {t("home.hero")}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           {status === "authenticated" && user ? (
             <Button asChild size="lg">
               <Link to="/family">
-                Welcome back, {user.name.split(" ")[0]}! <ArrowRight />
+                {t("auth.cta.welcome", { name: user.name.split(" ")[0] ?? "" })}{" "}
+                <ArrowRight />
               </Link>
             </Button>
           ) : (
             <Button asChild size="lg">
               <Link to="/login">
-                Join the family <ArrowRight />
+                {t("auth.cta.join")} <ArrowRight />
               </Link>
             </Button>
           )}
           <Button variant="outline" size="lg" onClick={toggleMode}>
-            Try {mode === "light" ? "dark" : "light"} mode
+            {t("auth.tryMode", { mode: mode === "light" ? "dark" : "light" })}
           </Button>
         </div>
         <p className="mt-2 text-xs text-muted">
-          Currently on the “{theme}” theme · light mode
+          {t("home.currentlyOn", { theme: theme ?? "warm", mode })}
         </p>
       </section>
 
@@ -111,14 +90,12 @@ export function HomePage() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl font-semibold">
-              Made for every generation
+              {t("home.themesTitle")}
             </h2>
-            <p className="text-sm text-muted">
-              Three themes, light and dark — choose what feels like home.
-            </p>
+            <p className="text-sm text-muted">{t("home.themesSub")}</p>
           </div>
           <label className="flex items-center gap-2.5 text-sm font-medium">
-            Preview dark mode
+            {t("home.previewDark")}
             <Switch checked={preview} onCheckedChange={setPreview} />
           </label>
         </div>
@@ -141,24 +118,22 @@ export function HomePage() {
       <section className="pb-20">
         <div className="mb-8 text-center">
           <h2 className="font-display text-2xl font-semibold">
-            Everything a family needs
+            {t("home.featuresTitle")}
           </h2>
-          <p className="mt-1 text-sm text-muted">
-            Arriving step by step, built on solid ground.
-          </p>
+          <p className="mt-1 text-sm text-muted">{t("home.featuresSub")}</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map(({ icon: Icon, title, description }) => (
+          {featureKeys.map(({ icon: Icon, titleKey, descKey }) => (
             <Card
-              key={title}
+              key={titleKey}
               className="transition-transform duration-200 hover:-translate-y-1"
             >
               <CardHeader>
                 <span className="mb-1 grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
                   <Icon className="size-5" />
                 </span>
-                <CardTitle className="text-lg">{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
+                <CardTitle className="text-lg">{t(titleKey)}</CardTitle>
+                <CardDescription>{t(descKey)}</CardDescription>
               </CardHeader>
             </Card>
           ))}
@@ -176,6 +151,7 @@ function PreviewCard({
   forceDark: boolean;
 }) {
   const { theme, mode, setTheme } = useTheme();
+  const { t } = useI18n();
   const isActive = theme === themeId;
   const displayMode = forceDark ? "dark" : mode;
 
@@ -196,7 +172,7 @@ function PreviewCard({
             <span className="grid size-7 place-items-center rounded-lg bg-primary text-primary-fg">
               <Sprout className="size-3.5" />
             </span>
-            <span className="text-sm font-semibold">Preview</span>
+            <span className="text-sm font-semibold">{t("home.preview")}</span>
           </div>
           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
             {themeId}
@@ -213,7 +189,7 @@ function PreviewCard({
       </div>
       <div className="mt-3 flex items-center justify-between px-1">
         <span className="text-sm font-medium capitalize">{themeId}</span>
-        {isActive && <Badge variant="success">Active</Badge>}
+        {isActive && <Badge variant="success">{t("home.active")}</Badge>}
       </div>
     </button>
   );
