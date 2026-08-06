@@ -53,8 +53,8 @@ git tag v0.3.1 && git push origin v0.3.1
 | `v0.3.4` | M7 — announcements & notifications (admin feed, email on publish) |
 | `v0.3.5` | M8 — documents & share links (R2 archive, revocable public links) |
 | `v0.3.6` | M9 — Moments family feed (posts, likes, comments) |
-| `v0.3.7` | M10 — real-time chat (in progress on `feat/m10-chat`) |
-| `v0.3.8` | M11 — i18n, SEO & polish (in progress on `feat/m11-i18n-seo`) |
+| `v0.3.7` | M10 — real-time chat |
+| `v0.3.8` | M11 — i18n (EN/HI), SEO, code-split routes |
 
 ## Rules of thumb
 
