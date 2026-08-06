@@ -8,10 +8,3 @@ export const logger = pino({
   base: { service: "family-portal-api" },
   timestamp: pino.stdTimeFunctions.isoTime,
 });
-
-export const httpLoggerOptions = {
-  logger,
-  customLogLevel: (_req: unknown, res: { statusCode: number }) =>
-    res.statusCode >= 500 ? "error" : res.statusCode >= 400 ? "warn" : "info",
-  autoLogging: process.env.NODE_ENV !== "test",
-};

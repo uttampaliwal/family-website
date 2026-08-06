@@ -28,19 +28,27 @@ announcementsRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
 
 /** Newest first. */
 announcementsRoutes.get("/", async (c) => {
-  const [items, total] = await Promise.all([
-    Announcement.find().sort({ createdAt: -1 }).limit(100).lean(),
+  const [announcements, total] = await Promise.all([
+    Announcement.find()
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .populate("createdBy", "name username")
+      .lean(),
     Announcement.countDocuments(),
   ]);
 
-  const payloads = await Promise.all(
-    items.map((item) => toAnnouncementPayload(item._id.toString())),
-  );
-  return c.json({ items: payloads, total });
+  return c.json({
+    items: (announcements as unknown as PopulatedAnnouncement[]).map(toAnnouncementPayload),
+    total,
+  });
 });
 
 announcementsRoutes.get("/:id", async (c) => {
-  return c.json({ announcement: await toAnnouncementPayload(c.req.param("id")) });
+  return c.json({
+    announcement: toAnnouncementPayload(
+      await findPopulatedAnnouncement(c.req.param("id")),
+    ),
+  });
 });
 
 announcementsRoutes.post(
@@ -60,7 +68,7 @@ announcementsRoutes.post(
     const author = await User.findById(userId, "name");
     void notifyMembers(userId, author?.name ?? "", title);
 
-    return c.json({ announcement: await toAnnouncementPayload(announcement._id.toString()) });
+    return c.json({ announcement: toAnnouncementPayload(await findPopulatedAnnouncement(announcement._id.toString())) });
   },
 );
 
@@ -78,7 +86,7 @@ announcementsRoutes.patch(
     if (input.body !== undefined) announcement.body = input.body;
 
     await announcement.save();
-    return c.json({ announcement: await toAnnouncementPayload(announcement._id.toString()) });
+    return c.json({ announcement: toAnnouncementPayload(await findPopulatedAnnouncement(announcement._id.toString())) });
   },
 );
 
@@ -137,13 +145,7 @@ interface PopulatedAnnouncement {
   updatedAt: Date;
 }
 
-async function toAnnouncementPayload(announcementId: string): Promise<AnnouncementPayload> {
-  const announcement = (await Announcement.findById(announcementId)
-    .populate("createdBy", "name username")
-    .lean()) as unknown as PopulatedAnnouncement | null;
-
-  if (!announcement) throw new AppError(404, "NOT_FOUND", "Announcement not found");
-
+function toAnnouncementPayload(announcement: PopulatedAnnouncement): AnnouncementPayload {
   return {
     id: announcement._id.toString(),
     title: announcement.title,
@@ -156,4 +158,15 @@ async function toAnnouncementPayload(announcementId: string): Promise<Announceme
     createdAt: announcement.createdAt,
     updatedAt: announcement.updatedAt,
   };
+}
+
+async function findPopulatedAnnouncement(
+  announcementId: string,
+): Promise<PopulatedAnnouncement> {
+  const announcement = (await Announcement.findById(announcementId)
+    .populate("createdBy", "name username")
+    .lean()) as unknown as PopulatedAnnouncement | null;
+
+  if (!announcement) throw new AppError(404, "NOT_FOUND", "Announcement not found");
+  return announcement;
 }

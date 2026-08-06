@@ -62,22 +62,22 @@ documentsRoutes.post("/", validateBody(createDocumentRequestSchema), async (c) =
     uploadedBy: userId,
   });
 
-  return c.json({ document: await toDocumentPayload(document._id.toString()) });
+  return c.json({ document: await toDocumentPayload(await findPopulatedDocument(document._id.toString())) });
 });
 
 documentsRoutes.get("/", async (c) => {
-  const documents = await KulayaDocument.find()
+  const documents = (await KulayaDocument.find()
     .sort({ createdAt: -1 })
     .limit(100)
-    .lean();
-  const items = await Promise.all(
-    documents.map((document) => toDocumentPayload(`${document._id}`)),
-  );
+    .populate("uploadedBy", "name username")
+    .lean()) as unknown as PopulatedDocument[];
+
+  const items = await Promise.all(documents.map(toDocumentPayload));
   return c.json({ items, total: items.length });
 });
 
 documentsRoutes.get("/:id", async (c) => {
-  return c.json({ document: await toDocumentPayload(c.req.param("id")) });
+  return c.json({ document: await toDocumentPayload(await findPopulatedDocument(c.req.param("id"))) });
 });
 
 /** Redirect to a signed storage URL that forces a download. */
@@ -158,13 +158,7 @@ interface PopulatedDocument {
   updatedAt: Date;
 }
 
-async function toDocumentPayload(documentId: string): Promise<DocumentPayload> {
-  const document = (await KulayaDocument.findById(documentId)
-    .populate("uploadedBy", "name username")
-    .lean()) as unknown as PopulatedDocument | null;
-
-  if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
-
+async function toDocumentPayload(document: PopulatedDocument): Promise<DocumentPayload> {
   return {
     id: String(document._id),
     name: document.name,
@@ -182,4 +176,15 @@ async function toDocumentPayload(documentId: string): Promise<DocumentPayload> {
     createdAt: document.createdAt,
     updatedAt: document.updatedAt,
   };
+}
+
+async function findPopulatedDocument(
+  documentId: string,
+): Promise<PopulatedDocument> {
+  const document = (await KulayaDocument.findById(documentId)
+    .populate("uploadedBy", "name username")
+    .lean()) as unknown as PopulatedDocument | null;
+
+  if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
+  return document;
 }

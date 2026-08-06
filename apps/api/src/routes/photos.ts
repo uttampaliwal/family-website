@@ -54,19 +54,22 @@ photosRoutes.post("/", validateBody(createPhotoRequestSchema), async (c) => {
     uploadedBy: userId,
   });
 
-  return c.json({ photo: await toPhotoPayload(photo._id.toString()) });
+  return c.json({ photo: await toPhotoPayload(await findPopulatedPhoto(photo._id.toString())) });
 });
 
 photosRoutes.get("/", async (c) => {
-  const photos = await Photo.find().sort({ createdAt: -1 }).limit(100).lean();
-  const items = await Promise.all(
-    photos.map((photo) => toPhotoPayload(photo._id.toString())),
-  );
+  const photos = (await Photo.find()
+    .sort({ createdAt: -1 })
+    .limit(100)
+    .populate("uploadedBy", "name username")
+    .lean()) as unknown as PopulatedPhoto[];
+
+  const items = await Promise.all(photos.map(toPhotoPayload));
   return c.json({ items, total: items.length });
 });
 
 photosRoutes.get("/:id", async (c) => {
-  return c.json({ photo: await toPhotoPayload(c.req.param("id")) });
+  return c.json({ photo: await toPhotoPayload(await findPopulatedPhoto(c.req.param("id"))) });
 });
 
 photosRoutes.delete("/:id", async (c) => {
@@ -97,13 +100,7 @@ interface PopulatedPhoto {
   createdAt: Date;
 }
 
-async function toPhotoPayload(photoId: string): Promise<PhotoPayload> {
-  const photo = (await Photo.findById(photoId)
-    .populate("uploadedBy", "name username")
-    .lean()) as unknown as PopulatedPhoto | null;
-
-  if (!photo) throw new AppError(404, "NOT_FOUND", "Photo not found");
-
+async function toPhotoPayload(photo: PopulatedPhoto): Promise<PhotoPayload> {
   return {
     id: photo._id.toString(),
     key: photo.key,
@@ -118,4 +115,13 @@ async function toPhotoPayload(photoId: string): Promise<PhotoPayload> {
     },
     createdAt: photo.createdAt,
   };
+}
+
+async function findPopulatedPhoto(photoId: string): Promise<PopulatedPhoto> {
+  const photo = (await Photo.findById(photoId)
+    .populate("uploadedBy", "name username")
+    .lean()) as unknown as PopulatedPhoto | null;
+
+  if (!photo) throw new AppError(404, "NOT_FOUND", "Photo not found");
+  return photo;
 }

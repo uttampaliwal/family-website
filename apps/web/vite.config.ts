@@ -41,6 +41,21 @@ export default defineConfig({
       devOptions: { enabled: false },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        // Stable vendor chunks -> long-lived browser cache, no >500 kB blob.
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          data: ["@tanstack/react-query", "zustand"],
+          ui: ["@family/ui"],
+          icons: ["lucide-react"],
+          contracts: ["@family/core"],
+        },
+      },
+    },
+    target: "es2022",
+  },
   server: {
     host: "0.0.0.0",
     port: 5173,
