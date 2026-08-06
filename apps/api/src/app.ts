@@ -12,6 +12,8 @@ import { adminRoutes } from "./routes/admin.js";
 import { photosRoutes } from "./routes/photos.js";
 import { eventsRoutes } from "./routes/events.js";
 import { announcementsRoutes } from "./routes/announcements.js";
+import { documentsRoutes } from "./routes/documents.js";
+import { sharedRoutes } from "./routes/shared.js";
 import { saveLocalUpload, storage, uploadPathFor } from "./lib/storage.js";
 
 export function createApp() {
@@ -61,6 +63,8 @@ export function createApp() {
   app.route("/api/photos", photosRoutes);
   app.route("/api/events", eventsRoutes);
   app.route("/api/announcements", announcementsRoutes);
+  app.route("/api/documents", documentsRoutes);
+  app.route("/api/shared", sharedRoutes);
 
   // Dev-only: local disk storage (when R2 is not configured) serves the
   // actual file bytes — mirroring the production direct-to-R2 upload, where

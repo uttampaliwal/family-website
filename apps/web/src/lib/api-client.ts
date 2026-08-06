@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
+export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 /** Double-submit CSRF token, read from the JS-visible `kulaya_csrf` cookie. */
 export function csrfToken(): string {
