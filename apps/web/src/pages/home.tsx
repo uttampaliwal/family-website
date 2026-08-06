@@ -70,15 +70,16 @@ export function HomePage() {
       <section className="flex flex-col items-center gap-6 py-16 text-center sm:py-24">
         <Badge variant="secondary" className="gap-2">
           <CalendarDays className="size-3.5" />
-          Our family hub is coming home
+          Kulaya — our family nest is coming home
         </Badge>
         <h1 className="font-display max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-6xl">
           Where our family stays
           <span className="text-primary"> close</span>, no matter the miles
         </h1>
         <p className="max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-          A private home for photos, events, documents, and the moments in
-          between — built for every generation, in every mood.
+          Kulaya — कुल + आलय, the family nest. A private home for photos, events,
+          documents, and the moments in between — built for every generation, in
+          every mood.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg">

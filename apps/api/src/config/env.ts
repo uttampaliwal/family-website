@@ -15,6 +15,24 @@ const envSchema = z.object({
     .default("mongodb://localhost:27017/family-portal"),
 
   WEB_ORIGIN: z.string().min(1).default("http://localhost:5173"),
+
+  // Auth
+  AUTH_ACCESS_TOKEN_SECRET: z
+    .string()
+    .min(32, "AUTH_ACCESS_TOKEN_SECRET must be at least 32 characters"),
+  AUTH_REFRESH_TOKEN_SECRET: z
+    .string()
+    .min(32, "AUTH_REFRESH_TOKEN_SECRET must be at least 32 characters"),
+  AUTH_ACCESS_TOKEN_TTL: z.string().default("15m"),
+  AUTH_REFRESH_TOKEN_TTL: z.string().default("30d"),
+  AUTH_MAX_ACTIVE_SESSIONS: z.coerce.number().int().min(1).max(20).default(5),
+
+  // Email (Resend)
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().default("Kulaya <noreply@kulaya.family>"),
+
+  // Admin
+  ADMIN_EMAIL: z.string().email().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

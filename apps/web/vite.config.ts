@@ -11,10 +11,10 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["family-icon.svg"],
       manifest: {
-        name: "Family Portal",
-        short_name: "Family",
+        name: "Kulaya — The Family Nest",
+        short_name: "Kulaya",
         description:
-          "A private hub for our family — photos, events, documents, and more.",
+          "The family nest — photos, events, documents, and moments, kept private.",
         theme_color: "#b4532a",
         background_color: "#faf7f2",
         display: "standalone",
