@@ -11,6 +11,7 @@ export const memberPublicSchema = z.object({
   relationship: relationshipSchema.nullable(),
   role: z.enum(["user", "admin"]),
   avatarUrl: z.string().url().nullable(),
+  parentIds: z.array(objectId).default([]),
   joinedAt: z.coerce.date(),
 });
 
@@ -29,6 +30,7 @@ export const adminMemberSchema = z.object({
   approvedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
   dateOfBirth: z.coerce.date(),
+  parentIds: z.array(objectId).default([]),
 });
 
 export const memberListSchema = z.object({
@@ -62,9 +64,36 @@ export const adminDecisionSchema = z.object({
   role: z.enum(["user", "admin"]).optional(),
 });
 
+/** Admin-managed parent links for the family tree. */
+export const updateRelationshipsSchema = z.object({
+  parentIds: z.array(objectId).max(2, "A member can have at most 2 parents"),
+});
+
+/** One node of the family tree (approved members only, no private fields). */
+export const treeMemberSchema = z.object({
+  id: objectId,
+  name,
+  username,
+  gender: genderSchema,
+  relationship: relationshipSchema.nullable(),
+  role: z.enum(["user", "admin"]),
+  avatarUrl: z.string().url().nullable(),
+  generation: z.number().int().nonnegative(),
+  parentIds: z.array(objectId),
+  childrenIds: z.array(objectId),
+});
+
+export const treeResponseSchema = z.object({
+  roots: z.array(objectId),
+  members: z.array(treeMemberSchema),
+});
+
 export type MemberPublic = z.infer<typeof memberPublicSchema>;
 export type AdminMember = z.infer<typeof adminMemberSchema>;
 export type MemberListInput = z.infer<typeof memberListSchema>;
 export type AdminMemberListInput = z.infer<typeof adminMemberListSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type AdminDecisionInput = z.infer<typeof adminDecisionSchema>;
+export type UpdateRelationshipsInput = z.infer<typeof updateRelationshipsSchema>;
+export type TreeMember = z.infer<typeof treeMemberSchema>;
+export type TreeResponse = z.infer<typeof treeResponseSchema>;

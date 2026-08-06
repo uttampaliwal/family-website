@@ -1,9 +1,11 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { adminDecisionSchema, adminMemberListSchema } from "@family/core";
+import mongoose from "mongoose";
+import { adminDecisionSchema, adminMemberListSchema, updateRelationshipsSchema } from "@family/core";
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireAdmin } from "../middleware/security.js";
 import { toAdminMember } from "../lib/payloads.js";
+import { assertValidParents } from "../lib/tree.js";
 import { validateBody } from "../lib/validation.js";
 import { User } from "../models/user.js";
 
@@ -71,6 +73,26 @@ adminRoutes.patch(
     user.adminApprovalStatus = status;
     if (status === "approved") user.approvedAt = new Date();
     if (role !== undefined) user.role = role;
+    await user.save();
+
+    return c.json({ member: toAdminMember(user) });
+  },
+);
+
+adminRoutes.patch(
+  "/members/:id/relationships",
+  validateBody(updateRelationshipsSchema),
+  async (c) => {
+    const { parentIds } = c.req.valid("json");
+
+    const user = await User.findById(c.req.param("id"));
+    if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
+
+    await assertValidParents(user, parentIds);
+
+    user.parentIds = [...new Set(parentIds)].map(
+      (id) => new mongoose.Types.ObjectId(id),
+    );
     await user.save();
 
     return c.json({ member: toAdminMember(user) });
