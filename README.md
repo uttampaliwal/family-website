@@ -2,7 +2,23 @@
 
 > कुल + आलय — "the family's nest."
 
-A private, modern hub for our family — built on a best-in-class stack, deployed on a fully free tier.
+A private, modern hub for one family — photos, events, documents, chat,
+announcements, and the little moments in between. Built on a best-in-class
+stack and designed to run on fully free tiers.
+
+**Live features** — see [Roadmap](docs/roadmap.md) for history and plans.
+
+- **Members & family tree** — profiles, parent relationships, generations
+- **Photo gallery** — direct-to-R2 uploads (up to 20 MB, private by default)
+- **Events calendar** — monthly grid, yearly recurrence, RSVP-style notes
+- **Announcements** — admin feed with email + in-app notification on publish
+- **Documents** — private archive with revocable public share links
+- **Moments** — family feed with likes and comments
+- **Real-time chat** — rooms with SSE push
+- **Notifications** — header bell, unread badges, live via SSE
+- **Admin approvals** — new members must be vetted before entering
+- **i18n** — English and हिन्दी; SEO metadata; code-split routes
+- **3 themes × light/dark** — Warm Elegant / Minimal / Playful, FOUC-free
 
 ## Workspace
 
@@ -17,25 +33,54 @@ packages/
 
 ## Stack highlights
 
-- **Monorepo**: pnpm + Turborepo
-- **Theming**: Warm Elegant / Minimal / Playful × light/dark, persisted, FOUC-free
-- **Auth (next milestone)**: JWT in HttpOnly cookies, CSRF-safe, rate-limited
-- **Storage (next milestone)**: Cloudflare R2 presigned uploads (10 GB free)
-- **Deploy target**: Vercel (web + API functions) + MongoDB Atlas M0 + R2 + Resend — all free tiers
+- **Monorepo**: pnpm 11 + Turborepo 2
+- **Auth**: JWT in HttpOnly cookies, refresh rotation, CSRF double-submit
+  protection, per-route rate limits, admin approval gate
+- **Storage**: Cloudflare R2 presigned uploads (10 GB free); local-disk
+  fallback in development
+- **Real-time**: SSE (fetch-based reader — EventSource can't send headers)
+- **Deploy target**: Vercel (web + API functions) + MongoDB Atlas M0 + R2 +
+  Resend — see [docs/deployment.md](docs/deployment.md)
 
 ## Getting started
 
+Requirements: Node ≥ 20, pnpm 11 (`corepack enable`).
+
 ```bash
 pnpm install
+cp apps/api/.env.example apps/api/.env.local   # fill in secrets (R2 optional)
 
-# Terminal 1 — API (needs MongoDB running locally, or set DATABASE_URL)
-pnpm --filter @family/api dev
+# MongoDB — pick one:
+docker compose up -d        # isolated Mongo 7 container (recommended)
+# …or: mongod --dbpath ~/data/mongodb
 
-# Terminal 2 — Web
-pnpm --filter @family/web dev
+pnpm dev                    # API :3000 (tsx watch), web :5173 (proxied)
 ```
 
-Open http://localhost:5173.
+Open <http://localhost:5173>. First run:
+
+1. Register an account (anyone can request to join).
+2. Seed an admin, then approve yourself (or have the admin do it):
+
+   ```bash
+   ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=<strong-password> \
+     pnpm --filter @family/api seed-admin
+   ```
+
+3. Sign in — `/health` shows database connectivity.
+
+## Project docs
+
+| Doc                                                            | Contents                                           |
+| -------------------------------------------------------------- | -------------------------------------------------- |
+| [docs/architecture.md](docs/architecture.md)                   | System design, request flow, auth & security model |
+| [docs/deployment.md](docs/deployment.md)                       | Free-tier deployment: Atlas, R2, Vercel, Resend    |
+| [docs/environment-variables.md](docs/environment-variables.md) | Every env var, where it's used, prod values        |
+| [docs/testing.md](docs/testing.md)                             | Test commands, conventions, how to add tests       |
+| [docs/roadmap.md](docs/roadmap.md)                             | Shipped milestones and planned work                |
+| [docs/git-workflow.md](docs/git-workflow.md)                   | Branching, milestones, versioning & tags           |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                             | Setup, conventions, PR checklist                   |
+| [SECURITY.md](SECURITY.md)                                     | Security model and reporting                       |
 
 ## Quality gates
 
@@ -46,22 +91,12 @@ pnpm test        # Vitest (API + web)
 pnpm build       # Turbo pipeline
 ```
 
-CI runs all four on every push/PR via GitHub Actions.
-
-## Roadmap
-
-1. Foundation & theming (this milestone)
-2. Auth & security (HttpOnly JWT, CSRF, admin approval)
-3. Profiles + family tree
-4. Announcements & notifications
-5. Events & RSVP calendar
-6. Documents (R2 uploads, share links)
-7. Photo albums
-8. Real-time chat (SSE)
-9. Family feed — “Moments” (posts, likes, comments)
-10. i18n (EN/HI), SEO, a11y & perf pass
+CI runs all four on every push/PR via GitHub Actions. Keep the four green
+before opening a PR.
 
 ## Environment
 
-Copy `apps/api/.env.example` → `apps/api/.env.local` and fill in values.
-Never commit real secrets — everything is gitignored.
+Each app reads its own `.env.local` (gitignored). `apps/api/.env.example` is
+the canonical API reference; the full matrix lives in
+[docs/environment-variables.md](docs/environment-variables.md).
+Never commit real secrets.
