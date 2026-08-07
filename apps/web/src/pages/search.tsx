@@ -1,4 +1,5 @@
 import { Input } from "@family/ui";
+import type { NlResponse } from "@family/core";
 import { Search, SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -6,7 +7,9 @@ import {
   flattenSearchItems,
   SearchResults,
 } from "../components/search/search-results.js";
+import { NaturalSearchPanel } from "../components/search/natural-search-panel.js";
 import { useGlobalSearch } from "../components/search/use-global-search.js";
+import { useNaturalSearch } from "../components/search/use-natural-search.js";
 import { useI18n } from "../i18n/index.js";
 import { useSeo } from "../lib/seo.js";
 
@@ -18,6 +21,7 @@ export function SearchPage() {
   const [term, setTerm] = useState(searchParams.get("q") ?? "");
 
   const { data, isFetching, isError } = useGlobalSearch(term, true, 10);
+  const natural = useNaturalSearch(term, true);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setTerm(query), 250);
@@ -34,6 +38,13 @@ export function SearchPage() {
   }
 
   const items = data ? flattenSearchItems(data) : [];
+
+  // When the local AI parser understood the query (an answer, or a routed
+  // dataset), show the AI panel; otherwise fall back to the plain grouped
+  // search across everything.
+  const aiRouted =
+    natural.data !== undefined &&
+    (natural.data.answer !== null || natural.data.intent !== "all");
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
@@ -63,6 +74,21 @@ export function SearchPage() {
         <p className="mt-10 rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-center text-sm font-medium text-error">
           Couldn't search right now — please try again.
         </p>
+      ) : aiRouted ? (
+        <div className="mt-6 rounded-2xl border border-border bg-surface p-3 shadow-sm">
+          <NaturalSearchPanel
+            data={natural.data}
+            isFetching={natural.isFetching}
+          />
+          {natural.data &&
+            natural.data.answer === null &&
+            natural.data.intent !== "all" &&
+            naturalIsEmpty(natural.data) && (
+              <p className="px-3 py-8 text-center text-sm text-muted">
+                {t("search.noResults", { q: term })}
+              </p>
+            )}
+        </div>
       ) : data && items.length === 0 ? (
         <div className="mt-16 flex flex-col items-center gap-2 text-center">
           <SearchX className="size-10 text-muted" />
@@ -74,5 +100,14 @@ export function SearchPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function naturalIsEmpty(data: NlResponse): boolean {
+  return (
+    data.people.length === 0 &&
+    data.photos.length === 0 &&
+    data.events.length === 0 &&
+    data.documents.length === 0
   );
 }

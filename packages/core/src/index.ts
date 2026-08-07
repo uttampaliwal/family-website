@@ -207,6 +207,26 @@ export type {
   SearchResponse,
 } from "./schemas/search.js";
 
+export {
+  nlAnswerSchema,
+  nlBirthdayAnswerSchema,
+  nlDatasetSchema,
+  nlFiltersSchema,
+  nlIntentSchema,
+  nlRequestSchema,
+  nlResponseSchema,
+} from "./schemas/natural-search.js";
+
+export type {
+  NlAnswer,
+  NlBirthdayAnswer,
+  NlDataset,
+  NlFilters,
+  NlIntent,
+  NlRequest,
+  NlResponse,
+} from "./schemas/natural-search.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";
 

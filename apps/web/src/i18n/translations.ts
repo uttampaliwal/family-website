@@ -31,6 +31,11 @@ export const translations = {
     "search.group.events": "Events",
     "search.group.documents": "Documents",
     "search.group.messages": "Messages",
+    "search.ai.label": "AI answer",
+    "search.ai.thinking": "Thinking…",
+    "search.ai.birthday": "{name}'s birthday is on {date}.",
+    "search.ai.birthdayNext": "Next: {date} · in {days} days",
+    "search.ai.birthdayToday": "Next: {date} · today!",
 
     // Roles
     "role.owner": "Owner",
@@ -243,6 +248,11 @@ export const translations = {
     "search.group.events": "इवेंट",
     "search.group.documents": "दस्तावेज़",
     "search.group.messages": "संदेश",
+    "search.ai.label": "AI उत्तर",
+    "search.ai.thinking": "सोच रहा है…",
+    "search.ai.birthday": "{name} का जन्मदिन {date} को है।",
+    "search.ai.birthdayNext": "अगला: {date} · {days} दिन बाद",
+    "search.ai.birthdayToday": "अगला: {date} · आज!",
 
     // Roles
     "role.owner": "मालिक",

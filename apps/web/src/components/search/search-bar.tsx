@@ -8,6 +8,8 @@ import {
   SearchResults,
 } from "./search-results.js";
 import { useGlobalSearch } from "./use-global-search.js";
+import { useNaturalSearch } from "./use-natural-search.js";
+import { NaturalSearchPanel } from "./natural-search-panel.js";
 
 export function GlobalSearch() {
   const { t } = useI18n();
@@ -21,6 +23,7 @@ export function GlobalSearch() {
   const { pathname } = useLocation();
 
   const { data, isFetching, isError } = useGlobalSearch(term, open);
+  const natural = useNaturalSearch(term, open);
 
   const items = useMemo(() => (data ? flattenSearchItems(data) : []), [data]);
 
@@ -136,6 +139,11 @@ export function GlobalSearch() {
           </div>
 
           <div className="max-h-[60vh] overflow-y-auto p-2">
+            <NaturalSearchPanel
+              data={natural.data}
+              isFetching={natural.isFetching}
+              mode="card"
+            />
             {term.trim().length < 2 ? (
               <p className="px-3 py-8 text-center text-sm text-muted">{t("search.hint")}</p>
             ) : isError && !data ? (
