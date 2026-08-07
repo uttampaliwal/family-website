@@ -49,6 +49,9 @@ const MomentsPage = lazy(() =>
 const ChatPage = lazy(() =>
   import("../pages/chat.js").then((m) => ({ default: m.ChatPage })),
 );
+const SearchPage = lazy(() =>
+  import("../pages/search.js").then((m) => ({ default: m.SearchPage })),
+);
 const MemberProfilePage = lazy(() =>
   import("../pages/members/member-profile.js").then((m) => ({ default: m.MemberProfilePage })),
 );
@@ -249,6 +252,16 @@ export const router = createBrowserRouter([
           <Suspense fallback={<PageFallback />}>
             <ProtectedRoute>
               <ChatPage />
+            </ProtectedRoute>
+          </Suspense>
+        ),
+      },
+      {
+        path: "/search",
+        element: (
+          <Suspense fallback={<PageFallback />}>
+            <ProtectedRoute>
+              <SearchPage />
             </ProtectedRoute>
           </Suspense>
         ),

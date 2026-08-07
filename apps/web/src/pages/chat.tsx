@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Skeleton, useToast } from "@family/ui";
 import { MessageCircle, MessageSquare, Plus, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
 import { connectSse } from "../lib/sse.js";
@@ -26,8 +26,12 @@ export function ChatPage() {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const toast = useToast().toast;
+  const [searchParams] = useSearchParams();
 
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  // A search result can deep-link straight into a room via ?room=.
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(() =>
+    searchParams.get("room"),
+  );
   const [newRoomName, setNewRoomName] = useState("");
   const [draft, setDraft] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);

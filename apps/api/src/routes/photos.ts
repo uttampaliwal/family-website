@@ -100,7 +100,7 @@ photosRoutes.delete("/:id", async (c) => {
   return c.json({ ok: true });
 });
 
-interface PopulatedPhoto {
+export interface PopulatedPhoto {
   _id: { toString(): string };
   key: string;
   mimeType: string;
@@ -110,7 +110,7 @@ interface PopulatedPhoto {
   createdAt: Date;
 }
 
-async function toPhotoPayload(photo: PopulatedPhoto): Promise<PhotoPayload> {
+export async function toPhotoPayload(photo: PopulatedPhoto): Promise<PhotoPayload> {
   return {
     id: photo._id.toString(),
     key: photo.key,

@@ -197,5 +197,15 @@ export type {
   AuditLogListResponse,
 } from "./schemas/audit.js";
 
+export {
+  searchRequestSchema,
+  searchResponseSchema,
+} from "./schemas/search.js";
+
+export type {
+  SearchRequest,
+  SearchResponse,
+} from "./schemas/search.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";

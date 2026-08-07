@@ -146,13 +146,13 @@ chatRoutes.get("/events", async (c) => {
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
-interface PopulatedAuthor {
+export interface PopulatedAuthor {
   _id: { toString(): string };
   name: string;
   username: string;
 }
 
-interface PopulatedMessage {
+export interface PopulatedMessage {
   _id: unknown;
   roomId: { toString(): string };
   body: string;
@@ -160,7 +160,7 @@ interface PopulatedMessage {
   createdAt: Date;
 }
 
-function toMessagePayload(message: PopulatedMessage): ChatMessagePayload {
+export function toMessagePayload(message: PopulatedMessage): ChatMessagePayload {
   return {
     id: String(message._id),
     roomId: String(message.roomId),

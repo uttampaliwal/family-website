@@ -156,7 +156,7 @@ async function assertCanManage(
   }
 }
 
-interface PopulatedPost {
+export interface PopulatedPost {
   _id: unknown;
   body: string;
   createdBy: { _id: { toString(): string }; name: string; username: string };
@@ -171,7 +171,7 @@ interface PopulatedPost {
   updatedAt: Date;
 }
 
-function toPostPayload(post: PopulatedPost, viewerId: string): PostPayload {
+export function toPostPayload(post: PopulatedPost, viewerId: string): PostPayload {
   return {
     id: String(post._id),
     body: post.body,

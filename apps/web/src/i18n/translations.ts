@@ -18,6 +18,20 @@ export const translations = {
     "nav.chat": "Chat",
     "nav.mainAria": "Main navigation",
 
+    // Global search
+    "search.open": "Search the family",
+    "search.label": "Search",
+    "search.placeholder": "People, photos, moments, events, docs, chat…",
+    "search.hint": "Type at least 2 letters — everything in the nest is searchable",
+    "search.title": "Search",
+    "search.noResults": "Nothing found for “{q}”",
+    "search.group.people": "People",
+    "search.group.photos": "Photos",
+    "search.group.posts": "Moments",
+    "search.group.events": "Events",
+    "search.group.documents": "Documents",
+    "search.group.messages": "Messages",
+
     // Account dropdown
     "account.openMenu": "Open account menu",
     "account.family": "Family hub",
@@ -205,6 +219,20 @@ export const translations = {
     "nav.moments": "पल",
     "nav.chat": "चैट",
     "nav.mainAria": "मुख्य नेविगेशन",
+
+    // Global search
+    "search.open": "परिवार में खोजें",
+    "search.label": "खोज",
+    "search.placeholder": "लोग, फ़ोटो, पल, इवेंट, दस्तावेज़, चैट खोजें…",
+    "search.hint": "कम से कम 2 अक्षर लिखें — घोंसले की हर चीज़ खोजी जा सकती है",
+    "search.title": "खोज",
+    "search.noResults": "“{q}” के लिए कुछ नहीं मिला",
+    "search.group.people": "लोग",
+    "search.group.photos": "फ़ोटो",
+    "search.group.posts": "पल",
+    "search.group.events": "इवेंट",
+    "search.group.documents": "दस्तावेज़",
+    "search.group.messages": "संदेश",
 
     // Account dropdown
     "account.openMenu": "अकाउंट मेनू खोलें",

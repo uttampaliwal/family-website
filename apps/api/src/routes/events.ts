@@ -121,7 +121,7 @@ async function assertCanManage(
   }
 }
 
-interface PopulatedEvent {
+export interface PopulatedEvent {
   _id: { toString(): string };
   title: string;
   type: string;
@@ -133,7 +133,7 @@ interface PopulatedEvent {
   createdAt: Date;
 }
 
-function toEventPayload(event: PopulatedEvent): EventPayload {
+export function toEventPayload(event: PopulatedEvent): EventPayload {
   return {
     id: event._id.toString(),
     title: event.title,

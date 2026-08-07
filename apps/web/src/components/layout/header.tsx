@@ -19,6 +19,7 @@ import { api } from "../../lib/api-client.js";
 import { useI18n } from "../../i18n/index.js";
 import { NotificationBell } from "./notification-bell.js";
 import { ThemeSwitcher } from "./theme-switcher.js";
+import { GlobalSearch } from "../search/search-bar.js";
 
 const navItems = [
   { to: "/", labelKey: "nav.home" },
@@ -109,6 +110,7 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-1" aria-label={t("nav.mainAria")}>
+          {status === "authenticated" && <GlobalSearch />}
           <div className="hidden items-center gap-1 sm:flex">
             {navItems.map((item) =>
               item.to !== "/" && status !== "authenticated" ? null : (

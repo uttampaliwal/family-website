@@ -173,7 +173,7 @@ async function assertCanManage(
   }
 }
 
-interface PopulatedDocument {
+export interface PopulatedDocument {
   _id: unknown;
   key: string;
   name: string;
@@ -186,7 +186,7 @@ interface PopulatedDocument {
   updatedAt: Date;
 }
 
-async function toDocumentPayload(document: PopulatedDocument): Promise<DocumentPayload> {
+export async function toDocumentPayload(document: PopulatedDocument): Promise<DocumentPayload> {
   return {
     id: String(document._id),
     name: document.name,
