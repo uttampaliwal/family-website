@@ -1,9 +1,13 @@
 import { Hono } from "hono";
 import type { Context, Next } from "hono";
 import type { Event as EventPayload } from "@family/core";
-import { createEventRequestSchema, eventListSchema, updateEventRequestSchema } from "@family/core";
+import { can, createEventRequestSchema, eventListSchema, updateEventRequestSchema } from "@family/core";
 import { AppError } from "../middleware/error.js";
-import { originCheck, requireAuth } from "../middleware/security.js";
+import {
+  originCheck,
+  requireAuth,
+  requireCapability,
+} from "../middleware/security.js";
 import { validateBody } from "../lib/validation.js";
 import { broadcastToApprovedMembers } from "../lib/notifications.js";
 import { Event } from "../models/event.js";
@@ -52,7 +56,11 @@ eventsRoutes.get("/:id", async (c) => {
   return c.json({ event: toEventPayload(await findPopulatedEvent(c.req.param("id"))) });
 });
 
-eventsRoutes.post("/", validateBody(createEventRequestSchema), async (c) => {
+eventsRoutes.post(
+  "/",
+  requireCapability("createEvents"),
+  validateBody(createEventRequestSchema),
+  async (c) => {
   const userId = c.get("userId");
   const { title, type, startsAt, endsAt, description, recurrence } = c.req.valid("json");
 
@@ -116,8 +124,8 @@ async function assertCanManage(
 ): Promise<void> {
   const user = await User.findById(userId, { role: 1 });
   const isOwner = event.createdBy.toString() === userId;
-  if (!isOwner && user?.role !== "admin") {
-    throw new AppError(403, "FORBIDDEN", "Only the creator or an admin can change events");
+  if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
+    throw new AppError(403, "FORBIDDEN", "Only the creator or a moderator can change events");
   }
 }
 

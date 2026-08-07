@@ -11,6 +11,7 @@ import {
   useToast,
 } from "@family/ui";
 import { FolderOpen, HeartHandshake, Languages, LogIn, LogOut, Megaphone, MessageCircle, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { can } from "@family/core";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
@@ -112,8 +113,12 @@ export function Header() {
         <nav className="flex items-center gap-1" aria-label={t("nav.mainAria")}>
           {status === "authenticated" && <GlobalSearch />}
           <div className="hidden items-center gap-1 sm:flex">
-            {navItems.map((item) =>
-              item.to !== "/" && status !== "authenticated" ? null : (
+            {navItems.map((item) => {
+              const hiddenForGuests =
+                item.to === "/chat" && !can(user?.role ?? "guest", "chat");
+              if (item.to !== "/" && status !== "authenticated") return null;
+              if (status === "authenticated" && hiddenForGuests) return null;
+              return (
                 <NavLink
                   key={item.to}
                   to={item.to}
@@ -128,11 +133,12 @@ export function Header() {
                 >
                   {t(item.labelKey)}
                 </NavLink>
-              ),
-            )}
-            {status === "authenticated" && user?.role === "admin" && (
-              <PendingApprovalsLink />
-            )}
+              );
+            })}
+            {status === "authenticated" &&
+              can(user?.role ?? "guest", "manageMembers") && (
+                <PendingApprovalsLink />
+              )}
           </div>
           {status === "authenticated" && user ? (
             <DropdownMenu>
@@ -181,12 +187,14 @@ export function Header() {
                     {t("nav.moments")}
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/chat">
-                    <MessageCircle />
-                    {t("nav.chat")}
-                  </Link>
-                </DropdownMenuItem>
+                {can(user.role, "chat") && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/chat">
+                      <MessageCircle />
+                      {t("nav.chat")}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link to="/members">{t("nav.members")}</Link>
                 </DropdownMenuItem>
@@ -196,7 +204,7 @@ export function Header() {
                     {t("account.profile")}
                   </Link>
                 </DropdownMenuItem>
-                {user.role === "admin" && (
+                {can(user.role, "manageMembers") && (
                   <DropdownMenuItem asChild>
                     <Link to="/admin/approvals">
                       <ShieldCheck />

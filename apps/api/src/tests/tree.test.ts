@@ -46,6 +46,7 @@ async function createUser(name: string, overrides: Record<string, unknown> = {})
     gender: "male",
     relationship: "son",
     isVerified: true,
+    role: "adult",
     adminApprovalStatus: "approved",
     ...overrides,
   });
@@ -102,7 +103,7 @@ describe("family tree routes", () => {
     expect(res.status).toBe(401);
   });
 
-  it("requires admin role to edit relationships", async () => {
+  it("requires parent or higher role to edit relationships", async () => {
     const session = await signInAs(unrelated._id.toString());
     const res = await app.request(`/api/admin/members/${child._id.toString()}/relationships`, {
       method: "PATCH",

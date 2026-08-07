@@ -3,6 +3,8 @@ import { Button, useToast } from "@family/ui";
 import { ApiError, api } from "../../lib/api-client.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
+import { roleLabelKey } from "../../components/role-badge.js";
+import { useI18n } from "../../i18n/index.js";
 import { useState, type FormEvent } from "react";
 import { useSeo } from "../../lib/seo.js";
 
@@ -10,6 +12,7 @@ const RELATIONSHIPS = relationshipSchema.options;
 
 export function MyProfilePage() {
   useSeo("account.profile");
+  const { t } = useI18n();
   const user = useAuthStore((s) => s.user);
   const toast = useToast().toast;
   const [name, setName] = useState(user?.name ?? "");
@@ -44,7 +47,7 @@ export function MyProfilePage() {
     <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
       <h1 className="font-display text-3xl font-bold tracking-tight">My profile</h1>
       <p className="mt-1 text-sm text-muted">
-        Signed in as @{user?.username} · {user?.role === "admin" ? "admin" : "member"}
+        Signed in as @{user?.username} · {user ? t(roleLabelKey[user.role]) : ""}
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>

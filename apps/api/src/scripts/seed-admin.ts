@@ -1,6 +1,6 @@
 /**
- * Promotes the user with ADMIN_EMAIL (if set) to admin, or creates a
- * fresh admin from CLI arguments: pnpm --filter @family/api seed-admin
+ * Promotes the user with ADMIN_EMAIL (if set) to owner, or creates a
+ * fresh owner from CLI arguments: pnpm --filter @family/api seed-admin
  * -- email password
  */
 import "../lib/load-env.js";
@@ -26,11 +26,11 @@ async function main() {
 
   let user = await User.findOne({ email });
   if (user) {
-    user.role = "admin";
+    user.role = "owner";
     user.adminApprovalStatus = "approved";
     user.isVerified = true;
     await user.save();
-    logger.info({ email }, "Existing user promoted to admin");
+    logger.info({ email }, "Existing user promoted to owner");
   } else {
     user = await User.create({
       name: "Administrator",
@@ -39,11 +39,11 @@ async function main() {
       passwordHash: await hashPassword(password),
       dateOfBirth: new Date("1990-01-01"),
       gender: "prefer_not",
-      role: "admin",
+      role: "owner",
       isVerified: true,
       adminApprovalStatus: "approved",
     });
-    logger.info({ email }, "Admin user created");
+    logger.info({ email }, "Owner user created");
   }
 
   await disconnectDb();

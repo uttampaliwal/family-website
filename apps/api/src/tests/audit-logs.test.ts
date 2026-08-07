@@ -63,6 +63,7 @@ async function createUser(name: string, overrides: Record<string, unknown> = {})
     gender: "male",
     relationship: "son",
     isVerified: true,
+    role: "adult",
     adminApprovalStatus: "approved",
     ...overrides,
   });
@@ -142,8 +143,10 @@ async function uploadObject(
 
 let alice: Awaited<ReturnType<typeof createUser>>;
 let admin: Awaited<ReturnType<typeof createUser>>;
+let owner: Awaited<ReturnType<typeof createUser>>;
 let aliceSession: Session;
 let adminSession: Session;
+let ownerSession: Session;
 
 beforeAll(async () => {
   mongo = await MongoMemoryServer.create();
@@ -152,8 +155,10 @@ beforeAll(async () => {
 
   alice = await createUser("Audit Alice");
   admin = await createUser("Audit Admin", { role: "admin" });
+  owner = await createUser("Audit Owner", { role: "owner" });
   aliceSession = await signInAs(alice._id.toString());
   adminSession = await signInAs(admin._id.toString());
+  ownerSession = await signInAs(owner._id.toString());
 });
 
 afterAll(async () => {
@@ -236,14 +241,14 @@ describe("audited actions", () => {
   it("records role changes with before/after", async () => {
     const res = await app.request(`/api/admin/members/${alice._id.toString()}`, {
       method: "PATCH",
-      headers: headers(adminSession.accessToken),
+      headers: headers(ownerSession.accessToken),
       body: JSON.stringify({ status: "approved", role: "admin" }),
     });
     expect(res.status).toBe(200);
 
-    const log = await findLog(adminSession, "ROLE_CHANGED");
+    const log = await findLog(ownerSession, "ROLE_CHANGED");
     expect(log).toBeDefined();
-    expect(log!.details).toMatchObject({ from: "user", to: "admin" });
+    expect(log!.details).toMatchObject({ from: "adult", to: "admin" });
   });
 
   it("records photo deletion", async () => {

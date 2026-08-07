@@ -209,3 +209,13 @@ export type {
 
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";
+
+export {
+  can,
+  canAssignRole,
+  MIN_ROLE_FOR_CAPABILITY,
+  roleOptions,
+  roleRanks,
+  rolesSchema,
+} from "./schemas/permissions.js";
+export type { Capability, Role } from "./schemas/permissions.js";

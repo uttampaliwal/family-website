@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { email, name, objectId, phoneNumber, username } from "./common.js";
 import { genderSchema, relationshipSchema } from "./auth.js";
+import { rolesSchema } from "./permissions.js";
 
 /** What a signed-in member may see of another member. */
 export const memberPublicSchema = z.object({
@@ -9,7 +10,7 @@ export const memberPublicSchema = z.object({
   username,
   gender: genderSchema,
   relationship: relationshipSchema.nullable(),
-  role: z.enum(["user", "admin"]),
+  role: rolesSchema,
   avatarUrl: z.string().url().nullable(),
   parentIds: z.array(objectId).default([]),
   joinedAt: z.coerce.date(),
@@ -24,7 +25,7 @@ export const adminMemberSchema = z.object({
   gender: genderSchema,
   relationship: relationshipSchema.nullable(),
   phoneNumber: phoneNumber.nullable(),
-  role: z.enum(["user", "admin"]),
+  role: rolesSchema,
   isVerified: z.boolean(),
   adminApprovalStatus: z.enum(["pending", "approved", "rejected"]),
   approvedAt: z.coerce.date().nullable(),
@@ -61,7 +62,7 @@ export const updateProfileSchema = z.object({
 
 export const adminDecisionSchema = z.object({
   status: z.enum(["approved", "rejected"]),
-  role: z.enum(["user", "admin"]).optional(),
+  role: rolesSchema.optional(),
 });
 
 /** Admin-managed parent links for the family tree. */
@@ -76,7 +77,7 @@ export const treeMemberSchema = z.object({
   username,
   gender: genderSchema,
   relationship: relationshipSchema.nullable(),
-  role: z.enum(["user", "admin"]),
+  role: rolesSchema,
   avatarUrl: z.string().url().nullable(),
   generation: z.number().int().nonnegative(),
   parentIds: z.array(objectId),

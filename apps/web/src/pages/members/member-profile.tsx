@@ -5,6 +5,7 @@ import { CalendarDays, UserRound } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../lib/api-client.js";
 import { useSeo } from "../../lib/seo.js";
+import { RoleBadge } from "../../components/role-badge.js";
 
 export function MemberProfilePage() {
   useSeo("nav.members");
@@ -61,7 +62,7 @@ export function MemberProfilePage() {
               </Badge>
             )}
             <Badge className="capitalize">{member.gender.replaceAll("_", " ")}</Badge>
-            {member.role === "admin" && <Badge variant="warning">Admin</Badge>}
+            <RoleBadge role={member.role} />
           </div>
           <p className="flex items-center gap-1.5 text-xs text-muted">
             <CalendarDays className="size-3.5" />

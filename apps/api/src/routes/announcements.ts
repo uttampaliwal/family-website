@@ -6,7 +6,7 @@ import {
   updateAnnouncementRequestSchema,
 } from "@family/core";
 import { AppError } from "../middleware/error.js";
-import { originCheck, requireAdmin, requireAuth } from "../middleware/security.js";
+import { originCheck, requireAuth, requireCapability } from "../middleware/security.js";
 import { validateBody } from "../lib/validation.js";
 import { Announcement } from "../models/announcement.js";
 import { User } from "../models/user.js";
@@ -53,7 +53,7 @@ announcementsRoutes.get("/:id", async (c) => {
 
 announcementsRoutes.post(
   "/",
-  requireAdmin,
+  requireCapability("publishAnnouncements"),
   validateBody(createAnnouncementRequestSchema),
   async (c) => {
     const userId = c.get("userId");
@@ -74,7 +74,7 @@ announcementsRoutes.post(
 
 announcementsRoutes.patch(
   "/:id",
-  requireAdmin,
+  requireCapability("publishAnnouncements"),
   validateBody(updateAnnouncementRequestSchema),
   async (c) => {
     const input = c.req.valid("json");
@@ -90,7 +90,10 @@ announcementsRoutes.patch(
   },
 );
 
-announcementsRoutes.delete("/:id", requireAdmin, async (c) => {
+announcementsRoutes.delete(
+  "/:id",
+  requireCapability("publishAnnouncements"),
+  async (c) => {
   const announcement = await Announcement.findById(c.req.param("id"));
   if (!announcement) throw new AppError(404, "NOT_FOUND", "Announcement not found");
 

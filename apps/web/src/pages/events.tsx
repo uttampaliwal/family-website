@@ -1,4 +1,5 @@
 import type { Event } from "@family/core";
+import { can } from "@family/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Label, Skeleton, Switch, Textarea, useToast } from "@family/ui";
 import { CalendarDays, ChevronLeft, ChevronRight, Pencil, Plus, Trash2 } from "lucide-react";
@@ -266,7 +267,7 @@ export function EventsPage() {
           )}
           <ul className="mt-3 space-y-3">
             {dayEvents.map(({ event }) => {
-              const canManage = user?.role === "admin" || user?.id === event.createdBy.id;
+              const canManage = can(user?.role ?? "guest", "moderate") || user?.id === event.createdBy.id;
               return (
                 <li
                   key={event.id}

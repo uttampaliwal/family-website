@@ -52,6 +52,7 @@ async function createUser(name: string, overrides: Record<string, unknown> = {})
     gender: "male",
     relationship: "son",
     isVerified: true,
+    role: "adult",
     adminApprovalStatus: "approved",
     ...overrides,
   });

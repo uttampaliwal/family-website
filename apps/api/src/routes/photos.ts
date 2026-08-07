@@ -2,9 +2,13 @@ import { Hono } from "hono";
 import type { Context, Next } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import type { Photo as PhotoPayload } from "@family/core";
-import { createPhotoRequestSchema, uploadUrlRequestSchema } from "@family/core";
+import { can, createPhotoRequestSchema, uploadUrlRequestSchema } from "@family/core";
 import { AppError } from "../middleware/error.js";
-import { originCheck, requireAuth } from "../middleware/security.js";
+import {
+  originCheck,
+  requireAuth,
+  requireCapability,
+} from "../middleware/security.js";
 import { clientInfo, recordAudit } from "../lib/audit.js";
 import { newPhotoKey, storage } from "../lib/storage.js";
 import { validateBody } from "../lib/validation.js";
@@ -26,6 +30,7 @@ photosRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
 /** Step 1: get a scoped upload URL (direct to R2 in production). */
 photosRoutes.post(
   "/upload-url",
+  requireCapability("uploadPhotos"),
   zValidator("json", uploadUrlRequestSchema),
   async (c) => {
     const { mimeType, size } = c.req.valid("json");
@@ -38,7 +43,11 @@ photosRoutes.post(
 );
 
 /** Step 2: after the browser PUT the bytes, register the photo. */
-photosRoutes.post("/", validateBody(createPhotoRequestSchema), async (c) => {
+photosRoutes.post(
+  "/",
+  requireCapability("uploadPhotos"),
+  validateBody(createPhotoRequestSchema),
+  async (c) => {
   const userId = c.get("userId");
   const { key, mimeType, size, caption } = c.req.valid("json");
 
@@ -81,8 +90,8 @@ photosRoutes.delete("/:id", async (c) => {
 
   const user = await User.findById(userId, { role: 1 });
   const isOwner = photo.uploadedBy.toString() === userId;
-  if (!isOwner && user?.role !== "admin") {
-    throw new AppError(403, "FORBIDDEN", "Only the uploader or an admin can delete photos");
+  if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
+    throw new AppError(403, "FORBIDDEN", "Only the uploader or a moderator can delete photos");
   }
 
   await storage.deleteObject(photo.key);

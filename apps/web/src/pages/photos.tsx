@@ -1,4 +1,5 @@
 import type { Photo } from "@family/core";
+import { can } from "@family/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar, Button, Input, Skeleton, useToast } from "@family/ui";
 import { ImagePlus, Images, Trash2 } from "lucide-react";
@@ -134,7 +135,7 @@ export function PhotosPage() {
       {data && data.items.length > 0 && (
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {data.items.map((photo) => {
-            const canDelete = user?.role === "admin" || user?.id === photo.uploadedBy.id;
+            const canDelete = can(user?.role ?? "guest", "moderate") || user?.id === photo.uploadedBy.id;
             return (
               <figure
                 key={photo.id}

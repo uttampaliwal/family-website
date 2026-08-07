@@ -21,7 +21,7 @@ const mockResults: SearchResponse = {
       username: "alice",
       gender: "female",
       relationship: "mother",
-      role: "user",
+      role: "adult",
       avatarUrl: null,
       parentIds: [],
       joinedAt: new Date("2026-01-01T00:00:00.000Z"),

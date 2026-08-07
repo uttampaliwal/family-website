@@ -5,7 +5,12 @@ import mongoose from "mongoose";
 import type { ChatMessage as ChatMessagePayload, ChatRoom as ChatRoomPayload } from "@family/core";
 import { createRoomRequestSchema, sendMessageRequestSchema } from "@family/core";
 import { AppError } from "../middleware/error.js";
-import { originCheck, rateLimit, requireAuth } from "../middleware/security.js";
+import {
+  originCheck,
+  rateLimit,
+  requireAuth,
+  requireCapability,
+} from "../middleware/security.js";
 import { validateBody } from "../lib/validation.js";
 import { publishChatEvent, subscribeChat, subscriberCount } from "../lib/sse.js";
 import { logger } from "../lib/logger.js";
@@ -23,7 +28,7 @@ async function requireApprovedMember(c: Context, next: Next) {
   await next();
 }
 
-chatRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
+chatRoutes.use("*", originCheck, requireAuth, requireApprovedMember, requireCapability("chat"));
 
 // ─── Rooms ────────────────────────────────────────────────────────────
 
@@ -37,7 +42,11 @@ chatRoutes.get("/rooms", async (c) => {
   return c.json({ items, total: items.length });
 });
 
-chatRoutes.post("/rooms", validateBody(createRoomRequestSchema), async (c) => {
+chatRoutes.post(
+  "/rooms",
+  requireCapability("createRooms"),
+  validateBody(createRoomRequestSchema),
+  async (c) => {
   const userId = c.get("userId");
   const { name } = c.req.valid("json");
 
@@ -70,6 +79,7 @@ chatRoutes.get("/rooms/:id/messages", async (c) => {
 chatRoutes.post(
   "/rooms/:id/messages",
   rateLimit({ windowMs: 60_000, max: 60, name: "chat-message" }),
+  requireCapability("chat"),
   validateBody(sendMessageRequestSchema),
   async (c) => {
     const userId = c.get("userId");

@@ -32,6 +32,16 @@ export const translations = {
     "search.group.documents": "Documents",
     "search.group.messages": "Messages",
 
+    // Roles
+    "role.owner": "Owner",
+    "role.admin": "Admin",
+    "role.parent": "Parent",
+    "role.adult": "Adult",
+    "role.teen": "Teen",
+    "role.child": "Child",
+    "role.guest": "Guest",
+    "role.choose": "Role on approval",
+
     // Account dropdown
     "account.openMenu": "Open account menu",
     "account.family": "Family hub",
@@ -233,6 +243,16 @@ export const translations = {
     "search.group.events": "इवेंट",
     "search.group.documents": "दस्तावेज़",
     "search.group.messages": "संदेश",
+
+    // Roles
+    "role.owner": "मालिक",
+    "role.admin": "प्रशासक",
+    "role.parent": "अभिभावक",
+    "role.adult": "वयस्क",
+    "role.teen": "किशोर",
+    "role.child": "बच्चा",
+    "role.guest": "अतिथि",
+    "role.choose": "अनुमोदन पर भूमिका",
 
     // Account dropdown
     "account.openMenu": "अकाउंट मेनू खोलें",

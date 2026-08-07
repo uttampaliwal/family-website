@@ -1,4 +1,5 @@
 import type { Announcement } from "@family/core";
+import { can } from "@family/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Label, Skeleton, Textarea, useToast } from "@family/ui";
 import { Megaphone, Pencil, Plus, Trash2 } from "lucide-react";
@@ -20,7 +21,7 @@ export function AnnouncementsPage() {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const toast = useToast().toast;
-  const isAdmin = user?.role === "admin";
+  const canPublish = can(user?.role ?? "guest", "publishAnnouncements");
 
   const [editing, setEditing] = useState<Announcement | null>(null);
   const [composing, setComposing] = useState(false);
@@ -85,7 +86,7 @@ export function AnnouncementsPage() {
             {data ? `${data.total} announcement${data.total === 1 ? "" : "s"} from the family` : "Family news, notices and wishes"}
           </p>
         </div>
-        {isAdmin && (
+        {canPublish && (
           <Button variant="outline" onClick={() => setComposing(true)} className={composing || editing ? "hidden" : undefined}>
             <Plus />
             New announcement
@@ -93,7 +94,7 @@ export function AnnouncementsPage() {
         )}
       </div>
 
-      {isAdmin && composing && !editing && (
+      {canPublish && composing && !editing && (
         <form
           onSubmit={submit}
           className="mt-8 rounded-2xl border border-border bg-surface p-5 shadow-sm"
@@ -125,7 +126,7 @@ export function AnnouncementsPage() {
         </form>
       )}
 
-      {isAdmin && editing && (
+      {canPublish && editing && (
         <form
           onSubmit={submit}
           className="mt-8 rounded-2xl border border-primary/30 bg-surface p-5 shadow-sm"
@@ -186,7 +187,7 @@ export function AnnouncementsPage() {
                     }).format(announcement.createdAt)}
                   </p>
                 </div>
-                {isAdmin && (
+                {canPublish && (
                   <div className="flex shrink-0 gap-1.5">
                     <Button
                       variant="outline"
@@ -220,7 +221,7 @@ export function AnnouncementsPage() {
             <Megaphone className="size-7" />
           </span>
           <p className="text-muted">
-            {t("announcements.empty", { action: t(isAdmin ? "announcements.empty.admin" : "announcements.empty.soon") })}
+            {t("announcements.empty", { action: t(canPublish ? "announcements.empty.admin" : "announcements.empty.soon") })}
           </p>
         </div>
       )}

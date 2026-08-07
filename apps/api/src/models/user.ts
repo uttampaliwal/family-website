@@ -1,6 +1,6 @@
 import mongoose, { type Document, type Model } from "mongoose";
 import type { z } from "zod";
-import { genderSchema, relationshipSchema } from "@family/core";
+import { genderSchema, relationshipSchema, rolesSchema, type Role } from "@family/core";
 
 export interface UserDocument extends Document {
   name: string;
@@ -23,7 +23,7 @@ export interface UserDocument extends Document {
 
   refreshTokenHashes: string[];
 
-  role: "user" | "admin";
+  role: Role;
   adminApprovalStatus: "pending" | "approved" | "rejected";
   approvedAt?: Date;
 
@@ -69,7 +69,7 @@ const userSchema = new mongoose.Schema<UserDocument>(
 
     parentIds: { type: [mongoose.Schema.Types.ObjectId], default: [] },
 
-    role: { type: String, enum: ["user", "admin"], default: "user" },
+    role: { type: String, enum: rolesSchema.options, default: "child" },
     adminApprovalStatus: {
       type: String,
       enum: ["pending", "approved", "rejected"],

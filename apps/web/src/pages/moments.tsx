@@ -1,4 +1,5 @@
 import type { Post } from "@family/core";
+import { can } from "@family/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar, Button, Skeleton, Textarea, useToast } from "@family/ui";
 import { Heart, MessageCircle, Send, Sparkles, Trash2 } from "lucide-react";
@@ -144,7 +145,7 @@ export function MomentsPage() {
       {data && data.items.length > 0 && (
         <ul className="mt-8 space-y-4">
           {data.items.map((post) => {
-            const canManagePost = user?.role === "admin" || user?.id === post.createdBy.id;
+            const canManagePost = can(user?.role ?? "guest", "moderate") || user?.id === post.createdBy.id;
             return (
               <li key={post.id} className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
                 <div className="flex items-start gap-3">
@@ -202,7 +203,7 @@ export function MomentsPage() {
                         <ul className="space-y-2">
                           {post.comments.map((comment) => {
                             const canManageComment =
-                              user?.role === "admin" || user?.id === comment.createdBy.id;
+                              can(user?.role ?? "guest", "moderate") || user?.id === comment.createdBy.id;
                             return (
                               <li key={comment.id} className="flex items-start gap-2">
                                 <div className="min-w-0 flex-1">

@@ -3,12 +3,13 @@ import type { Context, Next } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { randomBytes } from "node:crypto";
 import type { Document as DocumentPayload } from "@family/core";
-import {
-  createDocumentRequestSchema,
-  uploadDocumentUrlRequestSchema,
-} from "@family/core";
+import { can, createDocumentRequestSchema, uploadDocumentUrlRequestSchema } from "@family/core";
 import { AppError } from "../middleware/error.js";
-import { originCheck, requireAuth } from "../middleware/security.js";
+import {
+  originCheck,
+  requireAuth,
+  requireCapability,
+} from "../middleware/security.js";
 import { clientInfo, recordAudit } from "../lib/audit.js";
 import { newDocumentKey, storage } from "../lib/storage.js";
 import { validateBody } from "../lib/validation.js";
@@ -30,6 +31,7 @@ documentsRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
 /** Step 1: get a scoped upload URL (direct to R2 in production). */
 documentsRoutes.post(
   "/upload-url",
+  requireCapability("uploadDocuments"),
   zValidator("json", uploadDocumentUrlRequestSchema),
   async (c) => {
     const { mimeType, size } = c.req.valid("json");
@@ -42,7 +44,11 @@ documentsRoutes.post(
 );
 
 /** Step 2: after the browser PUT the bytes, register the document. */
-documentsRoutes.post("/", validateBody(createDocumentRequestSchema), async (c) => {
+documentsRoutes.post(
+  "/",
+  requireCapability("uploadDocuments"),
+  validateBody(createDocumentRequestSchema),
+  async (c) => {
   const userId = c.get("userId");
   const { key, name, mimeType, size, description } = c.req.valid("json");
 
@@ -168,8 +174,8 @@ async function assertCanManage(
 ): Promise<void> {
   const user = await User.findById(userId, { role: 1 });
   const isOwner = document.uploadedBy.toString() === userId;
-  if (!isOwner && user?.role !== "admin") {
-    throw new AppError(403, "FORBIDDEN", "Only the uploader or an admin can manage documents");
+  if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
+    throw new AppError(403, "FORBIDDEN", "Only the uploader or a moderator can manage documents");
   }
 }
 

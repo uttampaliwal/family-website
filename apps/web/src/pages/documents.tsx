@@ -1,4 +1,5 @@
 import type { Document } from "@family/core";
+import { can } from "@family/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Skeleton, useToast } from "@family/ui";
 import { ClipboardCopy, Download, FolderOpen, Link2Off, Trash2, Upload } from "lucide-react";
@@ -176,7 +177,7 @@ export function DocumentsPage() {
       {data && data.items.length > 0 && (
         <ul className="mt-8 space-y-3">
           {data.items.map((doc) => {
-            const canManage = user?.role === "admin" || user?.id === doc.uploadedBy.id;
+            const canManage = can(user?.role ?? "guest", "moderate") || user?.id === doc.uploadedBy.id;
             return (
               <li
                 key={doc.id}

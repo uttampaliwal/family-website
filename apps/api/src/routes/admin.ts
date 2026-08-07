@@ -5,10 +5,11 @@ import {
   adminDecisionSchema,
   adminMemberListSchema,
   auditLogListSchema,
+  canAssignRole,
   updateRelationshipsSchema,
 } from "@family/core";
 import { AppError } from "../middleware/error.js";
-import { originCheck, requireAdmin } from "../middleware/security.js";
+import { originCheck, requireCapability } from "../middleware/security.js";
 import { clientInfo, recordAudit } from "../lib/audit.js";
 import { toAdminMember } from "../lib/payloads.js";
 import { assertValidParents } from "../lib/tree.js";
@@ -19,7 +20,7 @@ import { User } from "../models/user.js";
 
 export const adminRoutes = new Hono();
 
-adminRoutes.use("*", originCheck, requireAdmin);
+adminRoutes.use("*", originCheck);
 
 function toAuditLogPayload(log: AuditLogDocument) {
   return {
@@ -40,6 +41,7 @@ function toAuditLogPayload(log: AuditLogDocument) {
 
 adminRoutes.get(
   "/audit-logs",
+  requireCapability("viewAudit"),
   zValidator("query", auditLogListSchema),
   async (c) => {
     const { page, pageSize, action, actorId } = c.req.valid("query");
@@ -68,6 +70,7 @@ adminRoutes.get(
 
 adminRoutes.get(
   "/members",
+  requireCapability("manageMembers"),
   zValidator("query", adminMemberListSchema),
   async (c) => {
     const { page, pageSize, search, status } = c.req.valid("query");
@@ -100,12 +103,18 @@ adminRoutes.get(
   },
 );
 
-adminRoutes.get("/members/pending-count", async (c) => {
+adminRoutes.get(
+  "/members/pending-count",
+  requireCapability("manageMembers"),
+  async (c) => {
   const count = await User.countDocuments({ adminApprovalStatus: "pending" });
   return c.json({ count });
 });
 
-adminRoutes.get("/members/:id", async (c) => {
+adminRoutes.get(
+  "/members/:id",
+  requireCapability("manageMembers"),
+  async (c) => {
   const user = await User.findById(c.req.param("id"));
   if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
   return c.json({ member: toAdminMember(user) });
@@ -113,6 +122,7 @@ adminRoutes.get("/members/:id", async (c) => {
 
 adminRoutes.patch(
   "/members/:id",
+  requireCapability("manageMembers"),
   validateBody(adminDecisionSchema),
   async (c) => {
     const { status, role } = c.req.valid("json");
@@ -121,6 +131,19 @@ adminRoutes.patch(
     if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
     if (user._id.toString() === c.get("userId")) {
       throw new AppError(400, "INVALID_OPERATION", "You can't review your own account");
+    }
+
+    // New members default to the most restricted tier; an admin can raise it.
+    let targetRole = role;
+    if (status === "approved" && role === undefined) targetRole = "child";
+    if (targetRole !== undefined && targetRole !== user.role) {
+      if (!canAssignRole(c.get("userRole"), user.role, targetRole)) {
+        throw new AppError(
+          403,
+          "FORBIDDEN",
+          "You can't assign that role to this member",
+        );
+      }
     }
 
     const previousStatus = user.adminApprovalStatus;
@@ -138,7 +161,7 @@ adminRoutes.patch(
         link: "/",
       });
     }
-    if (role !== undefined) user.role = role;
+    if (targetRole !== undefined) user.role = targetRole;
     await user.save();
 
     if (status !== previousStatus) {
@@ -151,13 +174,13 @@ adminRoutes.patch(
         ...clientInfo(c),
       });
     }
-    if (role !== undefined && role !== previousRole) {
+    if (targetRole !== undefined && targetRole !== previousRole) {
       await recordAudit({
         actorId: c.get("userId"),
         action: "ROLE_CHANGED",
         targetType: "user",
         targetId: user._id.toString(),
-        details: { member: user.username, from: previousRole, to: role },
+        details: { member: user.username, from: previousRole, to: targetRole },
         ...clientInfo(c),
       });
     }
@@ -168,6 +191,7 @@ adminRoutes.patch(
 
 adminRoutes.patch(
   "/members/:id/relationships",
+  requireCapability("manageTree"),
   validateBody(updateRelationshipsSchema),
   async (c) => {
     const { parentIds } = c.req.valid("json");

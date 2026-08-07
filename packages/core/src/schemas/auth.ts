@@ -7,6 +7,7 @@ import {
   phoneNumber,
   username,
 } from "./common.js";
+import { rolesSchema } from "./permissions.js";
 
 export const genderSchema = z.enum(["male", "female", "prefer_not"]);
 export const relationshipSchema = z.enum([
@@ -78,7 +79,7 @@ export const userSchema = z.object({
   username,
   gender: genderSchema,
   relationship: relationshipSchema.nullable(),
-  role: z.enum(["user", "admin"]),
+  role: rolesSchema,
   isVerified: z.boolean(),
   avatarUrl: z.string().url().nullable(),
   createdAt: z.coerce.date(),

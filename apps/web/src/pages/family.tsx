@@ -1,4 +1,5 @@
 import type { TreeResponse } from "@family/core";
+import { can } from "@family/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar, Badge, Button, Card, CardContent, Skeleton, useToast } from "@family/ui";
 import { TreePine } from "lucide-react";
@@ -7,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
 import { useSeo } from "../lib/seo.js";
+import { RoleBadge } from "../components/role-badge.js";
 
 export function FamilyPage() {
   const user = useAuthStore((s) => s.user);
@@ -41,7 +43,7 @@ export function FamilyPage() {
         </div>
       </div>
 
-      {user?.role === "admin" && <RelationshipEditor />}
+      {can(user?.role ?? "guest", "manageTree") && <RelationshipEditor />}
 
       {isLoading && <TreeSkeleton />}
       {isError && (
@@ -119,7 +121,7 @@ function TreeCard({
               {member.relationship.replaceAll("_", " ")}
             </Badge>
           )}
-          {member.role === "admin" && <Badge variant="warning">Admin</Badge>}
+          <RoleBadge role={member.role} />
         </div>
         {parentNames.length > 0 && (
           <p className="mt-3 truncate text-xs text-muted">

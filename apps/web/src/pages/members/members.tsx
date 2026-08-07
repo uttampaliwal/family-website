@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../lib/api-client.js";
 import { useSeo } from "../../lib/seo.js";
+import { RoleBadge } from "../../components/role-badge.js";
 
 interface MemberListResponse {
   items: MemberPublic[];
@@ -98,7 +99,7 @@ function MemberCard({ member }: { member: MemberPublic }) {
                 {member.relationship.replaceAll("_", " ")}
               </Badge>
             )}
-            {member.role === "admin" && <Badge variant="warning">Admin</Badge>}
+            <RoleBadge role={member.role} />
           </div>
         </div>
         <Button asChild variant="ghost" size="sm">

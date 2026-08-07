@@ -1,5 +1,6 @@
 import type { Context, MiddlewareHandler, Next } from "hono";
 import { timingSafeEqual } from "node:crypto";
+import { can, type Capability, type Role } from "@family/core";
 import { env } from "../config/env.js";
 import { AppError } from "./error.js";
 import {
@@ -17,6 +18,7 @@ const allowedOrigins = env.WEB_ORIGIN.split(",");
 declare module "hono" {
   interface ContextVariableMap {
     userId: string;
+    userRole: Role;
   }
 }
 
@@ -38,16 +40,19 @@ export async function requireAuth(c: Context, next: Next) {
   await next();
 }
 
-/** Requires the authenticated user to be an admin. */
-export async function requireAdmin(c: Context, next: Next) {
-  const userId = await authenticate(c);
-  const { User } = await import("../models/user.js");
-  const user = await User.findById(userId, { role: 1 }).lean();
-  if (!user || user.role !== "admin") {
-    throw new AppError(403, "FORBIDDEN", "Admin access required");
-  }
-  c.set("userId", userId);
-  await next();
+/** Requires the authenticated user to hold the given capability. */
+export function requireCapability(capability: Capability): MiddlewareHandler {
+  return async (c, next) => {
+    const userId = await authenticate(c);
+    const { User } = await import("../models/user.js");
+    const user = await User.findById(userId, { role: 1 }).lean();
+    if (!user || !can(user.role, capability)) {
+      throw new AppError(403, "FORBIDDEN", "You don't have permission for this");
+    }
+    c.set("userId", userId);
+    c.set("userRole", user.role);
+    await next();
+  };
 }
 
 // ─── CSRF & origin checks ───────────────────────────────────────────

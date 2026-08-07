@@ -83,11 +83,11 @@ export async function broadcastToApprovedMembers(
   }
 }
 
-/** Notifies every approved admin. Fire-and-forget like the broadcast above. */
+/** Notifies every approved admin/owner. Fire-and-forget like the broadcast above. */
 export async function notifyAdmins(options: NotificationBroadcastOptions): Promise<void> {
   try {
     const admins = await User.find(
-      { role: "admin", adminApprovalStatus: "approved" },
+      { role: { $in: ["admin", "owner"] }, adminApprovalStatus: "approved" },
       { _id: 1 },
     ).lean();
 

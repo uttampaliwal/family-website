@@ -1,13 +1,17 @@
 import { Hono } from "hono";
 import type { Context, Next } from "hono";
 import mongoose from "mongoose";
-import type { Post as PostPayload } from "@family/core";
+import { can, type Post as PostPayload } from "@family/core";
 import {
   createCommentRequestSchema,
   createPostRequestSchema,
 } from "@family/core";
 import { AppError } from "../middleware/error.js";
-import { originCheck, requireAuth } from "../middleware/security.js";
+import {
+  originCheck,
+  requireAuth,
+  requireCapability,
+} from "../middleware/security.js";
 import { validateBody } from "../lib/validation.js";
 import { createNotification } from "../lib/notifications.js";
 import { Post } from "../models/post.js";
@@ -45,7 +49,11 @@ postsRoutes.get("/:id", async (c) => {
   return c.json({ post: toPostPayload(post, c.get("userId")) });
 });
 
-postsRoutes.post("/", validateBody(createPostRequestSchema), async (c) => {
+postsRoutes.post(
+  "/",
+  requireCapability("createMoments"),
+  validateBody(createPostRequestSchema),
+  async (c) => {
   const userId = c.get("userId");
   const { body } = c.req.valid("json");
 
@@ -99,7 +107,11 @@ postsRoutes.post("/:id/like", async (c) => {
   return c.json({ liked, likeCount: post.likedBy.length });
 });
 
-postsRoutes.post("/:id/comments", validateBody(createCommentRequestSchema), async (c) => {
+postsRoutes.post(
+  "/:id/comments",
+  requireCapability("comment"),
+  validateBody(createCommentRequestSchema),
+  async (c) => {
   const userId = c.get("userId");
   const { body } = c.req.valid("json");
 
@@ -151,8 +163,8 @@ async function assertCanManage(
 ): Promise<void> {
   const user = await User.findById(userId, { role: 1 });
   const isOwner = ownerId === userId;
-  if (!isOwner && user?.role !== "admin") {
-    throw new AppError(403, "FORBIDDEN", `Only the author or an admin can delete this ${kind}`);
+  if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
+    throw new AppError(403, "FORBIDDEN", `Only the author or a moderator can delete this ${kind}`);
   }
 }
 
