@@ -47,58 +47,62 @@ export function SearchPage() {
     (natural.data.answer !== null || natural.data.intent !== "all");
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <h1 className="font-display text-3xl font-bold tracking-tight">{t("search.title")}</h1>
-      <p className="mt-1 text-sm text-muted">
-        People, photos, moments, events, documents and chat — one bar.
-      </p>
+    <div className="mx-auto max-w-2xl px-5 py-16 sm:px-8 sm:py-20">
+      <header className="animate-fade-up">
+        <h1 className="font-display text-4xl font-bold tracking-tight">{t("search.title")}</h1>
+        <p className="mt-2 text-[15px] text-muted">
+          People, photos, moments, events, documents and chat — one bar.
+        </p>
+      </header>
 
-      <form onSubmit={submit} className="relative mt-6">
-        <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
+      <form onSubmit={submit} className="relative mt-9">
+        <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted/70" />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("search.placeholder")}
           aria-label={t("search.label")}
-          className="h-12 pl-10 pr-10 text-base"
+          className="h-13 rounded-2xl pl-11 pr-10 text-[15px] shadow-sm transition-shadow focus-visible:shadow-[0_0_0_4px_rgba(0,0,0,0.05)]"
           autoFocus
         />
         {isFetching && (
-          <span className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 animate-pulse rounded-full border-2 border-primary/40 border-t-primary" />
+          <span className="absolute right-4 top-1/2 size-4 -translate-y-1/2 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
         )}
       </form>
 
-      {term.trim().length < 2 ? (
-        <p className="mt-10 text-center text-sm text-muted">{t("search.hint")}</p>
-      ) : isError && !data ? (
-        <p className="mt-10 rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-center text-sm font-medium text-error">
-          Couldn't search right now — please try again.
-        </p>
-      ) : aiRouted ? (
-        <div className="mt-6 rounded-2xl border border-border bg-surface p-3 shadow-sm">
-          <NaturalSearchPanel
-            data={natural.data}
-            isFetching={natural.isFetching}
-          />
-          {natural.data &&
-            natural.data.answer === null &&
-            natural.data.intent !== "all" &&
-            naturalIsEmpty(natural.data) && (
-              <p className="px-3 py-8 text-center text-sm text-muted">
-                {t("search.noResults", { q: term })}
-              </p>
-            )}
-        </div>
-      ) : data && items.length === 0 ? (
-        <div className="mt-16 flex flex-col items-center gap-2 text-center">
-          <SearchX className="size-10 text-muted" />
-          <p className="text-muted">{t("search.noResults", { q: term })}</p>
-        </div>
-      ) : (
-        <div className="mt-6 rounded-2xl border border-border bg-surface p-3 shadow-sm">
+      <main className="mt-12 animate-fade-in">
+        {term.trim().length < 2 ? (
+          <p className="py-16 text-center text-[15px] text-muted">{t("search.hint")}</p>
+        ) : isError && !data ? (
+          <p className="rounded-2xl border border-error/15 bg-error/5 px-6 py-10 text-center text-sm text-error">
+            Couldn't search right now — please try again.
+          </p>
+        ) : aiRouted ? (
+          <>
+            <NaturalSearchPanel
+              data={natural.data}
+              isFetching={natural.isFetching}
+            />
+            {natural.data &&
+              natural.data.answer === null &&
+              natural.data.intent !== "all" &&
+              naturalIsEmpty(natural.data) && (
+                <p className="py-16 text-center text-[15px] text-muted">
+                  {t("search.noResults", { q: term })}
+                </p>
+              )}
+          </>
+        ) : data && items.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-20 text-center">
+            <span className="grid size-12 place-items-center rounded-2xl bg-surface-2/70 text-muted/70">
+              <SearchX className="size-5" />
+            </span>
+            <p className="text-[15px] text-muted">{t("search.noResults", { q: term })}</p>
+          </div>
+        ) : (
           <SearchResults items={items} withGroupHeaders />
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 }

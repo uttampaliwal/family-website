@@ -121,10 +121,10 @@ export function GlobalSearch() {
         <div
           role="dialog"
           aria-label={t("search.label")}
-          className="absolute right-0 top-12 z-50 w-[min(92vw,32rem)] overflow-hidden rounded-2xl border border-border bg-surface shadow-xl"
+          className="absolute right-0 top-12 z-50 w-[min(92vw,34rem)] overflow-hidden rounded-3xl border border-border/70 bg-surface shadow-card animate-panel-in"
         >
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
-            <Search className="size-4 shrink-0 text-muted" />
+          <div className="flex items-center gap-3 border-b border-border/60 px-4 py-3.5">
+            <Search className="size-4 shrink-0 text-muted/80" />
             <input
               ref={inputRef}
               value={query}
@@ -132,27 +132,27 @@ export function GlobalSearch() {
               onKeyDown={onKeyDown}
               placeholder={t("search.placeholder")}
               aria-label={t("search.label")}
-              className="w-full bg-transparent text-sm outline-none"
+              className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted/70"
               autoComplete="off"
             />
-            {isFetching && <Loader2 className="size-4 shrink-0 animate-spin text-muted" />}
+            {isFetching && <Loader2 className="size-4 shrink-0 animate-spin text-muted/70" />}
           </div>
 
-          <div className="max-h-[60vh] overflow-y-auto p-2">
+          <div className="max-h-[60vh] overflow-y-auto p-3">
             <NaturalSearchPanel
               data={natural.data}
               isFetching={natural.isFetching}
               mode="card"
             />
             {term.trim().length < 2 ? (
-              <p className="px-3 py-8 text-center text-sm text-muted">{t("search.hint")}</p>
+              <p className="px-6 py-12 text-center text-sm text-muted">{t("search.hint")}</p>
             ) : isError && !data ? (
-              <p className="px-3 py-8 text-center text-sm text-error">
+              <p className="px-6 py-12 text-center text-sm text-error">
                 Couldn't search right now.
               </p>
             ) : data && items.length === 0 ? (
-              <div className="px-3 py-8 text-center text-sm text-muted">
-                <SearchX className="mx-auto mb-2 size-6" />
+              <div className="px-6 py-12 text-center text-sm text-muted">
+                <SearchX className="mx-auto mb-3 size-6 text-muted/60" />
                 {t("search.noResults", { q: term })}
               </div>
             ) : (
@@ -165,9 +165,14 @@ export function GlobalSearch() {
           </div>
 
           {items.length > 0 && (
-            <p className="border-t border-border px-3 py-2 text-[11px] text-muted">
-              ↑↓ navigate · Enter open · Esc close
-            </p>
+            <div className="flex items-center justify-center gap-3 px-4 py-2.5">
+              <kbd className="rounded-md border border-border/60 bg-surface-2/60 px-1.5 py-0.5 font-sans text-[10px] text-muted">↑↓</kbd>
+              <span className="text-[11px] text-muted/80">navigate</span>
+              <kbd className="rounded-md border border-border/60 bg-surface-2/60 px-1.5 py-0.5 font-sans text-[10px] text-muted">↵</kbd>
+              <span className="text-[11px] text-muted/80">open</span>
+              <kbd className="rounded-md border border-border/60 bg-surface-2/60 px-1.5 py-0.5 font-sans text-[10px] text-muted">esc</kbd>
+              <span className="text-[11px] text-muted/80">close</span>
+            </div>
           )}
         </div>
       )}

@@ -5,9 +5,7 @@ import { Link } from "react-router-dom";
 import { useI18n } from "../../i18n/index.js";
 import type { translations } from "../../i18n/translations.js";
 
-type TKey = keyof typeof translations.en;
-
-type GroupName =
+type TKey = keyof typeof translations.en;type GroupName =
   | "people"
   | "photos"
   | "posts"
@@ -168,22 +166,21 @@ export function SearchResults({
 
   return (
     <div>
-      {GROUP_ORDER.filter((group) => groups.has(group)).map((group) => (
-        <div key={group}>
+      {GROUP_ORDER.filter((group) => groups.has(group)).map((group, groupIndex) => (
+        <section key={group} className={cn(groupIndex > 0 && "mt-2 border-t border-border/40 pt-2")}>
           {withGroupHeaders && (
-            <p className="flex items-center gap-1.5 px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted">
-              {groupIcon(group)}
+            <p className="px-4 pb-1.5 pt-3 text-[11px] font-medium uppercase tracking-[0.08em] text-muted/70">
               {t(groupLabelKeys[group])}
             </p>
           )}
           <ul className={withGroupHeaders ? "mt-1" : undefined}>
             {groups.get(group)!.map((item) => (
-              <li key={item.key}>
+              <li key={item.key} className="animate-fade-up" style={{ animationDelay: `${Math.min(item.index * 30, 180)}ms` }}>
                 <Link
                   to={item.to}
                   onMouseEnter={() => onHoverItem?.(item.index)}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors",
+                    "group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-[background-color] duration-150",
                     item.index === activeIndex ? "bg-surface-2" : "hover:bg-surface-2/60",
                   )}
                 >
@@ -192,13 +189,13 @@ export function SearchResults({
                     <span className="block truncate text-sm font-medium">
                       {item.title}
                     </span>
-                    <span className="block truncate text-xs text-muted">{item.subtitle}</span>
+                    <span className="mt-0.5 block truncate text-xs text-muted">{item.subtitle}</span>
                   </span>
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       ))}
     </div>
   );
@@ -217,13 +214,13 @@ function ResultThumb({ item }: { item: SearchItem }) {
       <img
         src={item.thumbnail}
         alt=""
-        className="size-9 shrink-0 rounded-lg object-cover"
+        className="size-10 shrink-0 rounded-xl object-cover transition-transform duration-200 group-hover:scale-[1.04]"
         loading="lazy"
       />
     );
   }
   return (
-    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-muted">
+    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-surface-2/70 text-muted/80 transition-colors duration-200 group-hover:bg-surface-2 group-hover:text-foreground/70">
       {groupIcon(item.group)}
     </span>
   );

@@ -8,7 +8,7 @@ import {
 
 /**
  * The "AI" surface for natural-language search. When the local rule-based
- * parser produced a direct answer (e.g. a birthday) we show it as a
+ * parser produced a direct answer (e.g. a birthday) we show it as a quiet,
  * highlighted card; in "panel" mode the routed dataset follows as a normal
  * result group.
  */
@@ -25,8 +25,8 @@ export function NaturalSearchPanel({
 
   if (mode === "panel" && isFetching && !data) {
     return (
-      <p className="px-3 py-6 text-center text-sm text-muted">
-        <Sparkles className="mx-auto mb-2 size-5 animate-pulse text-primary" />
+      <p className="px-6 py-14 text-center text-sm text-muted">
+        <Sparkles className="mx-auto mb-3 size-5 animate-pulse text-primary/70" />
         {t("search.ai.thinking")}
       </p>
     );
@@ -38,15 +38,19 @@ export function NaturalSearchPanel({
   return (
     <div>
       {data.answer?.kind === "birthday" && (
-        <BirthdayAnswer
-          name={data.answer.member.name}
-          date={formatDay(data.answer.member.dateOfBirth)}
-          next={formatDate(data.answer.nextOccurrence)}
-          days={data.answer.daysUntil}
-        />
+        <div className="animate-fade-up">
+          <BirthdayAnswer
+            name={data.answer.member.name}
+            date={formatDay(data.answer.member.dateOfBirth)}
+            next={formatDate(data.answer.nextOccurrence)}
+            days={data.answer.daysUntil}
+          />
+        </div>
       )}
       {mode === "panel" && items.length > 0 && (
-        <SearchResults items={items} withGroupHeaders />
+        <div className="animate-fade-up" style={{ animationDelay: "80ms" }}>
+          <SearchResults items={items} withGroupHeaders />
+        </div>
       )}
     </div>
   );
@@ -65,15 +69,19 @@ function BirthdayAnswer({
 }) {
   const { t } = useI18n();
   return (
-    <div className="mx-3 mt-3 rounded-2xl border border-primary/25 bg-primary/5 p-3">
-      <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
-        <Sparkles className="size-3.5" />
-        {t("search.ai.label")}
-      </p>
-      <p className="mt-1 text-sm font-medium">
+    <div className="mx-2 mt-2 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.07] via-transparent to-transparent p-4 sm:mx-3 sm:mt-3">
+      <div className="flex items-center gap-2.5">
+        <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+          <Sparkles className="size-3.5 animate-sparkle" />
+        </span>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-primary/90">
+          {t("search.ai.label")}
+        </p>
+      </div>
+      <p className="mt-2.5 text-[15px] leading-relaxed">
         {t("search.ai.birthday", { name, date })}
       </p>
-      <p className="mt-0.5 text-xs text-muted">
+      <p className="mt-0.5 text-[13px] text-muted">
         {days === 0
           ? t("search.ai.birthdayToday", { date: next })
           : t("search.ai.birthdayNext", { date: next, days: String(days) })}
