@@ -37,6 +37,21 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,woff2}"],
         navigateFallbackDenylist: [/^\/api\//],
+        runtimeCaching: [
+          {
+            urlPattern: /\/api\/(members|photos|events|announcements)(\/|\?|$)/,
+            handler: "StaleWhileRevalidate",
+            method: "GET",
+            options: {
+              cacheName: "kulaya-data",
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: {
+                maxEntries: 120,
+                maxAgeSeconds: 60 * 60 * 24 * 14,
+              },
+            },
+          },
+        ],
       },
       devOptions: { enabled: false },
     }),

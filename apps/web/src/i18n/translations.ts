@@ -187,6 +187,7 @@ export const translations = {
     "auth.reset.title": "Reset password",
     "auth.verify.title": "Verify email",
     "auth.resend.title": "Resend verification",
+    "offline.banner": "You're offline — showing saved family data",
   },
   hi: {
     // Brand
@@ -374,5 +375,6 @@ export const translations = {
     "auth.reset.title": "पासवर्ड रीसेट करें",
     "auth.verify.title": "ईमेल सत्यापित करें",
     "auth.resend.title": "सत्यापन फिर भेजें",
+    "offline.banner": "आप ऑफ़लाइन हैं — सहेजा गया परिवार डेटा दिखाया जा रहा है",
   },
 } as const satisfies Record<Language, Record<string, string>>;
