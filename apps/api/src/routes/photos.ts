@@ -5,6 +5,7 @@ import type { Photo as PhotoPayload } from "@family/core";
 import { createPhotoRequestSchema, uploadUrlRequestSchema } from "@family/core";
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireAuth } from "../middleware/security.js";
+import { clientInfo, recordAudit } from "../lib/audit.js";
 import { newPhotoKey, storage } from "../lib/storage.js";
 import { validateBody } from "../lib/validation.js";
 import { Photo } from "../models/photo.js";
@@ -86,6 +87,15 @@ photosRoutes.delete("/:id", async (c) => {
 
   await storage.deleteObject(photo.key);
   await photo.deleteOne();
+
+  await recordAudit({
+    actorId: userId,
+    action: "PHOTO_DELETED",
+    targetType: "photo",
+    targetId: photo._id.toString(),
+    details: { key: photo.key, mimeType: photo.mimeType },
+    ...clientInfo(c),
+  });
 
   return c.json({ ok: true });
 });

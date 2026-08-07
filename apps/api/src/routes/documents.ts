@@ -9,6 +9,7 @@ import {
 } from "@family/core";
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireAuth } from "../middleware/security.js";
+import { clientInfo, recordAudit } from "../lib/audit.js";
 import { newDocumentKey, storage } from "../lib/storage.js";
 import { validateBody } from "../lib/validation.js";
 import { KulayaDocument } from "../models/document.js";
@@ -99,6 +100,15 @@ documentsRoutes.delete("/:id", async (c) => {
   await storage.deleteObject(document.key);
   await document.deleteOne();
 
+  await recordAudit({
+    actorId: userId,
+    action: "DOCUMENT_DELETED",
+    targetType: "document",
+    targetId: document._id.toString(),
+    details: { name: document.name, key: document.key },
+    ...clientInfo(c),
+  });
+
   return c.json({ ok: true });
 });
 
@@ -116,6 +126,15 @@ documentsRoutes.post("/:id/share", async (c) => {
     await document.save();
   }
 
+  await recordAudit({
+    actorId: userId,
+    action: "DOCUMENT_SHARED",
+    targetType: "document",
+    targetId: document._id.toString(),
+    details: { name: document.name, url: `/api/shared/documents/${document.shareToken}` },
+    ...clientInfo(c),
+  });
+
   return c.json({ url: `/api/shared/documents/${document.shareToken}` });
 });
 
@@ -130,6 +149,15 @@ documentsRoutes.delete("/:id/share", async (c) => {
 
   document.shareToken = undefined;
   await document.save();
+
+  await recordAudit({
+    actorId: userId,
+    action: "DOCUMENT_UNSHARED",
+    targetType: "document",
+    targetId: document._id.toString(),
+    details: { name: document.name },
+    ...clientInfo(c),
+  });
 
   return c.json({ url: null });
 });

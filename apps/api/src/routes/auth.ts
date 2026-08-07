@@ -13,6 +13,7 @@ import {
 import { env } from "../config/env.js";
 import { AppError } from "../middleware/error.js";
 import { csrfProtection, originCheck, rateLimit } from "../middleware/security.js";
+import { clientInfo, recordAudit } from "../lib/audit.js";
 import {
   clearAuthCookies,
   createCsrfToken,
@@ -106,6 +107,15 @@ authRoutes.post(
       html: `<p>Welcome to <strong>Kulaya</strong>!</p><p><a href="${buildEmailLink("/verify-email", { token: verificationToken })}">Verify your email</a></p>`,
     });
 
+    await recordAudit({
+      actorId: user._id.toString(),
+      action: "REGISTER",
+      targetType: "user",
+      targetId: user._id.toString(),
+      details: { username: user.username },
+      ...clientInfo(c),
+    });
+
     void notifyAdmins({
       type: "member_joined",
       actorId: user._id.toString(),
@@ -133,14 +143,25 @@ authRoutes.post(
   async (c) => {
     const input = c.req.valid("json");
 
-    const user = await UserModel.findOne({
+const user = await UserModel.findOne({
       $or: [{ email: input.email }, { username: input.email }],
     });
     if (!user || !(await verifyPassword(input.password, user.passwordHash))) {
+      await recordAudit({
+        action: "LOGIN_FAILED",
+        details: { identifier: input.email, reason: "INVALID_CREDENTIALS" },
+        ...clientInfo(c),
+      });
       throw new AppError(401, "INVALID_CREDENTIALS", "Invalid email or password");
     }
 
     if (!user.isVerified) {
+      await recordAudit({
+        actorId: user._id.toString(),
+        action: "LOGIN_FAILED",
+        details: { identifier: input.email, reason: "EMAIL_NOT_VERIFIED" },
+        ...clientInfo(c),
+      });
       throw new AppError(
         403,
         "EMAIL_NOT_VERIFIED",
@@ -148,6 +169,12 @@ authRoutes.post(
       );
     }
     if (user.adminApprovalStatus === "pending") {
+      await recordAudit({
+        actorId: user._id.toString(),
+        action: "LOGIN_FAILED",
+        details: { identifier: input.email, reason: "PENDING_APPROVAL" },
+        ...clientInfo(c),
+      });
       throw new AppError(
         403,
         "PENDING_APPROVAL",
@@ -155,12 +182,27 @@ authRoutes.post(
       );
     }
     if (user.adminApprovalStatus === "rejected") {
+      await recordAudit({
+        actorId: user._id.toString(),
+        action: "LOGIN_FAILED",
+        details: { identifier: input.email, reason: "ACCESS_REJECTED" },
+        ...clientInfo(c),
+      });
       throw new AppError(403, "ACCESS_REJECTED", "Access was not granted");
     }
 
     const { accessToken, refreshToken } = await issueSession(user);
     setRefreshCookie(c, refreshToken);
     setCsrfCookie(c, createCsrfToken());
+
+    await recordAudit({
+      actorId: user._id.toString(),
+      action: "LOGIN_SUCCESS",
+      targetType: "user",
+      targetId: user._id.toString(),
+      details: { identifier: input.email },
+      ...clientInfo(c),
+    });
 
     return c.json({ user: toUserPayload(user), accessToken });
   },
@@ -228,9 +270,11 @@ authRoutes.post(
 
 authRoutes.post("/logout", csrfProtection, async (c) => {
   const token = readCookie(c, REFRESH_COOKIE);
+  let actorId: string | undefined;
   if (token) {
     const payload = await verifyRefreshToken(token).catch(() => null);
     if (payload) {
+      actorId = payload.sub;
       const user = await UserModel.findById(payload.sub);
       if (user) {
         const hash = sha256(payload.jti);
@@ -239,6 +283,11 @@ authRoutes.post("/logout", csrfProtection, async (c) => {
       }
     }
   }
+  await recordAudit({
+    actorId,
+    action: "LOGOUT",
+    ...clientInfo(c),
+  });
   clearAuthCookies(c);
   return c.json({ ok: true });
 });
@@ -280,6 +329,14 @@ authRoutes.post(
     user.verificationTokenHash = undefined;
     user.verificationTokenExpires = undefined;
     await user.save();
+
+    await recordAudit({
+      actorId: user._id.toString(),
+      action: "EMAIL_VERIFIED",
+      targetType: "user",
+      targetId: user._id.toString(),
+      ...clientInfo(c),
+    });
 
     return c.json({ message: "Email verified — you can now sign in" });
   },
@@ -332,6 +389,14 @@ authRoutes.post(
     user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000);
     await user.save();
 
+    await recordAudit({
+      action: "PASSWORD_RESET_REQUESTED",
+      targetType: "user",
+      targetId: user._id.toString(),
+      details: { email },
+      ...clientInfo(c),
+    });
+
     await sendMail({
       to: user.email,
       subject: "Reset your password — Kulaya",
@@ -364,6 +429,14 @@ authRoutes.post(
     user.refreshTokenHashes = [];
     await user.save();
 
+    await recordAudit({
+      actorId: user._id.toString(),
+      action: "PASSWORD_RESET",
+      targetType: "user",
+      targetId: user._id.toString(),
+      ...clientInfo(c),
+    });
+
     return c.json({ message: "Password updated — you can now sign in" });
   },
 );
@@ -394,6 +467,14 @@ authRoutes.post(
     user.refreshTokenHashes = [];
     await user.save();
     clearAuthCookies(c);
+
+    await recordAudit({
+      actorId: payload.sub,
+      action: "PASSWORD_CHANGED",
+      targetType: "user",
+      targetId: payload.sub,
+      ...clientInfo(c),
+    });
 
     return c.json({ message: "Password changed — please sign in again" });
   },

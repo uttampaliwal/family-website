@@ -182,5 +182,20 @@ export type {
   UnreadCountResponse,
 } from "./schemas/notifications.js";
 
+export {
+  auditActionSchema,
+  auditActions,
+  auditLogListResponseSchema,
+  auditLogListSchema,
+  auditLogSchema,
+} from "./schemas/audit.js";
+
+export type {
+  AuditAction,
+  AuditLog,
+  AuditLogListInput,
+  AuditLogListResponse,
+} from "./schemas/audit.js";
+
 export { apiEndpoints, themeIds } from "./constants.js";
 export type { ColorMode, ThemeId } from "./constants.js";
