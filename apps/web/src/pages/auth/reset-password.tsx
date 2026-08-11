@@ -1,13 +1,16 @@
 import { Button, useToast } from "@family/ui";
+import { Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldPassword, issueMap } from "../../components/auth/field.js";
 import { api } from "../../lib/api-client.js";
 import { useSeo } from "../../lib/seo.js";
+import { useI18n } from "../../i18n/index.js";
 
 export function ResetPasswordPage() {
   useSeo("auth.reset.title");
+  const { t } = useI18n();
   const toast = useToast().toast;
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
@@ -21,11 +24,11 @@ export function ResetPasswordPage() {
     e.preventDefault();
     setErrors({});
     if (password.length < 8) {
-      setErrors({ password: "Password must be at least 8 characters" });
+      setErrors({ password: t("reset.error.length") });
       return;
     }
     if (password !== confirm) {
-      setErrors({ confirm: "Passwords don't match" });
+      setErrors({ confirm: t("reset.error.match") });
       return;
     }
 
@@ -40,8 +43,7 @@ export function ResetPasswordPage() {
         : undefined;
       if (issues?.length) setErrors(issueMap(issues));
       else {
-        toast("Couldn't reset your password", {
-          description: "The link may be invalid or expired.",
+        toast(t("reset.error.generic"), {
           variant: "error",
         });
       }
@@ -52,9 +54,9 @@ export function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <AuthCard title="Invalid link" description="This reset link is missing its token.">
+      <AuthCard title={t("reset.invalid.title")} description={t("reset.invalid.description")}>
         <Button asChild className="w-full">
-          <Link to="/forgot-password">Request a new link</Link>
+          <Link to="/forgot-password">{t("reset.invalid.action")}</Link>
         </Button>
       </AuthCard>
     );
@@ -62,18 +64,18 @@ export function ResetPasswordPage() {
 
   if (done) {
     return (
-      <AuthCard title="Password updated" description="You can sign in with your new password.">
+      <AuthCard title={t("reset.success.title")} description={t("reset.success.description")}>
         <Button asChild className="w-full">
-          <Link to="/login">Go to sign in</Link>
+          <Link to="/login">{t("reset.success.action")}</Link>
         </Button>
       </AuthCard>
     );
   }
 
   return (
-    <AuthCard title="Set a new password" description="Choose a strong password for your account.">
+    <AuthCard title={t("reset.title")} description={t("reset.description")}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Field label="New password" htmlFor="password" error={errors.password} hint="At least 8 characters">
+        <Field label={t("reset.password")} htmlFor="password" error={errors.password} hint={t("reset.passwordHint")}>
           <FieldPassword
             id="password"
             name="password"
@@ -85,7 +87,7 @@ export function ResetPasswordPage() {
             required
           />
         </Field>
-        <Field label="Confirm password" htmlFor="confirm" error={errors.confirm}>
+        <Field label={t("reset.confirm")} htmlFor="confirm" error={errors.confirm}>
           <FieldPassword
             id="confirm"
             name="confirm"
@@ -98,7 +100,8 @@ export function ResetPasswordPage() {
           />
         </Field>
         <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-          {submitting ? "Updating…" : "Update password"}
+          {submitting && <Loader2 className="size-4 animate-spin" />}
+          {submitting ? t("reset.submitting") : t("reset.submit")}
         </Button>
       </form>
     </AuthCard>

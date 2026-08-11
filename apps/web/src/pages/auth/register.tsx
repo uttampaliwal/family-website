@@ -3,8 +3,9 @@ import { Button } from "@family/ui";
 import { ApiError } from "../../lib/api-client.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { AuthCard } from "../../components/auth/auth-card.js";
-import { Field, FieldInput, FieldPassword, issueMap } from "../../components/auth/field.js";
+import { Field, FieldInput, FieldPassword, FieldSelect, issueMap } from "../../components/auth/field.js";
 import { UsernameAvailability } from "../../components/auth/username-availability.js";
+import { Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../../i18n/index.js";
@@ -71,17 +72,17 @@ export function RegisterPage() {
       if (err instanceof ApiError) {
         if (err.code === "ACCOUNT_EXISTS") {
           setFormError(
-            "An account with that email or username already exists. Try signing in instead.",
+            t("register.error.accountExists"),
           );
         } else if (err.code === "RATE_LIMITED") {
-          setFormError("Too many sign-ups — please wait a few minutes and try again.");
+          setFormError(t("register.error.rateLimited"));
         } else if (err.code === "VALIDATION_ERROR") {
           setErrors(issueMap(err.issues));
         } else {
           setFormError(err.message);
         }
       } else {
-        setFormError("Something went wrong. Please try again.");
+        setFormError(t("register.error.generic"));
       }
     } finally {
       setSubmitting(false);
@@ -91,18 +92,15 @@ export function RegisterPage() {
   if (registeredEmail) {
     return (
       <AuthCard
-        title="Check your email"
-        description="One last step before you're in."
+        title={t("register.success.title")}
+        description={t("register.success.description")}
       >
         <div className="space-y-4 text-sm leading-relaxed text-muted">
           <p>
-            We sent a verification link to{" "}
-            <span className="font-medium text-foreground">{registeredEmail}</span>.
-            Click it to verify your email, then sign in once an administrator has
-            approved your account.
+            {t("register.success.message").replace("{email}", registeredEmail)}
           </p>
           <p>
-            Didn't get it?{" "}
+            {t("register.success.resend").split("Resend the link")[0]}{" "}
             <Link
               to="/resend-verification"
               className="font-medium text-primary hover:underline"
@@ -112,7 +110,7 @@ export function RegisterPage() {
           </p>
           <div>
             <Button asChild variant="outline" className="w-full">
-              <Link to="/login">Back to sign in</Link>
+              <Link to="/login">{t("register.success.backToSignIn")}</Link>
             </Button>
           </div>
         </div>
@@ -182,7 +180,7 @@ export function RegisterPage() {
           />
         </Field>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Date of birth" htmlFor="dateOfBirth" error={errors.dateOfBirth}>
+          <Field label={t("register.dateOfBirth")} htmlFor="dateOfBirth" error={errors.dateOfBirth}>
             <FieldInput
               id="dateOfBirth"
               name="dateOfBirth"
@@ -192,46 +190,35 @@ export function RegisterPage() {
               onChange={(e) => set("dateOfBirth", e.target.value)}
             />
           </Field>
-          <Field label="Gender" htmlFor="gender" error={errors.gender}>
-            <select
+          <Field label={t("register.gender")} htmlFor="gender" error={errors.gender}>
+            <FieldSelect
               id="gender"
               name="gender"
               value={values.gender}
               onChange={(e) => set("gender", e.target.value)}
-              className="h-11 w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm text-foreground shadow-sm focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-            >
-              <option value="">—</option>
-              {GENDERS.map((g) => (
-                <option key={g} value={g}>
-                  {g}
-                </option>
-              ))}
-            </select>
+              options={GENDERS}
+              error={errors.gender}
+            />
           </Field>
-          <Field label="Relationship" htmlFor="relationship" error={errors.relationship}>
-            <select
+          <Field label={t("register.relationship")} htmlFor="relationship" error={errors.relationship}>
+            <FieldSelect
               id="relationship"
               name="relationship"
               value={values.relationship}
               onChange={(e) => set("relationship", e.target.value)}
-              className="h-11 w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm text-foreground shadow-sm focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-            >
-              <option value="">—</option>
-              {RELATIONSHIPS.map((r) => (
-                <option key={r} value={r}>
-                  {r.replaceAll("_", " ")}
-                </option>
-              ))}
-            </select>
+              options={RELATIONSHIPS}
+              getOptionLabel={(r) => r.replaceAll("_", " ")}
+              error={errors.relationship}
+            />
           </Field>
         </div>
-        <Field label="Phone number (optional)" htmlFor="phoneNumber" error={errors.phoneNumber}>
+        <Field label={t("register.phoneNumber")} htmlFor="phoneNumber" error={errors.phoneNumber}>
           <FieldInput
             id="phoneNumber"
             name="phoneNumber"
             type="tel"
             autoComplete="tel"
-            placeholder="+91 98765 43210"
+            placeholder={t("register.phoneNumberPlaceholder")}
             value={values.phoneNumber}
             error={errors.phoneNumber}
             onChange={(e) => set("phoneNumber", e.target.value)}
@@ -253,7 +240,8 @@ export function RegisterPage() {
           size="lg"
           disabled={submitting || usernameChecking || usernameUnavailable}
         >
-          {t("register.submit")}
+          {(submitting || usernameChecking) && <Loader2 className="size-4 animate-spin" />}
+          {submitting ? t("register.submitting") : t("register.submit")}
         </Button>
 
         <p className="text-center text-sm text-muted">

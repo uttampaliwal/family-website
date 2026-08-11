@@ -1,14 +1,17 @@
 import { Button } from "@family/ui";
 import { useToast } from "@family/ui";
+import { Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldInput } from "../../components/auth/field.js";
 import { api } from "../../lib/api-client.js";
 import { useSeo } from "../../lib/seo.js";
+import { useI18n } from "../../i18n/index.js";
 
 export function ForgotPasswordPage() {
   useSeo("auth.forgot.title");
+  const { t } = useI18n();
   const toast = useToast().toast;
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -21,7 +24,7 @@ export function ForgotPasswordPage() {
       await api.post("/auth/forgot-password", { email });
       setSent(true);
     } catch {
-      toast("Couldn't send the reset link", { variant: "error" });
+      toast(t("forgot.error"), { variant: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -30,17 +33,15 @@ export function ForgotPasswordPage() {
   if (sent) {
     return (
       <AuthCard
-        title="Check your email"
-        description="If an account exists, a reset link is on its way."
+        title={t("forgot.success.title")}
+        description={t("forgot.success.description")}
       >
         <div className="space-y-4 text-sm leading-relaxed text-muted">
           <p>
-            We've sent a password reset link to{" "}
-            <span className="font-medium text-foreground">{email}</span>. It
-            expires in 30 minutes.
+            {t("forgot.success.message").replace("{email}", email)}
           </p>
           <Button asChild variant="outline" className="w-full">
-            <Link to="/login">Back to sign in</Link>
+            <Link to="/login">{t("forgot.success.backToSignIn")}</Link>
           </Button>
         </div>
       </AuthCard>
@@ -49,11 +50,11 @@ export function ForgotPasswordPage() {
 
   return (
     <AuthCard
-      title="Forgot your password?"
-      description="Enter your email and we'll send you a reset link."
+      title={t("forgot.title")}
+      description={t("forgot.description")}
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Field label="Email" htmlFor="email">
+        <Field label={t("forgot.email")} htmlFor="email">
           <FieldInput
             id="email"
             name="email"
@@ -66,12 +67,13 @@ export function ForgotPasswordPage() {
           />
         </Field>
         <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-          {submitting ? "Sending…" : "Send reset link"}
+          {submitting && <Loader2 className="size-4 animate-spin" />}
+          {submitting ? t("forgot.submitting") : t("forgot.submit")}
         </Button>
         <p className="text-center text-sm text-muted">
-          Remembered it?{" "}
+          {t("forgot.remembered")}{" "}
           <Link to="/login" className="font-medium text-primary hover:underline">
-            Sign in
+            {t("forgot.signIn")}
           </Link>
         </p>
       </form>

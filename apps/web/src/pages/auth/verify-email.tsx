@@ -5,11 +5,13 @@ import { AuthCard } from "../../components/auth/auth-card.js";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSeo } from "../../lib/seo.js";
+import { useI18n } from "../../i18n/index.js";
 
 type State = "verifying" | "error" | "success";
 
 export function VerifyEmailPage() {
   useSeo("auth.verify.title");
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [state, setState] = useState<State>("verifying");
@@ -31,34 +33,33 @@ export function VerifyEmailPage() {
 
   return (
     <AuthCard
-      title="Verifying your email"
-      description={state === "success" ? "You're all set." : "Hold on a moment…"}
+      title={t("verify.title")}
+      description={state === "success" ? t("verify.description.success") : state === "error" ? t("verify.description.error") : t("verify.description.pending")}
     >
       <div className="space-y-4 text-sm leading-relaxed text-muted">
         {state === "verifying" && (
           <p className="flex items-center gap-2">
             <Loader2 className="size-4 animate-spin text-primary" />
-            Confirming your verification link…
+            {t("verify.pending")}
           </p>
         )}
         {state === "success" && (
           <>
             <p>
-              Your email is verified. Your account will be active once an
-              administrator approves it.
+              {t("verify.success.message")}
             </p>
             <Button asChild className="w-full">
-              <Link to="/login">Go to sign in</Link>
+              <Link to="/login">{t("verify.success.action")}</Link>
             </Button>
           </>
         )}
         {state === "error" && (
           <>
             <p>
-              This verification link is invalid or has expired.
+              {t("verify.error.message")}
             </p>
             <Button asChild className="w-full">
-              <Link to="/resend-verification">Resend verification link</Link>
+              <Link to="/resend-verification">{t("verify.error.action")}</Link>
             </Button>
           </>
         )}

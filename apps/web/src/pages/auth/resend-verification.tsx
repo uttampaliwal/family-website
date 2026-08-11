@@ -1,23 +1,30 @@
 import { Button } from "@family/ui";
+import { Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldInput } from "../../components/auth/field.js";
 import { api } from "../../lib/api-client.js";
 import { useSeo } from "../../lib/seo.js";
+import { useI18n } from "../../i18n/index.js";
 
 export function ResendVerificationPage() {
   useSeo("auth.resend.title");
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    setError(null);
     setSubmitting(true);
     try {
       await api.post("/auth/resend-verification", { email });
       setSent(true);
+    } catch {
+      setError(t("resend.error"));
     } finally {
       setSubmitting(false);
     }
@@ -26,11 +33,11 @@ export function ResendVerificationPage() {
   if (sent) {
     return (
       <AuthCard
-        title="Check your email"
-        description="A fresh verification link is on its way."
+        title={t("resend.success.title")}
+        description={t("resend.success.description")}
       >
         <Button asChild variant="outline" className="w-full">
-          <Link to="/login">Back to sign in</Link>
+          <Link to="/login">{t("resend.success.backToSignIn")}</Link>
         </Button>
       </AuthCard>
     );
@@ -38,11 +45,11 @@ export function ResendVerificationPage() {
 
   return (
     <AuthCard
-      title="Resend verification"
-      description="Enter the email you signed up with and we'll send a new link."
+      title={t("resend.title")}
+      description={t("resend.description")}
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Field label="Email" htmlFor="email">
+        <Field label={t("resend.email")} htmlFor="email">
           <FieldInput
             id="email"
             name="email"
@@ -54,12 +61,21 @@ export function ResendVerificationPage() {
             required
           />
         </Field>
+        {error && (
+          <p
+            role="alert"
+            className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm font-medium text-error"
+          >
+            {error}
+          </p>
+        )}
         <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-          {submitting ? "Sending…" : "Send verification link"}
+          {submitting && <Loader2 className="size-4 animate-spin" />}
+          {submitting ? t("resend.submitting") : t("resend.submit")}
         </Button>
         <p className="text-center text-sm text-muted">
           <Link to="/login" className="font-medium text-primary hover:underline">
-            Back to sign in
+            {t("resend.backToSignIn")}
           </Link>
         </p>
       </form>

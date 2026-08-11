@@ -4,7 +4,8 @@ import { ApiError } from "../../lib/api-client.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { AuthCard } from "../../components/auth/auth-card.js";
 import { Field, FieldInput, FieldPassword, issueMap } from "../../components/auth/field.js";
-import { useState, type FormEvent } from "react";
+import { Loader2 } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "../../i18n/index.js";
 import { useSeo } from "../../lib/seo.js";
@@ -22,8 +23,19 @@ export function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const from = (location.state as { from?: string } | null)?.from ?? "/";
+
+  // Focus first error field
+  useEffect(() => {
+    if (errors.email) {
+      emailRef.current?.focus();
+    } else if (errors.password) {
+      passwordRef.current?.focus();
+    }
+  }, [errors]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -82,8 +94,10 @@ export function LoginPage() {
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Field label={t("login.email")} htmlFor="email" error={errors.email}>
           <FieldInput
+            ref={emailRef}
             id="email"
             name="email"
+            type="email"
             autoComplete="username"
             placeholder={t("login.emailPlaceholder")}
             value={email}
@@ -94,6 +108,7 @@ export function LoginPage() {
         </Field>
         <Field label={t("login.password")} htmlFor="password" error={errors.password}>
           <FieldPassword
+            ref={passwordRef}
             id="password"
             name="password"
             autoComplete="current-password"
@@ -115,7 +130,8 @@ export function LoginPage() {
         )}
 
         <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-          {t("login.submit")}
+          {submitting && <Loader2 className="size-4 animate-spin" />}
+          {submitting ? t("login.submitting") : t("login.submit")}
         </Button>
 
         <div className="flex items-center justify-between text-sm">
