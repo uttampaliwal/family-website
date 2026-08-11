@@ -1,5 +1,5 @@
 import { Button } from "@family/ui";
-import { Loader2, Search, SearchX } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "../../i18n/index.js";
@@ -7,6 +7,7 @@ import {
   flattenSearchItems,
   SearchResults,
 } from "./search-results.js";
+import { NoResults } from "./no-results.js";
 import { useGlobalSearch } from "./use-global-search.js";
 import { useNaturalSearch } from "./use-natural-search.js";
 import { NaturalSearchPanel } from "./natural-search-panel.js";
@@ -151,10 +152,14 @@ export function GlobalSearch() {
                 Couldn't search right now.
               </p>
             ) : data && items.length === 0 ? (
-              <div className="px-6 py-12 text-center text-sm text-muted">
-                <SearchX className="mx-auto mb-3 size-6 text-muted/60" />
-                {t("search.noResults", { q: term })}
-              </div>
+              <NoResults
+                q={term}
+                onPick={(s) => {
+                  setQuery(s);
+                  setTerm(s);
+                  setActiveIndex(-1);
+                }}
+              />
             ) : (
               <SearchResults
                 items={items}

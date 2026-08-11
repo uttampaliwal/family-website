@@ -1,6 +1,6 @@
 import { Input } from "@family/ui";
 import type { NlResponse } from "@family/core";
-import { Search, SearchX } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -8,6 +8,7 @@ import {
   SearchResults,
 } from "../components/search/search-results.js";
 import { NaturalSearchPanel } from "../components/search/natural-search-panel.js";
+import { NoResults } from "../components/search/no-results.js";
 import { useGlobalSearch } from "../components/search/use-global-search.js";
 import { useNaturalSearch } from "../components/search/use-natural-search.js";
 import { useI18n } from "../i18n/index.js";
@@ -87,18 +88,11 @@ export function SearchPage() {
               natural.data.answer === null &&
               natural.data.intent !== "all" &&
               naturalIsEmpty(natural.data) && (
-                <p className="py-16 text-center text-[15px] text-muted">
-                  {t("search.noResults", { q: term })}
-                </p>
+                <NoResults q={term} onPick={setQuery} />
               )}
           </>
         ) : data && items.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-20 text-center">
-            <span className="grid size-12 place-items-center rounded-2xl bg-surface-2/70 text-muted/70">
-              <SearchX className="size-5" />
-            </span>
-            <p className="text-[15px] text-muted">{t("search.noResults", { q: term })}</p>
-          </div>
+          <NoResults q={term} onPick={setQuery} />
         ) : (
           <SearchResults items={items} withGroupHeaders />
         )}

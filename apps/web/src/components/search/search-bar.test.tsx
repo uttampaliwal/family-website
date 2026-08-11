@@ -123,6 +123,34 @@ describe("GlobalSearch", () => {
     });
   });
 
+  it("suggests example terms when nothing matches and re-searches on pick", async () => {
+    const empty: SearchResponse = {
+      q: "zzz",
+      people: [],
+      photos: [],
+      posts: [],
+      events: [],
+      documents: [],
+      messages: [],
+    };
+    vi.mocked(api.get).mockResolvedValue(empty);
+    renderBar();
+    fireEvent.click(screen.getAllByRole("button", { name: "Search the family" })[0]!);
+
+    const input = screen.getByRole("textbox", { name: "Search" });
+    fireEvent.change(input, { target: { value: "zzz" } });
+
+    expect(await screen.findByText(/Try searching for/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "photo captions" }));
+    await waitFor(
+      () =>
+        expect(api.get).toHaveBeenCalledWith(
+          expect.stringMatching(/\/search\?q=photo%20captions&limit=5$/),
+        ),
+      { timeout: 3000 },
+    );
+  });
+
   it("closes the panel with Escape", async () => {
     renderBar();
     fireEvent.click(screen.getAllByRole("button", { name: "Search the family" })[0]!);
@@ -150,5 +178,45 @@ describe("SearchPage", () => {
     await waitFor(() => expect(api.get).toHaveBeenCalled(), { timeout: 3000 });
     expect(await screen.findByText("Alice Sharma")).toBeInTheDocument();
     expect(screen.getByText("People")).toBeInTheDocument();
+  });
+
+  it("shows suggestions when a search has no results", async () => {
+    const empty: SearchResponse = {
+      q: "zzz",
+      people: [],
+      photos: [],
+      posts: [],
+      events: [],
+      documents: [],
+      messages: [],
+    };
+    vi.mocked(api.get).mockResolvedValue({
+      q: "zzz",
+      query: "zzz",
+      intent: "all",
+      filters: { dataset: "all" },
+      answer: null,
+      people: [],
+      photos: [],
+      events: [],
+      documents: [],
+      posts: [],
+      messages: [],
+    });
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <I18nProvider>
+          <MemoryRouter initialEntries={["/search?q=zzz"]}>
+            <Routes>
+              <Route path="/search" element={<SearchPage />} />
+            </Routes>
+          </MemoryRouter>
+        </I18nProvider>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => expect(api.get).toHaveBeenCalled(), { timeout: 3000 });
+    expect(await screen.findByText("member names")).toBeInTheDocument();
+    expect(screen.getByText(/Nothing found for/)).toBeInTheDocument();
   });
 });
