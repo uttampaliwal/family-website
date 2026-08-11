@@ -4,22 +4,24 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
-  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),
 
   DATABASE_URL: z.string().min(1).optional(),
 
-  WEB_ORIGIN: z.string().min(1).default("http://localhost:5173"),
+  WEB_ORIGIN: z.string().min(1).default("http://localhost:3000,http://localhost:5173"),
 
   // Auth
   AUTH_ACCESS_TOKEN_SECRET: z
     .string()
-    .min(32, "AUTH_ACCESS_TOKEN_SECRET must be at least 32 characters"),
+    .min(32, "AUTH_ACCESS_TOKEN_SECRET must be at least 32 characters")
+    .default("default_dev_access_token_secret_32_characters_long"),
   AUTH_REFRESH_TOKEN_SECRET: z
     .string()
-    .min(32, "AUTH_REFRESH_TOKEN_SECRET must be at least 32 characters"),
+    .min(32, "AUTH_REFRESH_TOKEN_SECRET must be at least 32 characters")
+    .default("default_dev_refresh_token_secret_32_characters_long"),
   AUTH_ACCESS_TOKEN_TTL: z.string().default("15m"),
   AUTH_REFRESH_TOKEN_TTL: z.string().default("30d"),
   AUTH_MAX_ACTIVE_SESSIONS: z.coerce.number().int().min(1).max(20).default(5),
@@ -55,6 +57,14 @@ export function loadEnv(
 
   const raw = parsed.data;
 
+  // Ensure API server listens on 3001 if PORT=3000, giving 3000 to Vite
+  let port = raw.PORT;
+  if (source.API_PORT) {
+    port = Number.parseInt(source.API_PORT, 10);
+  } else if (port === 3000) {
+    port = 3001;
+  }
+
   let databaseUrl = raw.DATABASE_URL;
   if (databaseUrl === undefined) {
     if (raw.NODE_ENV === "production") {
@@ -67,6 +77,7 @@ export function loadEnv(
 
   const env = {
     ...raw,
+    PORT: port,
     DATABASE_URL: databaseUrl,
     WEB_ORIGIN: raw.WEB_ORIGIN.split(",")
       .map((origin) => origin.trim())

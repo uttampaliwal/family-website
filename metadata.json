@@ -1,0 +1,6 @@
+{
+  "name": "Kulaya — The Family Nest",
+  "description": "A private home for family photos, events, documents, and moments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
