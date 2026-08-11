@@ -181,15 +181,6 @@ describe("SearchPage", () => {
   });
 
   it("shows suggestions when a search has no results", async () => {
-    const empty: SearchResponse = {
-      q: "zzz",
-      people: [],
-      photos: [],
-      posts: [],
-      events: [],
-      documents: [],
-      messages: [],
-    };
     vi.mocked(api.get).mockResolvedValue({
       q: "zzz",
       query: "zzz",
