@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
   useToast,
 } from "@family/ui";
-import { FolderOpen, HeartHandshake, Languages, LogIn, LogOut, Megaphone, MessageCircle, Search, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { FolderOpen, HeartHandshake, Languages, LogIn, LogOut, Megaphone, Menu, MessageCircle, Search, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { can } from "@family/core";
 import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useState } from "react";
@@ -112,13 +112,13 @@ export function Header() {
   }
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b border-border/60 backdrop-blur-xl transition-all duration-300",
-        scrolled ? "bg-background/85 shadow-sm" : "bg-background/60",
-      )}
-    >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-2 z-40 mx-auto w-full max-w-6xl px-3 sm:px-6">
+      <div
+        className={cn(
+          "flex h-16 items-center justify-between rounded-2xl border border-border/80 bg-background/80 px-4 backdrop-blur-xl shadow-md transition-all duration-300 sm:px-6",
+          scrolled ? "border-primary/20 bg-background/90 shadow-lg" : "",
+        )}
+      >
         <Link
           to="/"
           className="group flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
@@ -131,13 +131,15 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1" aria-label={t("nav.mainAria")}>
+        <nav className="flex items-center gap-1.5" aria-label={t("nav.mainAria")}>
           {status === "authenticated" && (
             <Suspense fallback={<SearchSuspense />}>
               <GlobalSearch />
             </Suspense>
           )}
-          <div className="hidden items-center gap-1 sm:flex">
+
+          {/* Desktop Nav Links */}
+          <div className="hidden items-center gap-1 md:flex">
             {navItems.map((item) => {
               const hiddenForGuests =
                 item.to === "/chat" && !can(user?.role ?? "guest", "chat");
@@ -149,10 +151,10 @@ export function Header() {
                   to={item.to}
                   className={({ isActive }) =>
                     cn(
-                      "rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+                      "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-surface-2 text-foreground"
-                        : "text-muted hover:bg-surface-2/70 hover:text-foreground",
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "text-muted hover:bg-surface-2 hover:text-foreground",
                     )
                   }
                 >
@@ -165,6 +167,40 @@ export function Header() {
                 <PendingApprovalsLink />
               )}
           </div>
+
+          {/* Mobile Nav Links Dropdown */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" aria-label="Open mobile menu">
+                  <Menu className="size-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {navItems.map((item) => {
+                  const hiddenForGuests =
+                    item.to === "/chat" && !can(user?.role ?? "guest", "chat");
+                  if (item.to !== "/" && status !== "authenticated") return null;
+                  if (status === "authenticated" && hiddenForGuests) return null;
+                  return (
+                    <DropdownMenuItem key={item.to} asChild>
+                      <Link to={item.to}>{t(item.labelKey)}</Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => setLang(lang === "en" ? "hi" : "en")}
+                >
+                  <Languages className="size-4" />
+                  {t("lang.label")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           {status === "authenticated" && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -252,6 +288,7 @@ export function Header() {
               </Link>
             </Button>
           )}
+
           <Button
             variant="ghost"
             size="sm"
@@ -263,7 +300,9 @@ export function Header() {
             <Languages className="size-4" />
             {t("lang.label")}
           </Button>
+
           <ThemeSwitcher />
+
           {status === "authenticated" && user && (
             <Suspense
               fallback={
