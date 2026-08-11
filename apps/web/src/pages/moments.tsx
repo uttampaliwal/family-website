@@ -143,7 +143,7 @@ export function MomentsPage() {
       )}
 
       {data && data.items.length > 0 && (
-        <ul className="mt-8 space-y-4">
+        <ul className="virtual mt-8 space-y-4">
           {data.items.map((post) => {
             const canManagePost = can(user?.role ?? "guest", "moderate") || user?.id === post.createdBy.id;
             return (

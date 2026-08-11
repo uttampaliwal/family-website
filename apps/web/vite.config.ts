@@ -60,12 +60,19 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Stable vendor chunks -> long-lived browser cache, no >500 kB blob.
-        manualChunks: {
-          react: ["react", "react-dom", "react-router-dom"],
-          data: ["@tanstack/react-query", "zustand"],
-          ui: ["@family/ui"],
-          icons: ["lucide-react"],
-          contracts: ["@family/core"],
+        // Function form so subpath entries (react/jsx-runtime, react-dom/client,
+        // scheduler) join their family instead of leaking into the entry chunk.
+        manualChunks(id) {
+          if (id.includes("node_modules/react-router") ||
+              id.includes("node_modules/react-dom") ||
+              id.includes("node_modules/react/") ||
+              id.includes("node_modules/scheduler")) return "react";
+          if (id.includes("@tanstack/react-query") || id.includes("zustand")) return "data";
+          if (id.includes("lucide-react")) return "icons";
+          // Workspace packages resolve to their real source paths,
+          // not to a node_modules/@family/* id, so match both forms.
+          if (id.includes("@family/ui") || id.includes("/packages/ui/")) return "ui";
+          if (id.includes("@family/core") || id.includes("/packages/core/") || id.includes("node_modules/zod")) return "contracts";
         },
       },
     },

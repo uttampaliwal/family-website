@@ -10,17 +10,38 @@ import {
   DropdownMenuTrigger,
   useToast,
 } from "@family/ui";
-import { FolderOpen, HeartHandshake, Languages, LogIn, LogOut, Megaphone, MessageCircle, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { FolderOpen, HeartHandshake, Languages, LogIn, LogOut, Megaphone, MessageCircle, Search, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { can } from "@family/core";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { api } from "../../lib/api-client.js";
 import { useI18n } from "../../i18n/index.js";
-import { NotificationBell } from "./notification-bell.js";
 import { ThemeSwitcher } from "./theme-switcher.js";
-import { GlobalSearch } from "../search/search-bar.js";
+
+// These are only shown to signed-in family members, so defer their code:
+// search pulls in the full AI surface, the bell its polling logic.
+const GlobalSearch = lazy(() =>
+  import("../search/search-bar.js").then((m) => ({ default: m.GlobalSearch })),
+);
+const NotificationBell = lazy(() =>
+  import("./notification-bell.js").then((m) => ({ default: m.NotificationBell })),
+);
+
+function SearchSuspense() {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled
+      aria-hidden
+      className="hidden items-center gap-1.5 sm:inline-flex"
+    >
+      <Search className="size-4" />
+    </Button>
+  );
+}
 
 const navItems = [
   { to: "/", labelKey: "nav.home" },
@@ -111,7 +132,11 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-1" aria-label={t("nav.mainAria")}>
-          {status === "authenticated" && <GlobalSearch />}
+          {status === "authenticated" && (
+            <Suspense fallback={<SearchSuspense />}>
+              <GlobalSearch />
+            </Suspense>
+          )}
           <div className="hidden items-center gap-1 sm:flex">
             {navItems.map((item) => {
               const hiddenForGuests =
@@ -239,7 +264,15 @@ export function Header() {
             {t("lang.label")}
           </Button>
           <ThemeSwitcher />
-          {status === "authenticated" && user && <NotificationBell />}
+          {status === "authenticated" && user && (
+            <Suspense
+              fallback={
+                <span className="size-8 rounded-full bg-surface-2" aria-hidden />
+              }
+            >
+              <NotificationBell />
+            </Suspense>
+          )}
         </nav>
       </div>
     </header>

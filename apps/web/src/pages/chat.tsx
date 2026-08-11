@@ -9,6 +9,7 @@ import { api } from "../lib/api-client.js";
 import { connectSse } from "../lib/sse.js";
 import { useI18n } from "../i18n/index.js";
 import { useSeo } from "../lib/seo.js";
+import { VirtualList } from "../components/virtual-list.js";
 
 interface RoomListResponse {
   items: ChatRoom[];
@@ -34,7 +35,6 @@ export function ChatPage() {
   );
   const [newRoomName, setNewRoomName] = useState("");
   const [draft, setDraft] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const selectedRoomRef = useRef<string | null>(null);
   selectedRoomRef.current = selectedRoomId;
 
@@ -123,17 +123,14 @@ export function ChatPage() {
     };
   }, [queryClient]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messagesData]);
+  const selectedRoom = roomsData?.items.find((room) => room.id === selectedRoomId);
+  // Server returns newest-first; the thread reads oldest → newest, bottom-pinned.
+  const displayMessages = messagesData ? [...messagesData.items].reverse() : [];
 
   function selectRoom(roomId: string) {
     setSelectedRoomId(roomId);
     markRead.mutate(roomId);
   }
-
-  const selectedRoom = roomsData?.items.find((room) => room.id === selectedRoomId);
-  const displayMessages = messagesData ? [...messagesData.items].reverse() : [];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
@@ -215,23 +212,29 @@ export function ChatPage() {
                 <span className="font-semibold">{selectedRoom.name}</span>
               </header>
 
-              <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                {messagesLoading && (
-                  <div className="space-y-2">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <Skeleton key={i} className="h-10 w-2/3 rounded-xl" />
-                    ))}
-                  </div>
-                )}
-                {displayMessages.length === 0 && !messagesLoading && (
-                  <p className="pt-8 text-center text-sm text-muted">
-                    {t("chat.roomEmpty")}
-                  </p>
-                )}
-                {displayMessages.map((message) => {
+              {messagesLoading ? (
+                <div className="flex-1 space-y-3 overflow-y-auto p-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-2/3 rounded-xl" />
+                  ))}
+                </div>
+              ) : displayMessages.length === 0 ? (
+                <div className="grid flex-1 place-items-center p-4 text-sm text-muted">
+                  {t("chat.roomEmpty")}
+                </div>
+              ) : (
+                <VirtualList
+                items={displayMessages}
+                itemKey={(message) => message.id}
+                estimateHeight={64}
+                alignToBottom
+                role="log"
+                aria-label={t("chat.heading")}
+                className="flex-1 px-4 py-3"
+                renderRow={(message) => {
                   const mine = message.createdBy.id === user?.id;
                   return (
-                    <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                    <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                       <div
                         className={[
                           "max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
@@ -253,9 +256,9 @@ export function ChatPage() {
                       </div>
                     </div>
                   );
-                })}
-                <div ref={messagesEndRef} />
-              </div>
+                }}
+              />
+              )}
 
               <form
                 className="flex items-center gap-2 border-t border-border p-3"

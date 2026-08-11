@@ -80,6 +80,12 @@
   .font-display {
     font-family: var(--font-display-name, "Playfair Display"), serif;
   }
+
+  /* Skip rendering (and the layout cost) of long lists below the fold. */
+  .virtual {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 640px;
+  }
 }
 
 /* Scrollbar */

@@ -133,8 +133,8 @@ export function PhotosPage() {
         </div>
       )}
       {data && data.items.length > 0 && (
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {data.items.map((photo) => {
+        <div className="virtual mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {data.items.map((photo, index) => {
             const canDelete = can(user?.role ?? "guest", "moderate") || user?.id === photo.uploadedBy.id;
             return (
               <figure
@@ -145,7 +145,8 @@ export function PhotosPage() {
                   <img
                     src={photo.url}
                     alt={photo.caption ?? `Photo by ${photo.uploadedBy.name}`}
-                    loading="lazy"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    decoding="async"
                     className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {canDelete && (
