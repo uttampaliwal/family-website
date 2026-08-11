@@ -74,6 +74,14 @@
     background-color: var(--color-primary);
     color: var(--color-primary-fg);
   }
+
+  /* Tailwind v4 preflight drops the pointer cursor on buttons;
+     restore it for clickable elements per UI/UX guidelines. */
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
 }
 
 @layer components {
