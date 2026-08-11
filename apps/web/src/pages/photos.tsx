@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
+import { encodePhoto } from "../lib/encode-image.js";
 import { useI18n } from "../i18n/index.js";
 import { useSeo } from "../lib/seo.js";
 
@@ -26,6 +27,7 @@ export function PhotosPage() {
   const toast = useToast().toast;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [caption, setCaption] = useState("");
+  const [preparing, setPreparing] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["photos"],
@@ -33,7 +35,7 @@ export function PhotosPage() {
   });
 
   const upload = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async (file: Blob) => {
       const { uploadUrl, key } = await api.post<{ uploadUrl: string; key: string }>(
         "/photos/upload-url",
         { mimeType: file.type, size: file.size },
@@ -72,7 +74,7 @@ export function PhotosPage() {
     onError: () => toast("Couldn't delete the photo", { variant: "error" }),
   });
 
-  function onPickFile(event: React.ChangeEvent<HTMLInputElement>) {
+  async function onPickFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
@@ -84,7 +86,13 @@ export function PhotosPage() {
       toast("Photos can be at most 20 MB", { variant: "error" });
       return;
     }
-    upload.mutate(file);
+    setPreparing(true);
+    try {
+      const { blob } = await encodePhoto(file);
+      upload.mutate(blob, { onSuccess: () => setPreparing(false), onError: () => setPreparing(false) });
+    } catch {
+      setPreparing(false);
+    }
   }
 
   return (
@@ -111,9 +119,16 @@ export function PhotosPage() {
             className="hidden"
             onChange={onPickFile}
           />
-          <Button onClick={() => fileInputRef.current?.click()} disabled={upload.isPending}>
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={preparing || upload.isPending}
+          >
             <ImagePlus />
-            {upload.isPending ? "Uploading…" : "Add photo"}
+            {preparing
+              ? "Preparing…"
+              : upload.isPending
+                ? "Uploading…"
+                : "Add photo"}
           </Button>
         </div>
       </div>
@@ -147,6 +162,7 @@ export function PhotosPage() {
                     alt={photo.caption ?? `Photo by ${photo.uploadedBy.name}`}
                     loading={index === 0 ? "eager" : "lazy"}
                     decoding="async"
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                     className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {canDelete && (

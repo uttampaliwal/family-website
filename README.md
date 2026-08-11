@@ -9,7 +9,7 @@ stack and designed to run on fully free tiers.
 **Live features** — see [Roadmap](docs/roadmap.md) for history and plans.
 
 - **Members & family tree** — profiles, parent relationships, generations
-- **Photo gallery** — direct-to-R2 uploads (up to 20 MB, private by default)
+- **Photo gallery** — client-side WebP re-encode (≤2560px) before direct-to-R2 upload (up to 20 MB, private by default)
 - **Events calendar** — monthly grid, yearly recurrence, RSVP-style notes
 - **Announcements** — admin feed with email + in-app notification on publish
 - **Documents** — private archive with revocable public share links
