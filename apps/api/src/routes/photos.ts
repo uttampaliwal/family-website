@@ -1,31 +1,26 @@
-import { Hono } from "hono";
-import type { Context, Next } from "hono";
-import { zValidator } from "@hono/zod-validator";
 import type { Photo as PhotoPayload } from "@family/core";
-import { can, createPhotoRequestSchema, uploadUrlRequestSchema } from "@family/core";
-import { AppError } from "../middleware/error.js";
 import {
-  originCheck,
-  requireAuth,
-  requireCapability,
-} from "../middleware/security.js";
+  can,
+  createPhotoRequestSchema,
+  uploadUrlRequestSchema,
+} from "@family/core";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
 import { clientInfo, recordAudit } from "../lib/audit.js";
 import { newPhotoKey, storage } from "../lib/storage.js";
 import { validateBody } from "../lib/validation.js";
+import { AppError } from "../middleware/error.js";
+import {
+  originCheck,
+  requireApprovedAuth,
+  requireCapability,
+} from "../middleware/security.js";
 import { Photo } from "../models/photo.js";
 import { User } from "../models/user.js";
 
 export const photosRoutes = new Hono();
 
-async function requireApprovedMember(c: Context, next: Next) {
-  const user = await User.findById(c.get("userId"), { adminApprovalStatus: 1 });
-  if (!user || user.adminApprovalStatus !== "approved") {
-    throw new AppError(403, "FORBIDDEN", "Your account must be approved first");
-  }
-  await next();
-}
-
-photosRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
+photosRoutes.use("*", originCheck, requireApprovedAuth);
 
 /** Step 1: get a scoped upload URL (direct to R2 in production). */
 photosRoutes.post(
@@ -48,24 +43,30 @@ photosRoutes.post(
   requireCapability("uploadPhotos"),
   validateBody(createPhotoRequestSchema),
   async (c) => {
-  const userId = c.get("userId");
-  const { key, mimeType, size, caption } = c.req.valid("json");
+    const userId = c.get("userId");
+    const { key, mimeType, size, caption } = c.req.valid("json");
 
-  const existing = await Photo.findOne({ key });
-  if (existing) throw new AppError(409, "CONFLICT", "Photo already registered");
+    const existing = await Photo.findOne({ key });
+    if (existing)
+      throw new AppError(409, "CONFLICT", "Photo already registered");
 
-  await storage.confirmUpload(key, { mimeType, size });
+    await storage.confirmUpload(key, { mimeType, size });
 
-  const photo = await Photo.create({
-    key,
-    mimeType,
-    size,
-    caption: caption ?? undefined,
-    uploadedBy: userId,
-  });
+    const photo = await Photo.create({
+      key,
+      mimeType,
+      size,
+      caption: caption ?? undefined,
+      uploadedBy: userId,
+    });
 
-  return c.json({ photo: await toPhotoPayload(await findPopulatedPhoto(photo._id.toString())) });
-});
+    return c.json({
+      photo: await toPhotoPayload(
+        await findPopulatedPhoto(photo._id.toString()),
+      ),
+    });
+  },
+);
 
 photosRoutes.get("/", async (c) => {
   const photos = (await Photo.find()
@@ -79,7 +80,9 @@ photosRoutes.get("/", async (c) => {
 });
 
 photosRoutes.get("/:id", async (c) => {
-  return c.json({ photo: await toPhotoPayload(await findPopulatedPhoto(c.req.param("id"))) });
+  return c.json({
+    photo: await toPhotoPayload(await findPopulatedPhoto(c.req.param("id"))),
+  });
 });
 
 photosRoutes.delete("/:id", async (c) => {
@@ -91,7 +94,11 @@ photosRoutes.delete("/:id", async (c) => {
   const user = await User.findById(userId, { role: 1 });
   const isOwner = photo.uploadedBy.toString() === userId;
   if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
-    throw new AppError(403, "FORBIDDEN", "Only the uploader or a moderator can delete photos");
+    throw new AppError(
+      403,
+      "FORBIDDEN",
+      "Only the uploader or a moderator can delete photos",
+    );
   }
 
   await storage.deleteObject(photo.key);
@@ -119,7 +126,9 @@ export interface PopulatedPhoto {
   createdAt: Date;
 }
 
-export async function toPhotoPayload(photo: PopulatedPhoto): Promise<PhotoPayload> {
+export async function toPhotoPayload(
+  photo: PopulatedPhoto,
+): Promise<PhotoPayload> {
   return {
     id: photo._id.toString(),
     key: photo.key,

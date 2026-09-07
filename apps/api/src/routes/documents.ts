@@ -1,32 +1,27 @@
-import { Hono } from "hono";
-import type { Context, Next } from "hono";
-import { zValidator } from "@hono/zod-validator";
-import { randomBytes } from "node:crypto";
 import type { Document as DocumentPayload } from "@family/core";
-import { can, createDocumentRequestSchema, uploadDocumentUrlRequestSchema } from "@family/core";
-import { AppError } from "../middleware/error.js";
 import {
-  originCheck,
-  requireAuth,
-  requireCapability,
-} from "../middleware/security.js";
+  can,
+  createDocumentRequestSchema,
+  uploadDocumentUrlRequestSchema,
+} from "@family/core";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { randomBytes } from "node:crypto";
 import { clientInfo, recordAudit } from "../lib/audit.js";
 import { newDocumentKey, storage } from "../lib/storage.js";
 import { validateBody } from "../lib/validation.js";
+import { AppError } from "../middleware/error.js";
+import {
+  originCheck,
+  requireApprovedAuth,
+  requireCapability,
+} from "../middleware/security.js";
 import { KulayaDocument } from "../models/document.js";
 import { User } from "../models/user.js";
 
 export const documentsRoutes = new Hono();
 
-async function requireApprovedMember(c: Context, next: Next) {
-  const user = await User.findById(c.get("userId"), { adminApprovalStatus: 1 });
-  if (!user || user.adminApprovalStatus !== "approved") {
-    throw new AppError(403, "FORBIDDEN", "Your account must be approved first");
-  }
-  await next();
-}
-
-documentsRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
+documentsRoutes.use("*", originCheck, requireApprovedAuth);
 
 /** Step 1: get a scoped upload URL (direct to R2 in production). */
 documentsRoutes.post(
@@ -49,28 +44,34 @@ documentsRoutes.post(
   requireCapability("uploadDocuments"),
   validateBody(createDocumentRequestSchema),
   async (c) => {
-  const userId = c.get("userId");
-  const { key, name, mimeType, size, description } = c.req.valid("json");
+    const userId = c.get("userId");
+    const { key, name, mimeType, size, description } = c.req.valid("json");
 
-  const existing = await KulayaDocument.findOne({ key });
-  if (existing) throw new AppError(409, "CONFLICT", "Document already registered");
+    const existing = await KulayaDocument.findOne({ key });
+    if (existing)
+      throw new AppError(409, "CONFLICT", "Document already registered");
 
-  await storage.confirmUpload(key, { mimeType, size });
+    await storage.confirmUpload(key, { mimeType, size });
 
-  // Keep only the basename — never store path separators from uploads.
-  const safeName = name.split(/[\\/]/).pop() ?? "document";
+    // Keep only the basename — never store path separators from uploads.
+    const safeName = name.split(/[\\/]/).pop() ?? "document";
 
-  const document = await KulayaDocument.create({
-    key,
-    name: safeName,
-    mimeType,
-    size,
-    description: description ?? undefined,
-    uploadedBy: userId,
-  });
+    const document = await KulayaDocument.create({
+      key,
+      name: safeName,
+      mimeType,
+      size,
+      description: description ?? undefined,
+      uploadedBy: userId,
+    });
 
-  return c.json({ document: await toDocumentPayload(await findPopulatedDocument(document._id.toString())) });
-});
+    return c.json({
+      document: await toDocumentPayload(
+        await findPopulatedDocument(document._id.toString()),
+      ),
+    });
+  },
+);
 
 documentsRoutes.get("/", async (c) => {
   const documents = (await KulayaDocument.find()
@@ -84,14 +85,20 @@ documentsRoutes.get("/", async (c) => {
 });
 
 documentsRoutes.get("/:id", async (c) => {
-  return c.json({ document: await toDocumentPayload(await findPopulatedDocument(c.req.param("id"))) });
+  return c.json({
+    document: await toDocumentPayload(
+      await findPopulatedDocument(c.req.param("id")),
+    ),
+  });
 });
 
 /** Redirect to a signed storage URL that forces a download. */
 documentsRoutes.get("/:id/download", async (c) => {
   const document = await KulayaDocument.findById(c.req.param("id")).lean();
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
-  const url = await storage.getObjectUrl(document.key, { filename: document.name });
+  const url = await storage.getObjectUrl(document.key, {
+    filename: document.name,
+  });
   return c.redirect(url, 302);
 });
 
@@ -137,7 +144,10 @@ documentsRoutes.post("/:id/share", async (c) => {
     action: "DOCUMENT_SHARED",
     targetType: "document",
     targetId: document._id.toString(),
-    details: { name: document.name, url: `/api/shared/documents/${document.shareToken}` },
+    details: {
+      name: document.name,
+      url: `/api/shared/documents/${document.shareToken}`,
+    },
     ...clientInfo(c),
   });
 
@@ -175,7 +185,11 @@ async function assertCanManage(
   const user = await User.findById(userId, { role: 1 });
   const isOwner = document.uploadedBy.toString() === userId;
   if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
-    throw new AppError(403, "FORBIDDEN", "Only the uploader or a moderator can manage documents");
+    throw new AppError(
+      403,
+      "FORBIDDEN",
+      "Only the uploader or a moderator can manage documents",
+    );
   }
 }
 
@@ -192,7 +206,9 @@ export interface PopulatedDocument {
   updatedAt: Date;
 }
 
-export async function toDocumentPayload(document: PopulatedDocument): Promise<DocumentPayload> {
+export async function toDocumentPayload(
+  document: PopulatedDocument,
+): Promise<DocumentPayload> {
   return {
     id: String(document._id),
     name: document.name,

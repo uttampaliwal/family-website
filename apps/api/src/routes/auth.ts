@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-import { Hono } from "hono";
 import {
   changePasswordSchema,
   forgotPasswordSchema,
@@ -10,9 +8,9 @@ import {
   username,
   verifyEmailSchema,
 } from "@family/core";
+import { Hono } from "hono";
+import { randomUUID } from "node:crypto";
 import { env } from "../config/env.js";
-import { AppError } from "../middleware/error.js";
-import { csrfProtection, originCheck, rateLimit } from "../middleware/security.js";
 import { clientInfo, recordAudit } from "../lib/audit.js";
 import {
   clearAuthCookies,
@@ -29,10 +27,17 @@ import {
   verifyRefreshToken,
 } from "../lib/auth.js";
 import { buildEmailLink, sendMail } from "../lib/email.js";
+import { notifyAdmins } from "../lib/notifications.js";
 import { hashPassword, verifyPassword } from "../lib/passwords.js";
 import { toUserPayload } from "../lib/payloads.js";
 import { validateBody } from "../lib/validation.js";
-import { notifyAdmins } from "../lib/notifications.js";
+import { AppError } from "../middleware/error.js";
+import {
+  csrfProtection,
+  originCheck,
+  rateLimit,
+  requireApprovedAuth,
+} from "../middleware/security.js";
 import { User as UserModel, type UserDocument } from "../models/user.js";
 
 const AUTH_RATE = {
@@ -83,7 +88,11 @@ authRoutes.post(
       $or: [{ email: input.email }, { username: input.username }],
     });
     if (existing) {
-      throw new AppError(409, "ACCOUNT_EXISTS", "Email or username already in use");
+      throw new AppError(
+        409,
+        "ACCOUNT_EXISTS",
+        "Email or username already in use",
+      );
     }
 
     const verificationToken = generateRandomToken();
@@ -129,7 +138,8 @@ authRoutes.post(
 
     return c.json(
       {
-        message: "Registration successful — check your email to verify your account",
+        message:
+          "Registration successful — check your email to verify your account",
       },
       201,
     );
@@ -146,7 +156,7 @@ authRoutes.post(
   async (c) => {
     const input = c.req.valid("json");
 
-const user = await UserModel.findOne({
+    const user = await UserModel.findOne({
       $or: [{ email: input.email }, { username: input.email }],
     });
     if (!user || !(await verifyPassword(input.password, user.passwordHash))) {
@@ -155,7 +165,11 @@ const user = await UserModel.findOne({
         details: { identifier: input.email, reason: "INVALID_CREDENTIALS" },
         ...clientInfo(c),
       });
-      throw new AppError(401, "INVALID_CREDENTIALS", "Invalid email or password");
+      throw new AppError(
+        401,
+        "INVALID_CREDENTIALS",
+        "Invalid email or password",
+      );
     }
 
     if (!user.isVerified) {
@@ -193,6 +207,19 @@ const user = await UserModel.findOne({
       });
       throw new AppError(403, "ACCESS_REJECTED", "Access was not granted");
     }
+    if (user.adminApprovalStatus === "suspended") {
+      await recordAudit({
+        actorId: user._id.toString(),
+        action: "LOGIN_FAILED",
+        details: { identifier: input.email, reason: "ACCESS_SUSPENDED" },
+        ...clientInfo(c),
+      });
+      throw new AppError(
+        403,
+        "ACCESS_SUSPENDED",
+        "Your account has been suspended",
+      );
+    }
 
     const { accessToken, refreshToken } = await issueSession(user);
     setRefreshCookie(c, refreshToken);
@@ -213,61 +240,152 @@ const user = await UserModel.findOne({
 
 // ─── Session helpers ────────────────────────────────────────────────
 
+/** Replay grace for a superseded refresh JTI — tight on purpose. */
+const REFRESH_GRACE_MS = 10_000;
+
 async function issueSession(user: UserDocument) {
-  const accessToken = await signAccessToken(user._id.toString());
+  const accessToken = await signAccessToken(
+    user._id.toString(),
+    user.authVersion,
+  );
   const jti = randomUUID();
   const refreshToken = await signRefreshToken(user._id.toString(), jti);
 
-  const hashes = [...user.refreshTokenHashes, sha256(jti)];
-  while (hashes.length > env.AUTH_MAX_ACTIVE_SESSIONS) hashes.shift();
-  user.refreshTokenHashes = hashes;
+  user.refreshSessions.push({ jtiHash: sha256(jti), createdAt: new Date() });
+  while (user.refreshSessions.length > env.AUTH_MAX_ACTIVE_SESSIONS) {
+    user.refreshSessions.shift();
+  }
   await user.save();
 
   return { accessToken, refreshToken, jti };
 }
 
+/**
+ * Clears every refresh session (family + legacy) and bumps the security
+ * version so outstanding access tokens die immediately. Single-document
+ * save: membership/authVersion/session state move together or fail closed.
+ */
+async function revokeAllSessions(user: UserDocument): Promise<void> {
+  user.refreshTokenHashes = [];
+  user.refreshSessions = [];
+  user.authVersion += 1;
+  await user.save();
+}
+
+type RotationOutcome =
+  { status: "rotated" } | { status: "replay" } | { status: "reuse" };
+
+/**
+ * Single-flight-safe rotation over the session family:
+ * - presented hash matches a session's current JTI → rotate (old JTI gets a
+ *   ≤10s replay grace; no new branch is created on replay).
+ * - presented hash matches a superseded JTI inside its grace window →
+ *   "replay": caller must answer 401 SESSION_ROTATED WITHOUT wiping (the
+ *   losing tab retries with the already-rotated cookie).
+ * - presented hash matches a legacy pre-P1 hash → adopt into a session
+ *   record, then rotate normally (one-time migration).
+ * - anything else (unknown, or grace expired) → "reuse": token theft
+ *   semantics, wipe everything.
+ */
+function rotateRefreshSession(
+  user: UserDocument,
+  presentedHash: string,
+  newJti: string,
+): RotationOutcome {
+  const now = new Date();
+
+  const current = user.refreshSessions.find((s) => s.jtiHash === presentedHash);
+  if (current) {
+    current.prevJtiHash = current.jtiHash;
+    current.prevValidUntil = new Date(now.getTime() + REFRESH_GRACE_MS);
+    current.jtiHash = sha256(newJti);
+    return { status: "rotated" };
+  }
+
+  const replayed = user.refreshSessions.find(
+    (s) =>
+      s.prevJtiHash === presentedHash &&
+      s.prevValidUntil &&
+      s.prevValidUntil > now,
+  );
+  if (replayed) return { status: "replay" };
+
+  const legacyIndex = user.refreshTokenHashes.indexOf(presentedHash);
+  if (legacyIndex !== -1) {
+    user.refreshTokenHashes.splice(legacyIndex, 1);
+    user.refreshSessions.push({
+      jtiHash: sha256(newJti),
+      prevJtiHash: presentedHash,
+      prevValidUntil: new Date(now.getTime() + REFRESH_GRACE_MS),
+      createdAt: now,
+    });
+    while (user.refreshSessions.length > env.AUTH_MAX_ACTIVE_SESSIONS) {
+      user.refreshSessions.shift();
+    }
+    return { status: "rotated" };
+  }
+
+  return { status: "reuse" };
+}
+
 // ─── Refresh ────────────────────────────────────────────────────────
 
-authRoutes.post(
-  "/refresh",
-  AUTH_RATE.general,
-  csrfProtection,
-  async (c) => {
-    const token = readCookie(c, REFRESH_COOKIE);
-    if (!token) throw new AppError(401, "UNAUTHORIZED", "No active session");
+authRoutes.post("/refresh", AUTH_RATE.general, csrfProtection, async (c) => {
+  const token = readCookie(c, REFRESH_COOKIE);
+  if (!token) throw new AppError(401, "UNAUTHORIZED", "No active session");
 
-    const payload = await verifyRefreshToken(token);
-    if (!payload) {
-      clearAuthCookies(c);
-      throw new AppError(401, "UNAUTHORIZED", "Session expired");
-    }
+  const payload = await verifyRefreshToken(token);
+  if (!payload) {
+    clearAuthCookies(c);
+    throw new AppError(401, "UNAUTHORIZED", "Session expired");
+  }
 
-    const user = await UserModel.findById(payload.sub);
-    if (!user) {
-      clearAuthCookies(c);
-      throw new AppError(401, "UNAUTHORIZED", "Account not found");
-    }
+  const user = await UserModel.findById(payload.sub);
+  if (!user) {
+    clearAuthCookies(c);
+    throw new AppError(401, "UNAUTHORIZED", "Account not found");
+  }
 
-    const tokenHash = sha256(payload.jti);
-    const index = user.refreshTokenHashes.indexOf(tokenHash);
-    if (index === -1) {
-      // Token reuse detected — revoke every session for this account.
-      user.refreshTokenHashes = [];
-      await user.save();
-      clearAuthCookies(c);
-      throw new AppError(401, "SESSION_REVOKED", "Session was revoked");
-    }
+  // Fail closed: rejected/suspended/unverified accounts cannot mint new
+  // access tokens, even with a live refresh cookie.
+  if (!user.isVerified) {
+    clearAuthCookies(c);
+    throw new AppError(403, "EMAIL_NOT_VERIFIED", "Please verify your email");
+  }
+  if (user.adminApprovalStatus !== "approved") {
+    clearAuthCookies(c);
+    throw new AppError(403, "ACCESS_REVOKED", "Your access has been revoked");
+  }
 
-    user.refreshTokenHashes.splice(index, 1);
-    await user.save();
+  const newJti = randomUUID();
+  const outcome = rotateRefreshSession(user, sha256(payload.jti), newJti);
+  if (outcome.status === "reuse") {
+    // Token reuse detected — revoke every session for this account.
+    await revokeAllSessions(user);
+    clearAuthCookies(c);
+    throw new AppError(401, "SESSION_REVOKED", "Session was revoked");
+  }
+  if (outcome.status === "replay") {
+    // Losing side of a legitimate multi-tab race: do NOT wipe. The client
+    // retries with the already-rotated cookie.
+    throw new AppError(
+      401,
+      "SESSION_ROTATED",
+      "Session already refreshed — retry",
+    );
+  }
+  await user.save();
 
-    const { accessToken, refreshToken } = await issueSession(user);
-    setRefreshCookie(c, refreshToken);
-    setCsrfCookie(c, createCsrfToken());
+  const accessToken = await signAccessToken(
+    user._id.toString(),
+    user.authVersion,
+  );
+  const refreshToken = await signRefreshToken(user._id.toString(), newJti);
+  setRefreshCookie(c, refreshToken);
+  setCsrfCookie(c, createCsrfToken());
 
-    return c.json({ user: toUserPayload(user), accessToken });
-  },
-);
+  return c.json({ user: toUserPayload(user), accessToken });
+});
 
 // ─── Logout ─────────────────────────────────────────────────────────
 
@@ -280,8 +398,14 @@ authRoutes.post("/logout", csrfProtection, async (c) => {
       actorId = payload.sub;
       const user = await UserModel.findById(payload.sub);
       if (user) {
+        // Kill both the current and the grace-window previous JTI.
         const hash = sha256(payload.jti);
-        user.refreshTokenHashes = user.refreshTokenHashes.filter((h) => h !== hash);
+        user.refreshTokenHashes = user.refreshTokenHashes.filter(
+          (h) => h !== hash,
+        );
+        user.refreshSessions = user.refreshSessions.filter(
+          (s) => s.jtiHash !== hash && s.prevJtiHash !== hash,
+        );
         await user.save();
       }
     }
@@ -297,15 +421,8 @@ authRoutes.post("/logout", csrfProtection, async (c) => {
 
 // ─── Me ─────────────────────────────────────────────────────────────
 
-authRoutes.get("/me", async (c) => {
-  const header = c.req.header("authorization");
-  const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
-  if (!token) throw new AppError(401, "UNAUTHORIZED", "Sign in to continue");
-
-  const payload = await verifyAccessToken(token);
-  if (!payload) throw new AppError(401, "UNAUTHORIZED", "Session expired");
-
-  const user = await UserModel.findById(payload.sub);
+authRoutes.get("/me", requireApprovedAuth, async (c) => {
+  const user = await UserModel.findById(c.get("userId"));
   if (!user) throw new AppError(401, "UNAUTHORIZED", "Account not found");
 
   return c.json({ user: toUserPayload(user) });
@@ -325,7 +442,11 @@ authRoutes.post(
       verificationTokenExpires: { $gt: new Date() },
     });
     if (!user) {
-      throw new AppError(400, "INVALID_TOKEN", "Verification link is invalid or expired");
+      throw new AppError(
+        400,
+        "INVALID_TOKEN",
+        "Verification link is invalid or expired",
+      );
     }
 
     user.isVerified = true;
@@ -354,7 +475,9 @@ authRoutes.post(
     const { email } = c.req.valid("json");
     const user = await UserModel.findOne({ email });
     if (!user || user.isVerified) {
-      return c.json({ message: "If the account exists, a verification link has been sent" });
+      return c.json({
+        message: "If the account exists, a verification link has been sent",
+      });
     }
 
     const token = generateRandomToken();
@@ -384,7 +507,9 @@ authRoutes.post(
     const { email } = c.req.valid("json");
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return c.json({ message: "If the account exists, a reset link has been sent" });
+      return c.json({
+        message: "If the account exists, a reset link has been sent",
+      });
     }
 
     const token = generateRandomToken();
@@ -407,7 +532,9 @@ authRoutes.post(
       html: `<p><a href="${buildEmailLink("/reset-password", { token })}">Reset your password</a></p>`,
     });
 
-    return c.json({ message: "If the account exists, a reset link has been sent" });
+    return c.json({
+      message: "If the account exists, a reset link has been sent",
+    });
   },
 );
 
@@ -423,13 +550,19 @@ authRoutes.post(
       resetPasswordExpires: { $gt: new Date() },
     });
     if (!user) {
-      throw new AppError(400, "INVALID_TOKEN", "Reset link is invalid or expired");
+      throw new AppError(
+        400,
+        "INVALID_TOKEN",
+        "Reset link is invalid or expired",
+      );
     }
 
     user.passwordHash = await hashPassword(password);
     user.resetPasswordTokenHash = undefined;
     user.resetPasswordExpires = undefined;
     user.refreshTokenHashes = [];
+    user.refreshSessions = [];
+    user.authVersion += 1;
     await user.save();
 
     await recordAudit({
@@ -463,11 +596,17 @@ authRoutes.post(
     if (!user) throw new AppError(401, "UNAUTHORIZED", "Account not found");
 
     if (!(await verifyPassword(currentPassword, user.passwordHash))) {
-      throw new AppError(400, "WRONG_PASSWORD", "Current password is incorrect");
+      throw new AppError(
+        400,
+        "WRONG_PASSWORD",
+        "Current password is incorrect",
+      );
     }
 
     user.passwordHash = await hashPassword(newPassword);
     user.refreshTokenHashes = [];
+    user.refreshSessions = [];
+    user.authVersion += 1;
     await user.save();
     clearAuthCookies(c);
 

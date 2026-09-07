@@ -136,7 +136,10 @@ describe("auth flow", () => {
   it("admits the user after admin approval", async () => {
     await mongoose.connection
       .db!.collection("users")
-      .updateOne({ email: user.email }, { $set: { adminApprovalStatus: "approved" } });
+      .updateOne(
+        { email: user.email },
+        { $set: { adminApprovalStatus: "approved" } },
+      );
 
     const res = await app.request("/api/auth/login", {
       method: "POST",
@@ -194,19 +197,32 @@ describe("auth flow", () => {
     rotatedAwayRefresh = oldRefresh!;
   });
 
-  it("revokes sessions when a rotated token is reused", async () => {
-    // The old token is still validly signed, but its jti hash was
-    // removed during rotation — reusing it must revoke the session.
+  it("returns SESSION_ROTATED without wiping when a just-rotated token is replayed", async () => {
+    // The old token is still validly signed, but its jti was superseded
+    // microseconds ago — inside the replay grace window this must NOT look
+    // like theft (no session wipe); the client retries with the current cookie.
     const res = await app.request("/api/auth/refresh", {
       method: "POST",
       headers: {
         ...csrfHeaders(),
-        Cookie: cookieHeader().replace(/kulaya_refresh=[^;]*/, `kulaya_refresh=${rotatedAwayRefresh}`),
+        Cookie: cookieHeader().replace(
+          /kulaya_refresh=[^;]*/,
+          `kulaya_refresh=${rotatedAwayRefresh}`,
+        ),
       },
       body: "",
     });
     expect(res.status).toBe(401);
-    expect((await json(res)).error).toBe("SESSION_REVOKED");
+    expect((await json(res)).error).toBe("SESSION_ROTATED");
+
+    // Sessions survived: the current cookie still rotates.
+    const retry = await app.request("/api/auth/refresh", {
+      method: "POST",
+      headers: csrfHeaders(),
+      body: "",
+    });
+    expect(retry.status).toBe(200);
+    captureCookies(retry);
   });
 
   it("logs out and clears the session", async () => {
@@ -229,18 +245,14 @@ describe("auth flow", () => {
 
 describe("username availability", () => {
   it("rejects invalid usernames", async () => {
-    const res = await app.request(
-      "/api/auth/check-username?username=ab",
-    );
+    const res = await app.request("/api/auth/check-username?username=ab");
     expect(res.status).toBe(200);
     const body = await json(res);
     expect(body).toMatchObject({ valid: false, available: false });
   });
 
   it("reports a fresh username as available", async () => {
-    const res = await app.request(
-      "/api/auth/check-username?username=shanti_k",
-    );
+    const res = await app.request("/api/auth/check-username?username=shanti_k");
     expect(res.status).toBe(200);
     expect(await json(res)).toMatchObject({
       valid: true,
@@ -249,9 +261,7 @@ describe("username availability", () => {
   });
 
   it("reports a taken username as unavailable", async () => {
-    const res = await app.request(
-      "/api/auth/check-username?username=aarav_s",
-    );
+    const res = await app.request("/api/auth/check-username?username=aarav_s");
     expect(res.status).toBe(200);
     expect(await json(res)).toMatchObject({
       valid: true,

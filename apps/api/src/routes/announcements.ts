@@ -1,30 +1,25 @@
-import { Hono } from "hono";
-import type { Context, Next } from "hono";
 import type { Announcement as AnnouncementPayload } from "@family/core";
 import {
   createAnnouncementRequestSchema,
   updateAnnouncementRequestSchema,
 } from "@family/core";
-import { AppError } from "../middleware/error.js";
-import { originCheck, requireAuth, requireCapability } from "../middleware/security.js";
+import { Hono } from "hono";
+import { buildEmailLink, sendMail } from "../lib/email.js";
+import { logger } from "../lib/logger.js";
+import { createNotification } from "../lib/notifications.js";
 import { validateBody } from "../lib/validation.js";
+import { AppError } from "../middleware/error.js";
+import {
+  originCheck,
+  requireApprovedAuth,
+  requireCapability,
+} from "../middleware/security.js";
 import { Announcement } from "../models/announcement.js";
 import { User } from "../models/user.js";
-import { buildEmailLink, sendMail } from "../lib/email.js";
-import { createNotification } from "../lib/notifications.js";
-import { logger } from "../lib/logger.js";
 
 export const announcementsRoutes = new Hono();
 
-async function requireApprovedMember(c: Context, next: Next) {
-  const user = await User.findById(c.get("userId"), { adminApprovalStatus: 1 });
-  if (!user || user.adminApprovalStatus !== "approved") {
-    throw new AppError(403, "FORBIDDEN", "Your account must be approved first");
-  }
-  await next();
-}
-
-announcementsRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
+announcementsRoutes.use("*", originCheck, requireApprovedAuth);
 
 /** Newest first. */
 announcementsRoutes.get("/", async (c) => {
@@ -38,7 +33,9 @@ announcementsRoutes.get("/", async (c) => {
   ]);
 
   return c.json({
-    items: (announcements as unknown as PopulatedAnnouncement[]).map(toAnnouncementPayload),
+    items: (announcements as unknown as PopulatedAnnouncement[]).map(
+      toAnnouncementPayload,
+    ),
     total,
   });
 });
@@ -68,7 +65,11 @@ announcementsRoutes.post(
     const author = await User.findById(userId, "name");
     void notifyMembers(userId, author?.name ?? "", title);
 
-    return c.json({ announcement: toAnnouncementPayload(await findPopulatedAnnouncement(announcement._id.toString())) });
+    return c.json({
+      announcement: toAnnouncementPayload(
+        await findPopulatedAnnouncement(announcement._id.toString()),
+      ),
+    });
   },
 );
 
@@ -80,13 +81,18 @@ announcementsRoutes.patch(
     const input = c.req.valid("json");
 
     const announcement = await Announcement.findById(c.req.param("id"));
-    if (!announcement) throw new AppError(404, "NOT_FOUND", "Announcement not found");
+    if (!announcement)
+      throw new AppError(404, "NOT_FOUND", "Announcement not found");
 
     if (input.title !== undefined) announcement.title = input.title;
     if (input.body !== undefined) announcement.body = input.body;
 
     await announcement.save();
-    return c.json({ announcement: toAnnouncementPayload(await findPopulatedAnnouncement(announcement._id.toString())) });
+    return c.json({
+      announcement: toAnnouncementPayload(
+        await findPopulatedAnnouncement(announcement._id.toString()),
+      ),
+    });
   },
 );
 
@@ -94,12 +100,14 @@ announcementsRoutes.delete(
   "/:id",
   requireCapability("publishAnnouncements"),
   async (c) => {
-  const announcement = await Announcement.findById(c.req.param("id"));
-  if (!announcement) throw new AppError(404, "NOT_FOUND", "Announcement not found");
+    const announcement = await Announcement.findById(c.req.param("id"));
+    if (!announcement)
+      throw new AppError(404, "NOT_FOUND", "Announcement not found");
 
-  await announcement.deleteOne();
-  return c.json({ ok: true });
-});
+    await announcement.deleteOne();
+    return c.json({ ok: true });
+  },
+);
 
 /**
  * Email + in-app notification for every approved member (except the author)
@@ -148,7 +156,9 @@ interface PopulatedAnnouncement {
   updatedAt: Date;
 }
 
-function toAnnouncementPayload(announcement: PopulatedAnnouncement): AnnouncementPayload {
+function toAnnouncementPayload(
+  announcement: PopulatedAnnouncement,
+): AnnouncementPayload {
   return {
     id: announcement._id.toString(),
     title: announcement.title,
@@ -170,6 +180,7 @@ async function findPopulatedAnnouncement(
     .populate("createdBy", "name username")
     .lean()) as unknown as PopulatedAnnouncement | null;
 
-  if (!announcement) throw new AppError(404, "NOT_FOUND", "Announcement not found");
+  if (!announcement)
+    throw new AppError(404, "NOT_FOUND", "Announcement not found");
   return announcement;
 }

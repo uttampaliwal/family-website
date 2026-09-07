@@ -1,8 +1,7 @@
+import { can, type Capability, type Role } from "@family/core";
 import type { Context, MiddlewareHandler, Next } from "hono";
 import { timingSafeEqual } from "node:crypto";
-import { can, type Capability, type Role } from "@family/core";
 import { env } from "../config/env.js";
-import { AppError } from "./error.js";
 import {
   CSRF_COOKIE,
   readCookie,
@@ -10,6 +9,7 @@ import {
   verifyAccessToken,
   verifyCsrfToken,
 } from "../lib/auth.js";
+import { AppError } from "./error.js";
 
 const allowedOrigins = env.WEB_ORIGIN.split(",");
 
@@ -22,8 +22,14 @@ declare module "hono" {
   }
 }
 
-/** Verifies the bearer token and returns the authenticated user's id. */
-async function authenticate(c: Context): Promise<string> {
+/**
+ * Resolves and authorizes the bearer-token user without advancing the
+ * middleware chain. Shared core of requireApprovedAuth/requireCapability so
+ * capability checks always run BEFORE downstream handlers.
+ */
+async function resolveApprovedUser(
+  c: Context,
+): Promise<{ userId: string; role: Role }> {
   const header = c.req.header("authorization");
   const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
   if (!token) throw new AppError(401, "UNAUTHORIZED", "Sign in to continue");
@@ -31,26 +37,59 @@ async function authenticate(c: Context): Promise<string> {
   const payload = await verifyAccessToken(token);
   if (!payload) throw new AppError(401, "UNAUTHORIZED", "Session expired");
 
-  return payload.sub;
+  const { User } = await import("../models/user.js");
+  const user = await User.findById(payload.sub, {
+    role: 1,
+    isVerified: 1,
+    adminApprovalStatus: 1,
+    authVersion: 1,
+  }).lean();
+  if (!user) throw new AppError(401, "UNAUTHORIZED", "Account not found");
+  if (!user.isVerified) {
+    throw new AppError(403, "EMAIL_NOT_VERIFIED", "Please verify your email");
+  }
+  if (user.adminApprovalStatus !== "approved") {
+    throw new AppError(403, "ACCESS_REVOKED", "Your access has been revoked");
+  }
+  // Fail closed: tokens minted before authVersion existed (av undefined) or
+  // before the latest security-state change are rejected; the client
+  // re-mints via the refresh cookie.
+  if (payload.av !== user.authVersion) {
+    throw new AppError(401, "UNAUTHORIZED", "Session expired");
+  }
+
+  return { userId: payload.sub, role: user.role };
 }
 
-/** Requires a valid bearer access token. */
-export async function requireAuth(c: Context, next: Next) {
-  c.set("userId", await authenticate(c));
+/**
+ * Canonical authorization primitive (P1):
+ * valid authentication + verified email + approved membership +
+ * access-token security version match.
+ *
+ * Every protected data route must use this (directly or via
+ * requireCapability, which composes on top of it) — never a locally
+ * duplicated approval check, and there is no bearer-only fallback.
+ */
+export async function requireApprovedAuth(c: Context, next: Next) {
+  const { userId, role } = await resolveApprovedUser(c);
+  c.set("userId", userId);
+  c.set("userRole", role);
   await next();
 }
 
-/** Requires the authenticated user to hold the given capability. */
+/** Requires the authenticated, approved user to hold the given capability. */
 export function requireCapability(capability: Capability): MiddlewareHandler {
   return async (c, next) => {
-    const userId = await authenticate(c);
-    const { User } = await import("../models/user.js");
-    const user = await User.findById(userId, { role: 1 }).lean();
-    if (!user || !can(user.role, capability)) {
-      throw new AppError(403, "FORBIDDEN", "You don't have permission for this");
+    const { userId, role } = await resolveApprovedUser(c);
+    if (!can(role, capability)) {
+      throw new AppError(
+        403,
+        "FORBIDDEN",
+        "You don't have permission for this",
+      );
     }
     c.set("userId", userId);
-    c.set("userRole", user.role);
+    c.set("userRole", role);
     await next();
   };
 }
@@ -124,7 +163,8 @@ export function rateLimit(opts: {
   name: string;
 }): MiddlewareHandler {
   return (c, next) => {
-    const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+    const ip =
+      c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
     const key = `${opts.name}:${ip}:${c.req.path}`;
     const now = Date.now();
 

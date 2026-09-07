@@ -1,34 +1,32 @@
-import { Hono } from "hono";
-import type { Context, Next } from "hono";
 import type { Event as EventPayload } from "@family/core";
-import { can, createEventRequestSchema, eventListSchema, updateEventRequestSchema } from "@family/core";
+import {
+  can,
+  createEventRequestSchema,
+  eventListSchema,
+  updateEventRequestSchema,
+} from "@family/core";
+import { Hono } from "hono";
+import { broadcastToApprovedMembers } from "../lib/notifications.js";
+import { validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
-  requireAuth,
+  requireApprovedAuth,
   requireCapability,
 } from "../middleware/security.js";
-import { validateBody } from "../lib/validation.js";
-import { broadcastToApprovedMembers } from "../lib/notifications.js";
 import { Event } from "../models/event.js";
 import { User } from "../models/user.js";
 
 export const eventsRoutes = new Hono();
 
-async function requireApprovedMember(c: Context, next: Next) {
-  const user = await User.findById(c.get("userId"), { adminApprovalStatus: 1 });
-  if (!user || user.adminApprovalStatus !== "approved") {
-    throw new AppError(403, "FORBIDDEN", "Your account must be approved first");
-  }
-  await next();
-}
-
-eventsRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
+eventsRoutes.use("*", originCheck, requireApprovedAuth);
 
 /** Events within an optional [from, to] range, earliest first. */
 eventsRoutes.get("/", async (c) => {
   const parsed = eventListSchema.safeParse(c.req.query());
-  const { from, to } = parsed.success ? parsed.data : { from: undefined, to: undefined };
+  const { from, to } = parsed.success
+    ? parsed.data
+    : { from: undefined, to: undefined };
 
   const filter: Record<string, unknown> = {};
   if (from || to) {
@@ -53,7 +51,9 @@ eventsRoutes.get("/", async (c) => {
 });
 
 eventsRoutes.get("/:id", async (c) => {
-  return c.json({ event: toEventPayload(await findPopulatedEvent(c.req.param("id"))) });
+  return c.json({
+    event: toEventPayload(await findPopulatedEvent(c.req.param("id"))),
+  });
 });
 
 eventsRoutes.post(
@@ -61,50 +61,60 @@ eventsRoutes.post(
   requireCapability("createEvents"),
   validateBody(createEventRequestSchema),
   async (c) => {
-  const userId = c.get("userId");
-  const { title, type, startsAt, endsAt, description, recurrence } = c.req.valid("json");
+    const userId = c.get("userId");
+    const { title, type, startsAt, endsAt, description, recurrence } =
+      c.req.valid("json");
 
-  const event = await Event.create({
-    title,
-    type,
-    startsAt,
-    endsAt,
-    description: description ?? undefined,
-    recurrence,
-    createdBy: userId,
-  });
+    const event = await Event.create({
+      title,
+      type,
+      startsAt,
+      endsAt,
+      description: description ?? undefined,
+      recurrence,
+      createdBy: userId,
+    });
 
-  const author = await User.findById(userId, "name");
-  void broadcastToApprovedMembers(userId, {
-    type: "event",
-    actorId: userId,
-    actorName: author?.name ?? "",
-    body: title,
-    link: "/events",
-  });
+    const author = await User.findById(userId, "name");
+    void broadcastToApprovedMembers(userId, {
+      type: "event",
+      actorId: userId,
+      actorName: author?.name ?? "",
+      body: title,
+      link: "/events",
+    });
 
-  return c.json({ event: toEventPayload(await findPopulatedEvent(event._id.toString())) });
-});
+    return c.json({
+      event: toEventPayload(await findPopulatedEvent(event._id.toString())),
+    });
+  },
+);
 
-eventsRoutes.patch("/:id", validateBody(updateEventRequestSchema), async (c) => {
-  const userId = c.get("userId");
-  const input = c.req.valid("json");
+eventsRoutes.patch(
+  "/:id",
+  validateBody(updateEventRequestSchema),
+  async (c) => {
+    const userId = c.get("userId");
+    const input = c.req.valid("json");
 
-  const event = await Event.findById(c.req.param("id"));
-  if (!event) throw new AppError(404, "NOT_FOUND", "Event not found");
+    const event = await Event.findById(c.req.param("id"));
+    if (!event) throw new AppError(404, "NOT_FOUND", "Event not found");
 
-  await assertCanManage(event, userId);
+    await assertCanManage(event, userId);
 
-  if (input.title !== undefined) event.title = input.title;
-  if (input.type !== undefined) event.type = input.type;
-  if (input.startsAt !== undefined) event.startsAt = input.startsAt;
-  if (input.endsAt !== undefined) event.endsAt = input.endsAt;
-  if (input.description !== undefined) event.description = input.description;
-  if (input.recurrence !== undefined) event.recurrence = input.recurrence;
+    if (input.title !== undefined) event.title = input.title;
+    if (input.type !== undefined) event.type = input.type;
+    if (input.startsAt !== undefined) event.startsAt = input.startsAt;
+    if (input.endsAt !== undefined) event.endsAt = input.endsAt;
+    if (input.description !== undefined) event.description = input.description;
+    if (input.recurrence !== undefined) event.recurrence = input.recurrence;
 
-  await event.save();
-  return c.json({ event: toEventPayload(await findPopulatedEvent(event._id.toString())) });
-});
+    await event.save();
+    return c.json({
+      event: toEventPayload(await findPopulatedEvent(event._id.toString())),
+    });
+  },
+);
 
 eventsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
@@ -125,7 +135,11 @@ async function assertCanManage(
   const user = await User.findById(userId, { role: 1 });
   const isOwner = event.createdBy.toString() === userId;
   if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
-    throw new AppError(403, "FORBIDDEN", "Only the creator or a moderator can change events");
+    throw new AppError(
+      403,
+      "FORBIDDEN",
+      "Only the creator or a moderator can change events",
+    );
   }
 }
 

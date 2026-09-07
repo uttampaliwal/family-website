@@ -1,6 +1,12 @@
-import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
-import { SignJWT, jwtVerify } from "jose";
 import type { Context } from "hono";
+import { SignJWT, jwtVerify } from "jose";
+import {
+  createHash,
+  createHmac,
+  randomBytes,
+  randomUUID,
+  timingSafeEqual,
+} from "node:crypto";
 import { env } from "../config/env.js";
 
 export const ACCESS_COOKIE = "kulaya_access";
@@ -14,6 +20,8 @@ export type TokenPayload = {
   sub: string;
   jti: string;
   type: "access" | "refresh";
+  /** Security version — only present on access tokens. */
+  av?: number;
 };
 
 export function sha256(value: string): string {
@@ -57,8 +65,11 @@ function signCsrf(nonce: string): string {
   return createHmac("sha256", csrfKey).update(nonce).digest("base64url");
 }
 
-export async function signAccessToken(userId: string): Promise<string> {
-  return new SignJWT({ type: "access" })
+export async function signAccessToken(
+  userId: string,
+  authVersion: number,
+): Promise<string> {
+  return new SignJWT({ type: "access", av: authVersion })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(userId)
     .setJti(randomUUID())
@@ -67,7 +78,10 @@ export async function signAccessToken(userId: string): Promise<string> {
     .sign(accessSecret);
 }
 
-export async function signRefreshToken(userId: string, jti: string): Promise<string> {
+export async function signRefreshToken(
+  userId: string,
+  jti: string,
+): Promise<string> {
   return new SignJWT({ type: "refresh", jti })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(userId)
@@ -76,13 +90,16 @@ export async function signRefreshToken(userId: string, jti: string): Promise<str
     .sign(refreshSecret);
 }
 
-export async function verifyAccessToken(token: string): Promise<TokenPayload | null> {
+export async function verifyAccessToken(
+  token: string,
+): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, accessSecret, {
       algorithms: ["HS256"],
     });
     if (payload.type !== "access" || !payload.sub || !payload.jti) return null;
-    return { sub: payload.sub, jti: payload.jti, type: "access" };
+    const av = typeof payload.av === "number" ? payload.av : undefined;
+    return { sub: payload.sub, jti: payload.jti, type: "access", av };
   } catch {
     return null;
   }

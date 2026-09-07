@@ -1,16 +1,16 @@
-import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
 import { memberListSchema, updateProfileSchema } from "@family/core";
-import { AppError } from "../middleware/error.js";
-import { originCheck, requireAuth } from "../middleware/security.js";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
 import { toPublicMember } from "../lib/payloads.js";
 import { buildTree } from "../lib/tree.js";
 import { validateBody } from "../lib/validation.js";
+import { AppError } from "../middleware/error.js";
+import { originCheck, requireApprovedAuth } from "../middleware/security.js";
 import { User } from "../models/user.js";
 
 export const membersRoutes = new Hono();
 
-membersRoutes.use("*", originCheck, requireAuth);
+membersRoutes.use("*", originCheck, requireApprovedAuth);
 
 membersRoutes.get("/", zValidator("query", memberListSchema), async (c) => {
   const { page, pageSize, search } = c.req.valid("query");
@@ -50,7 +50,9 @@ membersRoutes.patch("/me", validateBody(updateProfileSchema), async (c) => {
   if (input.name !== undefined) user.name = input.name;
   if (input.relationship !== undefined) user.relationship = input.relationship;
   if (input.phoneNumber !== undefined) {
-    user.phoneNumber = input.phoneNumber?.trim() ? input.phoneNumber : undefined;
+    user.phoneNumber = input.phoneNumber?.trim()
+      ? input.phoneNumber
+      : undefined;
   }
 
   await user.save();
