@@ -39,7 +39,12 @@ git tag v0.3.1 && git push origin v0.3.1
 
 - Milestone cadence: **each shipped milestone gets a PATCH tag** — `v0.3.1`,
   `v0.3.2`, `v0.3.3`, … (`0.2.x` = legacy, `0.3.x` = new). No MINOR bumps
-  until 1.0.
+  until 1.0, **with one deliberate exception**: the production-hardening
+  sequence ships as a **`v0.4.x` pre-1.0 line** (`v0.4.0` security,
+  `v0.4.1` durability, `v0.4.2` E2E/deploy, then `v1.0.0`), because
+  auth/storage/durability hardening is qualitatively different from a
+  feature milestone. This exception was ratified in P0 of the v1.0 Go-Live
+  plan; after `v1.0.0`, normal SemVer resumes.
 - Existing `legacy/*` tags stay as permanent backups — never delete them.
 
 ### Milestones shipped

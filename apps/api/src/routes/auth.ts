@@ -116,7 +116,10 @@ authRoutes.post(
       ...clientInfo(c),
     });
 
-    void notifyAdmins({
+    // Awaited (not fire-and-forget): the 201 response must only go out once
+    // the admin notification is persisted, otherwise readers race the write
+    // under load and the join notification is intermittently missing.
+    await notifyAdmins({
       type: "member_joined",
       actorId: user._id.toString(),
       actorName: user.name,

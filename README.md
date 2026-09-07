@@ -44,7 +44,7 @@ packages/
 
 ## Getting started
 
-Requirements: Node ≥ 20, pnpm 11 (`corepack enable`).
+Requirements: Node 24.x (see `.nvmrc`), pnpm 11 (`corepack enable`).
 
 ```bash
 pnpm install

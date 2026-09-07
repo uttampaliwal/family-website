@@ -5,7 +5,7 @@ conventions below keep it healthy for whoever touches the code next.
 
 ## Getting started
 
-Requirements: Node ≥ 20, pnpm 11 (`corepack enable`), MongoDB
+Requirements: Node 24.x (see `.nvmrc`), pnpm 11 (`corepack enable`), MongoDB
 (we ship `docker compose up -d`).
 
 See [README.md](README.md) → "Getting started" for first-run steps.
@@ -18,7 +18,9 @@ Follow [docs/git-workflow.md](docs/git-workflow.md) closely:
   merged via pull request, then deleted.
 - One concern per commit; messages concise, imperative, with a short body
   when useful.
-- Milestones get a PATCH tag (`v0.3.x`) after merge.
+- Milestones get a PATCH tag (`v0.3.x`) after merge; the `v0.4.x`
+  production-hardening line is the deliberate pre-1.0 exception (see
+  [docs/git-workflow.md](docs/git-workflow.md)).
 - If a branch is more than a week old, rebase on `main` before merging.
 
 ## Working on a milestone
