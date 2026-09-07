@@ -12,5 +12,9 @@ export default defineConfig({
     },
     testTimeout: 30_000,
     hookTimeout: 60_000,
+    // Pre-warms the mongod binary once in the main process (see
+    // src/tests/global-setup.ts) so parallel test-file workers don't race
+    // on the mongodb-memory-server download lockfile.
+    globalSetup: ["src/tests/global-setup.ts"],
   },
 });

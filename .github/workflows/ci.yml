@@ -37,6 +37,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Cache MongoDB test binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongo-binary-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            mongo-binary-
+
       - name: Lint
         run: pnpm lint
 
