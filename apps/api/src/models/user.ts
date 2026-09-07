@@ -1,6 +1,11 @@
+import {
+  genderSchema,
+  relationshipSchema,
+  rolesSchema,
+  type Role,
+} from "@family/core";
 import mongoose, { type Document, type Model } from "mongoose";
 import type { z } from "zod";
-import { genderSchema, relationshipSchema, rolesSchema, type Role } from "@family/core";
 
 export interface UserDocument extends Document {
   name: string;
@@ -23,9 +28,30 @@ export interface UserDocument extends Document {
 
   refreshTokenHashes: string[];
 
+  /**
+   * Refresh-session family records. Each session holds its current refresh
+   * JTI hash plus the superseded hash inside a ≤10s replay grace window, so
+   * a legitimate multi-tab refresh race returns SESSION_ROTATED (retry with
+   * the current cookie) instead of triggering reuse-theft revocation.
+   */
+  refreshSessions: Array<{
+    jtiHash: string;
+    prevJtiHash?: string;
+    prevValidUntil?: Date;
+    createdAt: Date;
+  }>;
+
   role: Role;
-  adminApprovalStatus: "pending" | "approved" | "rejected";
+  adminApprovalStatus: "pending" | "approved" | "rejected" | "suspended";
   approvedAt?: Date;
+
+  /**
+   * Security version embedded in every access token (`av` claim) and checked
+   * by requireApprovedAuth. Bumped on reject/suspend/role-change/password
+   * reset/email change so outstanding access tokens die immediately instead
+   * of living out their 15-minute TTL.
+   */
+  authVersion: number;
 
   createdAt: Date;
   updatedAt: Date;
@@ -65,17 +91,32 @@ const userSchema = new mongoose.Schema<UserDocument>(
     resetPasswordTokenHash: { type: String, default: undefined },
     resetPasswordExpires: { type: Date, default: undefined },
 
+    // Legacy flat hashes (pre-P1) — drained into refreshSessions on next
+    // refresh so existing sessions survive the deploy; see rotateRefreshSession.
     refreshTokenHashes: { type: [String], default: [] },
+
+    refreshSessions: {
+      type: [
+        {
+          jtiHash: { type: String, required: true },
+          prevJtiHash: { type: String, default: undefined },
+          prevValidUntil: { type: Date, default: undefined },
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
 
     parentIds: { type: [mongoose.Schema.Types.ObjectId], default: [] },
 
     role: { type: String, enum: rolesSchema.options, default: "child" },
     adminApprovalStatus: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected", "suspended"],
       default: "pending",
     },
     approvedAt: { type: Date, default: undefined },
+    authVersion: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

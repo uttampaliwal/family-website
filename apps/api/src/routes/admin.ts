@@ -1,6 +1,3 @@
-import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
-import mongoose from "mongoose";
 import {
   adminDecisionSchema,
   adminMemberListSchema,
@@ -8,13 +5,16 @@ import {
   canAssignRole,
   updateRelationshipsSchema,
 } from "@family/core";
-import { AppError } from "../middleware/error.js";
-import { originCheck, requireCapability } from "../middleware/security.js";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import mongoose from "mongoose";
 import { clientInfo, recordAudit } from "../lib/audit.js";
+import { createNotification } from "../lib/notifications.js";
 import { toAdminMember } from "../lib/payloads.js";
 import { assertValidParents } from "../lib/tree.js";
 import { validateBody } from "../lib/validation.js";
-import { createNotification } from "../lib/notifications.js";
+import { AppError } from "../middleware/error.js";
+import { originCheck, requireCapability } from "../middleware/security.js";
 import { AuditLog, type AuditLogDocument } from "../models/audit-log.js";
 import { User } from "../models/user.js";
 
@@ -107,18 +107,20 @@ adminRoutes.get(
   "/members/pending-count",
   requireCapability("manageMembers"),
   async (c) => {
-  const count = await User.countDocuments({ adminApprovalStatus: "pending" });
-  return c.json({ count });
-});
+    const count = await User.countDocuments({ adminApprovalStatus: "pending" });
+    return c.json({ count });
+  },
+);
 
 adminRoutes.get(
   "/members/:id",
   requireCapability("manageMembers"),
   async (c) => {
-  const user = await User.findById(c.req.param("id"));
-  if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
-  return c.json({ member: toAdminMember(user) });
-});
+    const user = await User.findById(c.req.param("id"));
+    if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
+    return c.json({ member: toAdminMember(user) });
+  },
+);
 
 adminRoutes.patch(
   "/members/:id",
@@ -130,7 +132,11 @@ adminRoutes.patch(
     const user = await User.findById(c.req.param("id"));
     if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
     if (user._id.toString() === c.get("userId")) {
-      throw new AppError(400, "INVALID_OPERATION", "You can't review your own account");
+      throw new AppError(
+        400,
+        "INVALID_OPERATION",
+        "You can't review your own account",
+      );
     }
 
     // New members default to the most restricted tier; an admin can raise it.
@@ -162,12 +168,28 @@ adminRoutes.patch(
       });
     }
     if (targetRole !== undefined) user.role = targetRole;
+    // Atomic fail-closed security transition: membership, role, session
+    // wipe and authVersion move in a single document save, so a rejected /
+    // suspended / demoted member can never be left with live tokens.
+    if (
+      status !== previousStatus ||
+      (targetRole !== undefined && targetRole !== previousRole)
+    ) {
+      user.refreshTokenHashes = [];
+      user.refreshSessions = [];
+      user.authVersion += 1;
+    }
     await user.save();
 
     if (status !== previousStatus) {
       await recordAudit({
         actorId: c.get("userId"),
-        action: status === "approved" ? "MEMBER_APPROVED" : "MEMBER_REJECTED",
+        action:
+          status === "approved"
+            ? "MEMBER_APPROVED"
+            : status === "suspended"
+              ? "MEMBER_SUSPENDED"
+              : "MEMBER_REJECTED",
         targetType: "user",
         targetId: user._id.toString(),
         details: { member: user.username },

@@ -11,7 +11,10 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().min(1).optional(),
 
-  WEB_ORIGIN: z.string().min(1).default("http://localhost:3000,http://localhost:5173"),
+  WEB_ORIGIN: z
+    .string()
+    .min(1)
+    .default("http://localhost:3000,http://localhost:5173"),
 
   // Auth
   AUTH_ACCESS_TOKEN_SECRET: z
@@ -66,12 +69,37 @@ export function loadEnv(
   }
 
   let databaseUrl = raw.DATABASE_URL;
-  if (databaseUrl === undefined) {
-    if (raw.NODE_ENV === "production") {
+  if (raw.NODE_ENV === "production") {
+    // Fail closed: production must never boot on dev defaults, local disk
+    // storage, localhost origins, or a missing database.
+    const missing: string[] = [];
+    if (!databaseUrl) missing.push("DATABASE_URL");
+    for (const key of [
+      "R2_ACCOUNT_ID",
+      "R2_ACCESS_KEY_ID",
+      "R2_SECRET_ACCESS_KEY",
+      "R2_BUCKET",
+    ] as const) {
+      if (!raw[key]) missing.push(key);
+    }
+    if (raw.AUTH_ACCESS_TOKEN_SECRET.startsWith("default_dev_")) {
+      missing.push("AUTH_ACCESS_TOKEN_SECRET (dev default forbidden)");
+    }
+    if (raw.AUTH_REFRESH_TOKEN_SECRET.startsWith("default_dev_")) {
+      missing.push("AUTH_REFRESH_TOKEN_SECRET (dev default forbidden)");
+    }
+    if (
+      /(^|,)https?:\/\/(localhost|127\.0\.0\.1)(,|:|\/|$)/.test(raw.WEB_ORIGIN)
+    ) {
+      missing.push("WEB_ORIGIN (localhost origin forbidden)");
+    }
+    if (missing.length > 0) {
       throw new Error(
-        "Environment validation failed:\nDATABASE_URL: required in production",
+        `Environment validation failed — missing production config:\n${missing.join("\n")}`,
       );
     }
+  }
+  if (databaseUrl === undefined) {
     databaseUrl = "mongodb://localhost:27017/family-portal";
   }
 

@@ -37,7 +37,10 @@ export interface StorageBackend {
   /** URL the browser PUTs the file to (absolute for R2, relative in dev). */
   requestUploadUrl(metadata: UploadMetadata): Promise<string>;
   /** Verify the object exists with the expected size/type (returns what's stored). */
-  confirmUpload(key: string, expected: Pick<UploadMetadata, "mimeType" | "size">): Promise<void>;
+  confirmUpload(
+    key: string,
+    expected: Pick<UploadMetadata, "mimeType" | "size">,
+  ): Promise<void>;
   /** URL the browser GETs the object from. */
   getObjectUrl(key: string, opts?: DownloadOptions): Promise<string>;
   deleteObject(key: string): Promise<void>;
@@ -78,7 +81,11 @@ class R2Storage implements StorageBackend {
   async requestUploadUrl({ key, mimeType }: UploadMetadata): Promise<string> {
     return getSignedUrl(
       this.client,
-      new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: mimeType }),
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        ContentType: mimeType,
+      }),
       { expiresIn: 15 * 60 },
     );
   }
@@ -90,8 +97,15 @@ class R2Storage implements StorageBackend {
     const head = await this.client.send(
       new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
     );
-    if (head.ContentLength !== expected.size || head.ContentType !== expected.mimeType) {
-      throw new AppError(400, "UPLOAD_MISMATCH", "Uploaded file doesn't match the request");
+    if (
+      head.ContentLength !== expected.size ||
+      head.ContentType !== expected.mimeType
+    ) {
+      throw new AppError(
+        400,
+        "UPLOAD_MISMATCH",
+        "Uploaded file doesn't match the request",
+      );
     }
   }
 
@@ -99,14 +113,18 @@ class R2Storage implements StorageBackend {
     const command = new GetObjectCommand({
       Bucket: this.bucket,
       Key: key,
-      ...(opts.filename ? { ResponseContentDisposition: contentDisposition(opts.filename) } : {}),
+      ...(opts.filename
+        ? { ResponseContentDisposition: contentDisposition(opts.filename) }
+        : {}),
       ...(opts.contentType ? { ResponseContentType: opts.contentType } : {}),
     });
     return getSignedUrl(this.client, command, { expiresIn: 60 * 60 });
   }
 
   async deleteObject(key: string): Promise<void> {
-    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+    await this.client.send(
+      new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
+    );
   }
 }
 
@@ -130,7 +148,11 @@ class LocalStorage implements StorageBackend {
     try {
       const info = await stat(this.pathFor(key));
       if (info.size !== expected.size) {
-        throw new AppError(400, "UPLOAD_MISMATCH", "Uploaded file doesn't match the request");
+        throw new AppError(
+          400,
+          "UPLOAD_MISMATCH",
+          "Uploaded file doesn't match the request",
+        );
       }
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -156,6 +178,11 @@ function createStorage(): StorageBackend {
     env.R2_SECRET_ACCESS_KEY,
     env.R2_BUCKET,
   ];
+  if (env.NODE_ENV === "production" && !r2Vars.every((v) => v)) {
+    // Defense in depth behind env.ts production validation: never silently
+    // serve uploads from ephemeral local disk in production.
+    throw new Error("R2 storage is mandatory in production");
+  }
   return r2Vars.every((v) => v) ? new R2Storage() : new LocalStorage();
 }
 
@@ -178,11 +205,13 @@ export function newDocumentKey(mimeType: string): string {
     "application/pdf": "pdf",
     "text/plain": "txt",
     "application/msword": "doc",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      "docx",
     "application/vnd.ms-excel": "xls",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
     "application/vnd.ms-powerpoint": "ppt",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      "pptx",
     "application/zip": "zip",
   };
   return `documents/${randomUUID()}.${ext[mimeType] ?? "bin"}`;

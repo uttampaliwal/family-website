@@ -52,7 +52,10 @@ function headers(token?: string) {
   return h;
 }
 
-async function createUser(name: string, overrides: Record<string, unknown> = {}) {
+async function createUser(
+  name: string,
+  overrides: Record<string, unknown> = {},
+) {
   const passwordHash = await hashPassword("strong-password-123");
   return User.create({
     name,
@@ -69,22 +72,22 @@ async function createUser(name: string, overrides: Record<string, unknown> = {})
   });
 }
 
-async function signInAs(userId: string): Promise<Session> {
+async function signInAs(
+  userId: string,
+  password = "strong-password-123",
+): Promise<Session> {
   const user = await User.findById(userId);
   const res = await app.request("/api/auth/login", {
     method: "POST",
     headers: headers(),
-    body: JSON.stringify({ email: user!.email, password: "strong-password-123" }),
+    body: JSON.stringify({ email: user!.email, password }),
   });
   if (res.status !== 200) throw new Error(`login failed: ${res.status}`);
   const body = (await res.json()) as { accessToken: string };
   return { accessToken: body.accessToken };
 }
 
-async function auditLogs(
-  session: Session,
-  query = "",
-): Promise<AuditListBody> {
+async function auditLogs(session: Session, query = ""): Promise<AuditListBody> {
   const res = await app.request(`/api/admin/audit-logs${query}`, {
     headers: headers(session.accessToken),
   });
@@ -115,7 +118,10 @@ async function uploadObject(
     body: JSON.stringify({ name, mimeType, size: bytes.byteLength }),
   });
   expect(urlRes.status).toBe(200);
-  const { uploadUrl, key } = (await urlRes.json()) as { uploadUrl: string; key: string };
+  const { uploadUrl, key } = (await urlRes.json()) as {
+    uploadUrl: string;
+    key: string;
+  };
 
   const putRes = await app.request(uploadUrl, {
     method: "PUT",
@@ -130,7 +136,13 @@ async function uploadObject(
     body: JSON.stringify(
       kind === "photo"
         ? { key, mimeType, size: bytes.byteLength, caption: "Audit test" }
-        : { key, name, mimeType, size: bytes.byteLength, description: "Audit test" },
+        : {
+            key,
+            name,
+            mimeType,
+            size: bytes.byteLength,
+            description: "Audit test",
+          },
     ),
   });
   expect(createRes.status).toBe(200);
@@ -225,11 +237,14 @@ describe("audited actions", () => {
       adminApprovalStatus: "pending",
     });
 
-    const res = await app.request(`/api/admin/members/${pending._id.toString()}`, {
-      method: "PATCH",
-      headers: headers(adminSession.accessToken),
-      body: JSON.stringify({ status: "approved" }),
-    });
+    const res = await app.request(
+      `/api/admin/members/${pending._id.toString()}`,
+      {
+        method: "PATCH",
+        headers: headers(adminSession.accessToken),
+        body: JSON.stringify({ status: "approved" }),
+      },
+    );
     expect(res.status).toBe(200);
 
     const log = await findLog(adminSession, "MEMBER_APPROVED");
@@ -239,11 +254,14 @@ describe("audited actions", () => {
   });
 
   it("records role changes with before/after", async () => {
-    const res = await app.request(`/api/admin/members/${alice._id.toString()}`, {
-      method: "PATCH",
-      headers: headers(ownerSession.accessToken),
-      body: JSON.stringify({ status: "approved", role: "admin" }),
-    });
+    const res = await app.request(
+      `/api/admin/members/${alice._id.toString()}`,
+      {
+        method: "PATCH",
+        headers: headers(ownerSession.accessToken),
+        body: JSON.stringify({ status: "approved", role: "admin" }),
+      },
+    );
     expect(res.status).toBe(200);
 
     const log = await findLog(ownerSession, "ROLE_CHANGED");
@@ -252,6 +270,12 @@ describe("audited actions", () => {
   });
 
   it("records photo deletion", async () => {
+    // Earlier its rotate Alice's credentials (password change + promotion),
+    // which correctly invalidate her original token — sign in again.
+    aliceSession = await signInAs(
+      alice._id.toString(),
+      "stronger-password-456",
+    );
     const photoId = await uploadObject(aliceSession, "photo");
 
     const res = await app.request(`/api/photos/${photoId}`, {
@@ -263,10 +287,16 @@ describe("audited actions", () => {
     const log = await findLog(adminSession, "PHOTO_DELETED");
     expect(log).toBeDefined();
     expect(log!.targetId).toBe(photoId);
-    expect(log!.details).toMatchObject({ key: expect.stringContaining("photos/") });
+    expect(log!.details).toMatchObject({
+      key: expect.stringContaining("photos/"),
+    });
   });
 
   it("records document deletion", async () => {
+    aliceSession = await signInAs(
+      alice._id.toString(),
+      "stronger-password-456",
+    );
     const documentId = await uploadObject(aliceSession, "document");
 
     const res = await app.request(`/api/documents/${documentId}`, {
@@ -278,10 +308,16 @@ describe("audited actions", () => {
     const log = await findLog(adminSession, "DOCUMENT_DELETED");
     expect(log).toBeDefined();
     expect(log!.targetId).toBe(documentId);
-    expect(log!.details).toMatchObject({ key: expect.stringContaining("documents/") });
+    expect(log!.details).toMatchObject({
+      key: expect.stringContaining("documents/"),
+    });
   });
 
   it("records when a share link is created", async () => {
+    aliceSession = await signInAs(
+      alice._id.toString(),
+      "stronger-password-456",
+    );
     const documentId = await uploadObject(aliceSession, "document");
 
     const res = await app.request(`/api/documents/${documentId}/share`, {
@@ -292,7 +328,9 @@ describe("audited actions", () => {
 
     const log = await findLog(adminSession, "DOCUMENT_SHARED");
     expect(log).toBeDefined();
-    expect(log!.details).toMatchObject({ url: expect.stringContaining("/api/shared/documents/") });
+    expect(log!.details).toMatchObject({
+      url: expect.stringContaining("/api/shared/documents/"),
+    });
   });
 });
 
@@ -300,13 +338,17 @@ describe("audit log filters", () => {
   it("filters by action and actor", async () => {
     const byAction = await auditLogs(adminSession, "?action=PASSWORD_CHANGED");
     expect(byAction.items.length).toBeGreaterThanOrEqual(1);
-    expect(byAction.items.every((l) => l.action === "PASSWORD_CHANGED")).toBe(true);
+    expect(byAction.items.every((l) => l.action === "PASSWORD_CHANGED")).toBe(
+      true,
+    );
 
     const byActor = await auditLogs(
       adminSession,
       `?actorId=${alice._id.toString()}`,
     );
-    expect(byActor.items.every((l) => l.actor?.id === alice._id.toString())).toBe(true);
+    expect(
+      byActor.items.every((l) => l.actor?.id === alice._id.toString()),
+    ).toBe(true);
   });
 
   it("paginates", async () => {

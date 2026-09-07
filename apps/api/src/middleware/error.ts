@@ -5,7 +5,7 @@ import { logger } from "../lib/logger.js";
 
 export class AppError extends Error {
   constructor(
-    public status: 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 = 500,
+    public status: 400 | 401 | 403 | 404 | 409 | 413 | 422 | 429 | 500 = 500,
     public code: string,
     message: string,
     public issues?: { path: string; message: string }[],

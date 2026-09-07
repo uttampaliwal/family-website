@@ -13,6 +13,7 @@ export const auditActions = [
   "PASSWORD_RESET",
   "MEMBER_APPROVED",
   "MEMBER_REJECTED",
+  "MEMBER_SUSPENDED",
   "ROLE_CHANGED",
   "PHOTO_DELETED",
   "DOCUMENT_DELETED",
@@ -24,9 +25,7 @@ export const auditActionSchema = z.enum(auditActions);
 
 export const auditLogSchema = z.object({
   id: objectId,
-  actor: z
-    .object({ id: objectId, name: z.string() })
-    .nullable(),
+  actor: z.object({ id: objectId, name: z.string() }).nullable(),
   action: auditActionSchema,
   targetType: z.string().nullable(),
   targetId: objectId.nullable(),

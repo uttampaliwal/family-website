@@ -1,34 +1,33 @@
+import type {
+  ChatMessage as ChatMessagePayload,
+  ChatRoom as ChatRoomPayload,
+} from "@family/core";
+import {
+  createRoomRequestSchema,
+  sendMessageRequestSchema,
+} from "@family/core";
 import { Hono } from "hono";
-import type { Context, Next } from "hono";
 import { streamSSE } from "hono/streaming";
 import mongoose from "mongoose";
-import type { ChatMessage as ChatMessagePayload, ChatRoom as ChatRoomPayload } from "@family/core";
-import { createRoomRequestSchema, sendMessageRequestSchema } from "@family/core";
+import { logger } from "../lib/logger.js";
+import {
+  publishChatEvent,
+  subscribeChat,
+  subscriberCount,
+} from "../lib/sse.js";
+import { validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
   rateLimit,
-  requireAuth,
   requireCapability,
 } from "../middleware/security.js";
-import { validateBody } from "../lib/validation.js";
-import { publishChatEvent, subscribeChat, subscriberCount } from "../lib/sse.js";
-import { logger } from "../lib/logger.js";
-import { Room, type RoomDocument } from "../models/room.js";
 import { ChatMessage } from "../models/message.js";
-import { User } from "../models/user.js";
+import { Room, type RoomDocument } from "../models/room.js";
 
 export const chatRoutes = new Hono();
 
-async function requireApprovedMember(c: Context, next: Next) {
-  const user = await User.findById(c.get("userId"), { adminApprovalStatus: 1 });
-  if (!user || user.adminApprovalStatus !== "approved") {
-    throw new AppError(403, "FORBIDDEN", "Your account must be approved first");
-  }
-  await next();
-}
-
-chatRoutes.use("*", originCheck, requireAuth, requireApprovedMember, requireCapability("chat"));
+chatRoutes.use("*", originCheck, requireCapability("chat"));
 
 // ─── Rooms ────────────────────────────────────────────────────────────
 
@@ -47,16 +46,19 @@ chatRoutes.post(
   requireCapability("createRooms"),
   validateBody(createRoomRequestSchema),
   async (c) => {
-  const userId = c.get("userId");
-  const { name } = c.req.valid("json");
+    const userId = c.get("userId");
+    const { name } = c.req.valid("json");
 
-  const room = await Room.create({ name, createdBy: userId });
-  return c.json({ room: await toRoomPayload(room._id.toString(), userId) });
-});
+    const room = await Room.create({ name, createdBy: userId });
+    return c.json({ room: await toRoomPayload(room._id.toString(), userId) });
+  },
+);
 
 chatRoutes.get("/rooms/:id", async (c) => {
   const room = await findRoom(c.req.param("id"));
-  return c.json({ room: await toRoomPayload(room._id.toString(), c.get("userId")) });
+  return c.json({
+    room: await toRoomPayload(room._id.toString(), c.get("userId")),
+  });
 });
 
 // ─── Messages ─────────────────────────────────────────────────────────
@@ -116,10 +118,19 @@ chatRoutes.post("/rooms/:id/read", async (c) => {
     { _id: room._id, "readBy.userId": userId },
     { $set: { "readBy.$.at": new Date() } },
   );
-  if (room.readBy.findIndex((entry) => entry.userId.toString() === userId) === -1) {
+  if (
+    room.readBy.findIndex((entry) => entry.userId.toString() === userId) === -1
+  ) {
     await Room.updateOne(
       { _id: room._id },
-      { $push: { readBy: { userId: new mongoose.Types.ObjectId(userId), at: new Date() } } },
+      {
+        $push: {
+          readBy: {
+            userId: new mongoose.Types.ObjectId(userId),
+            at: new Date(),
+          },
+        },
+      },
     );
   }
 
@@ -170,7 +181,9 @@ export interface PopulatedMessage {
   createdAt: Date;
 }
 
-export function toMessagePayload(message: PopulatedMessage): ChatMessagePayload {
+export function toMessagePayload(
+  message: PopulatedMessage,
+): ChatMessagePayload {
   return {
     id: String(message._id),
     roomId: String(message.roomId),
@@ -190,7 +203,10 @@ async function findRoom(roomId: string): Promise<RoomDocument> {
   return room;
 }
 
-async function toRoomPayload(roomId: string, viewerId: string): Promise<ChatRoomPayload> {
+async function toRoomPayload(
+  roomId: string,
+  viewerId: string,
+): Promise<ChatRoomPayload> {
   const room = (await Room.findById(roomId)
     .populate("createdBy", "name username")
     .lean()) as unknown as {
@@ -209,7 +225,8 @@ async function toRoomPayload(roomId: string, viewerId: string): Promise<ChatRoom
     .lean();
 
   const readAt =
-    room.readBy.find((entry) => entry.userId.toString() === viewerId)?.at ?? null;
+    room.readBy.find((entry) => entry.userId.toString() === viewerId)?.at ??
+    null;
 
   const unreadCount = await ChatMessage.countDocuments({
     roomId,
@@ -226,7 +243,9 @@ async function toRoomPayload(roomId: string, viewerId: string): Promise<ChatRoom
       username: room.createdBy.username,
     },
     createdAt: room.createdAt,
-    lastMessage: lastMessage ? toMessagePayload(lastMessage as unknown as PopulatedMessage) : null,
+    lastMessage: lastMessage
+      ? toMessagePayload(lastMessage as unknown as PopulatedMessage)
+      : null,
     unreadCount,
   };
 }

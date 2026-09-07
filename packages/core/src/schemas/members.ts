@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { email, name, objectId, phoneNumber, username } from "./common.js";
 import { genderSchema, relationshipSchema } from "./auth.js";
+import { email, name, objectId, phoneNumber, username } from "./common.js";
 import { rolesSchema } from "./permissions.js";
 
 /** What a signed-in member may see of another member. */
@@ -27,7 +27,7 @@ export const adminMemberSchema = z.object({
   phoneNumber: phoneNumber.nullable(),
   role: rolesSchema,
   isVerified: z.boolean(),
-  adminApprovalStatus: z.enum(["pending", "approved", "rejected"]),
+  adminApprovalStatus: z.enum(["pending", "approved", "rejected", "suspended"]),
   approvedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
   dateOfBirth: z.coerce.date(),
@@ -51,7 +51,7 @@ export const adminMemberListSchema = z.object({
   page: z.coerce.number().int().min(0).default(0),
   pageSize: z.coerce.number().int().min(1).max(100).default(24),
   search: z.string().trim().max(50).optional(),
-  status: z.enum(["pending", "approved", "rejected"]).optional(),
+  status: z.enum(["pending", "approved", "rejected", "suspended"]).optional(),
 });
 
 export const updateProfileSchema = z.object({
@@ -61,7 +61,9 @@ export const updateProfileSchema = z.object({
 });
 
 export const adminDecisionSchema = z.object({
-  status: z.enum(["approved", "rejected"]),
+  // approved re-admits (also the unsuspend path); rejected revokes;
+  // suspended disables without deleting history (re-approvable later).
+  status: z.enum(["approved", "rejected", "suspended"]),
   role: rolesSchema.optional(),
 });
 
@@ -95,6 +97,8 @@ export type MemberListInput = z.infer<typeof memberListSchema>;
 export type AdminMemberListInput = z.infer<typeof adminMemberListSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type AdminDecisionInput = z.infer<typeof adminDecisionSchema>;
-export type UpdateRelationshipsInput = z.infer<typeof updateRelationshipsSchema>;
+export type UpdateRelationshipsInput = z.infer<
+  typeof updateRelationshipsSchema
+>;
 export type TreeMember = z.infer<typeof treeMemberSchema>;
 export type TreeResponse = z.infer<typeof treeResponseSchema>;

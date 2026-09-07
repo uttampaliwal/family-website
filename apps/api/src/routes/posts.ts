@@ -1,33 +1,25 @@
-import { Hono } from "hono";
-import type { Context, Next } from "hono";
-import mongoose from "mongoose";
-import { can, type Post as PostPayload } from "@family/core";
 import {
+  can,
   createCommentRequestSchema,
   createPostRequestSchema,
+  type Post as PostPayload,
 } from "@family/core";
+import { Hono } from "hono";
+import mongoose from "mongoose";
+import { createNotification } from "../lib/notifications.js";
+import { validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
-  requireAuth,
+  requireApprovedAuth,
   requireCapability,
 } from "../middleware/security.js";
-import { validateBody } from "../lib/validation.js";
-import { createNotification } from "../lib/notifications.js";
 import { Post } from "../models/post.js";
 import { User } from "../models/user.js";
 
 export const postsRoutes = new Hono();
 
-async function requireApprovedMember(c: Context, next: Next) {
-  const user = await User.findById(c.get("userId"), { adminApprovalStatus: 1 });
-  if (!user || user.adminApprovalStatus !== "approved") {
-    throw new AppError(403, "FORBIDDEN", "Your account must be approved first");
-  }
-  await next();
-}
-
-postsRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
+postsRoutes.use("*", originCheck, requireApprovedAuth);
 
 /** Feed, newest first. */
 postsRoutes.get("/", async (c) => {
@@ -54,13 +46,14 @@ postsRoutes.post(
   requireCapability("createMoments"),
   validateBody(createPostRequestSchema),
   async (c) => {
-  const userId = c.get("userId");
-  const { body } = c.req.valid("json");
+    const userId = c.get("userId");
+    const { body } = c.req.valid("json");
 
-  const post = await Post.create({ body, createdBy: userId });
-  const populated = await findPopulated(post._id.toString());
-  return c.json({ post: toPostPayload(populated, userId) });
-});
+    const post = await Post.create({ body, createdBy: userId });
+    const populated = await findPopulated(post._id.toString());
+    return c.json({ post: toPostPayload(populated, userId) });
+  },
+);
 
 postsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
@@ -112,32 +105,33 @@ postsRoutes.post(
   requireCapability("comment"),
   validateBody(createCommentRequestSchema),
   async (c) => {
-  const userId = c.get("userId");
-  const { body } = c.req.valid("json");
+    const userId = c.get("userId");
+    const { body } = c.req.valid("json");
 
-  const post = await Post.findById(c.req.param("id"));
-  if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
+    const post = await Post.findById(c.req.param("id"));
+    if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
-  post.comments.push({
-    body,
-    createdBy: new mongoose.Types.ObjectId(userId),
-  } as never);
-  await post.save();
-
-  if (post.createdBy.toString() !== userId) {
-    const commenter = await User.findById(userId, "name");
-    await createNotification({
-      recipientId: post.createdBy.toString(),
-      type: "moment_comment",
-      actorId: userId,
-      actorName: commenter?.name ?? "",
+    post.comments.push({
       body,
-      link: "/moments",
-    });
-  }
+      createdBy: new mongoose.Types.ObjectId(userId),
+    } as never);
+    await post.save();
 
-  return c.json({ ok: true });
-});
+    if (post.createdBy.toString() !== userId) {
+      const commenter = await User.findById(userId, "name");
+      await createNotification({
+        recipientId: post.createdBy.toString(),
+        type: "moment_comment",
+        actorId: userId,
+        actorName: commenter?.name ?? "",
+        body,
+        link: "/moments",
+      });
+    }
+
+    return c.json({ ok: true });
+  },
+);
 
 postsRoutes.delete("/:id/comments/:commentId", async (c) => {
   const userId = c.get("userId");
@@ -164,7 +158,11 @@ async function assertCanManage(
   const user = await User.findById(userId, { role: 1 });
   const isOwner = ownerId === userId;
   if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
-    throw new AppError(403, "FORBIDDEN", `Only the author or a moderator can delete this ${kind}`);
+    throw new AppError(
+      403,
+      "FORBIDDEN",
+      `Only the author or a moderator can delete this ${kind}`,
+    );
   }
 }
 
@@ -183,7 +181,10 @@ export interface PopulatedPost {
   updatedAt: Date;
 }
 
-export function toPostPayload(post: PopulatedPost, viewerId: string): PostPayload {
+export function toPostPayload(
+  post: PopulatedPost,
+  viewerId: string,
+): PostPayload {
   return {
     id: String(post._id),
     body: post.body,

@@ -37,21 +37,13 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,woff2}"],
         navigateFallbackDenylist: [/^\/api\//],
-        runtimeCaching: [
-          {
-            urlPattern: /\/api\/(members|photos|events|announcements)(\/|\?|$)/,
-            handler: "StaleWhileRevalidate",
-            method: "GET",
-            options: {
-              cacheName: "kulaya-data",
-              cacheableResponse: { statuses: [0, 200] },
-              expiration: {
-                maxEntries: 120,
-                maxAgeSeconds: 60 * 60 * 24 * 14,
-              },
-            },
-          },
-        ],
+        // Online-first (P1): the service worker precaches the app shell so
+        // the UI loads offline, but NEVER caches authenticated API
+        // responses. Family data is served from the network only; offline
+        // the shell renders with an offline notice instead of stale data.
+        // (Removed: StaleWhileRevalidate kulaya-data for /members|photos|
+        // events|announcements — it served revoked users' cached datasets.)
+        runtimeCaching: [],
       },
       devOptions: { enabled: false },
     }),
@@ -63,16 +55,26 @@ export default defineConfig({
         // Function form so subpath entries (react/jsx-runtime, react-dom/client,
         // scheduler) join their family instead of leaking into the entry chunk.
         manualChunks(id) {
-          if (id.includes("node_modules/react-router") ||
-              id.includes("node_modules/react-dom") ||
-              id.includes("node_modules/react/") ||
-              id.includes("node_modules/scheduler")) return "react";
-          if (id.includes("@tanstack/react-query") || id.includes("zustand")) return "data";
+          if (
+            id.includes("node_modules/react-router") ||
+            id.includes("node_modules/react-dom") ||
+            id.includes("node_modules/react/") ||
+            id.includes("node_modules/scheduler")
+          )
+            return "react";
+          if (id.includes("@tanstack/react-query") || id.includes("zustand"))
+            return "data";
           if (id.includes("lucide-react")) return "icons";
           // Workspace packages resolve to their real source paths,
           // not to a node_modules/@family/* id, so match both forms.
-          if (id.includes("@family/ui") || id.includes("/packages/ui/")) return "ui";
-          if (id.includes("@family/core") || id.includes("/packages/core/") || id.includes("node_modules/zod")) return "contracts";
+          if (id.includes("@family/ui") || id.includes("/packages/ui/"))
+            return "ui";
+          if (
+            id.includes("@family/core") ||
+            id.includes("/packages/core/") ||
+            id.includes("node_modules/zod")
+          )
+            return "contracts";
         },
       },
     },

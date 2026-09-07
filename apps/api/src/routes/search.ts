@@ -1,38 +1,32 @@
-import { Hono } from "hono";
-import type { Context, Next } from "hono";
-import { zValidator } from "@hono/zod-validator";
 import { nlRequestSchema, searchRequestSchema } from "@family/core";
-import { AppError } from "../middleware/error.js";
-import { originCheck, rateLimit, requireAuth } from "../middleware/security.js";
-import { toPublicMember } from "../lib/payloads.js";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
 import {
   parseNlQuery,
   resolveBirthday,
   type NlMemberBirthday,
 } from "../lib/nl-search.js";
-import { User } from "../models/user.js";
+import { toPublicMember } from "../lib/payloads.js";
+import {
+  originCheck,
+  rateLimit,
+  requireApprovedAuth,
+} from "../middleware/security.js";
+import { KulayaDocument } from "../models/document.js";
+import { Event } from "../models/event.js";
+import { ChatMessage } from "../models/message.js";
 import { Photo } from "../models/photo.js";
 import { Post } from "../models/post.js";
-import { Event } from "../models/event.js";
-import { KulayaDocument } from "../models/document.js";
-import { ChatMessage } from "../models/message.js";
+import { User } from "../models/user.js";
+import { toMessagePayload, type PopulatedMessage } from "./chat.js";
+import { toDocumentPayload, type PopulatedDocument } from "./documents.js";
+import { toEventPayload, type PopulatedEvent } from "./events.js";
 import { toPhotoPayload, type PopulatedPhoto } from "./photos.js";
 import { toPostPayload, type PopulatedPost } from "./posts.js";
-import { toEventPayload, type PopulatedEvent } from "./events.js";
-import { toDocumentPayload, type PopulatedDocument } from "./documents.js";
-import { toMessagePayload, type PopulatedMessage } from "./chat.js";
 
 export const searchRoutes = new Hono();
 
-async function requireApprovedMember(c: Context, next: Next) {
-  const user = await User.findById(c.get("userId"), { adminApprovalStatus: 1 });
-  if (!user || user.adminApprovalStatus !== "approved") {
-    throw new AppError(403, "FORBIDDEN", "Your account must be approved first");
-  }
-  await next();
-}
-
-searchRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
+searchRoutes.use("*", originCheck, requireApprovedAuth);
 
 /** Escape regex metacharacters so the query matches literally, not as a pattern. */
 function escapeRegex(input: string): string {
@@ -212,9 +206,9 @@ searchRoutes.get(
           adminApprovalStatus: "approved",
         };
         if (rx) filter.$or = [{ name: rx }, { username: rx }];
-        people = (await User.find(filter)
-          .sort({ name: 1 })
-          .limit(5)).map((user) => toPublicMember(user as never));
+        people = (await User.find(filter).sort({ name: 1 }).limit(5)).map(
+          (user) => toPublicMember(user as never),
+        );
 
         const photoQuery: Record<string, unknown> = {};
         if (rx) photoQuery.caption = rx;

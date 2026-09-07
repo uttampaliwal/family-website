@@ -1,28 +1,18 @@
-import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
-import { streamSSE } from "hono/streaming";
-import type { Context, Next } from "hono";
-import { z } from "zod";
 import type { Notification as NotificationPayload } from "@family/core";
 import { pageIndex, pageSize } from "@family/core";
-import { AppError } from "../middleware/error.js";
-import { originCheck, requireAuth } from "../middleware/security.js";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { streamSSE } from "hono/streaming";
+import { z } from "zod";
 import { logger } from "../lib/logger.js";
 import { subscribeNotifications } from "../lib/sse.js";
+import { AppError } from "../middleware/error.js";
+import { originCheck, requireApprovedAuth } from "../middleware/security.js";
 import { Notification } from "../models/notification.js";
-import { User } from "../models/user.js";
 
 export const notificationsRoutes = new Hono();
 
-async function requireApprovedMember(c: Context, next: Next) {
-  const user = await User.findById(c.get("userId"), { adminApprovalStatus: 1 });
-  if (!user || user.adminApprovalStatus !== "approved") {
-    throw new AppError(403, "FORBIDDEN", "Your account must be approved first");
-  }
-  await next();
-}
-
-notificationsRoutes.use("*", originCheck, requireAuth, requireApprovedMember);
+notificationsRoutes.use("*", originCheck, requireApprovedAuth);
 
 interface LeanNotification {
   _id: { toString(): string };
@@ -39,9 +29,10 @@ function toNotificationPayload(n: LeanNotification): NotificationPayload {
   return {
     id: n._id.toString(),
     type: n.type,
-    actor: n.actorId && n.actorName
-      ? { id: n.actorId.toString(), name: n.actorName }
-      : null,
+    actor:
+      n.actorId && n.actorName
+        ? { id: n.actorId.toString(), name: n.actorName }
+        : null,
     body: n.body,
     link: n.link,
     readAt: n.readAt,
@@ -75,7 +66,10 @@ notificationsRoutes.get("/", zValidator("query", listSchema), async (c) => {
 
 notificationsRoutes.get("/unread-count", async (c) => {
   const userId = c.get("userId");
-  const count = await Notification.countDocuments({ recipientId: userId, readAt: null });
+  const count = await Notification.countDocuments({
+    recipientId: userId,
+    readAt: null,
+  });
   return c.json({ count });
 });
 
@@ -92,7 +86,8 @@ notificationsRoutes.post("/:id/read", async (c) => {
   const userId = c.get("userId");
 
   const notification = await Notification.findById(c.req.param("id"));
-  if (!notification) throw new AppError(404, "NOT_FOUND", "Notification not found");
+  if (!notification)
+    throw new AppError(404, "NOT_FOUND", "Notification not found");
   if (notification.recipientId.toString() !== userId) {
     throw new AppError(403, "FORBIDDEN", "Not your notification");
   }
@@ -108,7 +103,8 @@ notificationsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
   const notification = await Notification.findById(c.req.param("id"));
-  if (!notification) throw new AppError(404, "NOT_FOUND", "Notification not found");
+  if (!notification)
+    throw new AppError(404, "NOT_FOUND", "Notification not found");
   if (notification.recipientId.toString() !== userId) {
     throw new AppError(403, "FORBIDDEN", "Not your notification");
   }
