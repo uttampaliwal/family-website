@@ -148,6 +148,28 @@ function constantTimeEquals(a: string, b: string): boolean {
   return timingSafeEqual(da, db);
 }
 
+// ─── Request body limits ────────────────────────────────────────────
+
+/** Max JSON body: uploads travel via presigned R2 URLs, never via JSON. */
+export const JSON_BODY_LIMIT_BYTES = 1024 * 1024;
+
+/**
+ * Rejects oversized JSON bodies before parsing (413). Binary upload PUTs
+ * (local-dev `/api/uploads/*`) use `application/octet-stream` and are
+ * unaffected; clients that omit Content-Length are still bounded by Zod
+ * field limits downstream.
+ */
+export function jsonBodyLimit(c: Context, next: Next) {
+  const contentType = c.req.header("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    const length = Number(c.req.header("content-length") ?? "0");
+    if (Number.isFinite(length) && length > JSON_BODY_LIMIT_BYTES) {
+      throw new AppError(413, "PAYLOAD_TOO_LARGE", "Request body is too large");
+    }
+  }
+  return next();
+}
+
 // ─── Rate limiting (in-memory; swap for Upstash on serverless) ──────
 
 interface Bucket {

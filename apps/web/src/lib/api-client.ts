@@ -27,37 +27,9 @@ interface ApiErrorBody {
 /** Bearer token kept in sync by the auth store (avoids an import cycle). */
 let accessToken: string | null = null;
 
-/**
- * Per-session scope for the offline data cache. The service worker keys
- * cached API responses by URL, so two family members sharing a device must
- * never see each other's cached profiles, photos, events or announcements.
- * We append the tail of the session token to cacheable GETs — the server
- * ignores unknown query params on these list endpoints.
- */
-let cacheScope: string | null = null;
-
 /** Set by the auth store whenever the session token changes. */
 export function setAuthToken(token: string | null): void {
   accessToken = token;
-  cacheScope = token ? token.slice(-12) : null;
-}
-
-/** GET endpoints whose responses the service worker caches for offline use. */
-const CACHEABLE_HEADS = ["/members", "/photos", "/events", "/announcements"];
-
-export function isCacheableApiPath(path: string): boolean {
-  return CACHEABLE_HEADS.some(
-    (head) =>
-      path === head ||
-      path.startsWith(`${head}/`) ||
-      path.startsWith(`${head}?`),
-  );
-}
-
-/** The URL to fetch: cacheable GETs carry the user scope for the SW cache key. */
-export function cacheableUrl(path: string): string {
-  if (!cacheScope || !isCacheableApiPath(path)) return path;
-  return `${path}${path.includes("?") ? "&" : "?"}_scope=${cacheScope}`;
 }
 
 async function request<T>(
@@ -75,7 +47,7 @@ async function request<T>(
     if (token) headers["X-CSRF-Token"] = token;
   }
 
-  const res = await fetch(`${API_BASE}${cacheableUrl(path)}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method,
     credentials: "include",
     headers,

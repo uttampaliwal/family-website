@@ -4,21 +4,22 @@ import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import { readFile } from "node:fs/promises";
 import { env } from "./config/env.js";
-import { errorHandler, notFound, requestLogger } from "./middleware/error.js";
-import { healthRoutes } from "./routes/health.js";
-import { authRoutes } from "./routes/auth.js";
-import { membersRoutes } from "./routes/members.js";
-import { adminRoutes } from "./routes/admin.js";
-import { photosRoutes } from "./routes/photos.js";
-import { eventsRoutes } from "./routes/events.js";
-import { announcementsRoutes } from "./routes/announcements.js";
-import { documentsRoutes } from "./routes/documents.js";
-import { sharedRoutes } from "./routes/shared.js";
-import { postsRoutes } from "./routes/posts.js";
-import { chatRoutes } from "./routes/chat.js";
-import { searchRoutes } from "./routes/search.js";
-import { notificationsRoutes } from "./routes/notifications.js";
 import { saveLocalUpload, storage, uploadPathFor } from "./lib/storage.js";
+import { errorHandler, notFound, requestLogger } from "./middleware/error.js";
+import { jsonBodyLimit, rateLimit } from "./middleware/security.js";
+import { adminRoutes } from "./routes/admin.js";
+import { announcementsRoutes } from "./routes/announcements.js";
+import { authRoutes } from "./routes/auth.js";
+import { chatRoutes } from "./routes/chat.js";
+import { documentsRoutes } from "./routes/documents.js";
+import { eventsRoutes } from "./routes/events.js";
+import { healthRoutes } from "./routes/health.js";
+import { membersRoutes } from "./routes/members.js";
+import { notificationsRoutes } from "./routes/notifications.js";
+import { photosRoutes } from "./routes/photos.js";
+import { postsRoutes } from "./routes/posts.js";
+import { searchRoutes } from "./routes/search.js";
+import { sharedRoutes } from "./routes/shared.js";
 
 export function createApp() {
   const app = new Hono();
@@ -26,6 +27,13 @@ export function createApp() {
   // Request id + structured logging
   app.use("*", requestId());
   app.use("*", requestLogger);
+
+  // Global abuse backstop (per-IP+path, in addition to the stricter
+  // per-route limits on auth/search/chat). Family-scale ceiling, not a
+  // throttle on normal use.
+  app.use("*", rateLimit({ windowMs: 60_000, max: 300, name: "global" }));
+  // Oversized JSON rejected before parsing (binary uploads unaffected).
+  app.use("*", jsonBodyLimit);
 
   // Security
   app.use(

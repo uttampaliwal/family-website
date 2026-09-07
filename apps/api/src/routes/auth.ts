@@ -45,6 +45,12 @@ const AUTH_RATE = {
   register: rateLimit({ windowMs: 15 * 60_000, max: 6, name: "register" }),
   verify: rateLimit({ windowMs: 15 * 60_000, max: 10, name: "verify" }),
   forgot: rateLimit({ windowMs: 15 * 60_000, max: 5, name: "forgot" }),
+  // Authenticated but sensitive: bounds current-password guessing.
+  changePassword: rateLimit({
+    windowMs: 15 * 60_000,
+    max: 20,
+    name: "change-password",
+  }),
   general: rateLimit({ windowMs: 60_000, max: 60, name: "auth-general" }),
 };
 
@@ -581,6 +587,7 @@ authRoutes.post(
 
 authRoutes.post(
   "/change-password",
+  AUTH_RATE.changePassword,
   csrfProtection,
   validateBody(changePasswordSchema),
   async (c) => {
