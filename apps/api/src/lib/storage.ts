@@ -7,7 +7,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
-import { mkdir, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { env } from "../config/env.js";
 import { AppError } from "../middleware/error.js";
@@ -41,6 +41,8 @@ export interface StorageBackend {
     key: string,
     expected: Pick<UploadMetadata, "mimeType" | "size">,
   ): Promise<void>;
+  /** First bytes of the stored object, for server-side type sniffing. */
+  peekHead(key: string, maxBytes?: number): Promise<Uint8Array>;
   /** URL the browser GETs the object from. */
   getObjectUrl(key: string, opts?: DownloadOptions): Promise<string>;
   deleteObject(key: string): Promise<void>;
@@ -115,6 +117,19 @@ class R2Storage implements StorageBackend {
     }
   }
 
+  async peekHead(key: string, maxBytes = 32): Promise<Uint8Array> {
+    const res = await this.client.send(
+      new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Range: `bytes=0-${maxBytes - 1}`,
+      }),
+    );
+    if (!res.Body)
+      throw new AppError(400, "UPLOAD_MISSING", "Uploaded file not found");
+    return new Uint8Array(await res.Body.transformToByteArray());
+  }
+
   async getObjectUrl(key: string, opts: DownloadOptions = {}): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: this.bucket,
@@ -170,6 +185,15 @@ class LocalStorage implements StorageBackend {
 
   async getObjectUrl(key: string): Promise<string> {
     return `/api/uploads/${key}`;
+  }
+
+  async peekHead(key: string, maxBytes = 32): Promise<Uint8Array> {
+    try {
+      const data = await readFile(this.pathFor(key));
+      return new Uint8Array(data.subarray(0, maxBytes));
+    } catch {
+      throw new AppError(400, "UPLOAD_MISSING", "Uploaded file not found");
+    }
   }
 
   async deleteObject(key: string): Promise<void> {

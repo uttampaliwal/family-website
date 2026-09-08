@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { name, objectId } from "./common.js";
+import { name, objectId, sha256Hex } from "./common.js";
 
 export const photoMimeTypes = [
   "image/jpeg",
@@ -21,14 +21,28 @@ export const photoKeySchema = z
 
 export const uploadUrlRequestSchema = z.object({
   mimeType: photoMimeTypeSchema,
-  size: z.number().int().positive().max(MAX_PHOTO_SIZE, "Photos can be at most 20 MB"),
+  size: z
+    .number()
+    .int()
+    .positive()
+    .max(MAX_PHOTO_SIZE, "Photos can be at most 20 MB"),
+  sha256: sha256Hex.optional(),
 });
 
 export const createPhotoRequestSchema = z.object({
   key: photoKeySchema,
   mimeType: photoMimeTypeSchema,
-  size: z.number().int().positive().max(MAX_PHOTO_SIZE, "Photos can be at most 20 MB"),
-  caption: z.string().trim().max(200, "Captions can be at most 200 characters").optional(),
+  size: z
+    .number()
+    .int()
+    .positive()
+    .max(MAX_PHOTO_SIZE, "Photos can be at most 20 MB"),
+  caption: z
+    .string()
+    .trim()
+    .max(200, "Captions can be at most 200 characters")
+    .optional(),
+  sha256: sha256Hex.optional(),
 });
 
 export const photoUploaderSchema = z.object({
@@ -44,6 +58,7 @@ export const photoSchema = z.object({
   mimeType: photoMimeTypeSchema,
   size: z.number().int().positive(),
   caption: z.string().nullable(),
+  sha256: z.string().nullable(),
   uploadedBy: photoUploaderSchema,
   createdAt: z.coerce.date(),
 });

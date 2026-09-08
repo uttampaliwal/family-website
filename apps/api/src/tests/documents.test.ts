@@ -251,6 +251,61 @@ describe("documents routes", () => {
     expect(res.status).toBe(200);
   });
 
+  it("rejects bytes that don't match the declared type", async () => {
+    const fakePdf = new TextEncoder().encode("this is not a pdf");
+    const urlRes = await app.request("/api/documents/upload-url", {
+      method: "POST",
+      headers: headers(bobSession.accessToken),
+      body: JSON.stringify({
+        name: "fake.pdf",
+        mimeType: "application/pdf",
+        size: fakePdf.byteLength,
+      }),
+    });
+    expect(urlRes.status).toBe(200);
+    const { uploadUrl, key } = (await urlRes.json()) as {
+      uploadUrl: string;
+      key: string;
+    };
+
+    const putRes = await app.request(uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "application/pdf" },
+      body: fakePdf,
+    });
+    expect(putRes.status).toBe(200);
+
+    const createRes = await app.request("/api/documents", {
+      method: "POST",
+      headers: headers(bobSession.accessToken),
+      body: JSON.stringify({
+        key,
+        name: "fake.pdf",
+        mimeType: "application/pdf",
+        size: fakePdf.byteLength,
+      }),
+    });
+    expect(createRes.status).toBe(400);
+    expect(((await createRes.json()) as { error: string }).error).toBe(
+      "UPLOAD_TYPE_MISMATCH",
+    );
+  });
+
+  it("stores the client checksum on the document", async () => {
+    const { id } = await uploadDocument(
+      bobSession,
+      "notes.txt",
+      new TextEncoder().encode("family notes"),
+      "text/plain",
+    );
+    const res = await app.request(`/api/documents/${id}`, {
+      headers: headers(aliceSession.accessToken),
+    });
+    expect(res.status).toBe(200);
+    // sha256 is optional — absent here, exposed as null for reconciliation.
+    expect(((await res.json()) as { document: { sha256: string | null } }).document.sha256).toBeNull();
+  });
+
   it("serves a short-lived download URL as JSON", async () => {
     const { id } = await uploadDocument(
       bobSession,

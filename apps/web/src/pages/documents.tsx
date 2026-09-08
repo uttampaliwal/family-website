@@ -14,6 +14,7 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../i18n/index.js";
 import { api } from "../lib/api-client.js";
+import { sha256HexOf } from "../lib/file-hash.js";
 import { useSeo } from "../lib/seo.js";
 import { useAuthStore } from "../stores/auth-store.js";
 
@@ -65,6 +66,7 @@ export function DocumentsPage() {
 
   const upload = useMutation({
     mutationFn: async (file: File) => {
+      const sha256 = await sha256HexOf(file);
       const { uploadUrl, key } = await api.post<{
         uploadUrl: string;
         key: string;
@@ -72,6 +74,7 @@ export function DocumentsPage() {
         name: file.name,
         mimeType: file.type,
         size: file.size,
+        sha256,
       });
 
       const putRes = await fetch(uploadUrl, {
@@ -87,6 +90,7 @@ export function DocumentsPage() {
         mimeType: file.type,
         size: file.size,
         description: description.trim() || undefined,
+        sha256,
       });
     },
     onSuccess: () => {

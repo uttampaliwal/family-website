@@ -7,6 +7,8 @@ import {
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { clientInfo, recordAudit } from "../lib/audit.js";
+import { confirmStoredUpload } from "../lib/file-type.js";
+import { checkUploadQuota, recordUploadUsage } from "../lib/quotas.js";
 import { newPhotoKey, storage } from "../lib/storage.js";
 import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
@@ -30,6 +32,8 @@ photosRoutes.post(
   async (c) => {
     const { mimeType, size } = c.req.valid("json");
 
+    await checkUploadQuota(c.get("userId"), size);
+
     const key = newPhotoKey(mimeType);
     const uploadUrl = await storage.requestUploadUrl({ key, mimeType, size });
 
@@ -44,21 +48,23 @@ photosRoutes.post(
   validateBody(createPhotoRequestSchema),
   async (c) => {
     const userId = c.get("userId");
-    const { key, mimeType, size, caption } = c.req.valid("json");
+    const { key, mimeType, size, caption, sha256 } = c.req.valid("json");
 
     const existing = await Photo.findOne({ key });
     if (existing)
       throw new AppError(409, "CONFLICT", "Photo already registered");
 
-    await storage.confirmUpload(key, { mimeType, size });
+    await confirmStoredUpload(key, { mimeType, size });
 
     const photo = await Photo.create({
       key,
       mimeType,
       size,
       caption: caption ?? undefined,
+      sha256: sha256 ?? undefined,
       uploadedBy: userId,
     });
+    recordUploadUsage(userId, size);
 
     return c.json({
       photo: await toPhotoPayload(
@@ -124,6 +130,7 @@ export interface PopulatedPhoto {
   mimeType: string;
   size: number;
   caption?: string;
+  sha256?: string;
   uploadedBy: { _id: { toString(): string }; name: string; username: string };
   createdAt: Date;
 }
@@ -140,6 +147,7 @@ export async function toPhotoPayload(
     mimeType: photo.mimeType as PhotoPayload["mimeType"],
     size: photo.size,
     caption: photo.caption ?? null,
+    sha256: photo.sha256 ?? null,
     uploadedBy: {
       id: photo.uploadedBy._id.toString(),
       name: photo.uploadedBy.name,

@@ -42,3 +42,8 @@ export const dateOfBirth = z.coerce.date();
 
 export const pageSize = z.coerce.number().int().min(1).max(100).default(20);
 export const pageIndex = z.coerce.number().int().min(0).default(0);
+
+/** Client-computed SHA-256 of upload bytes, stored for reconciliation. */
+export const sha256Hex = z
+  .string()
+  .regex(/^[0-9a-f]{64}$/i, "Invalid SHA-256 checksum");
