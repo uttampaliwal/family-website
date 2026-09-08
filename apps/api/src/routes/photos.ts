@@ -10,6 +10,7 @@ import { clientInfo, recordAudit } from "../lib/audit.js";
 import { confirmStoredUpload } from "../lib/file-type.js";
 import { checkUploadQuota, recordUploadUsage } from "../lib/quotas.js";
 import { newPhotoKey, storage } from "../lib/storage.js";
+import { purgeExpiredTrash } from "../lib/trash.js";
 import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
@@ -84,8 +85,20 @@ photosRoutes.post(
 );
 
 photosRoutes.get("/", async (c) => {
-  const photos = (await Photo.find()
+  const photos = (await Photo.find({ deletedAt: { $exists: false } })
     .sort({ createdAt: -1 })
+    .limit(100)
+    .populate("uploadedBy", "name username")
+    .lean()) as unknown as PopulatedPhoto[];
+
+  const items = await Promise.all(photos.map(toPhotoPayload));
+  return c.json({ items, total: items.length });
+});
+
+/** Trash listing — trashed items stay recoverable for 30 days. */
+photosRoutes.get("/trash", async (c) => {
+  const photos = (await Photo.find({ deletedAt: { $exists: true } })
+    .sort({ deletedAt: -1 })
     .limit(100)
     .populate("uploadedBy", "name username")
     .lean()) as unknown as PopulatedPhoto[];
@@ -102,12 +115,103 @@ photosRoutes.get("/:id", async (c) => {
   });
 });
 
+/** Move to Trash (soft delete) — recoverable, bytes retained. */
 photosRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const photo = await Photo.findById(parseObjectIdParam(c));
+  const photo = await Photo.findOne({
+    _id: parseObjectIdParam(c),
+    deletedAt: { $exists: false },
+  });
   if (!photo) throw new AppError(404, "NOT_FOUND", "Photo not found");
 
+  await assertCanManagePhoto(photo, userId);
+
+  photo.deletedAt = new Date();
+  await photo.save();
+
+  await recordAudit({
+    actorId: userId,
+    action: "PHOTO_DELETED",
+    targetType: "photo",
+    targetId: photo._id.toString(),
+    details: { key: photo.key, mimeType: photo.mimeType, trashed: true },
+    ...clientInfo(c),
+  });
+
+  return c.json({ ok: true, trashed: true });
+});
+
+/** Restore from Trash. */
+photosRoutes.post("/:id/restore", async (c) => {
+  const userId = c.get("userId");
+
+  const photo = await Photo.findOne({
+    _id: parseObjectIdParam(c),
+    deletedAt: { $exists: true },
+  });
+  if (!photo) throw new AppError(404, "NOT_FOUND", "Photo not found in Trash");
+
+  await assertCanManagePhoto(photo, userId);
+
+  photo.deletedAt = undefined;
+  await photo.save();
+
+  await recordAudit({
+    actorId: userId,
+    action: "PHOTO_RESTORED",
+    targetType: "photo",
+    targetId: photo._id.toString(),
+    details: { key: photo.key },
+    ...clientInfo(c),
+  });
+
+  return c.json({ ok: true });
+});
+
+/** Permanent deletion — bytes and metadata both go. Moderators only. */
+photosRoutes.delete(
+  "/:id/permanent",
+  requireCapability("moderate"),
+  async (c) => {
+    const userId = c.get("userId");
+
+    const photo = await Photo.findById(parseObjectIdParam(c));
+    if (!photo) throw new AppError(404, "NOT_FOUND", "Photo not found");
+
+    await storage.deleteObject(photo.key);
+    await photo.deleteOne();
+
+    await recordAudit({
+      actorId: userId,
+      action: "PHOTO_PURGED",
+      targetType: "photo",
+      targetId: photo._id.toString(),
+      details: { key: photo.key },
+      ...clientInfo(c),
+    });
+
+    return c.json({ ok: true });
+  },
+);
+
+/** Purge Trash entries older than 30 days. Moderators only. */
+photosRoutes.post("/trash/purge", requireCapability("moderate"), async (c) => {
+  const userId = c.get("userId");
+  const purged = await purgeExpiredTrash(Photo);
+  await recordAudit({
+    actorId: userId,
+    action: "PHOTO_PURGED",
+    details: { count: purged },
+    ...clientInfo(c),
+  });
+  return c.json({ ok: true, purged });
+});
+
+async function assertCanManagePhoto(
+  photo: { uploadedBy: { toString(): string } },
+  userId: string,
+): Promise<void> {
   const user = await User.findById(userId, { role: 1 });
   const isOwner = photo.uploadedBy.toString() === userId;
   if (!isOwner && !can(user?.role ?? "guest", "moderate")) {
@@ -117,21 +221,7 @@ photosRoutes.delete("/:id", async (c) => {
       "Only the uploader or a moderator can delete photos",
     );
   }
-
-  await storage.deleteObject(photo.key);
-  await photo.deleteOne();
-
-  await recordAudit({
-    actorId: userId,
-    action: "PHOTO_DELETED",
-    targetType: "photo",
-    targetId: photo._id.toString(),
-    details: { key: photo.key, mimeType: photo.mimeType },
-    ...clientInfo(c),
-  });
-
-  return c.json({ ok: true });
-});
+}
 
 export interface PopulatedPhoto {
   _id: { toString(): string };
@@ -167,7 +257,10 @@ export async function toPhotoPayload(
 }
 
 async function findPopulatedPhoto(photoId: string): Promise<PopulatedPhoto> {
-  const photo = (await Photo.findById(photoId)
+  const photo = (await Photo.findOne({
+    _id: photoId,
+    deletedAt: { $exists: false },
+  })
     .populate("uploadedBy", "name username")
     .lean()) as unknown as PopulatedPhoto | null;
 

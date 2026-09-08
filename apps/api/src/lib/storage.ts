@@ -2,12 +2,20 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  readFile,
+  readdir,
+  rm,
+  stat,
+  writeFile,
+} from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { env } from "../config/env.js";
 import { AppError } from "../middleware/error.js";
@@ -41,6 +49,10 @@ export interface StorageBackend {
     key: string,
     expected: Pick<UploadMetadata, "mimeType" | "size">,
   ): Promise<void>;
+  /** Size + declared type of the stored object, or null when missing. */
+  headObject(key: string): Promise<{ size: number; mimeType?: string } | null>;
+  /** All stored keys under a prefix (for reconciliation). */
+  listObjects(prefix: string): Promise<Array<{ key: string; size: number }>>;
   /** First bytes of the stored object, for server-side type sniffing. */
   peekHead(key: string, maxBytes?: number): Promise<Uint8Array>;
   /** URL the browser GETs the object from. */
@@ -102,19 +114,57 @@ class R2Storage implements StorageBackend {
     key: string,
     expected: Pick<UploadMetadata, "mimeType" | "size">,
   ): Promise<void> {
-    const head = await this.client.send(
-      new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
-    );
+    const head = await this.headObject(key);
     if (
-      head.ContentLength !== expected.size ||
-      head.ContentType !== expected.mimeType
+      !head ||
+      head.size !== expected.size ||
+      head.mimeType !== expected.mimeType
     ) {
       throw new AppError(
         400,
-        "UPLOAD_MISMATCH",
-        "Uploaded file doesn't match the request",
+        head ? "UPLOAD_MISMATCH" : "UPLOAD_MISSING",
+        head
+          ? "Uploaded file doesn't match the request"
+          : "Uploaded file not found",
       );
     }
+  }
+
+  async headObject(
+    key: string,
+  ): Promise<{ size: number; mimeType?: string } | null> {
+    try {
+      const head = await this.client.send(
+        new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
+      );
+      if (head.ContentLength === undefined) return null;
+      return { size: head.ContentLength, mimeType: head.ContentType };
+    } catch {
+      return null;
+    }
+  }
+
+  async listObjects(
+    prefix: string,
+  ): Promise<Array<{ key: string; size: number }>> {
+    const out: Array<{ key: string; size: number }> = [];
+    let token: string | undefined;
+    do {
+      const res = await this.client.send(
+        new ListObjectsV2Command({
+          Bucket: this.bucket,
+          Prefix: prefix,
+          ContinuationToken: token,
+        }),
+      );
+      for (const obj of res.Contents ?? []) {
+        if (obj.Key !== undefined && obj.Size !== undefined) {
+          out.push({ key: obj.Key, size: obj.Size });
+        }
+      }
+      token = res.IsTruncated ? res.NextContinuationToken : undefined;
+    } while (token);
+    return out;
   }
 
   async peekHead(key: string, maxBytes = 32): Promise<Uint8Array> {
@@ -185,6 +235,44 @@ class LocalStorage implements StorageBackend {
 
   async getObjectUrl(key: string): Promise<string> {
     return `/api/uploads/${key}`;
+  }
+
+  async headObject(
+    key: string,
+  ): Promise<{ size: number; mimeType?: string } | null> {
+    try {
+      const info = await stat(this.pathFor(key));
+      // Local disk stores no content-type metadata — size only.
+      return { size: info.size };
+    } catch {
+      return null;
+    }
+  }
+
+  async listObjects(
+    prefix: string,
+  ): Promise<Array<{ key: string; size: number }>> {
+    const out: Array<{ key: string; size: number }> = [];
+    const walk = async (dir: string, keyPrefix: string): Promise<void> => {
+      let entries;
+      try {
+        entries = await readdir(join(UPLOADS_DIR, dir), {
+          withFileTypes: true,
+        });
+      } catch {
+        return;
+      }
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          await walk(`${dir}/${entry.name}`, `${keyPrefix}${entry.name}/`);
+        } else {
+          const info = await stat(join(UPLOADS_DIR, dir, entry.name));
+          out.push({ key: `${keyPrefix}${entry.name}`, size: info.size });
+        }
+      }
+    };
+    await walk(prefix.replace(/\/$/, ""), `${prefix.replace(/\/$/, "")}/`);
+    return out;
   }
 
   async peekHead(key: string, maxBytes = 32): Promise<Uint8Array> {

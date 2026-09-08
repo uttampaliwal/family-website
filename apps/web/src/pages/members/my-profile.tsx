@@ -1,12 +1,12 @@
 import { relationshipSchema } from "@family/core";
 import { Button, useToast } from "@family/ui";
-import { ApiError, api } from "../../lib/api-client.js";
-import { useAuthStore } from "../../stores/auth-store.js";
+import { useState, type FormEvent } from "react";
 import { Field, FieldInput, issueMap } from "../../components/auth/field.js";
 import { roleLabelKey } from "../../components/role-badge.js";
 import { useI18n } from "../../i18n/index.js";
-import { useState, type FormEvent } from "react";
+import { ApiError, api } from "../../lib/api-client.js";
 import { useSeo } from "../../lib/seo.js";
+import { useAuthStore } from "../../stores/auth-store.js";
 
 const RELATIONSHIPS = relationshipSchema.options;
 
@@ -20,6 +20,7 @@ export function MyProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -43,11 +44,37 @@ export function MyProfilePage() {
     }
   }
 
+  async function onExport() {
+    setExporting(true);
+    try {
+      const data = await api.get<unknown>("/members/me/export");
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `kulaya-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      toast("Export downloaded", { variant: "success" });
+    } catch {
+      toast("Couldn't prepare your export", { variant: "error" });
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-xl px-4 py-12 sm:px-6">
-      <h1 className="font-display text-3xl font-bold tracking-tight">My profile</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight">
+        My profile
+      </h1>
       <p className="mt-1 text-sm text-muted">
-        Signed in as @{user?.username} · {user ? t(roleLabelKey[user.role]) : ""}
+        Signed in as @{user?.username} ·{" "}
+        {user ? t(roleLabelKey[user.role]) : ""}
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
@@ -61,7 +88,11 @@ export function MyProfilePage() {
             required
           />
         </Field>
-        <Field label="Relationship to the family" htmlFor="relationship" error={errors.relationship}>
+        <Field
+          label="Relationship to the family"
+          htmlFor="relationship"
+          error={errors.relationship}
+        >
           <select
             id="relationship"
             name="relationship"
@@ -77,7 +108,11 @@ export function MyProfilePage() {
             ))}
           </select>
         </Field>
-        <Field label="Phone number (optional)" htmlFor="phoneNumber" error={errors.phoneNumber}>
+        <Field
+          label="Phone number (optional)"
+          htmlFor="phoneNumber"
+          error={errors.phoneNumber}
+        >
           <FieldInput
             id="phoneNumber"
             name="phoneNumber"
@@ -93,6 +128,26 @@ export function MyProfilePage() {
           {saving ? "Saving…" : "Save changes"}
         </Button>
       </form>
+
+      <section
+        aria-label="Data export"
+        className="mt-10 border-t border-border pt-6"
+      >
+        <h2 className="text-lg font-semibold">Your data</h2>
+        <p className="mt-1 text-sm text-muted">
+          Download everything the nest holds about you — profile, posts, events,
+          photos and documents — as JSON.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-3"
+          disabled={exporting}
+          onClick={() => void onExport()}
+        >
+          {exporting ? "Preparing…" : "Export my data"}
+        </Button>
+      </section>
     </div>
   );
 }

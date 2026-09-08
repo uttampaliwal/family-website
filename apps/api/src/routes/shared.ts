@@ -1,7 +1,7 @@
 import { Hono } from "hono";
+import { storage } from "../lib/storage.js";
 import { AppError } from "../middleware/error.js";
 import { rateLimit } from "../middleware/security.js";
-import { storage } from "../lib/storage.js";
 import { KulayaDocument } from "../models/document.js";
 
 /**
@@ -16,10 +16,14 @@ sharedRoutes.get(
   async (c) => {
     const document = await KulayaDocument.findOne({
       shareToken: c.req.param("token"),
+      deletedAt: { $exists: false },
     }).lean();
-    if (!document) throw new AppError(404, "NOT_FOUND", "Link invalid or revoked");
+    if (!document)
+      throw new AppError(404, "NOT_FOUND", "Link invalid or revoked");
 
-    const url = await storage.getObjectUrl(document.key, { filename: document.name });
+    const url = await storage.getObjectUrl(document.key, {
+      filename: document.name,
+    });
     return c.redirect(url, 302);
   },
 );

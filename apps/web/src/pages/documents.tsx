@@ -109,10 +109,22 @@ export function DocumentsPage() {
     mutationFn: (id: string) => api.delete(`/documents/${id}`),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["documents"] });
-      toast("Document deleted", { variant: "success" });
+      toast("Document moved to Trash — recoverable for 30 days", {
+        variant: "success",
+      });
     },
     onError: () => toast("Couldn't delete the document", { variant: "error" }),
   });
+
+  function confirmRemove(id: string, name: string) {
+    if (
+      window.confirm(
+        `Move "${name}" to Trash?\n\nYou can restore it within 30 days.`,
+      )
+    ) {
+      remove.mutate(id);
+    }
+  }
 
   const share = useMutation({
     mutationFn: (id: string) =>
@@ -184,6 +196,10 @@ export function DocumentsPage() {
             {data
               ? `${data.total} document${data.total === 1 ? "" : "s"} in the archive`
               : "Papers, plans and keepsakes"}
+            {" · "}
+            <Link to="/trash" className="hover:text-primary">
+              Trash
+            </Link>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -308,7 +324,7 @@ export function DocumentsPage() {
                       variant="outline"
                       size="icon"
                       aria-label={`Delete ${doc.name}`}
-                      onClick={() => remove.mutate(doc.id)}
+                      onClick={() => confirmRemove(doc.id, doc.name)}
                       disabled={remove.isPending}
                       className="text-error hover:border-error/40 hover:bg-error/10"
                     >

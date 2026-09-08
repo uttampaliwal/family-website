@@ -1,23 +1,30 @@
 import type { Photo } from "@family/core";
 import { can } from "@family/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar, Button, Input, Skeleton, useToast } from "@family/ui";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ImagePlus, Images, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuthStore } from "../stores/auth-store.js";
+import { useI18n } from "../i18n/index.js";
 import { api } from "../lib/api-client.js";
 import { encodePhoto } from "../lib/encode-image.js";
 import { sha256HexOf } from "../lib/file-hash.js";
-import { useI18n } from "../i18n/index.js";
 import { useSeo } from "../lib/seo.js";
+import { useAuthStore } from "../stores/auth-store.js";
 
 interface PhotoListResponse {
   items: Photo[];
   total: number;
 }
 
-const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif", "image/heic"]);
+const ALLOWED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+  "image/heic",
+]);
 const MAX_SIZE = 20 * 1024 * 1024;
 
 export function PhotosPage() {
@@ -39,10 +46,14 @@ export function PhotosPage() {
     mutationFn: async (file: Blob) => {
       // Hash the final bytes actually PUT to storage (post-encode).
       const sha256 = await sha256HexOf(file);
-      const { uploadUrl, key } = await api.post<{ uploadUrl: string; key: string }>(
-        "/photos/upload-url",
-        { mimeType: file.type, size: file.size, sha256 },
-      );
+      const { uploadUrl, key } = await api.post<{
+        uploadUrl: string;
+        key: string;
+      }>("/photos/upload-url", {
+        mimeType: file.type,
+        size: file.size,
+        sha256,
+      });
 
       const putRes = await fetch(uploadUrl, {
         method: "PUT",
@@ -65,7 +76,9 @@ export function PhotosPage() {
       toast("Photo added to the nest", { variant: "success" });
     },
     onError: (error) => {
-      toast(error instanceof Error ? error.message : "Upload failed", { variant: "error" });
+      toast(error instanceof Error ? error.message : "Upload failed", {
+        variant: "error",
+      });
     },
   });
 
@@ -73,17 +86,31 @@ export function PhotosPage() {
     mutationFn: (id: string) => api.delete(`/photos/${id}`),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["photos"] });
-      toast("Photo deleted", { variant: "success" });
+      toast("Photo moved to Trash — recoverable for 30 days", {
+        variant: "success",
+      });
     },
     onError: () => toast("Couldn't delete the photo", { variant: "error" }),
   });
+
+  function confirmRemove(id: string, caption: string | null) {
+    if (
+      window.confirm(
+        `Move this photo to Trash?\n\n${caption ?? "Untitled photo"}\n\nYou can restore it within 30 days.`,
+      )
+    ) {
+      remove.mutate(id);
+    }
+  }
 
   async function onPickFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
     if (!ALLOWED_TYPES.has(file.type)) {
-      toast("Use a JPG, PNG, WebP, GIF, AVIF, or HEIC image", { variant: "error" });
+      toast("Use a JPG, PNG, WebP, GIF, AVIF, or HEIC image", {
+        variant: "error",
+      });
       return;
     }
     if (file.size > MAX_SIZE) {
@@ -93,7 +120,10 @@ export function PhotosPage() {
     setPreparing(true);
     try {
       const { blob } = await encodePhoto(file);
-      upload.mutate(blob, { onSuccess: () => setPreparing(false), onError: () => setPreparing(false) });
+      upload.mutate(blob, {
+        onSuccess: () => setPreparing(false),
+        onError: () => setPreparing(false),
+      });
     } catch {
       setPreparing(false);
     }
@@ -103,9 +133,17 @@ export function PhotosPage() {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">{t("photos.heading")}</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">
+            {t("photos.heading")}
+          </h1>
           <p className="mt-1 text-sm text-muted">
-            {data ? `${data.total} photo${data.total === 1 ? "" : "s"} in the album` : "Moments of our nest"}
+            {data
+              ? `${data.total} photo${data.total === 1 ? "" : "s"} in the album`
+              : "Moments of our nest"}
+            {" · "}
+            <Link to="/trash" className="hover:text-primary">
+              Trash
+            </Link>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -154,7 +192,9 @@ export function PhotosPage() {
       {data && data.items.length > 0 && (
         <div className="virtual mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {data.items.map((photo, index) => {
-            const canDelete = can(user?.role ?? "guest", "moderate") || user?.id === photo.uploadedBy.id;
+            const canDelete =
+              can(user?.role ?? "guest", "moderate") ||
+              user?.id === photo.uploadedBy.id;
             return (
               <figure
                 key={photo.id}
@@ -173,7 +213,7 @@ export function PhotosPage() {
                     <button
                       type="button"
                       aria-label={`Delete photo by ${photo.uploadedBy.name}`}
-                      onClick={() => remove.mutate(photo.id)}
+                      onClick={() => confirmRemove(photo.id, photo.caption)}
                       disabled={remove.isPending}
                       className="absolute right-2 top-2 grid size-8 place-items-center rounded-full bg-background/80 text-error opacity-0 shadow transition-opacity group-hover:opacity-100 focus-visible:opacity-100 disabled:opacity-0"
                     >
@@ -187,7 +227,9 @@ export function PhotosPage() {
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     {photo.caption && (
-                      <p className="truncate text-sm font-medium">{photo.caption}</p>
+                      <p className="truncate text-sm font-medium">
+                        {photo.caption}
+                      </p>
                     )}
                     <p className="truncate text-xs text-muted">
                       <Link
@@ -197,9 +239,9 @@ export function PhotosPage() {
                         {photo.uploadedBy.name}
                       </Link>
                       {" · "}
-                      {new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
-                        photo.createdAt,
-                      )}
+                      {new Intl.DateTimeFormat(undefined, {
+                        dateStyle: "medium",
+                      }).format(photo.createdAt)}
                     </p>
                   </div>
                 </figcaption>

@@ -7,6 +7,8 @@ export interface PhotoDocument extends Document {
   caption?: string;
   /** Client-computed SHA-256 of the stored bytes (reconciliation). */
   sha256?: string;
+  /** Soft delete (Trash): set instead of removing the row. */
+  deletedAt?: Date;
   uploadedBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -19,6 +21,7 @@ const photoSchema = new mongoose.Schema<PhotoDocument>(
     size: { type: Number, required: true },
     caption: { type: String, maxlength: 200, default: undefined },
     sha256: { type: String, default: undefined },
+    deletedAt: { type: Date, default: undefined },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
