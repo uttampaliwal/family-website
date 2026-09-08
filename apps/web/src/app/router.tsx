@@ -1,26 +1,39 @@
+import { Loader2 } from "lucide-react";
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
-import { GuestOnlyRoute, ProtectedRoute } from "../components/auth/route-guards.js";
+import {
+  GuestOnlyRoute,
+  ProtectedRoute,
+} from "../components/auth/route-guards.js";
 import { AppShell } from "../components/layout/app-shell.js";
-import { Loader2 } from "lucide-react";
 
 const ForgotPasswordPage = lazy(() =>
-  import("../pages/auth/forgot-password.js").then((m) => ({ default: m.ForgotPasswordPage })),
+  import("../pages/auth/forgot-password.js").then((m) => ({
+    default: m.ForgotPasswordPage,
+  })),
 );
 const LoginPage = lazy(() =>
   import("../pages/auth/login.js").then((m) => ({ default: m.LoginPage })),
 );
 const RegisterPage = lazy(() =>
-  import("../pages/auth/register.js").then((m) => ({ default: m.RegisterPage })),
+  import("../pages/auth/register.js").then((m) => ({
+    default: m.RegisterPage,
+  })),
 );
 const ResendVerificationPage = lazy(() =>
-  import("../pages/auth/resend-verification.js").then((m) => ({ default: m.ResendVerificationPage })),
+  import("../pages/auth/resend-verification.js").then((m) => ({
+    default: m.ResendVerificationPage,
+  })),
 );
 const ResetPasswordPage = lazy(() =>
-  import("../pages/auth/reset-password.js").then((m) => ({ default: m.ResetPasswordPage })),
+  import("../pages/auth/reset-password.js").then((m) => ({
+    default: m.ResetPasswordPage,
+  })),
 );
 const VerifyEmailPage = lazy(() =>
-  import("../pages/auth/verify-email.js").then((m) => ({ default: m.VerifyEmailPage })),
+  import("../pages/auth/verify-email.js").then((m) => ({
+    default: m.VerifyEmailPage,
+  })),
 );
 const FamilyPage = lazy(() =>
   import("../pages/family.js").then((m) => ({ default: m.FamilyPage })),
@@ -38,10 +51,15 @@ const EventsPage = lazy(() =>
   import("../pages/events.js").then((m) => ({ default: m.EventsPage })),
 );
 const AnnouncementsPage = lazy(() =>
-  import("../pages/announcements.js").then((m) => ({ default: m.AnnouncementsPage })),
+  import("../pages/announcements.js").then((m) => ({
+    default: m.AnnouncementsPage,
+  })),
 );
 const DocumentsPage = lazy(() =>
   import("../pages/documents.js").then((m) => ({ default: m.DocumentsPage })),
+);
+const TrashPage = lazy(() =>
+  import("../pages/trash.js").then((m) => ({ default: m.TrashPage })),
 );
 const MomentsPage = lazy(() =>
   import("../pages/moments.js").then((m) => ({ default: m.MomentsPage })),
@@ -53,22 +71,32 @@ const SearchPage = lazy(() =>
   import("../pages/search.js").then((m) => ({ default: m.SearchPage })),
 );
 const MemberProfilePage = lazy(() =>
-  import("../pages/members/member-profile.js").then((m) => ({ default: m.MemberProfilePage })),
+  import("../pages/members/member-profile.js").then((m) => ({
+    default: m.MemberProfilePage,
+  })),
 );
 const MembersPage = lazy(() =>
-  import("../pages/members/members.js").then((m) => ({ default: m.MembersPage })),
+  import("../pages/members/members.js").then((m) => ({
+    default: m.MembersPage,
+  })),
 );
 const MyProfilePage = lazy(() =>
-  import("../pages/members/my-profile.js").then((m) => ({ default: m.MyProfilePage })),
+  import("../pages/members/my-profile.js").then((m) => ({
+    default: m.MyProfilePage,
+  })),
 );
 const AdminApprovalsPage = lazy(() =>
-  import("../pages/admin/approvals.js").then((m) => ({ default: m.AdminApprovalsPage })),
+  import("../pages/admin/approvals.js").then((m) => ({
+    default: m.AdminApprovalsPage,
+  })),
 );
 const NotFoundPage = lazy(() =>
   import("../pages/not-found.js").then((m) => ({ default: m.NotFoundPage })),
 );
 const PrivacyPolicyPage = lazy(() =>
-  import("../pages/legal/privacy-policy.js").then((m) => ({ default: m.PrivacyPolicyPage })),
+  import("../pages/legal/privacy-policy.js").then((m) => ({
+    default: m.PrivacyPolicyPage,
+  })),
 );
 const TermsPage = lazy(() =>
   import("../pages/legal/terms.js").then((m) => ({ default: m.TermsPage })),
@@ -232,6 +260,16 @@ export const router = createBrowserRouter([
           <Suspense fallback={<PageFallback />}>
             <ProtectedRoute>
               <DocumentsPage />
+            </ProtectedRoute>
+          </Suspense>
+        ),
+      },
+      {
+        path: "/trash",
+        element: (
+          <Suspense fallback={<PageFallback />}>
+            <ProtectedRoute>
+              <TrashPage />
             </ProtectedRoute>
           </Suspense>
         ),
