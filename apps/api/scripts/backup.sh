@@ -22,8 +22,16 @@
 #            -in <file> | mongorestore --uri "$DATABASE_URL" --archive --gzip
 set -euo pipefail
 
-: "${DATABASE_URL:?set DATABASE_URL}"
-: "${BACKUP_PASSPHRASE:?set BACKUP_PASSPHRASE}"
+require_env() {
+  local name="$1"
+  if [ -z "${!name:-}" ]; then
+    echo "missing required env: $name" >&2
+    exit 1
+  fi
+}
+
+require_env DATABASE_URL
+require_env BACKUP_PASSPHRASE
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 R2_MIRROR="${R2_MIRROR:-}"
 
