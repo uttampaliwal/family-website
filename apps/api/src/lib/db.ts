@@ -68,6 +68,10 @@ export async function disconnectDb(): Promise<void> {
 }
 
 export async function isDbHealthy(): Promise<boolean> {
+  // readyState 1 = connected. Without this guard, `connection.db` is
+  // undefined when disconnected and the optional chain resolves without
+  // throwing — falsely reporting healthy.
+  if (mongoose.connection.readyState !== 1) return false;
   try {
     await mongoose.connection.db?.admin().ping();
     return true;
