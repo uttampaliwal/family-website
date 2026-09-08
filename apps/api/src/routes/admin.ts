@@ -9,7 +9,9 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import mongoose from "mongoose";
 import { clientInfo, recordAudit } from "../lib/audit.js";
+import { generateRandomToken } from "../lib/auth.js";
 import { createNotification } from "../lib/notifications.js";
+import { hashPassword } from "../lib/passwords.js";
 import { toAdminMember } from "../lib/payloads.js";
 import { assertValidParents } from "../lib/tree.js";
 import { parseObjectIdParam, validateBody } from "../lib/validation.js";
@@ -208,6 +210,67 @@ adminRoutes.patch(
     }
 
     return c.json({ member: toAdminMember(user) });
+  },
+);
+
+adminRoutes.delete(
+  "/members/:id",
+  requireCapability("manageMembers"),
+  async (c) => {
+    const actorId = c.get("userId");
+    const actorRole = c.get("userRole");
+
+    const user = await User.findById(parseObjectIdParam(c));
+    if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
+    if (user._id.toString() === actorId) {
+      throw new AppError(
+        400,
+        "INVALID_OPERATION",
+        "You can't delete your own account",
+      );
+    }
+    // Hierarchy-bound like role assignment: an admin can remove strictly
+    // lower tiers; only the owner can remove an admin/owner.
+    if (!canAssignRole(actorRole, user.role, user.role)) {
+      throw new AppError(
+        403,
+        "FORBIDDEN",
+        "You can't delete a member of that tier",
+      );
+    }
+
+    // Scrub-delete: PII is wiped and sessions killed, but authored content
+    // (posts, uploads, events) is retained so family threads don't break.
+    // Hard content erasure remains a deliberate manual DB operation.
+    const memberName = user.username;
+    user.name = "Removed member";
+    user.email = `removed_${user._id.toString()}@invalid.local`;
+    user.username = `removed_${user._id.toString().slice(-8)}`;
+    user.passwordHash = await hashPassword(generateRandomToken());
+    user.phoneNumber = undefined;
+    user.isVerified = false;
+    user.verificationTokenHash = undefined;
+    user.verificationTokenExpires = undefined;
+    user.resetPasswordTokenHash = undefined;
+    user.resetPasswordExpires = undefined;
+    user.parentIds = [];
+    user.role = "child";
+    user.adminApprovalStatus = "rejected";
+    user.refreshTokenHashes = [];
+    user.refreshSessions = [];
+    user.authVersion += 1;
+    await user.save();
+
+    await recordAudit({
+      actorId,
+      action: "ACCOUNT_DELETED",
+      targetType: "user",
+      targetId: user._id.toString(),
+      details: { member: memberName },
+      ...clientInfo(c),
+    });
+
+    return c.json({ ok: true });
   },
 );
 
