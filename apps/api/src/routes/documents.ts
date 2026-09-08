@@ -11,6 +11,7 @@ import { clientInfo, recordAudit } from "../lib/audit.js";
 import { confirmStoredUpload } from "../lib/file-type.js";
 import { checkUploadQuota, recordUploadUsage } from "../lib/quotas.js";
 import { newDocumentKey, storage } from "../lib/storage.js";
+import { purgeExpiredTrash } from "../lib/trash.js";
 import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
@@ -90,8 +91,22 @@ documentsRoutes.post(
 );
 
 documentsRoutes.get("/", async (c) => {
-  const documents = (await KulayaDocument.find()
+  const documents = (await KulayaDocument.find({
+    deletedAt: { $exists: false },
+  })
     .sort({ createdAt: -1 })
+    .limit(100)
+    .populate("uploadedBy", "name username")
+    .lean()) as unknown as PopulatedDocument[];
+
+  const items = await Promise.all(documents.map(toDocumentPayload));
+  return c.json({ items, total: items.length });
+});
+
+/** Trash listing — trashed items stay recoverable for 30 days. */
+documentsRoutes.get("/trash", async (c) => {
+  const documents = (await KulayaDocument.find({ deletedAt: { $exists: true } })
+    .sort({ deletedAt: -1 })
     .limit(100)
     .populate("uploadedBy", "name username")
     .lean()) as unknown as PopulatedDocument[];
@@ -114,7 +129,10 @@ documentsRoutes.get("/:id", async (c) => {
  * 302-redirect — the client navigates to the returned URL itself. */
 documentsRoutes.get("/:id/download", async (c) => {
   const userId = c.get("userId");
-  const document = await KulayaDocument.findById(parseObjectIdParam(c)).lean();
+  const document = await KulayaDocument.findOne({
+    _id: parseObjectIdParam(c),
+    deletedAt: { $exists: false },
+  }).lean();
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
   const url = await storage.getObjectUrl(document.key, {
     filename: document.name,
@@ -135,31 +153,108 @@ documentsRoutes.get("/:id/download", async (c) => {
 documentsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(parseObjectIdParam(c));
+  const document = await KulayaDocument.findOne({
+    _id: parseObjectIdParam(c),
+    deletedAt: { $exists: false },
+  });
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);
 
-  await storage.deleteObject(document.key);
-  await document.deleteOne();
+  document.deletedAt = new Date();
+  await document.save();
 
   await recordAudit({
     actorId: userId,
     action: "DOCUMENT_DELETED",
     targetType: "document",
     targetId: document._id.toString(),
-    details: { name: document.name, key: document.key },
+    details: { name: document.name, key: document.key, trashed: true },
+    ...clientInfo(c),
+  });
+
+  return c.json({ ok: true, trashed: true });
+});
+
+/** Restore from Trash. */
+documentsRoutes.post("/:id/restore", async (c) => {
+  const userId = c.get("userId");
+
+  const document = await KulayaDocument.findOne({
+    _id: parseObjectIdParam(c),
+    deletedAt: { $exists: true },
+  });
+  if (!document)
+    throw new AppError(404, "NOT_FOUND", "Document not found in Trash");
+
+  await assertCanManage(document, userId);
+
+  document.deletedAt = undefined;
+  await document.save();
+
+  await recordAudit({
+    actorId: userId,
+    action: "DOCUMENT_RESTORED",
+    targetType: "document",
+    targetId: document._id.toString(),
+    details: { name: document.name },
     ...clientInfo(c),
   });
 
   return c.json({ ok: true });
 });
 
+/** Permanent deletion — bytes and metadata both go. Moderators only. */
+documentsRoutes.delete(
+  "/:id/permanent",
+  requireCapability("moderate"),
+  async (c) => {
+    const userId = c.get("userId");
+
+    const document = await KulayaDocument.findById(parseObjectIdParam(c));
+    if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
+
+    await storage.deleteObject(document.key);
+    await document.deleteOne();
+
+    await recordAudit({
+      actorId: userId,
+      action: "DOCUMENT_PURGED",
+      targetType: "document",
+      targetId: document._id.toString(),
+      details: { name: document.name, key: document.key },
+      ...clientInfo(c),
+    });
+
+    return c.json({ ok: true });
+  },
+);
+
+/** Purge Trash entries older than 30 days. Moderators only. */
+documentsRoutes.post(
+  "/trash/purge",
+  requireCapability("moderate"),
+  async (c) => {
+    const userId = c.get("userId");
+    const purged = await purgeExpiredTrash(KulayaDocument);
+    await recordAudit({
+      actorId: userId,
+      action: "DOCUMENT_PURGED",
+      details: { count: purged },
+      ...clientInfo(c),
+    });
+    return c.json({ ok: true, purged });
+  },
+);
+
 /** Create (or keep) the public share link and return its path. */
 documentsRoutes.post("/:id/share", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(parseObjectIdParam(c));
+  const document = await KulayaDocument.findOne({
+    _id: parseObjectIdParam(c),
+    deletedAt: { $exists: false },
+  });
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);
@@ -188,7 +283,10 @@ documentsRoutes.post("/:id/share", async (c) => {
 documentsRoutes.delete("/:id/share", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(parseObjectIdParam(c));
+  const document = await KulayaDocument.findOne({
+    _id: parseObjectIdParam(c),
+    deletedAt: { $exists: false },
+  });
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);
@@ -263,7 +361,10 @@ export async function toDocumentPayload(
 async function findPopulatedDocument(
   documentId: string,
 ): Promise<PopulatedDocument> {
-  const document = (await KulayaDocument.findById(documentId)
+  const document = (await KulayaDocument.findOne({
+    _id: documentId,
+    deletedAt: { $exists: false },
+  })
     .populate("uploadedBy", "name username")
     .lean()) as unknown as PopulatedDocument | null;
 
