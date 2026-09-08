@@ -6,6 +6,7 @@ import {
   updateEventRequestSchema,
 } from "@family/core";
 import { Hono } from "hono";
+import { clientInfo, recordAudit } from "../lib/audit.js";
 import { broadcastToApprovedMembers } from "../lib/notifications.js";
 import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
@@ -84,6 +85,15 @@ eventsRoutes.post(
       link: "/events",
     });
 
+    await recordAudit({
+      actorId: userId,
+      action: "EVENT_CREATED",
+      targetType: "event",
+      targetId: event._id.toString(),
+      details: { title },
+      ...clientInfo(c),
+    });
+
     return c.json({
       event: toEventPayload(await findPopulatedEvent(event._id.toString())),
     });
@@ -110,6 +120,16 @@ eventsRoutes.patch(
     if (input.recurrence !== undefined) event.recurrence = input.recurrence;
 
     await event.save();
+
+    await recordAudit({
+      actorId: userId,
+      action: "EVENT_UPDATED",
+      targetType: "event",
+      targetId: event._id.toString(),
+      details: { title: event.title },
+      ...clientInfo(c),
+    });
+
     return c.json({
       event: toEventPayload(await findPopulatedEvent(event._id.toString())),
     });
@@ -124,6 +144,15 @@ eventsRoutes.delete("/:id", async (c) => {
 
   await assertCanManage(event, userId);
   await event.deleteOne();
+
+  await recordAudit({
+    actorId: userId,
+    action: "EVENT_DELETED",
+    targetType: "event",
+    targetId: event._id.toString(),
+    details: { title: event.title },
+    ...clientInfo(c),
+  });
 
   return c.json({ ok: true });
 });

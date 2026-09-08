@@ -6,6 +6,7 @@ import {
 } from "@family/core";
 import { Hono } from "hono";
 import mongoose from "mongoose";
+import { clientInfo, recordAudit } from "../lib/audit.js";
 import { createNotification } from "../lib/notifications.js";
 import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
@@ -51,6 +52,15 @@ postsRoutes.post(
 
     const post = await Post.create({ body, createdBy: userId });
     const populated = await findPopulated(post._id.toString());
+
+    await recordAudit({
+      actorId: userId,
+      action: "POST_CREATED",
+      targetType: "post",
+      targetId: post._id.toString(),
+      ...clientInfo(c),
+    });
+
     return c.json({ post: toPostPayload(populated, userId) });
   },
 );
@@ -64,6 +74,15 @@ postsRoutes.delete("/:id", async (c) => {
   await assertCanManage(post.createdBy.toString(), userId, "post");
 
   await post.deleteOne();
+
+  await recordAudit({
+    actorId: userId,
+    action: "POST_DELETED",
+    targetType: "post",
+    targetId: post._id.toString(),
+    ...clientInfo(c),
+  });
+
   return c.json({ ok: true });
 });
 

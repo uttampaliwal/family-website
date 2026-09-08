@@ -49,7 +49,8 @@ documentsRoutes.post(
   validateBody(createDocumentRequestSchema),
   async (c) => {
     const userId = c.get("userId");
-    const { key, name, mimeType, size, description, sha256 } = c.req.valid("json");
+    const { key, name, mimeType, size, description, sha256 } =
+      c.req.valid("json");
 
     const existing = await KulayaDocument.findOne({ key });
     if (existing)
@@ -70,6 +71,15 @@ documentsRoutes.post(
       uploadedBy: userId,
     });
     recordUploadUsage(userId, size);
+
+    await recordAudit({
+      actorId: userId,
+      action: "DOCUMENT_UPLOADED",
+      targetType: "document",
+      targetId: document._id.toString(),
+      details: { name: document.name, key: document.key, size: document.size },
+      ...clientInfo(c),
+    });
 
     return c.json({
       document: await toDocumentPayload(
@@ -103,11 +113,22 @@ documentsRoutes.get("/:id", async (c) => {
  * `<a href>` cannot send Authorization headers, so this endpoint must NOT
  * 302-redirect — the client navigates to the returned URL itself. */
 documentsRoutes.get("/:id/download", async (c) => {
+  const userId = c.get("userId");
   const document = await KulayaDocument.findById(parseObjectIdParam(c)).lean();
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
   const url = await storage.getObjectUrl(document.key, {
     filename: document.name,
   });
+
+  await recordAudit({
+    actorId: userId,
+    action: "DOCUMENT_DOWNLOADED",
+    targetType: "document",
+    targetId: document._id.toString(),
+    details: { name: document.name },
+    ...clientInfo(c),
+  });
+
   return c.json({ url });
 });
 

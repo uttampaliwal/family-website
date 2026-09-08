@@ -115,12 +115,22 @@ authRoutes.post(
       verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
-    await sendMail({
+    const emailSent = await sendMail({
       to: user.email,
       subject: "Verify your email — Kulaya",
       text: `Welcome to Kulaya! Verify your email: ${buildEmailLink("/verify-email", { token: verificationToken })}`,
       html: `<p>Welcome to <strong>Kulaya</strong>!</p><p><a href="${buildEmailLink("/verify-email", { token: verificationToken })}">Verify your email</a></p>`,
     });
+    if (!emailSent) {
+      await recordAudit({
+        actorId: user._id.toString(),
+        action: "EMAIL_DELIVERY_FAILED",
+        targetType: "user",
+        targetId: user._id.toString(),
+        details: { kind: "verification", username: user.username },
+        ...clientInfo(c),
+      });
+    }
 
     await recordAudit({
       actorId: user._id.toString(),
@@ -144,8 +154,9 @@ authRoutes.post(
 
     return c.json(
       {
-        message:
-          "Registration successful — check your email to verify your account",
+        message: emailSent
+          ? "Registration successful — check your email to verify your account"
+          : "Account created, but the verification email failed to send — request a new link from the login page",
       },
       201,
     );
@@ -491,12 +502,27 @@ authRoutes.post(
     user.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await user.save();
 
-    await sendMail({
+    const emailSent = await sendMail({
       to: user.email,
       subject: "Verify your email — Kulaya",
       text: `Verify your email: ${buildEmailLink("/verify-email", { token })}`,
       html: `<p><a href="${buildEmailLink("/verify-email", { token })}">Verify your email</a></p>`,
     });
+    if (!emailSent) {
+      await recordAudit({
+        actorId: user._id.toString(),
+        action: "EMAIL_DELIVERY_FAILED",
+        targetType: "user",
+        targetId: user._id.toString(),
+        details: { kind: "verification-resend" },
+        ...clientInfo(c),
+      });
+      throw new AppError(
+        502,
+        "EMAIL_DELIVERY_FAILED",
+        "Couldn't send the verification email — please try again",
+      );
+    }
 
     return c.json({ message: "Verification link sent" });
   },
@@ -531,12 +557,23 @@ authRoutes.post(
       ...clientInfo(c),
     });
 
-    await sendMail({
+    const emailSent = await sendMail({
       to: user.email,
       subject: "Reset your password — Kulaya",
       text: `Reset your password: ${buildEmailLink("/reset-password", { token })}`,
       html: `<p><a href="${buildEmailLink("/reset-password", { token })}">Reset your password</a></p>`,
     });
+    if (!emailSent) {
+      // Generic response preserved (anti-enumeration); the failure is
+      // audited for operators instead of being silently swallowed.
+      await recordAudit({
+        action: "EMAIL_DELIVERY_FAILED",
+        targetType: "user",
+        targetId: user._id.toString(),
+        details: { kind: "password-reset", email },
+        ...clientInfo(c),
+      });
+    }
 
     return c.json({
       message: "If the account exists, a reset link has been sent",

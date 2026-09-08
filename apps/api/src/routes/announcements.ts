@@ -111,8 +111,8 @@ announcementsRoutes.delete(
 
 /**
  * Email + in-app notification for every approved member (except the author)
- * about a new announcement. Fire-and-forget: `sendMail` swallows errors, and
- * without a Resend key it only logs in development.
+ * about a new announcement. Best-effort fan-out: per-recipient delivery
+ * failures are logged by sendMail; the in-app notification is authoritative.
  */
 async function notifyMembers(
   authorId: string,

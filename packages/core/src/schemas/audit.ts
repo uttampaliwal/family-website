@@ -15,10 +15,19 @@ export const auditActions = [
   "MEMBER_REJECTED",
   "MEMBER_SUSPENDED",
   "ROLE_CHANGED",
+  "PHOTO_UPLOADED",
   "PHOTO_DELETED",
+  "DOCUMENT_UPLOADED",
   "DOCUMENT_DELETED",
   "DOCUMENT_SHARED",
   "DOCUMENT_UNSHARED",
+  "DOCUMENT_DOWNLOADED",
+  "POST_CREATED",
+  "POST_DELETED",
+  "EVENT_CREATED",
+  "EVENT_UPDATED",
+  "EVENT_DELETED",
+  "EMAIL_DELIVERY_FAILED",
 ] as const;
 
 export const auditActionSchema = z.enum(auditActions);

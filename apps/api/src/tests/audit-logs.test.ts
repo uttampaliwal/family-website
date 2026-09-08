@@ -282,6 +282,11 @@ describe("audited actions", () => {
     );
     const photoId = await uploadObject(aliceSession, "photo");
 
+    // The upload itself is audited too.
+    const uploaded = await findLog(adminSession, "PHOTO_UPLOADED");
+    expect(uploaded).toBeDefined();
+    expect(uploaded!.targetId).toBe(photoId);
+
     const res = await app.request(`/api/photos/${photoId}`, {
       method: "DELETE",
       headers: headers(aliceSession.accessToken),
@@ -335,6 +340,30 @@ describe("audited actions", () => {
     expect(log!.details).toMatchObject({
       url: expect.stringContaining("/api/shared/documents/"),
     });
+  });
+
+  it("records post creation and deletion", async () => {
+    const created = await app.request("/api/posts", {
+      method: "POST",
+      headers: headers(aliceSession.accessToken),
+      body: JSON.stringify({ body: "Audit moment" }),
+    });
+    expect(created.status).toBe(200);
+    const postId = ((await created.json()) as { post: { id: string } }).post.id;
+
+    const createdLog = await findLog(adminSession, "POST_CREATED");
+    expect(createdLog).toBeDefined();
+    expect(createdLog!.targetId).toBe(postId);
+
+    const deleted = await app.request(`/api/posts/${postId}`, {
+      method: "DELETE",
+      headers: headers(aliceSession.accessToken),
+    });
+    expect(deleted.status).toBe(200);
+
+    const deletedLog = await findLog(adminSession, "POST_DELETED");
+    expect(deletedLog).toBeDefined();
+    expect(deletedLog!.targetId).toBe(postId);
   });
 });
 
