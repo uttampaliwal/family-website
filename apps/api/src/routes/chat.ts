@@ -114,23 +114,18 @@ chatRoutes.post("/rooms/:id/read", async (c) => {
   const roomId = parseObjectIdParam(c);
 
   const room = await findRoom(roomId);
-  await Room.updateOne(
-    { _id: room._id, "readBy.userId": userId },
+  const viewerId = new mongoose.Types.ObjectId(userId);
+
+  // Atomic read-state: update the existing entry, else insert guarded by a
+  // $ne filter so concurrent first-reads cannot create duplicate entries.
+  const updated = await Room.updateOne(
+    { _id: room._id, "readBy.userId": viewerId },
     { $set: { "readBy.$.at": new Date() } },
   );
-  if (
-    room.readBy.findIndex((entry) => entry.userId.toString() === userId) === -1
-  ) {
+  if (updated.matchedCount === 0) {
     await Room.updateOne(
-      { _id: room._id },
-      {
-        $push: {
-          readBy: {
-            userId: new mongoose.Types.ObjectId(userId),
-            at: new Date(),
-          },
-        },
-      },
+      { _id: room._id, "readBy.userId": { $ne: viewerId } },
+      { $push: { readBy: { userId: viewerId, at: new Date() } } },
     );
   }
 
