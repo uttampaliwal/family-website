@@ -1,19 +1,20 @@
 import { Button } from "@family/ui";
 import { Loader2 } from "lucide-react";
-import { api } from "../../lib/api-client.js";
-import { AuthCard } from "../../components/auth/auth-card.js";
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { useSeo } from "../../lib/seo.js";
+import { Link } from "react-router-dom";
+import { AuthCard } from "../../components/auth/auth-card.js";
 import { useI18n } from "../../i18n/index.js";
+import { api } from "../../lib/api-client.js";
+import { useSeo } from "../../lib/seo.js";
+import { tokenFromHash } from "../../lib/url-token.js";
 
 type State = "verifying" | "error" | "success";
 
 export function VerifyEmailPage() {
   useSeo("auth.verify.title");
   const { t } = useI18n();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token") ?? "";
+  // Single-use token from the URL fragment (never in query strings/logs).
+  const [token] = useState(() => tokenFromHash());
   const [state, setState] = useState<State>("verifying");
 
   useEffect(() => {
@@ -34,7 +35,13 @@ export function VerifyEmailPage() {
   return (
     <AuthCard
       title={t("verify.title")}
-      description={state === "success" ? t("verify.description.success") : state === "error" ? t("verify.description.error") : t("verify.description.pending")}
+      description={
+        state === "success"
+          ? t("verify.description.success")
+          : state === "error"
+            ? t("verify.description.error")
+            : t("verify.description.pending")
+      }
     >
       <div className="space-y-4 text-sm leading-relaxed text-muted">
         {state === "verifying" && (
@@ -45,9 +52,7 @@ export function VerifyEmailPage() {
         )}
         {state === "success" && (
           <>
-            <p>
-              {t("verify.success.message")}
-            </p>
+            <p>{t("verify.success.message")}</p>
             <Button asChild className="w-full">
               <Link to="/login">{t("verify.success.action")}</Link>
             </Button>
@@ -55,9 +60,7 @@ export function VerifyEmailPage() {
         )}
         {state === "error" && (
           <>
-            <p>
-              {t("verify.error.message")}
-            </p>
+            <p>{t("verify.error.message")}</p>
             <Button asChild className="w-full">
               <Link to="/resend-verification">{t("verify.error.action")}</Link>
             </Button>

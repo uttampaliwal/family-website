@@ -66,6 +66,15 @@ photosRoutes.post(
     });
     recordUploadUsage(userId, size);
 
+    await recordAudit({
+      actorId: userId,
+      action: "PHOTO_UPLOADED",
+      targetType: "photo",
+      targetId: photo._id.toString(),
+      details: { key: photo.key, mimeType: photo.mimeType, size: photo.size },
+      ...clientInfo(c),
+    });
+
     return c.json({
       photo: await toPhotoPayload(
         await findPopulatedPhoto(photo._id.toString()),
