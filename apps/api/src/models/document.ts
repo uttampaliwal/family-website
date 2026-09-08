@@ -10,6 +10,8 @@ export interface DocumentDocument extends Document {
   shareToken?: string;
   /** Client-computed SHA-256 of the stored bytes (reconciliation). */
   sha256?: string;
+  /** Soft delete (Trash): set instead of removing the row. */
+  deletedAt?: Date;
   uploadedBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -30,6 +32,7 @@ const documentSchema = new mongoose.Schema<DocumentDocument>(
     // Single revocable public share link per document.
     shareToken: { type: String, default: undefined },
     sha256: { type: String, default: undefined },
+    deletedAt: { type: Date, default: undefined },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
