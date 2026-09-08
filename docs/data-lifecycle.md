@@ -127,31 +127,45 @@ potential data loss at any point.**
 ### Mongo (Atlas M0)
 
 Atlas M0 (free) has **no automated backup / no point-in-time restore**. Take
-manual physical backups with `mongodump --archive --gzip`.
+automated encrypted snapshots with `apps/api/scripts/backup.sh`
+(`mongodump --archive --gzip` → AES-256-CBC via openssl, passphrase in
+`BACKUP_PASSPHRASE`), run nightly by `.github/workflows/backup.yml`
+(00:30 UTC cron + manual dispatch). Required secrets: `BACKUP_DATABASE_URL`,
+`BACKUP_PASSPHRASE`.
 
 | Schedule          | Retention policy | Purpose           |
 | ----------------- | ---------------- | ----------------- |
-| nightly 00:30 UTC | last 7 d         | rolling window    |
-| weekly (Sat)      | last 4           | past month        |
+| nightly 00:30 UTC | last 14 d        | rolling window    |
+| weekly (Sat)      | last 8           | past two months   |
 | monthly (1st)     | last 12          | long-term archive |
 
 ```bash
-mongodump --uri "$DATABASE_URL" --archive="kulaya-$(date +%F).gz" --gzip
+DATABASE_URL='...' BACKUP_PASSPHRASE='...' bash apps/api/scripts/backup.sh
+# restore:
+openssl enc -d -aes-256-cbc -pbkdf2 -pass env:BACKUP_PASSPHRASE \
+  -in kulaya-2026-09-08.archive.gz.enc \
+  | mongorestore --uri "$DATABASE_URL" --archive --gzip
 ```
 
-Store the archive files off-box (an rclone destination or another storage
-provider). `mongorestore --archive` restores these dumps to a fresh match.
+Store the passphrase in the family password manager — an encrypted archive
+without its passphrase is as good as no backup. `mongorestore --archive`
+restores these dumps to a fresh match.
 
 ### R2 (photos & documents)
 
 R2 provides **no versioning on the free tier and no cross-region failover** —
-the bucket is a single point of failure. Requirement: **a mirrored copy in a
-second location via rclone.**
+the bucket is a single point of failure. Requirement: **a retained copy in a
+second location** — additive copies, never a plain `sync` mirror (a mirror
+propagates an accidental delete into the "backup").
 
 ```bash
-rclone sync r2:kulaya-photos/photos    backup:kulaya-mirror/photos
-rclone sync r2:kulaya-photos/documents backup:kulaya-mirror/documents
+# additive only — deletes in primary must NOT propagate:
+rclone copy --update r2:kulaya-photos/photos    backup:kulaya-mirror/photos
+rclone copy --update r2:kulaya-photos/documents backup:kulaya-mirror/documents
 ```
+
+`backup.sh` runs this automatically when `R2_MIRROR` is set (e.g.
+`backup:kulaya-mirror`).
 
 Schedule the object sync **immediately after** the nightly `mongodump` so the
 metadata snapshot and object snapshot land close together (a metadata walk
@@ -175,12 +189,14 @@ half the archive.
 
 ```bash
 # 1. Database back (fresh cluster or restore-instance)
-mongorestore --archive=kulaya-2026-08-07.gz --gzip
-# 2. Object back
-rclone sync backup:kulaya-mirror/photos r2:kulaya-photos/photos
-rclone sync backup:kulaya-mirror/documents r2:kulaya-photos/documents
+openssl enc -d -aes-256-cbc -pbkdf2 -pass env:BACKUP_PASSPHRASE \
+  -in kulaya-2026-09-08.archive.gz.enc \
+  | mongorestore --uri "$DATABASE_URL" --archive --gzip
+# 2. Object back (additive copy back into primary)
+rclone copy backup:kulaya-mirror/photos r2:kulaya-photos/photos
+rclone copy backup:kulaya-mirror/documents r2:kulaya-photos/documents
 # 3. Verify
-curl -s ${WEB_ORIGIN}/api/health-check   # db: connected, ping: true
+curl -s ${WEB_ORIGIN}/api/ready # status: "ready"
 ```
 
 ### Scenario matrix
@@ -199,11 +215,11 @@ curl -s ${WEB_ORIGIN}/api/health-check   # db: connected, ping: true
 At least once per release (and before/after the deployment day milestone):
 
 1. Confirm `$DATABASE_URL` + all secrets are reachable (from the config backup).
-2. On a throwaway instance: `mongorestore` the latest dated archive.
-3. `rclone sync` object mirrors into a throwaway R2/object.
+2. On a throwaway instance: decrypt + `mongorestore` the latest dated archive.
+3. `rclone copy` object mirrors into a throwaway R2/object.
 4. Run the app pointed at the throwaway DB and browse a photo, a document, and
    a share link.
-5. `GET /api/health-check` → `ok`. Done.
+5. `GET /api/ready` → `"ready"`. Done.
 
 > Recovery without a tested path is optimism — run the drill, not the hope.
 
