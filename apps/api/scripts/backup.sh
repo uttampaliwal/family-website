@@ -3,7 +3,8 @@
 # Kulaya backup: MongoDB archive + R2 object copy, encrypted, retained.
 #
 # Usage:
-#   DATABASE_URL='...' BACKUP_PASSPHRASE='...' ./backup.sh
+#   export DATABASE_URL BACKUP_PASSPHRASE  # values from the family password manager
+#   ./backup.sh
 #
 # Inputs (env):
 #   DATABASE_URL        Atlas connection string (required)
