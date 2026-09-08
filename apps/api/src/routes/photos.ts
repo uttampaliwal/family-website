@@ -8,7 +8,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { clientInfo, recordAudit } from "../lib/audit.js";
 import { newPhotoKey, storage } from "../lib/storage.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -81,14 +81,16 @@ photosRoutes.get("/", async (c) => {
 
 photosRoutes.get("/:id", async (c) => {
   return c.json({
-    photo: await toPhotoPayload(await findPopulatedPhoto(c.req.param("id"))),
+    photo: await toPhotoPayload(
+      await findPopulatedPhoto(parseObjectIdParam(c)),
+    ),
   });
 });
 
 photosRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const photo = await Photo.findById(c.req.param("id"));
+  const photo = await Photo.findById(parseObjectIdParam(c));
   if (!photo) throw new AppError(404, "NOT_FOUND", "Photo not found");
 
   const user = await User.findById(userId, { role: 1 });
@@ -132,7 +134,9 @@ export async function toPhotoPayload(
   return {
     id: photo._id.toString(),
     key: photo.key,
-    url: await storage.getObjectUrl(photo.key),
+    // Gallery view URL: longer window than downloads — the grid stays open
+    // while family browses; downloads use the short default TTL.
+    url: await storage.getObjectUrl(photo.key, { expiresInSec: 60 * 60 }),
     mimeType: photo.mimeType as PhotoPayload["mimeType"],
     size: photo.size,
     caption: photo.caption ?? null,

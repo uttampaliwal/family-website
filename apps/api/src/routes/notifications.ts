@@ -6,6 +6,7 @@ import { streamSSE } from "hono/streaming";
 import { z } from "zod";
 import { logger } from "../lib/logger.js";
 import { subscribeNotifications } from "../lib/sse.js";
+import { parseObjectIdParam } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireApprovedAuth } from "../middleware/security.js";
 import { Notification } from "../models/notification.js";
@@ -85,7 +86,7 @@ notificationsRoutes.post("/read-all", async (c) => {
 notificationsRoutes.post("/:id/read", async (c) => {
   const userId = c.get("userId");
 
-  const notification = await Notification.findById(c.req.param("id"));
+  const notification = await Notification.findById(parseObjectIdParam(c));
   if (!notification)
     throw new AppError(404, "NOT_FOUND", "Notification not found");
   if (notification.recipientId.toString() !== userId) {
@@ -102,7 +103,7 @@ notificationsRoutes.post("/:id/read", async (c) => {
 notificationsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const notification = await Notification.findById(c.req.param("id"));
+  const notification = await Notification.findById(parseObjectIdParam(c));
   if (!notification)
     throw new AppError(404, "NOT_FOUND", "Notification not found");
   if (notification.recipientId.toString() !== userId) {

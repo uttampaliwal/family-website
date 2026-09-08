@@ -50,7 +50,13 @@ export interface DownloadOptions {
   /** Attachment filename; implies `Content-Disposition: attachment`. */
   filename?: string;
   contentType?: string;
+  /** Signed-URL lifetime in seconds. Downloads are short (10 min default);
+   * gallery view URLs pass a longer window explicitly. */
+  expiresInSec?: number;
 }
+
+/** Default signed-URL lifetime for downloads — bounds revoked-share replay. */
+export const DOWNLOAD_URL_TTL_SEC = 10 * 60;
 
 /** `Content-Disposition: attachment` with RFC 5987 encoding for non-ASCII. */
 export function contentDisposition(filename: string): string {
@@ -118,7 +124,9 @@ class R2Storage implements StorageBackend {
         : {}),
       ...(opts.contentType ? { ResponseContentType: opts.contentType } : {}),
     });
-    return getSignedUrl(this.client, command, { expiresIn: 60 * 60 });
+    return getSignedUrl(this.client, command, {
+      expiresIn: opts.expiresInSec ?? DOWNLOAD_URL_TTL_SEC,
+    });
   }
 
   async deleteObject(key: string): Promise<void> {

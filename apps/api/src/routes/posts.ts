@@ -7,7 +7,7 @@ import {
 import { Hono } from "hono";
 import mongoose from "mongoose";
 import { createNotification } from "../lib/notifications.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -37,7 +37,7 @@ postsRoutes.get("/", async (c) => {
 });
 
 postsRoutes.get("/:id", async (c) => {
-  const post = await findPopulated(c.req.param("id"));
+  const post = await findPopulated(parseObjectIdParam(c));
   return c.json({ post: toPostPayload(post, c.get("userId")) });
 });
 
@@ -58,7 +58,7 @@ postsRoutes.post(
 postsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const post = await Post.findById(c.req.param("id"));
+  const post = await Post.findById(parseObjectIdParam(c));
   if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
   await assertCanManage(post.createdBy.toString(), userId, "post");
@@ -71,7 +71,7 @@ postsRoutes.delete("/:id", async (c) => {
 postsRoutes.post("/:id/like", async (c) => {
   const userId = c.get("userId");
 
-  const post = await Post.findById(c.req.param("id"));
+  const post = await Post.findById(parseObjectIdParam(c));
   if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
   const likedAt = post.likedBy.findIndex((id) => id.toString() === userId);
@@ -108,7 +108,7 @@ postsRoutes.post(
     const userId = c.get("userId");
     const { body } = c.req.valid("json");
 
-    const post = await Post.findById(c.req.param("id"));
+    const post = await Post.findById(parseObjectIdParam(c));
     if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
     post.comments.push({
@@ -136,7 +136,7 @@ postsRoutes.post(
 postsRoutes.delete("/:id/comments/:commentId", async (c) => {
   const userId = c.get("userId");
 
-  const post = await Post.findById(c.req.param("id"));
+  const post = await Post.findById(parseObjectIdParam(c));
   if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
   const comment = post.comments.id(c.req.param("commentId"));

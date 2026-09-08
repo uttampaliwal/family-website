@@ -46,7 +46,10 @@ function headers(token?: string) {
   return h;
 }
 
-async function createUser(name: string, overrides: Record<string, unknown> = {}) {
+async function createUser(
+  name: string,
+  overrides: Record<string, unknown> = {},
+) {
   const passwordHash = await hashPassword("strong-password-123");
   return User.create({
     name,
@@ -68,7 +71,10 @@ async function signInAs(userId: string): Promise<Session> {
   const res = await app.request("/api/auth/login", {
     method: "POST",
     headers: headers(),
-    body: JSON.stringify({ email: user!.email, password: "strong-password-123" }),
+    body: JSON.stringify({
+      email: user!.email,
+      password: "strong-password-123",
+    }),
   });
   if (res.status !== 200) throw new Error(`login failed: ${res.status}`);
   const body = (await res.json()) as { accessToken: string };
@@ -88,7 +94,10 @@ async function uploadDocument(
     body: JSON.stringify({ name, mimeType, size: bytes.byteLength }),
   });
   expect(urlRes.status).toBe(200);
-  const { uploadUrl, key } = (await urlRes.json()) as { uploadUrl: string; key: string };
+  const { uploadUrl, key } = (await urlRes.json()) as {
+    uploadUrl: string;
+    key: string;
+  };
 
   const putRes = await app.request(uploadUrl, {
     method: "PUT",
@@ -100,7 +109,13 @@ async function uploadDocument(
   const createRes = await app.request("/api/documents", {
     method: "POST",
     headers: headers(session.accessToken),
-    body: JSON.stringify({ key, name, mimeType, size: bytes.byteLength, description: "Test doc" }),
+    body: JSON.stringify({
+      key,
+      name,
+      mimeType,
+      size: bytes.byteLength,
+      description: "Test doc",
+    }),
   });
   expect(createRes.status).toBe(200);
   const body = (await createRes.json()) as DocumentBody;
@@ -142,9 +157,13 @@ describe("documents routes", () => {
     const pending = await createUser("Degraded Archivist");
     const session = await signInAs(pending._id.toString());
 
-    await User.findByIdAndUpdate(pending._id, { adminApprovalStatus: "pending" });
+    await User.findByIdAndUpdate(pending._id, {
+      adminApprovalStatus: "pending",
+    });
 
-    const res = await app.request("/api/documents", { headers: headers(session.accessToken) });
+    const res = await app.request("/api/documents", {
+      headers: headers(session.accessToken),
+    });
     expect(res.status).toBe(403);
   });
 
@@ -152,7 +171,11 @@ describe("documents routes", () => {
     const res = await app.request("/api/documents/upload-url", {
       method: "POST",
       headers: headers(aliceSession.accessToken),
-      body: JSON.stringify({ name: "huge.zip", mimeType: "application/pdf", size: 26 * 1024 * 1024 }),
+      body: JSON.stringify({
+        name: "huge.zip",
+        mimeType: "application/pdf",
+        size: 26 * 1024 * 1024,
+      }),
     });
     expect(res.status).toBe(400);
   });
@@ -161,7 +184,11 @@ describe("documents routes", () => {
     const res = await app.request("/api/documents/upload-url", {
       method: "POST",
       headers: headers(aliceSession.accessToken),
-      body: JSON.stringify({ name: "evil.html", mimeType: "text/html", size: 100 }),
+      body: JSON.stringify({
+        name: "evil.html",
+        mimeType: "text/html",
+        size: 100,
+      }),
     });
     expect(res.status).toBe(400);
   });
@@ -190,7 +217,10 @@ describe("documents routes", () => {
   });
 
   it("sanitizes path separators out of file names", async () => {
-    const { name } = await uploadDocument(aliceSession, "../../../etc/passwd.pdf");
+    const { name } = await uploadDocument(
+      aliceSession,
+      "../../../etc/passwd.pdf",
+    );
     expect(name).toBe("passwd.pdf");
   });
 
@@ -221,13 +251,26 @@ describe("documents routes", () => {
     expect(res.status).toBe(200);
   });
 
-  it("serves a download redirect", async () => {
-    const { id } = await uploadDocument(bobSession, "notes.txt", new TextEncoder().encode("family notes"), "text/plain");
+  it("serves a short-lived download URL as JSON", async () => {
+    const { id } = await uploadDocument(
+      bobSession,
+      "notes.txt",
+      new TextEncoder().encode("family notes"),
+      "text/plain",
+    );
     const res = await app.request(`/api/documents/${id}/download`, {
       headers: headers(aliceSession.accessToken),
     });
-    expect(res.status).toBe(302);
-    expect(res.headers.get("location")).toContain("/api/uploads/documents/");
+    expect(res.status).toBe(200);
+    const { url } = (await res.json()) as { url: string };
+    expect(url).toContain("/api/uploads/documents/");
+  });
+
+  it("rejects download with an invalid id", async () => {
+    const res = await app.request("/api/documents/not-an-id/download", {
+      headers: headers(aliceSession.accessToken),
+    });
+    expect(res.status).toBe(400);
   });
 
   it("only the uploader or an admin can delete", async () => {

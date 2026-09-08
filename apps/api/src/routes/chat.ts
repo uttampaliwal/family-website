@@ -15,7 +15,7 @@ import {
   subscribeChat,
   subscriberCount,
 } from "../lib/sse.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -55,7 +55,7 @@ chatRoutes.post(
 );
 
 chatRoutes.get("/rooms/:id", async (c) => {
-  const room = await findRoom(c.req.param("id"));
+  const room = await findRoom(parseObjectIdParam(c));
   return c.json({
     room: await toRoomPayload(room._id.toString(), c.get("userId")),
   });
@@ -65,7 +65,7 @@ chatRoutes.get("/rooms/:id", async (c) => {
 
 /** Newest first; the client reverses for display. */
 chatRoutes.get("/rooms/:id/messages", async (c) => {
-  const roomId = c.req.param("id");
+  const roomId = parseObjectIdParam(c);
   await findRoom(roomId);
 
   const messages = (await ChatMessage.find({ roomId })
@@ -85,7 +85,7 @@ chatRoutes.post(
   validateBody(sendMessageRequestSchema),
   async (c) => {
     const userId = c.get("userId");
-    const roomId = c.req.param("id");
+    const roomId = parseObjectIdParam(c);
     const { body } = c.req.valid("json");
 
     await findRoom(roomId);
@@ -111,7 +111,7 @@ chatRoutes.post(
 
 chatRoutes.post("/rooms/:id/read", async (c) => {
   const userId = c.get("userId");
-  const roomId = c.req.param("id");
+  const roomId = parseObjectIdParam(c);
 
   const room = await findRoom(roomId);
   await Room.updateOne(

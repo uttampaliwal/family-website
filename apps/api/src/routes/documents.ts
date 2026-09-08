@@ -9,7 +9,7 @@ import { Hono } from "hono";
 import { randomBytes } from "node:crypto";
 import { clientInfo, recordAudit } from "../lib/audit.js";
 import { newDocumentKey, storage } from "../lib/storage.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -87,25 +87,28 @@ documentsRoutes.get("/", async (c) => {
 documentsRoutes.get("/:id", async (c) => {
   return c.json({
     document: await toDocumentPayload(
-      await findPopulatedDocument(c.req.param("id")),
+      await findPopulatedDocument(parseObjectIdParam(c)),
     ),
   });
 });
 
-/** Redirect to a signed storage URL that forces a download. */
+/** Authenticated download: returns a short-lived signed URL as JSON so the
+ * browser fetch (which carries the bearer token) can navigate to it. A bare
+ * `<a href>` cannot send Authorization headers, so this endpoint must NOT
+ * 302-redirect — the client navigates to the returned URL itself. */
 documentsRoutes.get("/:id/download", async (c) => {
-  const document = await KulayaDocument.findById(c.req.param("id")).lean();
+  const document = await KulayaDocument.findById(parseObjectIdParam(c)).lean();
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
   const url = await storage.getObjectUrl(document.key, {
     filename: document.name,
   });
-  return c.redirect(url, 302);
+  return c.json({ url });
 });
 
 documentsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(c.req.param("id"));
+  const document = await KulayaDocument.findById(parseObjectIdParam(c));
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);
@@ -129,7 +132,7 @@ documentsRoutes.delete("/:id", async (c) => {
 documentsRoutes.post("/:id/share", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(c.req.param("id"));
+  const document = await KulayaDocument.findById(parseObjectIdParam(c));
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);
@@ -158,7 +161,7 @@ documentsRoutes.post("/:id/share", async (c) => {
 documentsRoutes.delete("/:id/share", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(c.req.param("id"));
+  const document = await KulayaDocument.findById(parseObjectIdParam(c));
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);

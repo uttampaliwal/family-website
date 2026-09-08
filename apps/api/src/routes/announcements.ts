@@ -7,7 +7,7 @@ import { Hono } from "hono";
 import { buildEmailLink, sendMail } from "../lib/email.js";
 import { logger } from "../lib/logger.js";
 import { createNotification } from "../lib/notifications.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -43,7 +43,7 @@ announcementsRoutes.get("/", async (c) => {
 announcementsRoutes.get("/:id", async (c) => {
   return c.json({
     announcement: toAnnouncementPayload(
-      await findPopulatedAnnouncement(c.req.param("id")),
+      await findPopulatedAnnouncement(parseObjectIdParam(c)),
     ),
   });
 });
@@ -80,7 +80,7 @@ announcementsRoutes.patch(
   async (c) => {
     const input = c.req.valid("json");
 
-    const announcement = await Announcement.findById(c.req.param("id"));
+    const announcement = await Announcement.findById(parseObjectIdParam(c));
     if (!announcement)
       throw new AppError(404, "NOT_FOUND", "Announcement not found");
 
@@ -100,7 +100,7 @@ announcementsRoutes.delete(
   "/:id",
   requireCapability("publishAnnouncements"),
   async (c) => {
-    const announcement = await Announcement.findById(c.req.param("id"));
+    const announcement = await Announcement.findById(parseObjectIdParam(c));
     if (!announcement)
       throw new AppError(404, "NOT_FOUND", "Announcement not found");
 

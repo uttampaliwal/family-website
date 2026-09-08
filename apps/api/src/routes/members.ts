@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { toPublicMember } from "../lib/payloads.js";
 import { buildTree } from "../lib/tree.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireApprovedAuth } from "../middleware/security.js";
 import { User } from "../models/user.js";
@@ -65,7 +65,7 @@ membersRoutes.get("/tree", async (c) => {
 
 membersRoutes.get("/:id", async (c) => {
   const user = await User.findOne({
-    _id: c.req.param("id"),
+    _id: parseObjectIdParam(c),
     adminApprovalStatus: "approved",
   });
   if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
