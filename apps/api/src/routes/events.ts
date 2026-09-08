@@ -7,7 +7,7 @@ import {
 } from "@family/core";
 import { Hono } from "hono";
 import { broadcastToApprovedMembers } from "../lib/notifications.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -52,7 +52,7 @@ eventsRoutes.get("/", async (c) => {
 
 eventsRoutes.get("/:id", async (c) => {
   return c.json({
-    event: toEventPayload(await findPopulatedEvent(c.req.param("id"))),
+    event: toEventPayload(await findPopulatedEvent(parseObjectIdParam(c))),
   });
 });
 
@@ -97,7 +97,7 @@ eventsRoutes.patch(
     const userId = c.get("userId");
     const input = c.req.valid("json");
 
-    const event = await Event.findById(c.req.param("id"));
+    const event = await Event.findById(parseObjectIdParam(c));
     if (!event) throw new AppError(404, "NOT_FOUND", "Event not found");
 
     await assertCanManage(event, userId);
@@ -119,7 +119,7 @@ eventsRoutes.patch(
 eventsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const event = await Event.findById(c.req.param("id"));
+  const event = await Event.findById(parseObjectIdParam(c));
   if (!event) throw new AppError(404, "NOT_FOUND", "Event not found");
 
   await assertCanManage(event, userId);

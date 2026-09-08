@@ -8,8 +8,10 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { randomBytes } from "node:crypto";
 import { clientInfo, recordAudit } from "../lib/audit.js";
+import { confirmStoredUpload } from "../lib/file-type.js";
+import { checkUploadQuota, recordUploadUsage } from "../lib/quotas.js";
 import { newDocumentKey, storage } from "../lib/storage.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -31,6 +33,8 @@ documentsRoutes.post(
   async (c) => {
     const { mimeType, size } = c.req.valid("json");
 
+    await checkUploadQuota(c.get("userId"), size);
+
     const key = newDocumentKey(mimeType);
     const uploadUrl = await storage.requestUploadUrl({ key, mimeType, size });
 
@@ -45,13 +49,13 @@ documentsRoutes.post(
   validateBody(createDocumentRequestSchema),
   async (c) => {
     const userId = c.get("userId");
-    const { key, name, mimeType, size, description } = c.req.valid("json");
+    const { key, name, mimeType, size, description, sha256 } = c.req.valid("json");
 
     const existing = await KulayaDocument.findOne({ key });
     if (existing)
       throw new AppError(409, "CONFLICT", "Document already registered");
 
-    await storage.confirmUpload(key, { mimeType, size });
+    await confirmStoredUpload(key, { mimeType, size });
 
     // Keep only the basename — never store path separators from uploads.
     const safeName = name.split(/[\\/]/).pop() ?? "document";
@@ -62,8 +66,10 @@ documentsRoutes.post(
       mimeType,
       size,
       description: description ?? undefined,
+      sha256: sha256 ?? undefined,
       uploadedBy: userId,
     });
+    recordUploadUsage(userId, size);
 
     return c.json({
       document: await toDocumentPayload(
@@ -87,25 +93,28 @@ documentsRoutes.get("/", async (c) => {
 documentsRoutes.get("/:id", async (c) => {
   return c.json({
     document: await toDocumentPayload(
-      await findPopulatedDocument(c.req.param("id")),
+      await findPopulatedDocument(parseObjectIdParam(c)),
     ),
   });
 });
 
-/** Redirect to a signed storage URL that forces a download. */
+/** Authenticated download: returns a short-lived signed URL as JSON so the
+ * browser fetch (which carries the bearer token) can navigate to it. A bare
+ * `<a href>` cannot send Authorization headers, so this endpoint must NOT
+ * 302-redirect — the client navigates to the returned URL itself. */
 documentsRoutes.get("/:id/download", async (c) => {
-  const document = await KulayaDocument.findById(c.req.param("id")).lean();
+  const document = await KulayaDocument.findById(parseObjectIdParam(c)).lean();
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
   const url = await storage.getObjectUrl(document.key, {
     filename: document.name,
   });
-  return c.redirect(url, 302);
+  return c.json({ url });
 });
 
 documentsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(c.req.param("id"));
+  const document = await KulayaDocument.findById(parseObjectIdParam(c));
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);
@@ -129,7 +138,7 @@ documentsRoutes.delete("/:id", async (c) => {
 documentsRoutes.post("/:id/share", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(c.req.param("id"));
+  const document = await KulayaDocument.findById(parseObjectIdParam(c));
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);
@@ -158,7 +167,7 @@ documentsRoutes.post("/:id/share", async (c) => {
 documentsRoutes.delete("/:id/share", async (c) => {
   const userId = c.get("userId");
 
-  const document = await KulayaDocument.findById(c.req.param("id"));
+  const document = await KulayaDocument.findById(parseObjectIdParam(c));
   if (!document) throw new AppError(404, "NOT_FOUND", "Document not found");
 
   await assertCanManage(document, userId);
@@ -201,6 +210,7 @@ export interface PopulatedDocument {
   size: number;
   description?: string;
   shareToken?: string;
+  sha256?: string;
   uploadedBy: { _id: { toString(): string }; name: string; username: string };
   createdAt: Date;
   updatedAt: Date;
@@ -215,6 +225,7 @@ export async function toDocumentPayload(
     mimeType: document.mimeType as DocumentPayload["mimeType"],
     size: document.size,
     description: document.description ?? null,
+    sha256: document.sha256 ?? null,
     uploadedBy: {
       id: document.uploadedBy._id.toString(),
       name: document.uploadedBy.name,

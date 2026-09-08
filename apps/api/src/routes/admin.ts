@@ -12,7 +12,7 @@ import { clientInfo, recordAudit } from "../lib/audit.js";
 import { createNotification } from "../lib/notifications.js";
 import { toAdminMember } from "../lib/payloads.js";
 import { assertValidParents } from "../lib/tree.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import { originCheck, requireCapability } from "../middleware/security.js";
 import { AuditLog, type AuditLogDocument } from "../models/audit-log.js";
@@ -116,7 +116,7 @@ adminRoutes.get(
   "/members/:id",
   requireCapability("manageMembers"),
   async (c) => {
-    const user = await User.findById(c.req.param("id"));
+    const user = await User.findById(parseObjectIdParam(c));
     if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
     return c.json({ member: toAdminMember(user) });
   },
@@ -129,7 +129,7 @@ adminRoutes.patch(
   async (c) => {
     const { status, role } = c.req.valid("json");
 
-    const user = await User.findById(c.req.param("id"));
+    const user = await User.findById(parseObjectIdParam(c));
     if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
     if (user._id.toString() === c.get("userId")) {
       throw new AppError(
@@ -218,7 +218,7 @@ adminRoutes.patch(
   async (c) => {
     const { parentIds } = c.req.valid("json");
 
-    const user = await User.findById(c.req.param("id"));
+    const user = await User.findById(parseObjectIdParam(c));
     if (!user) throw new AppError(404, "NOT_FOUND", "Member not found");
 
     await assertValidParents(user, parentIds);

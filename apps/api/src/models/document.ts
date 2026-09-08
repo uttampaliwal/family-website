@@ -1,5 +1,5 @@
-import mongoose, { type Document, type Model } from "mongoose";
 import { MAX_DOCUMENT_SIZE } from "@family/core";
+import mongoose, { type Document, type Model } from "mongoose";
 
 export interface DocumentDocument extends Document {
   key: string;
@@ -8,6 +8,8 @@ export interface DocumentDocument extends Document {
   size: number;
   description?: string;
   shareToken?: string;
+  /** Client-computed SHA-256 of the stored bytes (reconciliation). */
+  sha256?: string;
   uploadedBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -27,6 +29,7 @@ const documentSchema = new mongoose.Schema<DocumentDocument>(
     description: { type: String, default: undefined, maxlength: 500 },
     // Single revocable public share link per document.
     shareToken: { type: String, default: undefined },
+    sha256: { type: String, default: undefined },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

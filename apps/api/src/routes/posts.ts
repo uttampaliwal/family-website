@@ -7,7 +7,7 @@ import {
 import { Hono } from "hono";
 import mongoose from "mongoose";
 import { createNotification } from "../lib/notifications.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -37,7 +37,7 @@ postsRoutes.get("/", async (c) => {
 });
 
 postsRoutes.get("/:id", async (c) => {
-  const post = await findPopulated(c.req.param("id"));
+  const post = await findPopulated(parseObjectIdParam(c));
   return c.json({ post: toPostPayload(post, c.get("userId")) });
 });
 
@@ -58,7 +58,7 @@ postsRoutes.post(
 postsRoutes.delete("/:id", async (c) => {
   const userId = c.get("userId");
 
-  const post = await Post.findById(c.req.param("id"));
+  const post = await Post.findById(parseObjectIdParam(c));
   if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
   await assertCanManage(post.createdBy.toString(), userId, "post");
@@ -67,24 +67,26 @@ postsRoutes.delete("/:id", async (c) => {
   return c.json({ ok: true });
 });
 
-/** Toggle a like on the post. */
+/** Toggle a like on the post — atomic addToSet/pull, safe under concurrency. */
 postsRoutes.post("/:id/like", async (c) => {
   const userId = c.get("userId");
+  const postId = parseObjectIdParam(c);
 
-  const post = await Post.findById(c.req.param("id"));
-  if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
-
-  const likedAt = post.likedBy.findIndex((id) => id.toString() === userId);
-  let liked: boolean;
-  if (likedAt >= 0) {
-    post.likedBy.splice(likedAt, 1);
-    liked = false;
-  } else {
-    post.likedBy.push(new mongoose.Types.ObjectId(userId));
-    liked = true;
+  // Like only if not already liked (single atomic op — no read-modify-save).
+  const likeResult = await Post.updateOne(
+    { _id: postId, likedBy: { $ne: new mongoose.Types.ObjectId(userId) } },
+    { $addToSet: { likedBy: new mongoose.Types.ObjectId(userId) } },
+  );
+  const liked = likeResult.modifiedCount === 1;
+  if (!liked) {
+    await Post.updateOne(
+      { _id: postId, likedBy: new mongoose.Types.ObjectId(userId) },
+      { $pull: { likedBy: new mongoose.Types.ObjectId(userId) } },
+    );
   }
 
-  await post.save();
+  const post = await Post.findById(postId, { likedBy: 1, createdBy: 1 }).lean();
+  if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
   if (liked && post.createdBy.toString() !== userId) {
     const liker = await User.findById(userId, "name");
@@ -108,7 +110,7 @@ postsRoutes.post(
     const userId = c.get("userId");
     const { body } = c.req.valid("json");
 
-    const post = await Post.findById(c.req.param("id"));
+    const post = await Post.findById(parseObjectIdParam(c));
     if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
     post.comments.push({
@@ -136,7 +138,7 @@ postsRoutes.post(
 postsRoutes.delete("/:id/comments/:commentId", async (c) => {
   const userId = c.get("userId");
 
-  const post = await Post.findById(c.req.param("id"));
+  const post = await Post.findById(parseObjectIdParam(c));
   if (!post) throw new AppError(404, "NOT_FOUND", "Post not found");
 
   const comment = post.comments.id(c.req.param("commentId"));

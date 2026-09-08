@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { name, objectId } from "./common.js";
+import { name, objectId, sha256Hex } from "./common.js";
 
 export const documentMimeTypes = [
   "application/pdf",
@@ -37,6 +37,7 @@ export const uploadDocumentUrlRequestSchema = z.object({
     .int()
     .positive()
     .max(MAX_DOCUMENT_SIZE, "Documents can be at most 25 MB"),
+  sha256: sha256Hex.optional(),
 });
 
 export const createDocumentRequestSchema = z.object({
@@ -53,6 +54,7 @@ export const createDocumentRequestSchema = z.object({
     .trim()
     .max(500, "Descriptions can be at most 500 characters")
     .optional(),
+  sha256: sha256Hex.optional(),
 });
 
 export const documentUploaderSchema = z.object({
@@ -67,6 +69,7 @@ export const documentSchema = z.object({
   mimeType: documentMimeTypeSchema,
   size: z.number().int().positive(),
   description: z.string().nullable(),
+  sha256: z.string().nullable(),
   uploadedBy: documentUploaderSchema,
   /** Public share path (`/api/shared/documents/<token>`), or null. */
   shareUrl: z.string().nullable(),
@@ -79,7 +82,9 @@ export const documentListResponseSchema = z.object({
   total: z.number().int().nonnegative(),
 });
 
-export type UploadDocumentUrlRequest = z.infer<typeof uploadDocumentUrlRequestSchema>;
+export type UploadDocumentUrlRequest = z.infer<
+  typeof uploadDocumentUrlRequestSchema
+>;
 export type CreateDocumentInput = z.infer<typeof createDocumentRequestSchema>;
 export type Document = z.infer<typeof documentSchema>;
 export type DocumentListResponse = z.infer<typeof documentListResponseSchema>;

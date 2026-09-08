@@ -55,6 +55,28 @@ namespaced (`photos/`, `documents/`) inside the same bucket.
 Limits enforced by the API: photos ≤ 20 MB (jpeg/png/webp/gif/avif/heic),
 documents ≤ 25 MB (could vary by type — see `@family/core` schemas).
 
+6. **Bucket CORS (required):** the browser PUTs bytes directly to presigned
+   R2 URLs, which is cross-origin traffic. Without a CORS policy uploads
+   fail despite correct application code. In **R2 → your bucket → Settings →
+   CORS policy**, attach a policy scoped to the family domain only:
+
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://your-family-domain.example"],
+       "AllowedMethods": ["PUT", "GET", "HEAD"],
+       "AllowedHeaders": ["Content-Type"],
+       "ExposeHeaders": ["ETag"],
+       "MaxAgeSeconds": 3600
+     }
+   ]
+   ```
+
+   > CORS is **not** authentication here — it only controls which browser
+   > origins may make the cross-origin request. Authorization is the
+   > short-lived presigned URL itself (10-minute downloads, 15-minute
+   > uploads), issued only to signed-in, approved members.
+
 > Optional upgrade: connect a custom domain to the bucket to cache reads at
 > the edge. Not required on the free tier.
 

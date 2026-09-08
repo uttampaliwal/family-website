@@ -15,7 +15,7 @@ import {
   subscribeChat,
   subscriberCount,
 } from "../lib/sse.js";
-import { validateBody } from "../lib/validation.js";
+import { parseObjectIdParam, validateBody } from "../lib/validation.js";
 import { AppError } from "../middleware/error.js";
 import {
   originCheck,
@@ -55,7 +55,7 @@ chatRoutes.post(
 );
 
 chatRoutes.get("/rooms/:id", async (c) => {
-  const room = await findRoom(c.req.param("id"));
+  const room = await findRoom(parseObjectIdParam(c));
   return c.json({
     room: await toRoomPayload(room._id.toString(), c.get("userId")),
   });
@@ -65,7 +65,7 @@ chatRoutes.get("/rooms/:id", async (c) => {
 
 /** Newest first; the client reverses for display. */
 chatRoutes.get("/rooms/:id/messages", async (c) => {
-  const roomId = c.req.param("id");
+  const roomId = parseObjectIdParam(c);
   await findRoom(roomId);
 
   const messages = (await ChatMessage.find({ roomId })
@@ -85,7 +85,7 @@ chatRoutes.post(
   validateBody(sendMessageRequestSchema),
   async (c) => {
     const userId = c.get("userId");
-    const roomId = c.req.param("id");
+    const roomId = parseObjectIdParam(c);
     const { body } = c.req.valid("json");
 
     await findRoom(roomId);
@@ -111,26 +111,21 @@ chatRoutes.post(
 
 chatRoutes.post("/rooms/:id/read", async (c) => {
   const userId = c.get("userId");
-  const roomId = c.req.param("id");
+  const roomId = parseObjectIdParam(c);
 
   const room = await findRoom(roomId);
-  await Room.updateOne(
-    { _id: room._id, "readBy.userId": userId },
+  const viewerId = new mongoose.Types.ObjectId(userId);
+
+  // Atomic read-state: update the existing entry, else insert guarded by a
+  // $ne filter so concurrent first-reads cannot create duplicate entries.
+  const updated = await Room.updateOne(
+    { _id: room._id, "readBy.userId": viewerId },
     { $set: { "readBy.$.at": new Date() } },
   );
-  if (
-    room.readBy.findIndex((entry) => entry.userId.toString() === userId) === -1
-  ) {
+  if (updated.matchedCount === 0) {
     await Room.updateOne(
-      { _id: room._id },
-      {
-        $push: {
-          readBy: {
-            userId: new mongoose.Types.ObjectId(userId),
-            at: new Date(),
-          },
-        },
-      },
+      { _id: room._id, "readBy.userId": { $ne: viewerId } },
+      { $push: { readBy: { userId: viewerId, at: new Date() } } },
     );
   }
 

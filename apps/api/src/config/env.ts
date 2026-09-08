@@ -29,6 +29,19 @@ const envSchema = z.object({
   AUTH_REFRESH_TOKEN_TTL: z.string().default("30d"),
   AUTH_MAX_ACTIVE_SESSIONS: z.coerce.number().int().min(1).max(20).default(5),
 
+  // Upload quotas (P2): per-member daily budget + family ceiling.
+  UPLOAD_DAILY_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(200 * 1024 * 1024),
+  UPLOAD_DAILY_FILES: z.coerce.number().int().positive().default(100),
+  FAMILY_QUOTA_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(8 * 1024 * 1024 * 1024),
+
   // Email (Resend)
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Kulaya <noreply@kulaya.family>"),

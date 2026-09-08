@@ -1,14 +1,22 @@
 import type { Document } from "@family/core";
 import { can } from "@family/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Skeleton, useToast } from "@family/ui";
-import { ClipboardCopy, Download, FolderOpen, Link2Off, Trash2, Upload } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ClipboardCopy,
+  Download,
+  FolderOpen,
+  Link2Off,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuthStore } from "../stores/auth-store.js";
-import { api, API_BASE } from "../lib/api-client.js";
 import { useI18n } from "../i18n/index.js";
+import { api } from "../lib/api-client.js";
+import { sha256HexOf } from "../lib/file-hash.js";
 import { useSeo } from "../lib/seo.js";
+import { useAuthStore } from "../stores/auth-store.js";
 
 interface DocumentListResponse {
   items: Document[];
@@ -32,11 +40,13 @@ const MIME_LABELS: Record<string, string> = {
   "application/pdf": "PDF",
   "text/plain": "TXT",
   "application/msword": "DOC",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "DOCX",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "DOCX",
   "application/vnd.ms-excel": "XLS",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
   "application/vnd.ms-powerpoint": "PPT",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PPTX",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    "PPTX",
   "application/zip": "ZIP",
 };
 
@@ -56,10 +66,16 @@ export function DocumentsPage() {
 
   const upload = useMutation({
     mutationFn: async (file: File) => {
-      const { uploadUrl, key } = await api.post<{ uploadUrl: string; key: string }>(
-        "/documents/upload-url",
-        { name: file.name, mimeType: file.type, size: file.size },
-      );
+      const sha256 = await sha256HexOf(file);
+      const { uploadUrl, key } = await api.post<{
+        uploadUrl: string;
+        key: string;
+      }>("/documents/upload-url", {
+        name: file.name,
+        mimeType: file.type,
+        size: file.size,
+        sha256,
+      });
 
       const putRes = await fetch(uploadUrl, {
         method: "PUT",
@@ -74,6 +90,7 @@ export function DocumentsPage() {
         mimeType: file.type,
         size: file.size,
         description: description.trim() || undefined,
+        sha256,
       });
     },
     onSuccess: () => {
@@ -82,7 +99,9 @@ export function DocumentsPage() {
       toast("Document added to the nest", { variant: "success" });
     },
     onError: (error) => {
-      toast(error instanceof Error ? error.message : "Upload failed", { variant: "error" });
+      toast(error instanceof Error ? error.message : "Upload failed", {
+        variant: "error",
+      });
     },
   });
 
@@ -96,10 +115,13 @@ export function DocumentsPage() {
   });
 
   const share = useMutation({
-    mutationFn: (id: string) => api.post<{ url: string }>(`/documents/${id}/share`),
+    mutationFn: (id: string) =>
+      api.post<{ url: string }>(`/documents/${id}/share`),
     onSuccess: async (result) => {
       void queryClient.invalidateQueries({ queryKey: ["documents"] });
-      await navigator.clipboard.writeText(`${window.location.origin}${result.url}`);
+      await navigator.clipboard.writeText(
+        `${window.location.origin}${result.url}`,
+      );
       toast("Share link copied to the clipboard", { variant: "success" });
     },
     onError: () => toast("Couldn't create a share link", { variant: "error" }),
@@ -109,17 +131,39 @@ export function DocumentsPage() {
     mutationFn: (id: string) => api.delete(`/documents/${id}/share`),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["documents"] });
-      toast("Share link revoked", { variant: "success" });
+      toast("Share link revoked", { variant: "error" });
     },
-    onError: () => toast("Couldn't revoke the share link", { variant: "error" }),
+    onError: () =>
+      toast("Couldn't revoke the share link", { variant: "error" }),
   });
+
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  // Authenticated download: the API needs the bearer token, which a plain
+  // <a href> navigation cannot send — so fetch the short-lived signed URL
+  // first, then navigate to it.
+  async function onDownload(id: string, name: string) {
+    setDownloadingId(id);
+    try {
+      const { url } = await api.get<{ url: string }>(
+        `/documents/${id}/download`,
+      );
+      window.location.href = url;
+    } catch {
+      toast(`Couldn't download ${name}`, { variant: "error" });
+    } finally {
+      setDownloadingId(null);
+    }
+  }
 
   function onPickFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
     if (!ALLOWED_TYPES.has(file.type)) {
-      toast("Use a PDF, text, Word, Excel, PowerPoint, or ZIP file", { variant: "error" });
+      toast("Use a PDF, text, Word, Excel, PowerPoint, or ZIP file", {
+        variant: "error",
+      });
       return;
     }
     if (file.size > MAX_SIZE) {
@@ -133,9 +177,13 @@ export function DocumentsPage() {
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">{t("documents.heading")}</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">
+            {t("documents.heading")}
+          </h1>
           <p className="mt-1 text-sm text-muted">
-            {data ? `${data.total} document${data.total === 1 ? "" : "s"} in the archive` : "Papers, plans and keepsakes"}
+            {data
+              ? `${data.total} document${data.total === 1 ? "" : "s"} in the archive`
+              : "Papers, plans and keepsakes"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -153,7 +201,10 @@ export function DocumentsPage() {
             className="hidden"
             onChange={onPickFile}
           />
-          <Button onClick={() => fileInputRef.current?.click()} disabled={upload.isPending}>
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={upload.isPending}
+          >
             <Upload />
             {upload.isPending ? "Uploading…" : "Add document"}
           </Button>
@@ -177,7 +228,9 @@ export function DocumentsPage() {
       {data && data.items.length > 0 && (
         <ul className="mt-8 space-y-3">
           {data.items.map((doc) => {
-            const canManage = can(user?.role ?? "guest", "moderate") || user?.id === doc.uploadedBy.id;
+            const canManage =
+              can(user?.role ?? "guest", "moderate") ||
+              user?.id === doc.uploadedBy.id;
             return (
               <li
                 key={doc.id}
@@ -190,7 +243,8 @@ export function DocumentsPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate font-semibold">{doc.name}</p>
                     <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold text-muted">
-                      {MIME_LABELS[doc.mimeType] ?? doc.mimeType} · {formatBytes(doc.size)}
+                      {MIME_LABELS[doc.mimeType] ?? doc.mimeType} ·{" "}
+                      {formatBytes(doc.size)}
                     </span>
                     {doc.shareUrl && (
                       <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
@@ -199,26 +253,32 @@ export function DocumentsPage() {
                     )}
                   </div>
                   {doc.description && (
-                    <p className="mt-0.5 truncate text-sm text-muted">{doc.description}</p>
+                    <p className="mt-0.5 truncate text-sm text-muted">
+                      {doc.description}
+                    </p>
                   )}
                   <p className="mt-0.5 text-xs text-muted">
-                    <Link to={`/members/${doc.uploadedBy.id}`} className="hover:text-primary">
+                    <Link
+                      to={`/members/${doc.uploadedBy.id}`}
+                      className="hover:text-primary"
+                    >
                       {doc.uploadedBy.name}
                     </Link>
                     {" · "}
-                    {new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(doc.createdAt)}
+                    {new Intl.DateTimeFormat(undefined, {
+                      dateStyle: "medium",
+                    }).format(doc.createdAt)}
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-1.5">
                   <Button
                     variant="outline"
                     size="icon"
-                    asChild
                     aria-label={`Download ${doc.name}`}
+                    onClick={() => void onDownload(doc.id, doc.name)}
+                    disabled={downloadingId === doc.id}
                   >
-                    <a href={`${API_BASE}/documents/${doc.id}/download`}>
-                      <Download />
-                    </a>
+                    <Download />
                   </Button>
                   {canManage &&
                     (doc.shareUrl ? (

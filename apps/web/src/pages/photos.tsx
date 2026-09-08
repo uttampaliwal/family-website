@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/auth-store.js";
 import { api } from "../lib/api-client.js";
 import { encodePhoto } from "../lib/encode-image.js";
+import { sha256HexOf } from "../lib/file-hash.js";
 import { useI18n } from "../i18n/index.js";
 import { useSeo } from "../lib/seo.js";
 
@@ -36,9 +37,11 @@ export function PhotosPage() {
 
   const upload = useMutation({
     mutationFn: async (file: Blob) => {
+      // Hash the final bytes actually PUT to storage (post-encode).
+      const sha256 = await sha256HexOf(file);
       const { uploadUrl, key } = await api.post<{ uploadUrl: string; key: string }>(
         "/photos/upload-url",
-        { mimeType: file.type, size: file.size },
+        { mimeType: file.type, size: file.size, sha256 },
       );
 
       const putRes = await fetch(uploadUrl, {
@@ -53,6 +56,7 @@ export function PhotosPage() {
         mimeType: file.type,
         size: file.size,
         caption: caption.trim() || undefined,
+        sha256,
       });
     },
     onSuccess: () => {

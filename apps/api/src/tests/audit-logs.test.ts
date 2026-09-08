@@ -108,7 +108,11 @@ async function uploadObject(
   session: Session,
   kind: "photo" | "document",
 ): Promise<string> {
-  const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]);
+  // Bytes must match the declared type (server sniffs the signature).
+  const bytes =
+    kind === "photo"
+      ? new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])
+      : new TextEncoder().encode("%PDF-1.4 audit");
   const mimeType = kind === "photo" ? "image/jpeg" : "application/pdf";
   const name = kind === "photo" ? undefined : "tax_records.pdf";
 

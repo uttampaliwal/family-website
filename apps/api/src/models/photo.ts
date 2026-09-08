@@ -5,6 +5,8 @@ export interface PhotoDocument extends Document {
   mimeType: string;
   size: number;
   caption?: string;
+  /** Client-computed SHA-256 of the stored bytes (reconciliation). */
+  sha256?: string;
   uploadedBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +18,7 @@ const photoSchema = new mongoose.Schema<PhotoDocument>(
     mimeType: { type: String, required: true },
     size: { type: Number, required: true },
     caption: { type: String, maxlength: 200, default: undefined },
+    sha256: { type: String, default: undefined },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
