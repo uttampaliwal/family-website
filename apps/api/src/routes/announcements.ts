@@ -63,7 +63,8 @@ announcementsRoutes.post(
     });
 
     const author = await User.findById(userId, "name");
-    void notifyMembers(userId, author?.name ?? "", title);
+    // Awaited: readers must observe the notification once the 201 lands.
+    await notifyMembers(userId, author?.name ?? "", title);
 
     return c.json({
       announcement: toAnnouncementPayload(

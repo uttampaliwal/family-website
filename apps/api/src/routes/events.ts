@@ -77,7 +77,8 @@ eventsRoutes.post(
     });
 
     const author = await User.findById(userId, "name");
-    void broadcastToApprovedMembers(userId, {
+    // Awaited: readers must observe the notification once the 200 lands.
+    await broadcastToApprovedMembers(userId, {
       type: "event",
       actorId: userId,
       actorName: author?.name ?? "",
