@@ -1,5 +1,12 @@
 # P0 Baseline — Security Inventory (v1.0 Go-Live Plan)
 
+> **Historical snapshot** (2026-09-07 @ `feat/p0-baseline`). Items marked
+> **[GAP → P1]** were the plan at that time; P1–P3 hardening subsequently
+> merged to `main` (PRs #18–#21) and several GAP markers below are already
+> fixed in code (central `requireApprovedAuth`, request body limits,
+> `vercel.json` headers). Treat this file as an audit record, not current
+> truth — see `SECURITY.md` and `CHANGELOG.md` for the current state.
+
 Date: 2026-09-07. Commit: branch `feat/p0-baseline` off `main@4c6c898`.
 Runtime verified: **Node v24.20.0**, pnpm 11.20.0. All four gates green on Node 24
 (see §1). This document is the evidence-producing P0 baseline: endpoint

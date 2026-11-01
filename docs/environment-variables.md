@@ -12,11 +12,12 @@ Canonical templates: `.env.example` (root, overview) and
 
 | Variable                    | Required  | Default                                   | Notes                                                                                    |
 | --------------------------- | --------- | ----------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `PORT`                      | no        | `3000`                                    | Dev only; Vercel sets its own.                                                           |
+| `PORT`                      | no        | `3001`                                    | Dev only; Vercel sets its own. `env.ts` force-shifts `3000`→`3001` (Vite dev owns `:3000`); use `API_PORT` to override explicitly. |
+| `API_PORT`                  | no        | —                                         | Explicit final API port override, applied after the `PORT` shift. |
 | `NODE_ENV`                  | no        | `development`                             | `development` / `production` / `test`.                                                   |
 | `LOG_LEVEL`                 | no        | `info`                                    | pino level: `fatal`…`trace`.                                                             |
 | `DATABASE_URL`              | prod: yes | `mongodb://localhost:27017/family-portal` | Dev defaults to local Mongo; **production refuses to start without it**.                 |
-| `WEB_ORIGIN`                | no        | `http://localhost:5173`                   | Comma-separated allowed origins (CORS + origin check). Keep exact — no trailing slashes. |
+| `WEB_ORIGIN`                | no        | `http://localhost:3000`                   | Comma-separated allowed origins (CORS + origin check). Keep exact — no trailing slashes. Dev default is the Vite server on `:3000`, not the API port. |
 | `AUTH_ACCESS_TOKEN_SECRET`  | **yes**   | —                                         | ≥ 32 chars. Generate: `openssl rand -base64 48`.                                         |
 | `AUTH_REFRESH_TOKEN_SECRET` | **yes**   | —                                         | ≥ 32 chars, different from the access secret.                                            |
 | `AUTH_ACCESS_TOKEN_TTL`     | no        | `15m`                                     | `ms`-parseable duration.                                                                 |
@@ -28,6 +29,9 @@ Canonical templates: `.env.example` (root, overview) and
 | `R2_ACCESS_KEY_ID`          | no        | —                                         | R2 API token (Object Read & Write).                                                      |
 | `R2_SECRET_ACCESS_KEY`      | no        | —                                         | R2 API token secret.                                                                     |
 | `R2_BUCKET`                 | no        | `kulaya-photos`                           | Must exist and be private.                                                               |
+| `UPLOAD_DAILY_BYTES`        | no        | `209715200` (200 MB)                      | Per-member daily upload budget (P2 quota layer).                                         |
+| `UPLOAD_DAILY_FILES`        | no        | `100`                                     | Per-member daily file count cap.                                                         |
+| `FAMILY_QUOTA_BYTES`        | no        | `8589934592` (8 GB)                       | Whole-family storage ceiling enforced on uploads.                                        |
 | `ADMIN_EMAIL`               | no        | —                                         | Used only by `pnpm --filter @family/api seed-admin`.                                     |
 | `ADMIN_PASSWORD`            | no        | —                                         | Used only by `pnpm --filter @family/api seed-admin`.                                     |
 

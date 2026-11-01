@@ -10,20 +10,27 @@ CI runs the full suite on every push/PR (`pnpm test`).
 
 ## What's covered
 
-**API** (`apps/api/src/tests/*.test.ts`) — the strongest coverage: 125 tests
-today, end-to-end requests against a throwaway in-memory MongoDB
-(`mongodb-memory-server`). Each file:
+**API** (`apps/api/src/tests/*.test.ts`) — the strongest coverage: **18 test
+files, ~206 `it/test` cases** today, end-to-end requests against a throwaway
+in-memory MongoDB (`mongodb-memory-server`, binaries pre-warmed by global
+setup). Each file:
 
 1. Boots a fresh `MongoMemoryServer` + `createApp()` in `beforeAll`.
 2. Primes the CSRF cookie via `GET /api/auth/csrf-token`.
 3. Creates real users / admins (via `User.create` + `hashPassword`), signs in
    to get a Bearer token, and drives the HTTP surface exactly like the web app.
 
-Covered so far: auth & CSRF, members & tree, photos, events, announcements,
-documents, posts, chat, and notifications.
+Covered so far: auth & CSRF (incl. session-family refresh + `authVersion`),
+members & tree, admin approvals, photos (upload/validation/quotas), events,
+announcements, documents (checksum/magic-byte), shared token downloads, posts,
+chat (incl. read-state races), search + rule-based NL search, notifications,
+and live/ready health endpoints.
 
-**Web** (`apps/web/src/components/*.test.tsx`) — component-level smoke tests
-(currently the `Button` design-system primitive).
+**Web** (`apps/web/src/**` + `packages/*/src`) — Vitest component/logic
+tests: 7 web files (`button.test.tsx`, `search-bar.test.tsx`, `encode-image`,
+`file-hash`, `offline`, `url-token`, `virtual-window`) plus
+`packages/core/src/schemas/auth.test.ts` (~34 cases over the Zod contract
+schemas). No browser e2e yet (planned `v0.4.2` line in `docs/git-workflow.md`).
 
 ## Conventions for new API tests
 

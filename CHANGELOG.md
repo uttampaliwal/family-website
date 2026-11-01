@@ -4,6 +4,58 @@ All notable changes to Kulaya. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning follows
 [git-workflow.md](docs/git-workflow.md) (one PATCH tag per milestone).
 
+## [Unreleased]
+
+### Added (P3 — web security, PR #21, merged on `main` after v0.4.1)
+
+- CSP, `Referrer-Policy` and frame protections as response headers
+  (`apps/api/src/middleware/security.ts`).
+- CSRF fragment tokens and expanded audit-log coverage for auth events.
+- Notification fan-out for announcements/events is awaited server-side to
+  avoid announced-before-notified races (fix `5c36fb4`).
+
+## [v0.4.1] — 2026-09-08
+
+### Added (P2 — storage hardening, PR #20)
+
+- Authenticated, short-TTL download URLs with MongoDB ObjectId validation
+  (`b953946`).
+- Upload quotas: per-member daily bytes/files budget + whole-family storage
+  ceiling, enforced by `apps/api/src/lib/quotas.ts` (`682c615`).
+- Checksum + magic-byte content verification for uploads (`682c615`).
+- Atomic likes and race-free chat read-state (`2ad5b8c`).
+- Split `/live` and `/ready` health endpoints; fixed DB health check; R2 CORS
+  documentation (`d06b6fb`).
+
+## [v0.4.0] — 2026-09-07
+
+### Added
+
+- Central `requireApprovedAuth` middleware, `authVersion` invalidation, and
+  session-family refresh (P1, PR #19, `8199092`).
+- Memory-only web JWT handling, online-first sync, production config
+  invariants, request body/rate limits (P1, `1ed4259`).
+- Rule-based natural language search with birthday resolution and intent
+  parsing; empty-results suggestions (`c48034e`, `ba169d5`).
+- Virtualized list rendering, header lazy-loading/perf, entrance animations
+  (`6f44886`).
+- Client-side photo re-encode to WebP ≤ 2560 px before upload, with `sizes`
+  hint (`dc02f3f`).
+- Auth-form accessibility/i18n/consistency pass (`c49438b`); floating header
+  with mobile nav (`06245fb`); WCAG AA light-mode token contrast fix
+  (`382557e`); pointer cursor restore under Tailwind v4 preflight (`4f91ce4`).
+
+### Changed (P0 + tooling)
+
+- Repo-wide Node 24 pin + version policy, pino log redaction, dependency/env
+  baseline inventory (PR #18, `90e33bb`).
+- Dev port management (`PORT`/`API_PORT`) incl. API force-shift to `:3001`,
+  DB fallback helper, project metadata (`4c6c898`).
+- Fixed admin join-notification read race (`df466bb`); pre-warmed mongod
+  binary to remove parallel-worker download race in CI (`7c1f45f`); removed
+  duplicate pnpm pin so `packageManager` stays the source of truth
+  (`74ddd1a`).
+
 ## [v0.3.10] — 2026-08-07
 
 ### Added

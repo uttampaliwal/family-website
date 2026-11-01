@@ -1,0 +1,31 @@
+# Repo-native hooks (prettier is the formatting truth; eslint covers TS/TSX).
+# Run: pnpm dlx pre-commit install  (or: pipx install pre-commit && pre-commit install)
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude_types: [svg]
+      - id: end-of-file-fixer
+        exclude_types: [svg]
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+
+  - repo: local
+    hooks:
+      # shared ESLint (root eslint.config.mjs covers all workspaces)
+      - id: eslint
+        name: eslint (staged ts/tsx)
+        files: \.(ts|tsx)$
+        language: system
+        entry: pnpm exec eslint --no-warn-ignored
+        pass_filenames: true
+
+      # prettier with the root .prettierignore honored
+      - id: prettier
+        name: prettier
+        files: \.(ts|tsx|js|mjs|cjs|json|css|md|yml|yaml)$
+        language: system
+        entry: pnpm exec prettier --write --ignore-unknown
+        pass_filenames: true

@@ -54,10 +54,10 @@ cp apps/api/.env.example apps/api/.env.local   # fill in secrets (R2 optional)
 docker compose up -d        # isolated Mongo 7 container (recommended)
 # …or: mongod --dbpath ~/data/mongodb
 
-pnpm dev                    # API :3000 (tsx watch), web :5173 (proxied)
+pnpm dev                    # web :3000 (Vite, /api proxied), API :3001 (tsx watch)
 ```
 
-Open <http://localhost:5173>. First run:
+Open <http://localhost:3000>. First run:
 
 1. Register an account (anyone can request to join).
 2. Seed an admin, then approve yourself (or have the admin do it):

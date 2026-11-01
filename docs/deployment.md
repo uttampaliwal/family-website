@@ -116,17 +116,24 @@ documents ≤ 25 MB (could vary by type — see `@family/core` schemas).
 
 ### Server-Sent Events on serverless (read carefully)
 
-Chat and notifications stream via **SSE**. Vercel's Hobby plan caps function
-execution at **10 s** (default) unless you opt into streaming:
+Chat and notifications stream via **SSE**. The committed
+`apps/web/vercel.json` has **no `functions`/`maxDuration` entry** — under the
+Hobby plan default, serverless functions are capped (~10 s before streaming
+considerations, 60 s max configureable), so long-lived SSE streams are subject
+to truncation. If you need long streams, add (plan permitting):
 
 ```json
 // apps/web/vercel.json
 {
   "functions": {
-    "api/index.ts": { "maxDuration": 300 }
+    "api/index.ts": { "maxDuration": 60 }
   }
 }
 ```
+
+(Pro plans allow `maxDuration` up to 300 s.) Keep this block in sync with the
+real `apps/web/vercel.json` — drift here is how the file was previously
+mis-documented.
 
 Even with streaming enabled, long-lived connections are at the mercy of
 serverless warm/cold cycles. For an always-open family chat the robust
@@ -207,7 +214,7 @@ retention, deletion, export and recovery policy lives in
 ```bash
 cp apps/api/.env.example apps/api/.env.local   # fill in secrets (R2 optional)
 docker compose up -d                            # MongoDB 7 (or point DATABASE_URL at Atlas)
-pnpm dev                                       # API :3000, web :5173 (proxied)
+pnpm dev                                       # web :3000 (Vite, /api proxied), API :3001 (tsx watch)
 ```
 
 No R2 credentials → photos/documents are stored in `apps/api/uploads/`
