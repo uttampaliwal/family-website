@@ -43,4 +43,4 @@ docs/            architecture, deployment, security, threat-model, data-lifecycl
 - `apps/web/index.html` sets `noindex,nofollow` while sitemap/canonical imply an indexable site — launch decision.
 - No Playwright e2e yet; `packages/ui` lacks a `test` task; eslint lacks `react-hooks`/`jsx-a11y` plugins.
 - Static OG only (no OG image); 15 pages lack aria attributes.
-- `turbo.json globalDependencies: [".env"]` watches a file apps don't read (they use `.env.local`).
+- `turbo.json` `globalDependencies` previously watched a root `.env` nothing loads — fixed to `apps/api/.env.local` + `apps/web/.env.local`.

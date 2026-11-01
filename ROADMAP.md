@@ -10,5 +10,5 @@ Authoritative plan: **`docs/roadmap.md`** (milestones M1–M13 shipped; P0–P3 
 - [ ] `packages/ui`: add a `test` script (Turbo "test everywhere" currently has a hole) and, when doing so, wire `turbo.json` accordingly.
 - [ ] CHANGELOG automation: generate entries from mixed-commit history (or keep-a-changelog PR template) so `v0.4.x` drift doesn't recur.
 - [ ] Root OG image + richer `useSeo` coverage; aria sweep over the 15 pages currently bare (see ARCHITECTURE.md debts).
-- [ ] `turbo.json` `globalDependencies: [".env"]` → switch to `.env.local` (apps' actual convention) or drop the key.
+- [x] `turbo.json` `globalDependencies: [".env"]` fixed → now watches `apps/api/.env.local` + `apps/web/.env.local`, the files the apps actually load (`lib/load-env.ts` cwd-relative dotenv + Vite).
 - [ ] Confirm the stray AI-Studio artifact `metadata.json` removal is complete (deleted in the baseline cleanup — historical copies remain in git history only).
